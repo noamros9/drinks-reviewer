@@ -69,8 +69,17 @@ export default function DrinkTable({ category, drinks, onEdit }) {
 
   const sorted = [...drinks].sort((a, b) => {
     if (!sortKey) return 0;
-    const av = a[sortKey] ?? '';
-    const bv = b[sortKey] ?? '';
+    let av = a[sortKey] ?? '';
+    let bv = b[sortKey] ?? '';
+    if (sortKey === 'lastTasted') {
+      const toInt = (s) => {
+        if (!s) return 0;
+        const [d, m, y] = s.split('/');
+        return parseInt(y) * 10000 + parseInt(m) * 100 + parseInt(d);
+      };
+      av = toInt(av);
+      bv = toInt(bv);
+    }
     if (av < bv) return sortDir === 'asc' ? -1 : 1;
     if (av > bv) return sortDir === 'asc' ? 1 : -1;
     return 0;
