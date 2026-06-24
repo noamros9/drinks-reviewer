@@ -9,6 +9,7 @@ beforeEach(() => {
 
 test('renders all nav links', () => {
   render(<MemoryRouter><Header /></MemoryRouter>);
+  expect(screen.getByText('All')).toBeInTheDocument();
   expect(screen.getByText('Wine')).toBeInTheDocument();
   expect(screen.getByText('Beer')).toBeInTheDocument();
   expect(screen.getByText('Whiskey')).toBeInTheDocument();
