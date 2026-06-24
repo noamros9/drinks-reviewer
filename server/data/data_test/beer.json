@@ -1,0 +1,62 @@
+[
+  {
+    "id": "f6a7b8c9-d0e1-2345-f012-456789012345",
+    "brewery": "Weihenstephaner",
+    "name": "Hefeweissbier",
+    "style": "Wheat Beer",
+    "country": "Germany",
+    "abv": 5.4,
+    "lastTasted": "05/04/2024",
+    "lastRanking": 8,
+    "avgRanking": 8.1,
+    "notionLink": "https://notion.so/mock-6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c"
+  },
+  {
+    "id": "a7b8c9d0-e1f2-3456-0123-567890123456",
+    "brewery": "Guinness",
+    "name": "Draught",
+    "style": "Stout",
+    "country": "Ireland",
+    "abv": 4.2,
+    "lastTasted": "17/03/2024",
+    "lastRanking": 8,
+    "avgRanking": 7.8,
+    "notionLink": "https://notion.so/mock-7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d"
+  },
+  {
+    "id": "b8c9d0e1-f2a3-4567-1234-678901234567",
+    "brewery": "Duvel Moortgat",
+    "name": "Duvel",
+    "style": "Belgian Strong Ale",
+    "country": "Belgium",
+    "abv": 8.5,
+    "lastTasted": "20/02/2024",
+    "lastRanking": 8.5,
+    "avgRanking": 8.3,
+    "notionLink": "https://notion.so/mock-8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e"
+  },
+  {
+    "id": "c9d0e1f2-a3b4-5678-2345-789012345678",
+    "brewery": "Sierra Nevada",
+    "name": "Pale Ale",
+    "style": "American Pale Ale",
+    "country": "USA",
+    "abv": 5.6,
+    "lastTasted": "04/07/2024",
+    "lastRanking": 7,
+    "avgRanking": 7.5,
+    "notionLink": "https://notion.so/mock-9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f"
+  },
+  {
+    "id": "d0e1f2a3-b4c5-6789-3456-890123456789",
+    "brewery": "BrewDog",
+    "name": "Punk IPA",
+    "style": "IPA",
+    "country": "Scotland",
+    "abv": 5.6,
+    "lastTasted": "11/05/2024",
+    "lastRanking": 7.5,
+    "avgRanking": 7.8,
+    "notionLink": "https://notion.so/mock-0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a"
+  }
+]

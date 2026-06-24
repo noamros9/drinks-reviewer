@@ -1,0 +1,72 @@
+[
+  {
+    "id": "d6e7f8a9-b0c1-2345-9012-456789012345",
+    "drinkCategory": "Rum",
+    "distillery": "Ron Zacapa",
+    "name": "Sistema Solera 23",
+    "country": "Guatemala",
+    "style": "Solera",
+    "age": 23,
+    "abv": 40,
+    "lastTasted": "14/05/2024",
+    "lastRanking": 8.5,
+    "avgRanking": 8.4,
+    "notionLink": "https://notion.so/mock-6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a"
+  },
+  {
+    "id": "e7f8a9b0-c1d2-3456-0123-567890123456",
+    "drinkCategory": "Vodka",
+    "distillery": "Grey Goose",
+    "name": "Original",
+    "country": "France",
+    "style": "Plain",
+    "age": null,
+    "abv": 40,
+    "lastTasted": "28/02/2024",
+    "lastRanking": 7,
+    "avgRanking": 7.2,
+    "notionLink": "https://notion.so/mock-7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b"
+  },
+  {
+    "id": "f8a9b0c1-d2e3-4567-1234-678901234567",
+    "drinkCategory": "Liqueur",
+    "distillery": "Cointreau",
+    "name": "Original",
+    "country": "France",
+    "style": "Orange",
+    "age": null,
+    "abv": 40,
+    "lastTasted": "14/02/2024",
+    "lastRanking": 7.5,
+    "avgRanking": 7.5,
+    "notionLink": "https://notion.so/mock-8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c"
+  },
+  {
+    "id": "a9b0c1d2-e3f4-5678-2345-789012345678",
+    "drinkCategory": "Tequila",
+    "distillery": "Don Julio",
+    "name": "Reposado",
+    "country": "Mexico",
+    "style": "Reposado",
+    "age": null,
+    "abv": 38,
+    "lastTasted": "05/05/2024",
+    "lastRanking": 8,
+    "avgRanking": 8.0,
+    "notionLink": "https://notion.so/mock-9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d"
+  },
+  {
+    "id": "b0c1d2e3-f4a5-6789-3456-890123456789",
+    "drinkCategory": "Rum",
+    "distillery": "Diplomatico",
+    "name": "Reserva Exclusiva",
+    "country": "Venezuela",
+    "style": "Dark",
+    "age": 12,
+    "abv": 40,
+    "lastTasted": "19/04/2024",
+    "lastRanking": 8.5,
+    "avgRanking": 8.6,
+    "notionLink": "https://notion.so/mock-0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e"
+  }
+]

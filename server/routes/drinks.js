@@ -7,7 +7,7 @@ const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
 function dataDir() {
-  return process.env.DATA_DIR || path.join(__dirname, '../data');
+  return process.env.DATA_DIR || path.join(__dirname, '../data/data_test');
 }
 
 function readData(category) {
