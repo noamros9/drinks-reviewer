@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import { parse, format, isValid } from 'date-fns';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const FIELDS = {
   wine: [
@@ -124,7 +127,24 @@ export default function AdminPage() {
         {FIELDS[category].map(field => (
           <div key={field.key} className="form-group">
             <label htmlFor={field.key}>{field.label}</label>
-            {field.type === 'select' ? (
+            {field.type === 'date' ? (
+              <DatePicker
+                id={field.key}
+                selected={(() => {
+                  const d = parse(form[field.key] || '', 'dd/MM/yyyy', new Date());
+                  return isValid(d) ? d : null;
+                })()}
+                onChange={(date) =>
+                  setForm(prev => ({
+                    ...prev,
+                    [field.key]: date ? format(date, 'dd/MM/yyyy') : '',
+                  }))
+                }
+                dateFormat="dd/MM/yyyy"
+                placeholderText="dd/mm/yyyy"
+                className="date-picker-input"
+              />
+            ) : field.type === 'select' ? (
               <select
                 id={field.key}
                 name={field.key}
