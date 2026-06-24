@@ -4,7 +4,7 @@ A personal drinks review website for tracking wine, beer, whiskey, and other spi
 
 ## Stack
 
-- **Frontend**: React + Vite, React Router, CSS custom properties
+- **Frontend**: React + Vite, React Router, CSS custom properties, DM Sans + DM Serif Display (Google Fonts)
 - **Backend**: Node.js + Express
 - **Data**: JSON files (no database)
 
@@ -12,6 +12,7 @@ A personal drinks review website for tracking wine, beer, whiskey, and other spi
 
 - Browse reviews by category: Wine, Beer, Whiskey, Others
 - Sortable tables with category-specific fields per drink type
+- Bookmarks-inspired UI: frosted-glass nav, neutral Apple-style palette, DM Serif Display headings
 - Dark / light mode toggle (persisted across sessions)
 - Admin UI to add, edit, and delete entries
 - Date picker in dd/mm/yyyy format
