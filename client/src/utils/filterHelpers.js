@@ -28,16 +28,16 @@ export const DROPDOWN_CONFIGS = {
   ],
   beer: [
     { key: 'style',   label: 'Style' },
-    { key: 'country', label: 'Country', worldGroups: true },
+    { key: 'country', label: 'Country' },
   ],
   whiskey: [
     { key: 'style',   label: 'Style' },
-    { key: 'country', label: 'Country', worldGroups: true },
+    { key: 'country', label: 'Country' },
   ],
   others: [
     { key: 'drinkCategory', label: 'Category' },
     { key: 'style',         label: 'Style' },
-    { key: 'country',       label: 'Country', worldGroups: true },
+    { key: 'country',       label: 'Country' },
   ],
 };
 

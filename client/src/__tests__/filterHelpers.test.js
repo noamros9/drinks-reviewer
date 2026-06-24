@@ -130,6 +130,14 @@ test('buildDropdownOptions variety: emits individual grape names, not raw combos
   expect(special).toContain('Single Variety');
 });
 
+test('buildDropdownOptions country for beer: no Old/New World special options', () => {
+  const beer = (c) => ({ id: '1', brewery: 'B', name: 'N', style: 'IPA', country: c, abv: '5' });
+  const drinks = [beer('Germany'), beer('USA')];
+  const { special } = buildDropdownOptions(drinks, { key: 'country' });
+  expect(special).not.toContain('Old World');
+  expect(special).not.toContain('New World');
+});
+
 // ── OLD_WORLD / NEW_WORLD lists ───────────────────────────────────
 
 test('Israel is in OLD_WORLD', () => expect(OLD_WORLD).toContain('Israel'));
