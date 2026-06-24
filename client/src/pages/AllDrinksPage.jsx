@@ -1,7 +1,23 @@
 import { useEffect, useState } from 'react';
-import DrinkTable from '../components/DrinkTable';
+import DrinkTable, { COLUMNS } from '../components/DrinkTable';
+import ColumnPanel from '../components/ColumnPanel';
 
 const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
+const STORAGE_KEY = 'drinks_columns_all';
+
+function loadLayout() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const { order, hidden } = JSON.parse(raw);
+    return { order, hidden: new Set(hidden) };
+  } catch { return null; }
+}
+
+function saveLayout(layout) {
+  if (!layout) { localStorage.removeItem(STORAGE_KEY); return; }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ order: layout.order, hidden: [...layout.hidden] }));
+}
 
 function normalize(entries, category) {
   return entries.map(entry => ({
@@ -15,6 +31,7 @@ function normalize(entries, category) {
 export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [columnLayout, setColumnLayout] = useState(() => loadLayout());
 
   useEffect(() => {
     Promise.all(
@@ -23,6 +40,11 @@ export default function AllDrinksPage() {
       )
     ).then(results => setDrinks(results.flat())).catch(() => {});
   }, []);
+
+  const handleColumnLayoutChange = (next) => {
+    setColumnLayout(next);
+    saveLayout(next);
+  };
 
   const visible = filter === 'all'
     ? drinks
@@ -34,18 +56,30 @@ export default function AllDrinksPage() {
         <h1>All Drinks</h1>
         <span className="count-badge">{visible.length} {visible.length === 1 ? 'entry' : 'entries'}</span>
       </div>
-      <div className="category-tabs">
-        {FILTERS.map(f => (
-          <button
-            key={f}
-            className={filter === f ? 'active' : ''}
-            onClick={() => setFilter(f)}
-          >
-            {f.charAt(0).toUpperCase() + f.slice(1)}
-          </button>
-        ))}
+      <div className="all-page-toolbar">
+        <div className="category-tabs">
+          {FILTERS.map(f => (
+            <button
+              key={f}
+              className={filter === f ? 'active' : ''}
+              onClick={() => setFilter(f)}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+        <ColumnPanel
+          allColumns={COLUMNS['all']}
+          columnLayout={columnLayout}
+          onChange={handleColumnLayoutChange}
+        />
       </div>
-      <DrinkTable category="all" drinks={visible} />
+      <DrinkTable
+        category="all"
+        drinks={visible}
+        columnLayout={columnLayout}
+        onColumnLayoutChange={handleColumnLayoutChange}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
-const COLUMNS = {
+export const COLUMNS = {
   wine: [
     { key: 'producer',      label: 'Producer' },
     { key: 'seriesAndName', label: 'Name' },
@@ -63,11 +63,21 @@ const COLUMNS = {
   ],
 };
 
-export default function DrinkTable({ category, drinks, onEdit }) {
+export default function DrinkTable({ category, drinks, onEdit, columnLayout, onColumnLayoutChange }) {
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
+  const [dragKey, setDragKey] = useState(null);
+  const [dragOverKey, setDragOverKey] = useState(null);
+  const dragWidth = useRef(0);
 
-  const columns = COLUMNS[category] || [];
+  const allCols = COLUMNS[category] || [];
+  const colMap = Object.fromEntries(allCols.map(c => [c.key, c]));
+  const order = columnLayout?.order ?? allCols.map(c => c.key);
+  const hidden = columnLayout?.hidden ?? new Set();
+  const visibleCols = order.filter(k => !hidden.has(k)).map(k => colMap[k]).filter(Boolean);
+
+  const ensureLayout = () =>
+    columnLayout ?? { order: allCols.map(c => c.key), hidden: new Set() };
 
   const handleSort = (key) => {
     if (sortKey === key) {
@@ -76,6 +86,43 @@ export default function DrinkTable({ category, drinks, onEdit }) {
       setSortKey(key);
       setSortDir('asc');
     }
+  };
+
+  const getHeaderTransform = (key) => {
+    if (!dragKey || !dragOverKey || dragKey === dragOverKey) return undefined;
+    const keys = visibleCols.map(c => c.key);
+    const from = keys.indexOf(dragKey);
+    const to = keys.indexOf(dragOverKey);
+    const idx = keys.indexOf(key);
+    if (from < to && idx > from && idx <= to) return `translateX(-${dragWidth.current}px)`;
+    if (from > to && idx >= to && idx < from) return `translateX(${dragWidth.current}px)`;
+    return undefined;
+  };
+
+  const handleDragStart = (key, e) => { setDragKey(key); dragWidth.current = e.currentTarget.offsetWidth; };
+  const handleDragOver = (e, key) => { e.preventDefault(); setDragOverKey(key); };
+  const handleDragEnd = () => { setDragOverKey(null); setDragKey(null); };
+  const handleDrop = (targetKey) => {
+    setDragOverKey(null);
+    setDragKey(null);
+    if (!dragKey || dragKey === targetKey || !onColumnLayoutChange) return;
+    const lay = ensureLayout();
+    const newOrder = [...lay.order];
+    const fromIdx = newOrder.indexOf(dragKey);
+    const toIdx = newOrder.indexOf(targetKey);
+    if (fromIdx === -1 || toIdx === -1) return;
+    newOrder.splice(fromIdx, 1);
+    newOrder.splice(toIdx, 0, dragKey);
+    onColumnLayoutChange({ ...lay, order: newOrder });
+  };
+
+  const hideColumn = (e, key) => {
+    e.stopPropagation();
+    if (!onColumnLayoutChange) return;
+    const lay = ensureLayout();
+    const next = new Set(lay.hidden);
+    next.add(key);
+    onColumnLayoutChange({ ...lay, hidden: next });
   };
 
   const sorted = [...drinks].sort((a, b) => {
@@ -105,14 +152,28 @@ export default function DrinkTable({ category, drinks, onEdit }) {
       <table>
         <thead>
           <tr>
-            {columns.map(col => (
+            {visibleCols.map(col => (
               <th
                 key={col.key}
-                className="sortable"
+                className={`sortable${dragKey === col.key ? ' col-header-dragging' : ''}${dragOverKey === col.key ? ' col-drag-over' : ''}`}
+                style={{ transform: getHeaderTransform(col.key) }}
                 onClick={() => handleSort(col.key)}
+                draggable={!!onColumnLayoutChange}
+                onDragStart={e => handleDragStart(col.key, e)}
+                onDragOver={e => handleDragOver(e, col.key)}
+                onDrop={() => handleDrop(col.key)}
+                onDragEnd={handleDragEnd}
               >
                 {col.label}
                 {sortKey === col.key && (sortDir === 'asc' ? ' ↑' : ' ↓')}
+                {onColumnLayoutChange && (
+                  <button
+                    className="col-hide-btn"
+                    onClick={e => hideColumn(e, col.key)}
+                    title={`Hide ${col.label}`}
+                    data-testid={`col-hide-${col.key}`}
+                  >×</button>
+                )}
               </th>
             ))}
             {onEdit && <th>Actions</th>}
@@ -121,7 +182,7 @@ export default function DrinkTable({ category, drinks, onEdit }) {
         <tbody>
           {sorted.map(drink => (
             <tr key={drink.id}>
-              {columns.map(col => (
+              {visibleCols.map(col => (
                 <td key={col.key}>
                   {col.key === 'notionLink' && drink[col.key] ? (
                     <a href={drink[col.key]} target="_blank" rel="noopener noreferrer">↗ Open</a>

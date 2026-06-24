@@ -23,26 +23,33 @@ export const DROPDOWN_CONFIGS = {
   wine: [
     { key: 'wineCategory', label: 'Type' },
     { key: 'country',      label: 'Country',  worldGroups: true },
-    { key: 'variety',      label: 'Variety',  varietyGroups: true, partialMatch: true },
+    { key: 'variety',      label: 'Variety',  varietyGroups: true },
     { key: 'region',       label: 'Region' },
   ],
   beer: [
     { key: 'style',   label: 'Style' },
-    { key: 'country', label: 'Country', worldGroups: true },
+    { key: 'country', label: 'Country' },
   ],
   whiskey: [
     { key: 'style',   label: 'Style' },
-    { key: 'country', label: 'Country', worldGroups: true },
+    { key: 'country', label: 'Country' },
   ],
   others: [
     { key: 'drinkCategory', label: 'Category' },
     { key: 'style',         label: 'Style' },
-    { key: 'country',       label: 'Country', worldGroups: true },
+    { key: 'country',       label: 'Country' },
   ],
 };
 
-export const isBlend = (variety) =>
-  !!variety && (variety.includes('/') || variety.toLowerCase().includes('blend') || variety.includes(','));
+export function splitVarieties(variety) {
+  if (!variety) return [];
+  return variety
+    .split(/\s*[/,]\s*|\s+and\s+|\s+&\s+/i)
+    .map(v => v.trim())
+    .filter(Boolean);
+}
+
+export const isBlend = (variety) => splitVarieties(variety).length > 1;
 
 function matchCountry(country, selected) {
   if (selected.has(country)) return true;
@@ -53,10 +60,11 @@ function matchCountry(country, selected) {
 }
 
 function matchVariety(variety, selected) {
+  const grapes = splitVarieties(variety);
   for (const v of selected) {
-    if (v === 'Blend' && isBlend(variety)) return true;
-    if (v === 'Single Variety' && !isBlend(variety)) return true;
-    if (v !== 'Blend' && v !== 'Single Variety' && variety?.toLowerCase().includes(v.toLowerCase())) return true;
+    if (v === 'Blend' && grapes.length > 1) return true;
+    if (v === 'Single Variety' && grapes.length === 1) return true;
+    if (v !== 'Blend' && v !== 'Single Variety' && grapes.includes(v)) return true;
   }
   return false;
 }
@@ -74,7 +82,7 @@ export function matchesFilters(drink, activeFilters, category) {
 
     if (conf.key === 'country') {
       if (!matchCountry(drink.country, selected)) return false;
-    } else if (conf.varietyGroups || conf.partialMatch) {
+    } else if (conf.varietyGroups) {
       if (!matchVariety(drink[conf.key], selected)) return false;
     } else {
       if (!selected.has(drink[conf.key])) return false;
@@ -84,20 +92,24 @@ export function matchesFilters(drink, activeFilters, category) {
 }
 
 export function buildDropdownOptions(drinks, conf) {
-  const raw = [...new Set(drinks.map(d => d[conf.key]).filter(Boolean))].sort();
-
   const special = [];
+
   if (conf.worldGroups) {
     const countries = new Set(drinks.map(d => d.country).filter(Boolean));
     if ([...countries].some(c => OLD_WORLD.includes(c))) special.push('Old World');
     if ([...countries].some(c => NEW_WORLD.includes(c))) special.push('New World');
     if ([...countries].some(c => !OLD_WORLD.includes(c) && !NEW_WORLD.includes(c))) special.push('Other');
   }
+
   if (conf.varietyGroups) {
-    if (drinks.some(d => isBlend(d.variety)))    special.push('Blend');
-    if (drinks.some(d => !isBlend(d.variety)))   special.push('Single Variety');
+    if (drinks.some(d => isBlend(d[conf.key])))  special.push('Blend');
+    if (drinks.some(d => !isBlend(d[conf.key]))) special.push('Single Variety');
+    const allGrapes = new Set();
+    drinks.forEach(d => splitVarieties(d[conf.key]).forEach(g => allGrapes.add(g)));
+    return { special, options: [...allGrapes].sort() };
   }
 
+  const raw = [...new Set(drinks.map(d => d[conf.key]).filter(Boolean))].sort();
   return { special, options: raw };
 }
 
