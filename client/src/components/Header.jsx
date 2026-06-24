@@ -11,7 +11,7 @@ const NAV = [
 
 export default function Header() {
   const [theme, setTheme] = useState(
-    () => document.documentElement.getAttribute('data-theme') || 'dark'
+    () => document.documentElement.getAttribute('data-theme') || 'light'
   );
   const location = useLocation();
 
