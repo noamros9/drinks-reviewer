@@ -146,7 +146,7 @@ export default function AdminPage() {
                 placeholder={field.placeholder || ''}
                 min={field.type === 'number' ? 0 : undefined}
                 max={field.key.includes('Ranking') ? 10 : undefined}
-                step={field.key === 'abv' ? '0.1' : field.type === 'number' ? '1' : undefined}
+                step={field.type === 'number' ? '0.1' : undefined}
               />
             )}
           </div>
