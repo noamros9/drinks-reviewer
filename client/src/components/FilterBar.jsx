@@ -1,10 +1,11 @@
 import FilterDropdown from './FilterDropdown';
+import ColumnPanel from './ColumnPanel';
+import { COLUMNS } from './DrinkTable';
 import { DROPDOWN_CONFIGS, PRODUCER_FIELD, buildDropdownOptions } from '../utils/filterHelpers';
 
-export default function FilterBar({ category, drinks, activeFilters, onChange }) {
+export default function FilterBar({ category, drinks, activeFilters, onChange, columnLayout, onColumnLayoutChange }) {
   const configs = DROPDOWN_CONFIGS[category] || [];
   const producerLabel = { wine: 'Producer', beer: 'Brewery', whiskey: 'Distillery', others: 'Distillery' }[category] ?? 'Producer';
-  const producerField = PRODUCER_FIELD[category];
 
   const hasAnyFilter = activeFilters.producerSearch ||
     configs.some(c => activeFilters[c.key]?.size > 0);
@@ -43,6 +44,14 @@ export default function FilterBar({ category, drinks, activeFilters, onChange })
       })}
       {hasAnyFilter && (
         <button className="filter-clear-all" onClick={clearAll}>Clear all</button>
+      )}
+      <div className="filter-bar-spacer" />
+      {onColumnLayoutChange && (
+        <ColumnPanel
+          allColumns={COLUMNS[category] || []}
+          columnLayout={columnLayout}
+          onChange={onColumnLayoutChange}
+        />
       )}
     </div>
   );
