@@ -1,1 +1,46 @@
 # drinks-reviewer
+
+A personal drinks review website for tracking wine, beer, whiskey, and other spirits.
+
+## Stack
+
+- **Frontend**: React + Vite, React Router, CSS custom properties
+- **Backend**: Node.js + Express
+- **Data**: JSON files (no database)
+
+## Features
+
+- Browse reviews by category: Wine, Beer, Whiskey, Others
+- Sortable tables with category-specific fields per drink type
+- Dark / light mode toggle (persisted across sessions)
+- Admin UI to add, edit, and delete entries
+- Date picker in dd/mm/yyyy format
+- Ranking fields support decimal values (last ranking: 1 decimal, avg ranking: 2 decimals)
+- Notion link column opens the full tasting log in a new tab
+
+## Getting Started
+
+```bash
+npm install
+npm run dev
+```
+
+Client runs on `http://localhost:5173`, server on `http://localhost:3001`.
+
+## Data
+
+Sample data (5 entries per category) lives in `server/data/data_test/` and is loaded by default.
+
+To switch to real (empty) data for production use:
+
+```bash
+DATA_DIR=./server/data node server/index.js
+```
+
+## Testing
+
+```bash
+npm test
+```
+
+Runs Jest (API routes) + Vitest (React components). All code must pass tests before committing.

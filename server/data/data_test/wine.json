@@ -1,0 +1,72 @@
+[
+  {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "producer": "Château Margaux",
+    "seriesAndName": "Pavillon Rouge",
+    "wineCategory": "Red",
+    "variety": "Cabernet Sauvignon",
+    "country": "France",
+    "region": "Bordeaux",
+    "abv": 13.5,
+    "lastTasted": "15/03/2024",
+    "lastRanking": 9,
+    "avgRanking": 8.75,
+    "notionLink": "https://notion.so/mock-1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d"
+  },
+  {
+    "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+    "producer": "Cloudy Bay",
+    "seriesAndName": "Sauvignon Blanc",
+    "wineCategory": "White",
+    "variety": "Sauvignon Blanc",
+    "country": "New Zealand",
+    "region": "Marlborough",
+    "abv": 12.5,
+    "lastTasted": "22/05/2024",
+    "lastRanking": 8,
+    "avgRanking": 8.25,
+    "notionLink": "https://notion.so/mock-2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e"
+  },
+  {
+    "id": "c3d4e5f6-a7b8-9012-cdef-123456789012",
+    "producer": "Antinori",
+    "seriesAndName": "Tignanello",
+    "wineCategory": "Red",
+    "variety": "Sangiovese blend",
+    "country": "Italy",
+    "region": "Tuscany",
+    "abv": 14,
+    "lastTasted": "10/01/2024",
+    "lastRanking": 8.5,
+    "avgRanking": 8.5,
+    "notionLink": "https://notion.so/mock-3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f"
+  },
+  {
+    "id": "d4e5f6a7-b8c9-0123-def0-234567890123",
+    "producer": "Ruinart",
+    "seriesAndName": "Blanc de Blancs",
+    "wineCategory": "Sparkling",
+    "variety": "Chardonnay",
+    "country": "France",
+    "region": "Champagne",
+    "abv": 12.5,
+    "lastTasted": "31/12/2023",
+    "lastRanking": 9,
+    "avgRanking": 8.8,
+    "notionLink": "https://notion.so/mock-4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a"
+  },
+  {
+    "id": "e5f6a7b8-c9d0-1234-ef01-345678901234",
+    "producer": "Domaine Weinbach",
+    "seriesAndName": "Riesling Grand Cru",
+    "wineCategory": "White",
+    "variety": "Riesling",
+    "country": "France",
+    "region": "Alsace",
+    "abv": 12,
+    "lastTasted": "18/06/2024",
+    "lastRanking": 8,
+    "avgRanking": 8.2,
+    "notionLink": "https://notion.so/mock-5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b"
+  }
+]
