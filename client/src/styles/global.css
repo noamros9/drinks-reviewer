@@ -668,7 +668,9 @@ th:hover .col-hide-btn { opacity: 1; }
   background: var(--danger-bg);
 }
 
+th { transition: transform 0.18s ease; }
 th.col-drag-over { box-shadow: inset 2px 0 0 var(--accent); }
+th.col-header-dragging { opacity: 0.35; }
 
 /* ── Column panel ───────────────────────────────────────────────── */
 
