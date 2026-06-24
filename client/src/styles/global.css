@@ -679,10 +679,12 @@ th.col-drag-over { box-shadow: inset 2px 0 0 var(--accent); }
   align-items: center;
   gap: 0.5rem;
   padding: 0.35rem 0.75rem;
-  transition: background var(--transition);
+  transition: background var(--transition), transform 0.18s ease;
 }
 
 .col-panel-row:hover { background: var(--bg); }
+
+.col-panel-dragging { opacity: 0.35; }
 
 .col-panel-handle {
   color: var(--fg-faint);

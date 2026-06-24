@@ -1,9 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 
+const ROW_H = 36;
+
 export default function ColumnPanel({ allColumns, columnLayout, onChange }) {
   const [open, setOpen] = useState(false);
+  const [dragIndex, setDragIndex] = useState(null);
+  const [hoverIndex, setHoverIndex] = useState(null);
   const ref = useRef(null);
-  const dragKey = useRef(null);
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
@@ -26,18 +29,27 @@ export default function ColumnPanel({ allColumns, columnLayout, onChange }) {
     onChange({ ...lay, hidden: next });
   };
 
-  const handleDragStart = (key) => { dragKey.current = key; };
-  const handleDrop = (targetKey) => {
-    if (!dragKey.current || dragKey.current === targetKey) return;
-    const lay = ensureLayout();
-    const newOrder = [...lay.order];
-    const fromIdx = newOrder.indexOf(dragKey.current);
-    const toIdx = newOrder.indexOf(targetKey);
-    if (fromIdx === -1 || toIdx === -1) return;
-    newOrder.splice(fromIdx, 1);
-    newOrder.splice(toIdx, 0, dragKey.current);
-    onChange({ ...lay, order: newOrder });
-    dragKey.current = null;
+  const getTransform = (idx) => {
+    if (dragIndex === null || hoverIndex === null || dragIndex === hoverIndex) return undefined;
+    if (dragIndex < hoverIndex && idx > dragIndex && idx <= hoverIndex) return `translateY(-${ROW_H}px)`;
+    if (dragIndex > hoverIndex && idx >= hoverIndex && idx < dragIndex) return `translateY(${ROW_H}px)`;
+    return undefined;
+  };
+
+  const handleDragStart = (idx) => setDragIndex(idx);
+  const handleDragEnter = (idx) => setHoverIndex(idx);
+  const handleDragEnd = () => { setDragIndex(null); setHoverIndex(null); };
+
+  const handleDrop = (targetIdx) => {
+    if (dragIndex !== null && dragIndex !== targetIdx) {
+      const lay = ensureLayout();
+      const newOrder = [...lay.order];
+      const [moved] = newOrder.splice(dragIndex, 1);
+      newOrder.splice(targetIdx, 0, moved);
+      onChange({ ...lay, order: newOrder });
+    }
+    setDragIndex(null);
+    setHoverIndex(null);
   };
 
   return (
@@ -53,17 +65,21 @@ export default function ColumnPanel({ allColumns, columnLayout, onChange }) {
       </button>
       {open && (
         <div className="filter-dropdown-menu col-panel-menu">
-          {order.map(key => {
+          {order.map((key, idx) => {
             const col = colMap[key];
             if (!col) return null;
+            const tf = getTransform(idx);
             return (
               <div
                 key={key}
-                className="col-panel-row"
+                className={`col-panel-row${dragIndex === idx ? ' col-panel-dragging' : ''}`}
+                style={{ transform: tf }}
                 draggable
-                onDragStart={() => handleDragStart(key)}
+                onDragStart={() => handleDragStart(idx)}
+                onDragEnter={() => handleDragEnter(idx)}
                 onDragOver={e => e.preventDefault()}
-                onDrop={() => handleDrop(key)}
+                onDrop={() => handleDrop(idx)}
+                onDragEnd={handleDragEnd}
                 data-testid={`col-panel-row-${key}`}
               >
                 <span className="col-panel-handle">⠿</span>
