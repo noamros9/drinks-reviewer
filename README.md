@@ -30,13 +30,9 @@ Client runs on `http://localhost:5173`, server on `http://localhost:3001`.
 
 ## Data
 
-Sample data (5 entries per category) lives in `server/data/data_test/` and is loaded by default.
+Real data (73 wine, 57 beer, 18 whiskey, 5 others) lives in `server/data/` and is loaded by default.
 
-To switch to real (empty) data for production use:
-
-```bash
-DATA_DIR=./server/data node server/index.js
-```
+Sample/test data lives in `server/data/data_test/` and is used by the test suite automatically.
 
 ## Testing
 
