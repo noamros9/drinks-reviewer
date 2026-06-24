@@ -50,6 +50,17 @@ const COLUMNS = {
     { key: 'avgRanking',    label: 'Avg' },
     { key: 'notionLink',    label: 'Notion' },
   ],
+  all: [
+    { key: '_category',   label: 'Category' },
+    { key: '_producer',   label: 'Producer' },
+    { key: 'name',        label: 'Name' },
+    { key: 'country',     label: 'Country' },
+    { key: 'abv',         label: 'ABV' },
+    { key: 'lastTasted',  label: 'Last Tasted' },
+    { key: 'lastRanking', label: 'Last' },
+    { key: 'avgRanking',  label: 'Avg' },
+    { key: 'notionLink',  label: 'Notion' },
+  ],
 };
 
 export default function DrinkTable({ category, drinks, onEdit }) {
@@ -104,7 +115,7 @@ export default function DrinkTable({ category, drinks, onEdit }) {
                 {sortKey === col.key && (sortDir === 'asc' ? ' ↑' : ' ↓')}
               </th>
             ))}
-            <th>Actions</th>
+            {onEdit && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -119,9 +130,11 @@ export default function DrinkTable({ category, drinks, onEdit }) {
                   )}
                 </td>
               ))}
-              <td>
-                <button className="btn-edit" onClick={() => onEdit(drink)}>Edit</button>
-              </td>
+              {onEdit && (
+                <td>
+                  <button className="btn-edit" onClick={() => onEdit(drink)}>Edit</button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

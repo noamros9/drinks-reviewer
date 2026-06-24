@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 
 const NAV = [
+  { path: '/all', label: 'All' },
   { path: '/wine', label: 'Wine' },
   { path: '/beer', label: 'Beer' },
   { path: '/whiskey', label: 'Whiskey' },

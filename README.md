@@ -10,6 +10,7 @@ A personal drinks review website for tracking wine, beer, whiskey, and other spi
 
 ## Features
 
+- Browse all drinks at once on the All page, with category filter chips
 - Browse reviews by category: Wine, Beer, Whiskey, Others
 - Sortable tables with category-specific fields per drink type
 - Bookmarks-inspired UI: frosted-glass nav, neutral Apple-style palette, DM Serif Display headings
