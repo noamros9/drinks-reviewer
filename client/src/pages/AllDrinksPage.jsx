@@ -79,6 +79,7 @@ export default function AllDrinksPage() {
             </button>
           ))}
         </div>
+        <span className="toolbar-divider">|</span>
         <FilterDropdown
           label="Country"
           options={countryOptions}
@@ -87,6 +88,7 @@ export default function AllDrinksPage() {
           counts={countryCounts}
           onChange={setCountryFilter}
         />
+        <div className="filter-bar-spacer" />
         <ColumnPanel
           allColumns={COLUMNS['all']}
           columnLayout={columnLayout}

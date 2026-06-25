@@ -733,7 +733,12 @@ th.col-header-dragging { opacity: 0.35; }
   margin-bottom: 0;
   padding-bottom: 0;
   border-bottom: none;
-  flex: 1;
+}
+
+.toolbar-divider {
+  color: var(--fg-faint);
+  font-size: 0.85rem;
+  user-select: none;
 }
 
 .form-actions {
