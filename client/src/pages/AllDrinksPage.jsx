@@ -4,6 +4,7 @@ import ColumnPanel from '../components/ColumnPanel';
 import FilterDropdown from '../components/FilterDropdown';
 import AbvFilter from '../components/AbvFilter';
 import { buildDropdownOptions, countOptions, matchesFilters } from '../utils/filterHelpers';
+import './AllDrinksPage.css';
 
 const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 const STORAGE_KEY = 'drinks_columns_all';

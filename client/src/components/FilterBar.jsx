@@ -3,6 +3,7 @@ import AbvFilter from './AbvFilter';
 import ColumnPanel from './ColumnPanel';
 import { COLUMNS } from './DrinkTable';
 import { DROPDOWN_CONFIGS, PRODUCER_FIELD, buildDropdownOptions, countOptions } from '../utils/filterHelpers';
+import './FilterBar.css';
 
 export default function FilterBar({ category, drinks, activeFilters, onChange, columnLayout, onColumnLayoutChange }) {
   const configs = DROPDOWN_CONFIGS[category] || [];

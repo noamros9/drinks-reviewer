@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import { parse, format, isValid } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
+import './AdminPage.css';
 
 const FIELDS = {
   wine: [

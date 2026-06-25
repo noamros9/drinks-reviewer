@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import './ColumnPanel.css';
 
 const ROW_H = 36;
 
