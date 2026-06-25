@@ -779,15 +779,37 @@ th.col-header-dragging { opacity: 0.35; }
 }
 
 /* ── Wine color indicators ── */
-td.wine-type-red       { border-left: 3px solid #c97070; }
-td.wine-type-white     { border-left: 3px solid #c9a84c; }
-td.wine-type-rose      { border-left: 3px solid #d4909a; }
-td.wine-type-sparkling { border-left: 3px solid #90afc4; }
-td.wine-type-fortified { border-left: 3px solid #b87d4a; }
+td.wine-type-red,
+td.wine-type-white,
+td.wine-type-rose,
+td.wine-type-sparkling,
+td.wine-type-fortified,
+td.wine-country-old-world,
+td.wine-country-new-world,
+td.wine-country-other { position: relative; }
 
-td.wine-country-old-world { border-left: 3px solid #8b9e6e; }
-td.wine-country-new-world { border-left: 3px solid #d4a44c; }
-td.wine-country-other     { border-left: 3px solid #a0a0a0; }
+td.wine-type-red          { --wine-color: #c94040; }
+td.wine-type-white        { --wine-color: #c99020; }
+td.wine-type-rose         { --wine-color: #d45878; }
+td.wine-type-sparkling    { --wine-color: #4898c8; }
+td.wine-type-fortified    { --wine-color: #b06028; }
+td.wine-country-old-world { --wine-color: #5c9048; }
+td.wine-country-new-world { --wine-color: #d09020; }
+td.wine-country-other     { --wine-color: #888888; }
+
+td[class*="wine-type-"]::before,
+td[class*="wine-country-"]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 55%;
+  background: var(--wine-color);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px 2px var(--wine-color);
+}
 
 /* ── Animations ── */
 @keyframes fadeUp {
