@@ -45,7 +45,8 @@ Sample/test data lives in `server/data/data_test/` and is used by the test suite
 ## Testing
 
 ```bash
-npm test
+npm test          # Jest (API routes) + Vitest (React components)
+npm run test:coverage  # Vitest with v8 coverage — must reach 100% on all metrics
 ```
 
-Runs Jest (API routes) + Vitest (React components). All code must pass tests before committing.
+All code must pass tests before committing. The project enforces 100% statement, branch, function, and line coverage on all React source files.
