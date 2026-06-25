@@ -1,4 +1,4 @@
-import { matchesFilters, buildDropdownOptions, countOptions, splitVarieties, isBlend, OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
+import { matchesFilters, buildDropdownOptions, countOptions, splitVarieties, isBlend, buildInitialFilters, OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
 
 const wine = (overrides) => ({
   id: '1', producer: 'TestProd', wineCategory: 'Red', variety: 'Cabernet Sauvignon',
@@ -219,8 +219,60 @@ test('countOptions: varietyGroups — counts Blend, Single Variety, and individu
   expect(counts['Chardonnay']).toBe(1);
 });
 
+// ── matchesFilters – simple (non-country, non-variety) filter ────
+
+test('wineCategory filter excludes non-matching type', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(['Red']), country: new Set(), variety: new Set(), region: new Set(), abvMin: '', abvMax: '' };
+  expect(matchesFilters(wine({ wineCategory: 'White' }), filters, 'wine')).toBe(false);
+});
+
+test('wineCategory filter passes matching type', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(['Red']), country: new Set(), variety: new Set(), region: new Set(), abvMin: '', abvMax: '' };
+  expect(matchesFilters(wine({ wineCategory: 'Red' }), filters, 'wine')).toBe(true);
+});
+
+test('abv: drink with NaN abv is not excluded by abv filter', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set(), abvMin: '10', abvMax: '15' };
+  expect(matchesFilters(wine({ abv: '' }), filters, 'wine')).toBe(true);
+});
+
+// ── countOptions – worldGroups Other branch ───────────────────────
+
+test('countOptions worldGroups: country in neither OLD nor NEW is counted as Other', () => {
+  const drinks = [wine({ country: 'UnknownLand' })];
+  const conf = { key: 'country', label: 'Country', worldGroups: true };
+  const counts = countOptions(drinks, conf, noFilters, 'wine');
+  expect(counts['Other']).toBe(1);
+  expect(counts['UnknownLand']).toBe(1);
+});
+
 // ── OLD_WORLD / NEW_WORLD lists ───────────────────────────────────
 
 test('Israel is in OLD_WORLD', () => expect(OLD_WORLD).toContain('Israel'));
 test('Australia is in NEW_WORLD', () => expect(NEW_WORLD).toContain('Australia'));
 test('USA is in NEW_WORLD', () => expect(NEW_WORLD).toContain('USA'));
+
+// ── matchesFilters – unknown category ────────────────────────────
+
+test('matchesFilters: unknown category with no producerSearch passes (|| [] fallback)', () => {
+  const filters = { producerSearch: '', abvMin: '', abvMax: '' };
+  expect(matchesFilters(wine(), filters, 'unknown')).toBe(true);
+});
+
+test('matchesFilters: unknown category with producerSearch hits ?? fallback for producerField', () => {
+  // PRODUCER_FIELD['unknown'] = undefined → drink[undefined] = undefined → ?? '' = ''
+  // '' does not include 'xyz' → returns false
+  const filters = { producerSearch: 'xyz', abvMin: '', abvMax: '' };
+  expect(matchesFilters(wine(), filters, 'unknown')).toBe(false);
+});
+
+// ── buildInitialFilters – unknown category ────────────────────────
+
+test('buildInitialFilters: unknown category returns base fields only (|| [] fallback)', () => {
+  const filters = buildInitialFilters('unknown');
+  expect(filters.producerSearch).toBe('');
+  expect(filters.abvMin).toBe('');
+  expect(filters.abvMax).toBe('');
+  // No dropdown keys should be added
+  expect(Object.keys(filters)).toEqual(['producerSearch', 'abvMin', 'abvMax']);
+});

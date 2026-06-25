@@ -64,3 +64,80 @@ test('does not show Edit button (no onEdit prop)', async () => {
   await screen.findByText('Grand Cru');
   expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument();
 });
+
+test('country filter narrows visible entries', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-dropdown-country'));
+  fireEvent.click(screen.getByRole('checkbox', { name: /france/i }));
+  await waitFor(() => {
+    expect(screen.getByText('Grand Cru')).toBeInTheDocument();
+    expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument();
+  });
+});
+
+test('loads column layout from localStorage', async () => {
+  const { COLUMNS } = await import('../components/DrinkTable');
+  localStorage.setItem('drinks_columns_all', JSON.stringify({
+    order: COLUMNS.all.map(c => c.key),
+    hidden: ['abv'],
+  }));
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  expect(screen.queryByRole('columnheader', { name: /^abv$/i })).not.toBeInTheDocument();
+});
+
+test('loadLayout falls back to null on invalid JSON in localStorage', async () => {
+  localStorage.setItem('drinks_columns_all', 'INVALID_JSON');
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  // Should render fine with default layout (no crash)
+  expect(screen.getByTestId('column-panel-btn')).toBeInTheDocument();
+});
+
+test('column layout change is saved to localStorage', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('column-panel-btn'));
+  fireEvent.click(screen.getByTestId('col-toggle-abv'));
+  expect(localStorage.getItem('drinks_columns_all')).not.toBeNull();
+  expect(JSON.parse(localStorage.getItem('drinks_columns_all')).hidden).toContain('abv');
+});
+
+test('entry with no producer/brewery/distillery shows em-dash in Producer column', async () => {
+  const NO_PRODUCER = { id: 'x1', name: 'Mystery Drink', country: 'France', abv: '12',
+    lastTasted: '01/01/2025', lastRanking: '7', avgRanking: '7', notionLink: '' };
+  global.fetch = vi.fn((url) => {
+    const data = url.includes('wine') ? [NO_PRODUCER] : [];
+    return Promise.resolve({ json: () => Promise.resolve(data) });
+  });
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  expect(await screen.findByText('Mystery Drink')).toBeInTheDocument();
+  expect(screen.getAllByText('—').length).toBeGreaterThan(0);
+});
+
+test('abv filter onChange lambda updates filter state', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-abv'));
+  fireEvent.change(screen.getByTestId('abv-min'), { target: { value: '10' } });
+  expect(screen.getByTestId('filter-abv')).toHaveClass('active');
+});
+
+test('handles fetch error gracefully (catch branch)', async () => {
+  global.fetch = vi.fn(() => Promise.reject(new Error('network error')));
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await waitFor(() => {
+    expect(screen.getByText('0 entries')).toBeInTheDocument();
+  });
+});
+
+test('resetting columns removes localStorage entry', async () => {
+  const ALL_KEYS = ['_category', '_producer', 'name', 'country', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink'];
+  localStorage.setItem('drinks_columns_all', JSON.stringify({ order: ALL_KEYS, hidden: ['abv'] }));
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('column-panel-btn'));
+  fireEvent.click(screen.getByText('Reset to default'));
+  expect(localStorage.getItem('drinks_columns_all')).toBeNull();
+});

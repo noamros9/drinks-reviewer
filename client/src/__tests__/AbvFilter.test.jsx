@@ -57,3 +57,23 @@ test('clear button not shown when no values set', () => {
   openPanel();
   expect(screen.queryByText('Clear filter')).not.toBeInTheDocument();
 });
+
+test('shows range with only max set', () => {
+  renderAbv('', '14');
+  expect(screen.getByTestId('filter-abv')).toHaveTextContent('ABV 0–14%');
+});
+
+test('mousedown outside closes the panel', () => {
+  renderAbv();
+  openPanel();
+  expect(screen.getByTestId('abv-min')).toBeInTheDocument();
+  fireEvent.mouseDown(document.body);
+  expect(screen.queryByTestId('abv-min')).not.toBeInTheDocument();
+});
+
+test('changing max input calls onChange', () => {
+  const onChange = renderAbv('', '');
+  openPanel();
+  fireEvent.change(screen.getByTestId('abv-max'), { target: { value: '14' } });
+  expect(onChange).toHaveBeenCalledWith({ abvMin: '', abvMax: '14' });
+});
