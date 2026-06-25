@@ -24,11 +24,12 @@ function saveLayout(layout) {
 }
 
 function normalize(entries, category) {
+  if (!Array.isArray(entries)) return [];
   return entries.map(entry => ({
     ...entry,
     _category: category.charAt(0).toUpperCase() + category.slice(1),
     _producer: entry.producer ?? entry.brewery ?? entry.distillery ?? '—',
-    name: entry.seriesAndName ?? entry.name,
+    name: entry.seriesAndName || entry.name || '',
   }));
 }
 
@@ -43,9 +44,12 @@ export default function AllDrinksPage() {
   useEffect(() => {
     Promise.all(
       ['wine', 'beer', 'whiskey', 'others'].map(cat =>
-        fetch(`/api/${cat}`).then(r => r.json()).then(data => normalize(data, cat))
+        fetch(`/api/${cat}`)
+          .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+          .then(data => normalize(data, cat))
+          .catch(() => [])
       )
-    ).then(results => setDrinks(results.flat())).catch(() => {});
+    ).then(results => setDrinks(results.flat()));
   }, []);
 
   const handleColumnLayoutChange = (next) => {

@@ -13,7 +13,7 @@ beforeEach(() => {
       : url.includes('beer') ? [BEER_ENTRY]
       : url.includes('whiskey') ? [WHISKEY_ENTRY]
       : [OTHERS_ENTRY];
-    return Promise.resolve({ json: () => Promise.resolve(data) });
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
   });
 });
 
@@ -109,7 +109,7 @@ test('entry with no producer/brewery/distillery shows em-dash in Producer column
     lastTasted: '01/01/2025', lastRanking: '7', avgRanking: '7', notionLink: '' };
   global.fetch = vi.fn((url) => {
     const data = url.includes('wine') ? [NO_PRODUCER] : [];
-    return Promise.resolve({ json: () => Promise.resolve(data) });
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
   });
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
   expect(await screen.findByText('Mystery Drink')).toBeInTheDocument();
@@ -130,6 +130,35 @@ test('handles fetch error gracefully (catch branch)', async () => {
   await waitFor(() => {
     expect(screen.getByText('0 entries')).toBeInTheDocument();
   });
+});
+
+test('per-fetch ok:false falls back to empty array, other categories still load', async () => {
+  global.fetch = vi.fn((url) => {
+    if (url.includes('wine')) return Promise.resolve({ ok: false });
+    const data = url.includes('beer') ? [BEER_ENTRY]
+      : url.includes('whiskey') ? [WHISKEY_ENTRY] : [OTHERS_ENTRY];
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
+  });
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  expect(await screen.findByText('Pale Ale')).toBeInTheDocument();
+  expect(screen.queryByText('Grand Cru')).not.toBeInTheDocument();
+});
+
+test('normalize returns empty array for non-array response', async () => {
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ error: 'bad' }) }));
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await waitFor(() => expect(screen.getByText('0 entries')).toBeInTheDocument());
+});
+
+test('entry with no name and no seriesAndName uses empty string fallback', async () => {
+  const NO_NAME = { id: 'n1', producer: 'NoName Co', country: 'France', abv: '12', lastTasted: '', lastRanking: '7', avgRanking: '7', notionLink: '' };
+  global.fetch = vi.fn((url) =>
+    url.includes('wine')
+      ? Promise.resolve({ ok: true, json: () => Promise.resolve([NO_NAME]) })
+      : Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
+  );
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await waitFor(() => expect(screen.getByText('1 entry')).toBeInTheDocument());
 });
 
 test('resetting columns removes localStorage entry', async () => {

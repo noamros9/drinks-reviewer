@@ -140,6 +140,39 @@ test('sorting by lastTasted uses date comparison', () => {
   expect(rows[1]).toHaveTextContent('Zara');
 });
 
+test('sorting by abv uses numeric comparison: NaN→0 and valid→numeric, both branches covered', () => {
+  // 3 rows so sort compares (Alpha,Zara) and (Alpha,Beta), covering parseFloat truthy AND falsy for both av and bv
+  const rowsForNumericSort = [
+    { ...SORT_ROWS[1], abv: '12', id: '2' },  // Alpha: parseFloat('12') = 12 (truthy)
+    { ...SORT_ROWS[0], abv: '', id: '1' },     // Zara: parseFloat('') = NaN → 0 (falsy)
+    { id: '3', producer: 'Beta', seriesAndName: 'B-Wine', wineCategory: 'Red', variety: 'Merlot',
+      country: 'France', region: '', abv: '', lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '' },
+  ];
+  render(<DrinkTable category="wine" drinks={rowsForNumericSort} />);
+  fireEvent.click(screen.getByRole('columnheader', { name: /abv/i }));
+  const rows = screen.getAllByRole('row');
+  // Ascending: 0 (Zara), 0 (Beta), 12 (Alpha) — Alpha is last
+  expect(rows[rows.length - 1]).toHaveTextContent('Alpha');
+});
+
+test('columnLayout.hidden as undefined (not Set, not Array) falls back to empty Set', () => {
+  const layout = { order: COLUMNS.wine.map(c => c.key), hidden: undefined };
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} columnLayout={layout} />);
+  expect(screen.getByRole('columnheader', { name: /producer/i })).toBeInTheDocument();
+});
+
+test('columnLayout=null treats hidden as absent and shows all columns', () => {
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} columnLayout={null} />);
+  expect(screen.getByRole('columnheader', { name: /producer/i })).toBeInTheDocument();
+});
+
+test('columnLayout.hidden as plain array is converted to Set (Array.isArray branch)', () => {
+  const layout = { order: COLUMNS.wine.map(c => c.key), hidden: ['variety'] };
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} columnLayout={layout} />);
+  expect(screen.queryByRole('columnheader', { name: /variety/i })).not.toBeInTheDocument();
+  expect(screen.getByRole('columnheader', { name: /producer/i })).toBeInTheDocument();
+});
+
 test('null drink field renders as em dash', () => {
   const rowWithNull = [{ id: '1', producer: 'Test', seriesAndName: null, wineCategory: 'Red',
     variety: 'Merlot', country: 'France', region: null, abv: '13', lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '' }];

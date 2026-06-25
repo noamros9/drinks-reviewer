@@ -9,7 +9,7 @@ const FIELDS = {
   wine: [
     { key: 'producer',      label: 'Producer',              type: 'text' },
     { key: 'seriesAndName', label: 'Series & Name',          type: 'text' },
-    { key: 'wineCategory',  label: 'Wine Type',              type: 'select', options: ['Red', 'White', 'Rosé', 'Sparkling'] },
+    { key: 'wineCategory',  label: 'Wine Type',              type: 'select', options: ['Red', 'White', 'Rosé', 'Sparkling', 'Fortified'] },
     { key: 'variety',       label: 'Variety',                type: 'text' },
     { key: 'country',       label: 'Country of Origin',      type: 'text' },
     { key: 'region',        label: 'Region / Appellation',   type: 'text' },
@@ -90,11 +90,15 @@ export default function AdminPage() {
     e.preventDefault();
     const url = isEditing ? `/api/${category}/${form.id}` : `/api/${category}`;
     const method = isEditing ? 'PUT' : 'POST';
-    await fetch(url, {
+    const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
+    if (!res.ok) {
+      setMessage('Save failed. Please try again.');
+      return;
+    }
     if (!isEditing) {
       setForm(emptyForm(category));
     }
@@ -103,7 +107,11 @@ export default function AdminPage() {
 
   const handleDelete = async () => {
     if (!window.confirm('Delete this entry?')) return;
-    await fetch(`/api/${category}/${form.id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/${category}/${form.id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      setMessage('Delete failed. Please try again.');
+      return;
+    }
     navigate(`/${category}`);
   };
 
@@ -150,7 +158,7 @@ export default function AdminPage() {
               <select
                 id={field.key}
                 name={field.key}
-                value={form[field.key] || ''}
+                value={form[field.key] ?? ''}
                 onChange={handleChange}
               >
                 <option value="">Select…</option>
@@ -163,7 +171,7 @@ export default function AdminPage() {
                 id={field.key}
                 type={field.type}
                 name={field.key}
-                value={form[field.key] || ''}
+                value={form[field.key] ?? ''}
                 onChange={handleChange}
                 placeholder={field.placeholder || ''}
                 min={field.type === 'number' ? 0 : undefined}

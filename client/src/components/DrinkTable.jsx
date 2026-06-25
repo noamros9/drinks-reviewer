@@ -76,7 +76,7 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
   const allCols = COLUMNS[category] || [];
   const colMap = Object.fromEntries(allCols.map(c => [c.key, c]));
   const order = columnLayout?.order ?? allCols.map(c => c.key);
-  const hidden = columnLayout?.hidden ?? new Set();
+  const hidden = columnLayout?.hidden instanceof Set ? columnLayout.hidden : new Set(Array.isArray(columnLayout?.hidden) ? columnLayout.hidden : []);
   const visibleCols = order.filter(k => !hidden.has(k)).map(k => colMap[k]).filter(Boolean);
 
   const ensureLayout = () =>
@@ -129,7 +129,7 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
   const getCellClass = (colKey, value) => {
     if (category !== 'wine') return '';
     if (colKey === 'wineCategory') {
-      const map = { Red: 'wine-type-red', White: 'wine-type-white', Rose: 'wine-type-rose', Sparkling: 'wine-type-sparkling', Fortified: 'wine-type-fortified' };
+      const map = { Red: 'wine-type-red', White: 'wine-type-white', 'Rosé': 'wine-type-rose', Sparkling: 'wine-type-sparkling', Fortified: 'wine-type-fortified' };
       return map[value] || '';
     }
     if (colKey === 'country') {
@@ -141,6 +141,8 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
     return '';
   };
 
+  const NUMERIC_KEYS = new Set(['abv', 'lastRanking', 'avgRanking', 'age']);
+
   const sorted = [...drinks].sort((a, b) => {
     if (!sortKey) return 0;
     let av = a[sortKey] ?? '';
@@ -149,10 +151,13 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
       const toInt = (s) => {
         if (!s) return 0;
         const [d, m, y] = s.split('/');
-        return parseInt(y) * 10000 + parseInt(m) * 100 + parseInt(d);
+        return parseInt(y, 10) * 10000 + parseInt(m, 10) * 100 + parseInt(d, 10);
       };
       av = toInt(av);
       bv = toInt(bv);
+    } else if (NUMERIC_KEYS.has(sortKey)) {
+      av = parseFloat(av) || 0;
+      bv = parseFloat(bv) || 0;
     }
     if (av === bv) return 0;
     const sign = av < bv ? -1 : 1;
