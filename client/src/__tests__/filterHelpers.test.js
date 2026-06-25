@@ -1,4 +1,4 @@
-import { matchesFilters, buildDropdownOptions, splitVarieties, isBlend, OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
+import { matchesFilters, buildDropdownOptions, countOptions, splitVarieties, isBlend, OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
 
 const wine = (overrides) => ({
   id: '1', producer: 'TestProd', wineCategory: 'Red', variety: 'Cabernet Sauvignon',
@@ -136,6 +136,87 @@ test('buildDropdownOptions country for beer: no Old/New World special options', 
   const { special } = buildDropdownOptions(drinks, { key: 'country' });
   expect(special).not.toContain('Old World');
   expect(special).not.toContain('New World');
+});
+
+// ── matchesFilters – ABV range ────────────────────────────────────
+
+test('abv: drink within range passes', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set(), abvMin: '10', abvMax: '15' };
+  expect(matchesFilters(wine({ abv: '12' }), filters, 'wine')).toBe(true);
+});
+test('abv: drink below min is excluded', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set(), abvMin: '10', abvMax: '' };
+  expect(matchesFilters(wine({ abv: '8' }), filters, 'wine')).toBe(false);
+});
+test('abv: drink above max is excluded', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set(), abvMin: '', abvMax: '14' };
+  expect(matchesFilters(wine({ abv: '16' }), filters, 'wine')).toBe(false);
+});
+test('abv: no abv filter passes everything', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set(), abvMin: '', abvMax: '' };
+  expect(matchesFilters(wine({ abv: '99' }), filters, 'wine')).toBe(true);
+});
+
+// ── countOptions ─────────────────────────────────────────────────
+
+const noFilters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set() };
+
+test('countOptions: basic type counts with no active filters', () => {
+  const drinks = [wine({ wineCategory: 'Red' }), wine({ wineCategory: 'Red' }), wine({ wineCategory: 'White' })];
+  const conf = { key: 'wineCategory', label: 'Type' };
+  const counts = countOptions(drinks, conf, noFilters, 'wine');
+  expect(counts['Red']).toBe(2);
+  expect(counts['White']).toBe(1);
+});
+
+test('countOptions: contextual — other active filters narrow the count', () => {
+  const drinks = [
+    wine({ wineCategory: 'Red', country: 'France' }),
+    wine({ wineCategory: 'Red', country: 'Australia' }),
+    wine({ wineCategory: 'White', country: 'France' }),
+  ];
+  const conf = { key: 'wineCategory', label: 'Type' };
+  const filters = { ...noFilters, country: new Set(['France']) };
+  const counts = countOptions(drinks, conf, filters, 'wine');
+  expect(counts['Red']).toBe(1);
+  expect(counts['White']).toBe(1);
+});
+
+test('countOptions: producer search narrows counts', () => {
+  const drinks = [
+    wine({ producer: 'Latroun', wineCategory: 'Red' }),
+    wine({ producer: 'Other', wineCategory: 'Red' }),
+    wine({ producer: 'Latroun', wineCategory: 'White' }),
+  ];
+  const conf = { key: 'wineCategory', label: 'Type' };
+  const filters = { ...noFilters, producerSearch: 'Latroun' };
+  const counts = countOptions(drinks, conf, filters, 'wine');
+  expect(counts['Red']).toBe(1);
+  expect(counts['White']).toBe(1);
+});
+
+test('countOptions: worldGroups — counts Old/New World and individual countries', () => {
+  const drinks = [wine({ country: 'France' }), wine({ country: 'Italy' }), wine({ country: 'Australia' })];
+  const conf = { key: 'country', label: 'Country', worldGroups: true };
+  const counts = countOptions(drinks, conf, noFilters, 'wine');
+  expect(counts['Old World']).toBe(2);
+  expect(counts['New World']).toBe(1);
+  expect(counts['France']).toBe(1);
+  expect(counts['Australia']).toBe(1);
+});
+
+test('countOptions: varietyGroups — counts Blend, Single Variety, and individual grapes', () => {
+  const drinks = [
+    wine({ variety: 'Merlot, Cabernet Sauvignon' }),
+    wine({ variety: 'Chardonnay' }),
+  ];
+  const conf = { key: 'variety', label: 'Variety', varietyGroups: true };
+  const counts = countOptions(drinks, conf, noFilters, 'wine');
+  expect(counts['Blend']).toBe(1);
+  expect(counts['Single Variety']).toBe(1);
+  expect(counts['Merlot']).toBe(1);
+  expect(counts['Cabernet Sauvignon']).toBe(1);
+  expect(counts['Chardonnay']).toBe(1);
 });
 
 // ── OLD_WORLD / NEW_WORLD lists ───────────────────────────────────

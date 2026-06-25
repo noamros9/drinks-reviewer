@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import DrinkTable, { COLUMNS } from '../components/DrinkTable';
 import ColumnPanel from '../components/ColumnPanel';
+import FilterDropdown from '../components/FilterDropdown';
+import AbvFilter from '../components/AbvFilter';
+import { buildDropdownOptions, countOptions, matchesFilters } from '../utils/filterHelpers';
 
 const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 const STORAGE_KEY = 'drinks_columns_all';
@@ -31,6 +34,9 @@ function normalize(entries, category) {
 export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [countryFilter, setCountryFilter] = useState(new Set());
+  const [abvMin, setAbvMin] = useState('');
+  const [abvMax, setAbvMax] = useState('');
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
 
   useEffect(() => {
@@ -46,9 +52,18 @@ export default function AllDrinksPage() {
     saveLayout(next);
   };
 
-  const visible = filter === 'all'
+  const categoryFiltered = filter === 'all'
     ? drinks
     : drinks.filter(d => d._category.toLowerCase() === filter);
+
+  const activeFilters = { producerSearch: '', country: countryFilter, abvMin, abvMax };
+  const hasFilter = countryFilter.size > 0 || abvMin !== '' || abvMax !== '';
+  const visible = hasFilter
+    ? categoryFiltered.filter(d => matchesFilters(d, activeFilters, 'all'))
+    : categoryFiltered;
+
+  const { options: countryOptions } = buildDropdownOptions(categoryFiltered, { key: 'country' });
+  const countryCounts = countOptions(categoryFiltered, { key: 'country' }, activeFilters, 'all');
 
   return (
     <div className="category-page">
@@ -68,6 +83,21 @@ export default function AllDrinksPage() {
             </button>
           ))}
         </div>
+        <span className="toolbar-divider">|</span>
+        <FilterDropdown
+          label="Country"
+          options={countryOptions}
+          specialOptions={[]}
+          selected={countryFilter}
+          counts={countryCounts}
+          onChange={setCountryFilter}
+        />
+        <AbvFilter
+          abvMin={abvMin}
+          abvMax={abvMax}
+          onChange={({ abvMin: mn, abvMax: mx }) => { setAbvMin(mn); setAbvMax(mx); }}
+        />
+        <div className="filter-bar-spacer" />
         <ColumnPanel
           allColumns={COLUMNS['all']}
           columnLayout={columnLayout}

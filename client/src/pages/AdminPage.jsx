@@ -33,6 +33,7 @@ const FIELDS = {
     { key: 'distillery',  label: 'Distillery',             type: 'text' },
     { key: 'name',        label: 'Name',                   type: 'text' },
     { key: 'country',     label: 'Country of Origin',      type: 'text' },
+    { key: 'region',      label: 'Region',                 type: 'text', placeholder: 'Speyside, Islay, Highlands…' },
     { key: 'age',         label: 'Age (years)',             type: 'number' },
     { key: 'style',       label: 'Style',                  type: 'text' },
     { key: 'abv',         label: 'ABV (%)',                type: 'number' },

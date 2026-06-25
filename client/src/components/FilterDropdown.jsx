@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function FilterDropdown({ label, options, specialOptions, selected, onChange }) {
+export default function FilterDropdown({ label, options, specialOptions, selected, counts = {}, onChange }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -42,6 +42,7 @@ export default function FilterDropdown({ label, options, specialOptions, selecte
                 <label key={opt} className="filter-option">
                   <input type="checkbox" checked={selected.has(opt)} onChange={() => toggle(opt)} />
                   <span>{opt}</span>
+                  {counts[opt] != null && <span className="filter-option-count">{counts[opt]}</span>}
                 </label>
               ))}
               <div className="filter-separator" />
@@ -51,6 +52,7 @@ export default function FilterDropdown({ label, options, specialOptions, selecte
             <label key={opt} className="filter-option">
               <input type="checkbox" checked={selected.has(opt)} onChange={() => toggle(opt)} />
               <span>{opt}</span>
+              {counts[opt] != null && <span className="filter-option-count">{counts[opt]}</span>}
             </label>
           ))}
           {hasActive && (

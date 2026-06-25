@@ -30,6 +30,7 @@ export const COLUMNS = {
     { key: 'distillery',  label: 'Distillery' },
     { key: 'name',        label: 'Name' },
     { key: 'country',     label: 'Country' },
+    { key: 'region',      label: 'Region' },
     { key: 'age',         label: 'Age' },
     { key: 'style',       label: 'Style' },
     { key: 'abv',         label: 'ABV' },

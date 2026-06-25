@@ -17,6 +17,7 @@ export const PRODUCER_FIELD = {
   beer:    'brewery',
   whiskey: 'distillery',
   others:  'distillery',
+  all:     '_producer',
 };
 
 export const DROPDOWN_CONFIGS = {
@@ -33,11 +34,15 @@ export const DROPDOWN_CONFIGS = {
   whiskey: [
     { key: 'style',   label: 'Style' },
     { key: 'country', label: 'Country' },
+    { key: 'region',  label: 'Region' },
   ],
   others: [
     { key: 'drinkCategory', label: 'Category' },
     { key: 'style',         label: 'Style' },
     { key: 'country',       label: 'Country' },
+  ],
+  all: [
+    { key: 'country', label: 'Country' },
   ],
 };
 
@@ -74,6 +79,14 @@ export function matchesFilters(drink, activeFilters, category) {
   if (activeFilters.producerSearch) {
     const val = drink[producerField] ?? '';
     if (!val.toLowerCase().includes(activeFilters.producerSearch.toLowerCase())) return false;
+  }
+
+  if (activeFilters.abvMin !== '' || activeFilters.abvMax !== '') {
+    const abv = parseFloat(drink.abv);
+    if (!isNaN(abv)) {
+      if (activeFilters.abvMin !== '' && abv < parseFloat(activeFilters.abvMin)) return false;
+      if (activeFilters.abvMax !== '' && abv > parseFloat(activeFilters.abvMax)) return false;
+    }
   }
 
   for (const conf of (DROPDOWN_CONFIGS[category] || [])) {
@@ -113,8 +126,34 @@ export function buildDropdownOptions(drinks, conf) {
   return { special, options: raw };
 }
 
+export function countOptions(drinks, conf, activeFilters, category) {
+  const otherFilters = { ...activeFilters, [conf.key]: new Set() };
+  const filtered = drinks.filter(d => matchesFilters(d, otherFilters, category));
+  const counts = {};
+  filtered.forEach(d => {
+    const raw = d[conf.key];
+    if (conf.varietyGroups) {
+      splitVarieties(raw).forEach(g => { counts[g] = (counts[g] || 0) + 1; });
+      if (raw) {
+        if (isBlend(raw)) counts['Blend'] = (counts['Blend'] || 0) + 1;
+        else counts['Single Variety'] = (counts['Single Variety'] || 0) + 1;
+      }
+    } else if (conf.worldGroups) {
+      if (raw) {
+        counts[raw] = (counts[raw] || 0) + 1;
+        if (OLD_WORLD.includes(raw))      counts['Old World'] = (counts['Old World'] || 0) + 1;
+        else if (NEW_WORLD.includes(raw)) counts['New World'] = (counts['New World'] || 0) + 1;
+        else                              counts['Other']     = (counts['Other']     || 0) + 1;
+      }
+    } else {
+      if (raw) counts[raw] = (counts[raw] || 0) + 1;
+    }
+  });
+  return counts;
+}
+
 export function buildInitialFilters(category) {
-  const filters = { producerSearch: '' };
+  const filters = { producerSearch: '', abvMin: '', abvMax: '' };
   for (const conf of (DROPDOWN_CONFIGS[category] || [])) {
     filters[conf.key] = new Set();
   }
