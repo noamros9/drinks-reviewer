@@ -31,3 +31,19 @@ test('toggles from light to dark', () => {
   expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   expect(localStorage.getItem('theme')).toBe('dark');
 });
+
+test('defaults to light when no data-theme attribute set', () => {
+  document.documentElement.removeAttribute('data-theme');
+  render(<MemoryRouter><Header /></MemoryRouter>);
+  expect(screen.getByTestId('theme-toggle')).toHaveTextContent('🌙');
+});
+
+test('marks the matching nav link as active', () => {
+  render(
+    <MemoryRouter initialEntries={['/wine']}>
+      <Header />
+    </MemoryRouter>
+  );
+  expect(screen.getByRole('link', { name: /^wine$/i })).toHaveClass('active');
+  expect(screen.getByRole('link', { name: /^beer$/i })).not.toHaveClass('active');
+});

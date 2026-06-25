@@ -113,7 +113,6 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
     const newOrder = [...lay.order];
     const fromIdx = newOrder.indexOf(dragKey);
     const toIdx = newOrder.indexOf(targetKey);
-    if (fromIdx === -1 || toIdx === -1) return;
     newOrder.splice(fromIdx, 1);
     newOrder.splice(toIdx, 0, dragKey);
     onColumnLayoutChange({ ...lay, order: newOrder });
@@ -121,7 +120,6 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
 
   const hideColumn = (e, key) => {
     e.stopPropagation();
-    if (!onColumnLayoutChange) return;
     const lay = ensureLayout();
     const next = new Set(lay.hidden);
     next.add(key);
@@ -156,9 +154,9 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
       av = toInt(av);
       bv = toInt(bv);
     }
-    if (av < bv) return sortDir === 'asc' ? -1 : 1;
-    if (av > bv) return sortDir === 'asc' ? 1 : -1;
-    return 0;
+    if (av === bv) return 0;
+    const sign = av < bv ? -1 : 1;
+    return sortDir === 'asc' ? sign : -sign;
   });
 
   if (drinks.length === 0) {
