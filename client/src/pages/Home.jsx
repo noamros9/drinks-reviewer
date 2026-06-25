@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import CategoryCard from '../components/CategoryCard';
+import './Home.css';
 
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 

@@ -1,0 +1,138 @@
+.table-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 220px);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-elevated);
+}
+
+th {
+  padding: 11px 16px;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  background: var(--bg-elevated);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  transition: transform 0.18s ease;
+}
+
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+th.sortable:hover {
+  color: var(--text-primary);
+}
+
+th.col-drag-over { box-shadow: inset 2px 0 0 var(--accent); }
+th.col-header-dragging { opacity: 0.35; }
+
+td {
+  padding: 11px 16px;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background: rgba(0,113,227,0.04);
+}
+
+[data-theme="dark"] tr:hover td {
+  background: rgba(59,158,255,0.05);
+}
+
+.btn-edit {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-edit:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Column hide button (× on th hover) ── */
+.col-hide-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.3rem;
+  transform: translateY(-50%);
+  opacity: 0;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.1rem 0.25rem;
+  border-radius: 3px;
+  line-height: 1;
+  transition: opacity 0.15s, color 0.15s, background 0.15s;
+}
+
+th:hover .col-hide-btn { opacity: 1; }
+
+.col-hide-btn:hover {
+  color: var(--danger);
+  background: var(--danger-bg);
+}
+
+/* ── Wine color indicators ── */
+td.wine-type-red,
+td.wine-type-white,
+td.wine-type-rose,
+td.wine-type-sparkling,
+td.wine-type-fortified,
+td.wine-country-old-world,
+td.wine-country-new-world,
+td.wine-country-israel,
+td.wine-country-other { position: relative; }
+
+td.wine-type-red          { --wine-color: #c94040; }
+td.wine-type-white        { --wine-color: #e8c040; }
+td.wine-type-rose         { --wine-color: #f07898; }
+td.wine-type-sparkling    { --wine-color: #4898c8; }
+td.wine-type-fortified    { --wine-color: #b06028; }
+td.wine-country-old-world { --wine-color: #5c9048; }
+td.wine-country-new-world { --wine-color: #d09020; }
+td.wine-country-israel    { --wine-color: #4068b8; }
+td.wine-country-other     { --wine-color: #888888; }
+
+td[class*="wine-type-"]::before,
+td[class*="wine-country-"]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 55%;
+  background: var(--wine-color);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px 2px var(--wine-color);
+}

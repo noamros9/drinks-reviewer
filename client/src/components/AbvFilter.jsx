@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import './AbvFilter.css';
 
 export default function AbvFilter({ abvMin, abvMax, onChange }) {
   const [open, setOpen] = useState(false);

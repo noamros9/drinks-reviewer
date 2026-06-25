@@ -1,0 +1,61 @@
+.home h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 2rem;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.category-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.18s ease, box-shadow var(--transition), border-color var(--transition);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-primary);
+}
+
+.category-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(0,113,227,0.25);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .category-card:hover {
+  border-color: rgba(59,158,255,0.25);
+}
+
+.category-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.category-label {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.category-count {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}

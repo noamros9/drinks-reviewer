@@ -1,0 +1,38 @@
+.abv-filter-menu {
+  min-width: 11rem;
+  padding: 0.5rem 0.75rem 0.4rem;
+}
+
+.abv-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0;
+}
+
+.abv-filter-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  width: 2rem;
+  flex-shrink: 0;
+}
+
+.abv-input {
+  width: 4.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.4rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.abv-input:focus { border-color: var(--accent); }
+
+.abv-unit {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}

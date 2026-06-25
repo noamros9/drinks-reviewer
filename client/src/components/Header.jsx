@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import './Header.css';
 
 const NAV = [
   { path: '/all', label: 'All' },

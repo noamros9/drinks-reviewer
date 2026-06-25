@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
+import './DrinkTable.css';
 
 export const COLUMNS = {
   wine: [

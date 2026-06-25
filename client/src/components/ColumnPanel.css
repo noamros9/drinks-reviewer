@@ -1,0 +1,38 @@
+.col-panel-menu { min-width: 14rem; }
+
+.col-panel-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  transition: background var(--transition), transform 0.18s ease;
+}
+
+.col-panel-row:hover { background: var(--bg); }
+
+.col-panel-dragging { opacity: 0.35; }
+
+.col-panel-handle {
+  color: var(--fg-faint);
+  font-size: 0.9rem;
+  cursor: grab;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.col-panel-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  flex: 1;
+}
+
+.col-panel-label input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+}
