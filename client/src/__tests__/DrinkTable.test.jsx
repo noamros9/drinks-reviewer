@@ -65,7 +65,7 @@ test('wine type cells get the correct color class', () => {
 test('wine country cells get the correct world-group color class', () => {
   render(<DrinkTable category="wine" drinks={WINE_ROWS} />);
   expect(screen.getByText('Italy')).toHaveClass('wine-country-old-world');
-  expect(screen.getByText('Israel')).toHaveClass('wine-country-old-world');
+  expect(screen.getByText('Israel')).toHaveClass('wine-country-israel');
 });
 
 test('beer category country cells do not get wine color classes', () => {

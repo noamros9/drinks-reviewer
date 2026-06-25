@@ -133,6 +133,7 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
       return map[value] || '';
     }
     if (colKey === 'country') {
+      if (value === 'Israel') return 'wine-country-israel';
       if (OLD_WORLD.includes(value)) return 'wine-country-old-world';
       if (NEW_WORLD.includes(value)) return 'wine-country-new-world';
       return value && value !== '—' ? 'wine-country-other' : '';
