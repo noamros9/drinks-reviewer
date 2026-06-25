@@ -33,6 +33,7 @@ export const DROPDOWN_CONFIGS = {
   whiskey: [
     { key: 'style',   label: 'Style' },
     { key: 'country', label: 'Country' },
+    { key: 'region',  label: 'Region' },
   ],
   others: [
     { key: 'drinkCategory', label: 'Category' },
