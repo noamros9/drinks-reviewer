@@ -2,7 +2,7 @@ import FilterDropdown from './FilterDropdown';
 import AbvFilter from './AbvFilter';
 import ColumnPanel from './ColumnPanel';
 import { COLUMNS } from './DrinkTable';
-import { DROPDOWN_CONFIGS, PRODUCER_FIELD, buildDropdownOptions, countOptions } from '../utils/filterHelpers';
+import { DROPDOWN_CONFIGS, PRODUCER_FIELD, buildDropdownOptions, countOptions, buildInitialFilters } from '../utils/filterHelpers';
 import './FilterBar.css';
 
 export default function FilterBar({ category, drinks, activeFilters, onChange, columnLayout, onColumnLayoutChange }) {
@@ -13,11 +13,7 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
     configs.some(c => activeFilters[c.key]?.size > 0) ||
     activeFilters.abvMin !== '' || activeFilters.abvMax !== '';
 
-  const clearAll = () => {
-    const reset = { producerSearch: '', abvMin: '', abvMax: '' };
-    configs.forEach(c => { reset[c.key] = new Set(); });
-    onChange(reset);
-  };
+  const clearAll = () => onChange(buildInitialFilters(category));
 
   return (
     <div className="filter-bar">

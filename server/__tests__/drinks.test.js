@@ -19,6 +19,7 @@ beforeAll(() => {
 afterAll(() => {
   fs.rmSync(tmpDir, { recursive: true });
   delete process.env.DATA_DIR;
+  jest.resetModules();
 });
 
 beforeEach(() => {

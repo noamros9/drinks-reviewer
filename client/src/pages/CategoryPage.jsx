@@ -32,8 +32,8 @@ export default function CategoryPage({ category }) {
     setActiveFilters(buildInitialFilters(category));
     setColumnLayout(loadLayout(category));
     fetch(`/api/${category}`)
-      .then(r => r.json())
-      .then(setDrinks)
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(data => { if (Array.isArray(data)) setDrinks(data); })
       .catch(() => {});
   }, [category]);
 

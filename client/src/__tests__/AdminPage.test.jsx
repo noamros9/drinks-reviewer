@@ -15,7 +15,7 @@ vi.mock('react-datepicker', () => ({
 
 beforeEach(() => {
   global.fetch = vi.fn(() =>
-    Promise.resolve({ json: () => Promise.resolve({ id: 'new-id' }) })
+    Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-id' }) })
   );
 });
 
@@ -172,4 +172,38 @@ test('DatePicker onChange with null clears the date field (covers setForm falsy 
   await user.type(datepicker, 'x'); // set a value first
   await user.clear(datepicker);     // value='' → onChange(null) → date falsy branch
   expect(datepicker).toHaveValue('');
+});
+
+test('null field values render as empty string via ?? fallback', () => {
+  render(
+    <MemoryRouter initialEntries={[{ pathname: '/admin', state: {
+      category: 'wine',
+      drink: { id: '1', producer: null, seriesAndName: null, wineCategory: null, variety: null,
+               country: null, region: null, abv: null, lastTasted: null, lastRanking: null,
+               avgRanking: null, notionLink: null },
+    }}]}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+  expect(screen.getByLabelText(/producer/i)).toHaveValue('');
+  expect(screen.getByLabelText(/wine type/i)).toHaveValue('');
+});
+
+test('shows error message when save fails (res.ok false on POST)', async () => {
+  global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
+  render(<MemoryRouter><AdminPage /></MemoryRouter>);
+  fireEvent.submit(screen.getByRole('button', { name: /add/i }).closest('form'));
+  expect(await screen.findByText('Save failed. Please try again.')).toBeInTheDocument();
+});
+
+test('shows error message when delete fails (res.ok false on DELETE)', async () => {
+  window.confirm = vi.fn(() => true);
+  global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
+  render(
+    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '13', lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '' } } }]}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+  fireEvent.click(screen.getByRole('button', { name: /delete/i }));
+  expect(await screen.findByText('Delete failed. Please try again.')).toBeInTheDocument();
 });

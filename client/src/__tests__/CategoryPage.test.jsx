@@ -5,7 +5,7 @@ import { COLUMNS } from '../components/DrinkTable';
 
 beforeEach(() => {
   global.fetch = vi.fn(() =>
-    Promise.resolve({ json: () => Promise.resolve([]) })
+    Promise.resolve({ ok: true, json: () => Promise.resolve([]) })
   );
 });
 
@@ -29,6 +29,7 @@ test.each([
 ])('%s table has correct first column header', async (category, header) => {
   global.fetch = vi.fn(() =>
     Promise.resolve({
+      ok: true,
       json: () =>
         Promise.resolve([
           { id: '1', producer: 'X', brewery: 'X', distillery: 'X', drinkCategory: 'Rum', name: 'Y' },
@@ -49,7 +50,7 @@ const WINE_DRINK = { id: '1', producer: 'TestProd', seriesAndName: 'Reserve', wi
   variety: 'Merlot', country: 'France', region: 'Bordeaux', abv: '13', lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '' };
 
 test('clicking Edit navigates to admin (handleEdit executes)', async () => {
-  global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve([WINE_DRINK]) }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   const editBtn = await screen.findByRole('button', { name: /edit/i });
   fireEvent.click(editBtn);
@@ -58,7 +59,7 @@ test('clicking Edit navigates to admin (handleEdit executes)', async () => {
 });
 
 test('count badge shows total when no filter active', async () => {
-  global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve([WINE_DRINK]) }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Reserve');
   expect(screen.getByText(/1 entry/)).toBeInTheDocument();
@@ -66,7 +67,7 @@ test('count badge shows total when no filter active', async () => {
 
 test('count badge shows filtered / total when search narrows results', async () => {
   const WINE_B = { ...WINE_DRINK, id: '2', producer: 'OtherProd', seriesAndName: 'OtherWine' };
-  global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve([WINE_DRINK, WINE_B]) }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, WINE_B]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Reserve');
   fireEvent.change(screen.getByTestId('producer-search'), { target: { value: 'TestProd' } });
@@ -75,12 +76,18 @@ test('count badge shows filtered / total when search narrows results', async () 
   });
 });
 
+test('fetch error (ok: false) leaves drinks empty without crashing', async () => {
+  global.fetch = vi.fn(() => Promise.resolve({ ok: false, status: 500 }));
+  render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
+  expect(await screen.findByText(/no entries yet/i)).toBeInTheDocument();
+});
+
 test('loads column layout from localStorage', async () => {
   localStorage.setItem('drinks_columns_wine', JSON.stringify({
     order: COLUMNS.wine.map(c => c.key),
     hidden: ['region'],
   }));
-  global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve([]) }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText(/no entries yet/i);
   // region column should be hidden (reflected in ColumnPanel badge)
@@ -89,14 +96,14 @@ test('loads column layout from localStorage', async () => {
 
 test('loadLayout falls back to null on invalid JSON', async () => {
   localStorage.setItem('drinks_columns_wine', 'bad{json');
-  global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve([]) }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText(/no entries yet/i);
   expect(screen.getByTestId('column-panel-btn')).toBeInTheDocument();
 });
 
 test('column layout change is saved to localStorage', async () => {
-  global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve([]) }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText(/no entries yet/i);
   fireEvent.click(screen.getByTestId('column-panel-btn'));
@@ -107,7 +114,7 @@ test('column layout change is saved to localStorage', async () => {
 
 test('saving null layout removes localStorage entry', async () => {
   localStorage.setItem('drinks_columns_wine', JSON.stringify({ order: [], hidden: [] }));
-  global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve([]) }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText(/no entries yet/i);
   fireEvent.click(screen.getByTestId('column-panel-btn'));
