@@ -27,6 +27,12 @@ A personal drinks review website for tracking wine, beer, whiskey, and other spi
 - Ranking fields support decimal values (last ranking: 1 decimal, avg ranking: 2 decimals)
 - Notion link column opens the full tasting log in a new tab
 
+## Server
+
+- All API routes return JSON errors (never HTML stack traces) on data failures
+- POST and PUT accept only known fields per category — unknown keys are ignored
+- Concurrent writes are serialised per category to prevent race conditions
+
 ## Getting Started
 
 ```bash
