@@ -113,6 +113,32 @@ export function buildDropdownOptions(drinks, conf) {
   return { special, options: raw };
 }
 
+export function countOptions(drinks, conf, activeFilters, category) {
+  const otherFilters = { ...activeFilters, [conf.key]: new Set() };
+  const filtered = drinks.filter(d => matchesFilters(d, otherFilters, category));
+  const counts = {};
+  filtered.forEach(d => {
+    const raw = d[conf.key];
+    if (conf.varietyGroups) {
+      splitVarieties(raw).forEach(g => { counts[g] = (counts[g] || 0) + 1; });
+      if (raw) {
+        if (isBlend(raw)) counts['Blend'] = (counts['Blend'] || 0) + 1;
+        else counts['Single Variety'] = (counts['Single Variety'] || 0) + 1;
+      }
+    } else if (conf.worldGroups) {
+      if (raw) {
+        counts[raw] = (counts[raw] || 0) + 1;
+        if (OLD_WORLD.includes(raw))      counts['Old World'] = (counts['Old World'] || 0) + 1;
+        else if (NEW_WORLD.includes(raw)) counts['New World'] = (counts['New World'] || 0) + 1;
+        else                              counts['Other']     = (counts['Other']     || 0) + 1;
+      }
+    } else {
+      if (raw) counts[raw] = (counts[raw] || 0) + 1;
+    }
+  });
+  return counts;
+}
+
 export function buildInitialFilters(category) {
   const filters = { producerSearch: '' };
   for (const conf of (DROPDOWN_CONFIGS[category] || [])) {

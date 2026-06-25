@@ -1,7 +1,7 @@
 import FilterDropdown from './FilterDropdown';
 import ColumnPanel from './ColumnPanel';
 import { COLUMNS } from './DrinkTable';
-import { DROPDOWN_CONFIGS, PRODUCER_FIELD, buildDropdownOptions } from '../utils/filterHelpers';
+import { DROPDOWN_CONFIGS, PRODUCER_FIELD, buildDropdownOptions, countOptions } from '../utils/filterHelpers';
 
 export default function FilterBar({ category, drinks, activeFilters, onChange, columnLayout, onColumnLayoutChange }) {
   const configs = DROPDOWN_CONFIGS[category] || [];
@@ -31,6 +31,7 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
       </div>
       {configs.map(conf => {
         const { special, options } = buildDropdownOptions(drinks, conf);
+        const counts = countOptions(drinks, conf, activeFilters, category);
         return (
           <FilterDropdown
             key={conf.key}
@@ -38,6 +39,7 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
             specialOptions={special}
             options={options}
             selected={activeFilters[conf.key] ?? new Set()}
+            counts={counts}
             onChange={next => onChange({ ...activeFilters, [conf.key]: next })}
           />
         );

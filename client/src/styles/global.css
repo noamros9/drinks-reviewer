@@ -591,6 +591,13 @@ tr:hover td {
 
 .filter-option:hover { background: var(--bg); }
 
+.filter-option-count {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--fg-faint);
+}
+
 .filter-option input[type="checkbox"] {
   accent-color: var(--accent);
   width: 0.85rem;
