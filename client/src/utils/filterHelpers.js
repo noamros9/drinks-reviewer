@@ -81,6 +81,14 @@ export function matchesFilters(drink, activeFilters, category) {
     if (!val.toLowerCase().includes(activeFilters.producerSearch.toLowerCase())) return false;
   }
 
+  if (activeFilters.abvMin !== '' || activeFilters.abvMax !== '') {
+    const abv = parseFloat(drink.abv);
+    if (!isNaN(abv)) {
+      if (activeFilters.abvMin !== '' && abv < parseFloat(activeFilters.abvMin)) return false;
+      if (activeFilters.abvMax !== '' && abv > parseFloat(activeFilters.abvMax)) return false;
+    }
+  }
+
   for (const conf of (DROPDOWN_CONFIGS[category] || [])) {
     const selected = activeFilters[conf.key];
     if (!selected || selected.size === 0) continue;
@@ -145,7 +153,7 @@ export function countOptions(drinks, conf, activeFilters, category) {
 }
 
 export function buildInitialFilters(category) {
-  const filters = { producerSearch: '' };
+  const filters = { producerSearch: '', abvMin: '', abvMax: '' };
   for (const conf of (DROPDOWN_CONFIGS[category] || [])) {
     filters[conf.key] = new Set();
   }

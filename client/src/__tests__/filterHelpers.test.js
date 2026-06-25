@@ -138,6 +138,25 @@ test('buildDropdownOptions country for beer: no Old/New World special options', 
   expect(special).not.toContain('New World');
 });
 
+// ── matchesFilters – ABV range ────────────────────────────────────
+
+test('abv: drink within range passes', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set(), abvMin: '10', abvMax: '15' };
+  expect(matchesFilters(wine({ abv: '12' }), filters, 'wine')).toBe(true);
+});
+test('abv: drink below min is excluded', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set(), abvMin: '10', abvMax: '' };
+  expect(matchesFilters(wine({ abv: '8' }), filters, 'wine')).toBe(false);
+});
+test('abv: drink above max is excluded', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set(), abvMin: '', abvMax: '14' };
+  expect(matchesFilters(wine({ abv: '16' }), filters, 'wine')).toBe(false);
+});
+test('abv: no abv filter passes everything', () => {
+  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set(), abvMin: '', abvMax: '' };
+  expect(matchesFilters(wine({ abv: '99' }), filters, 'wine')).toBe(true);
+});
+
 // ── countOptions ─────────────────────────────────────────────────
 
 const noFilters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set() };

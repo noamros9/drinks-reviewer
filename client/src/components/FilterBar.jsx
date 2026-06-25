@@ -1,4 +1,5 @@
 import FilterDropdown from './FilterDropdown';
+import AbvFilter from './AbvFilter';
 import ColumnPanel from './ColumnPanel';
 import { COLUMNS } from './DrinkTable';
 import { DROPDOWN_CONFIGS, PRODUCER_FIELD, buildDropdownOptions, countOptions } from '../utils/filterHelpers';
@@ -8,10 +9,11 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
   const producerLabel = { wine: 'Producer', beer: 'Brewery', whiskey: 'Distillery', others: 'Distillery' }[category] ?? 'Producer';
 
   const hasAnyFilter = activeFilters.producerSearch ||
-    configs.some(c => activeFilters[c.key]?.size > 0);
+    configs.some(c => activeFilters[c.key]?.size > 0) ||
+    activeFilters.abvMin !== '' || activeFilters.abvMax !== '';
 
   const clearAll = () => {
-    const reset = { producerSearch: '' };
+    const reset = { producerSearch: '', abvMin: '', abvMax: '' };
     configs.forEach(c => { reset[c.key] = new Set(); });
     onChange(reset);
   };
@@ -44,6 +46,11 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
           />
         );
       })}
+      <AbvFilter
+        abvMin={activeFilters.abvMin ?? ''}
+        abvMax={activeFilters.abvMax ?? ''}
+        onChange={({ abvMin, abvMax }) => onChange({ ...activeFilters, abvMin, abvMax })}
+      />
       {hasAnyFilter && (
         <button className="filter-clear-all" onClick={clearAll}>Clear all</button>
       )}
