@@ -17,6 +17,7 @@ export const PRODUCER_FIELD = {
   beer:    'brewery',
   whiskey: 'distillery',
   others:  'distillery',
+  all:     '_producer',
 };
 
 export const DROPDOWN_CONFIGS = {
@@ -39,6 +40,9 @@ export const DROPDOWN_CONFIGS = {
     { key: 'drinkCategory', label: 'Category' },
     { key: 'style',         label: 'Style' },
     { key: 'country',       label: 'Country' },
+  ],
+  all: [
+    { key: 'country', label: 'Country' },
   ],
 };
 

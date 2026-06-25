@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import DrinkTable, { COLUMNS } from '../components/DrinkTable';
 import ColumnPanel from '../components/ColumnPanel';
+import FilterDropdown from '../components/FilterDropdown';
+import { buildDropdownOptions, countOptions, matchesFilters } from '../utils/filterHelpers';
 
 const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 const STORAGE_KEY = 'drinks_columns_all';
@@ -31,6 +33,7 @@ function normalize(entries, category) {
 export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [countryFilter, setCountryFilter] = useState(new Set());
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
 
   useEffect(() => {
@@ -46,9 +49,17 @@ export default function AllDrinksPage() {
     saveLayout(next);
   };
 
-  const visible = filter === 'all'
+  const categoryFiltered = filter === 'all'
     ? drinks
     : drinks.filter(d => d._category.toLowerCase() === filter);
+
+  const activeFilters = { producerSearch: '', country: countryFilter };
+  const visible = countryFilter.size === 0
+    ? categoryFiltered
+    : categoryFiltered.filter(d => matchesFilters(d, activeFilters, 'all'));
+
+  const { options: countryOptions } = buildDropdownOptions(categoryFiltered, { key: 'country' });
+  const countryCounts = countOptions(categoryFiltered, { key: 'country' }, activeFilters, 'all');
 
   return (
     <div className="category-page">
@@ -68,6 +79,14 @@ export default function AllDrinksPage() {
             </button>
           ))}
         </div>
+        <FilterDropdown
+          label="Country"
+          options={countryOptions}
+          specialOptions={[]}
+          selected={countryFilter}
+          counts={countryCounts}
+          onChange={setCountryFilter}
+        />
         <ColumnPanel
           allColumns={COLUMNS['all']}
           columnLayout={columnLayout}
