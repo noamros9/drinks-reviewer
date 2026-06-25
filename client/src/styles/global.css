@@ -778,6 +778,17 @@ th.col-header-dragging { opacity: 0.35; }
   font-weight: 500;
 }
 
+/* ── Wine color indicators ── */
+td.wine-type-red       { border-left: 3px solid #c97070; }
+td.wine-type-white     { border-left: 3px solid #c9a84c; }
+td.wine-type-rose      { border-left: 3px solid #d4909a; }
+td.wine-type-sparkling { border-left: 3px solid #90afc4; }
+td.wine-type-fortified { border-left: 3px solid #b87d4a; }
+
+td.wine-country-old-world { border-left: 3px solid #8b9e6e; }
+td.wine-country-new-world { border-left: 3px solid #d4a44c; }
+td.wine-country-other     { border-left: 3px solid #a0a0a0; }
+
 /* ── Animations ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }
