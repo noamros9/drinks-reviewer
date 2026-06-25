@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
 
 export const COLUMNS = {
   wine: [
@@ -125,6 +126,21 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
     onColumnLayoutChange({ ...lay, hidden: next });
   };
 
+  const getCellClass = (colKey, value) => {
+    if (category !== 'wine') return '';
+    if (colKey === 'wineCategory') {
+      const map = { Red: 'wine-type-red', White: 'wine-type-white', Rose: 'wine-type-rose', Sparkling: 'wine-type-sparkling', Fortified: 'wine-type-fortified' };
+      return map[value] || '';
+    }
+    if (colKey === 'country') {
+      if (value === 'Israel') return 'wine-country-israel';
+      if (OLD_WORLD.includes(value)) return 'wine-country-old-world';
+      if (NEW_WORLD.includes(value)) return 'wine-country-new-world';
+      return value && value !== '—' ? 'wine-country-other' : '';
+    }
+    return '';
+  };
+
   const sorted = [...drinks].sort((a, b) => {
     if (!sortKey) return 0;
     let av = a[sortKey] ?? '';
@@ -183,7 +199,7 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
           {sorted.map(drink => (
             <tr key={drink.id}>
               {visibleCols.map(col => (
-                <td key={col.key}>
+                <td key={col.key} className={getCellClass(col.key, drink[col.key]) || undefined}>
                   {col.key === 'notionLink' && drink[col.key] ? (
                     <a href={drink[col.key]} target="_blank" rel="noopener noreferrer">↗ Open</a>
                   ) : (

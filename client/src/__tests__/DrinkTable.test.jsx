@@ -53,3 +53,23 @@ test('shows empty state when drinks array is empty', () => {
   render(<DrinkTable category="wine" drinks={[]} />);
   expect(screen.getByText(/no entries yet/i)).toBeInTheDocument();
 });
+
+// ── Color indicators ─────────────────────────────────────────────────
+
+test('wine type cells get the correct color class', () => {
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} />);
+  expect(screen.getByText('White')).toHaveClass('wine-type-white');
+  expect(screen.getByText('Red')).toHaveClass('wine-type-red');
+});
+
+test('wine country cells get the correct world-group color class', () => {
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} />);
+  expect(screen.getByText('Italy')).toHaveClass('wine-country-old-world');
+  expect(screen.getByText('Israel')).toHaveClass('wine-country-israel');
+});
+
+test('beer category country cells do not get wine color classes', () => {
+  const beerRows = [{ id: '1', brewery: 'Goldstar', name: 'Lager', style: 'Lager', country: 'Israel', abv: '4.9', lastTasted: '01/01/2025', lastRanking: '7', avgRanking: '7', notionLink: '' }];
+  render(<DrinkTable category="beer" drinks={beerRows} />);
+  expect(screen.getByText('Israel')).not.toHaveClass('wine-country-old-world');
+});
