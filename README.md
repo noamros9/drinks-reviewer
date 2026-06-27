@@ -13,6 +13,7 @@ A personal drinks review website for tracking wine, beer, whiskey, and other spi
 - Browse all drinks at once on the All page, with category filter chips
 - Browse reviews by category: Wine, Beer, Whiskey, Others
 - Multi-select filter bar on each category page (producer search, type, country with Old/New World groups for wine only, variety with Blend/Single Variety, region); each option shows a contextual count
+- Click any producer, type, country, variety, or region cell in a table to instantly add that value to the active filters
 - Variety filter splits blends — filtering by a single grape matches any drink containing that grape
 - ABV range filter (min/max) on all pages including the All page
 - Country filter on the All page; filters respect the active category tab
