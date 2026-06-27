@@ -114,6 +114,10 @@ export default function AllDrinksPage() {
         drinks={visible}
         columnLayout={columnLayout}
         onColumnLayoutChange={handleColumnLayoutChange}
+        filterableCols={new Set(['country'])}
+        onCellClick={(colKey, value) => {
+          if (colKey === 'country') setCountryFilter(prev => new Set([...prev, value]));
+        }}
       />
     </div>
   );

@@ -102,6 +102,10 @@ th:hover .col-hide-btn { opacity: 1; }
   background: var(--danger-bg);
 }
 
+/* ── Clickable filter cells ── */
+.cell-filterable { cursor: pointer; }
+.cell-filterable:hover { text-decoration: underline; text-underline-offset: 2px; }
+
 /* ── Wine color indicators ── */
 td.wine-type-red,
 td.wine-type-white,

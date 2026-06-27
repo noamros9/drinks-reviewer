@@ -170,3 +170,11 @@ test('resetting columns removes localStorage entry', async () => {
   fireEvent.click(screen.getByText('Reset to default'));
   expect(localStorage.getItem('drinks_columns_all')).toBeNull();
 });
+
+test('clicking a country cell adds it to the country filter', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByText('France'));
+  await waitFor(() => expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument());
+  expect(screen.getByText('Grand Cru')).toBeInTheDocument();
+});
