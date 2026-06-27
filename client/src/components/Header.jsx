@@ -22,6 +22,11 @@ export default function Header() {
 
   useEffect(() => { setNavOpen(false); }, [location.pathname]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setQuery(params.get('q') ?? '');
+  }, [location.search]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     const q = query.trim();

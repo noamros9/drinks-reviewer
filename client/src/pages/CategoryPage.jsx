@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DrinkTable from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
 
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
+
+const PRESETS = [
+  { label: 'Top rated', key: 'avgRanking', dir: 'desc' },
+  { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
+];
 
 function storageKey(category) { return `drinks_columns_${category}`; }
 
@@ -35,11 +40,6 @@ export default function CategoryPage({ category }) {
     else { setSortKey(key); setSortDir('asc'); }
   };
 
-  const PRESETS = [
-    { label: 'Top rated', key: 'avgRanking', dir: 'desc' },
-    { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
-  ];
-
   useEffect(() => {
     setActiveFilters(buildInitialFilters(category));
     setColumnLayout(loadLayout(category));
@@ -56,10 +56,10 @@ export default function CategoryPage({ category }) {
 
   const filtered = drinks.filter(d => matchesFilters(d, activeFilters, category));
 
-  const filterableCols = new Set([
+  const filterableCols = useMemo(() => new Set([
     PRODUCER_FIELD[category],
-    ...DROPDOWN_CONFIGS[category].map(c => c.key),
-  ]);
+    ...DROPDOWN_CONFIGS[category].filter(c => !c.varietyGroups).map(c => c.key),
+  ]), [category]);
 
   const handleCellClick = (colKey, value) => {
     const producerCol = PRODUCER_FIELD[category];

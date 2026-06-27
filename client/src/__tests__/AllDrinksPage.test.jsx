@@ -190,6 +190,27 @@ test('clicking a producer cell filters to that producer', async () => {
   expect(screen.getByText('Grand Cru')).toBeInTheDocument();
 });
 
+test('new search query resets active local filters', async () => {
+  function Wrapper() {
+    const { useNavigate } = require('react-router-dom');
+    const nav = useNavigate();
+    return (
+      <>
+        <button onClick={() => nav('/all?q=pale')} data-testid="do-search">search</button>
+        <AllDrinksPage />
+      </>
+    );
+  }
+  render(<MemoryRouter><Wrapper /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByText('France')); // set country filter → Pale Ale hidden
+  await waitFor(() => expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument());
+  fireEvent.click(screen.getByTestId('do-search')); // navigate to ?q=pale
+  await waitFor(() => expect(screen.getByText('Pale Ale')).toBeInTheDocument());
+  // Country filter was reset — no France chip despite the chips row being visible
+  expect(screen.queryByLabelText('Remove France filter')).not.toBeInTheDocument();
+});
+
 test('clicking a country cell adds it to the country filter', async () => {
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
   await screen.findByText('Grand Cru');

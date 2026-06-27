@@ -70,6 +70,11 @@ test('clicking × on ABV chip clears both abvMin and abvMax', () => {
   expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ abvMin: '', abvMax: '' }));
 });
 
+test('ABV chip appears when abvMin is "0"', () => {
+  renderBar({ abvMin: '0' });
+  expect(screen.getByText('ABV: 0–∞')).toBeInTheDocument();
+});
+
 test('chips from multiple filter types all render together', () => {
   renderBar({ producerSearch: 'Citra', wineCategory: new Set(['Red']), abvMin: '12' });
   expect(screen.getByText(/producer: citra/i)).toBeInTheDocument();

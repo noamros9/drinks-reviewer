@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import DrinkTable, { COLUMNS } from '../components/DrinkTable';
 import ColumnPanel from '../components/ColumnPanel';
 import FilterDropdown from '../components/FilterDropdown';
@@ -9,6 +9,12 @@ import './AllDrinksPage.css';
 
 const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 const STORAGE_KEY = 'drinks_columns_all';
+const FILTERABLE_ALL = new Set(['country', '_producer']);
+
+const PRESETS = [
+  { label: 'Top rated', key: 'avgRanking', dir: 'desc' },
+  { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
+];
 
 function loadLayout() {
   try {
@@ -34,11 +40,6 @@ function normalize(entries, category) {
   }));
 }
 
-const PRESETS = [
-  { label: 'Top rated', key: 'avgRanking', dir: 'desc' },
-  { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
-];
-
 export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -49,14 +50,22 @@ export default function AllDrinksPage() {
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = (searchParams.get('q') || '').toLowerCase().trim();
-  const navigate = useNavigate();
 
   const handleSort = (key) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
     else { setSortKey(key); setSortDir('asc'); }
   };
+
+  useEffect(() => {
+    if (searchQuery) {
+      setCountryFilter(new Set());
+      setProducerSearch('');
+      setAbvMin('');
+      setAbvMax('');
+    }
+  }, [searchQuery]);
 
   useEffect(() => {
     Promise.all(
@@ -84,7 +93,7 @@ export default function AllDrinksPage() {
     ? categoryFiltered.filter(d => matchesFilters(d, activeFilters, 'all'))
     : categoryFiltered;
   const visible = searchQuery
-    ? filterMatched.filter(d => Object.values(d).some(v => v && String(v).toLowerCase().includes(searchQuery)))
+    ? filterMatched.filter(d => Object.values(d).some(v => v != null && String(v).toLowerCase().includes(searchQuery)))
     : filterMatched;
 
   const { options: countryOptions } = buildDropdownOptions(categoryFiltered, { key: 'country' });
@@ -138,12 +147,12 @@ export default function AllDrinksPage() {
           onChange={handleColumnLayoutChange}
         />
       </div>
-      {(countryFilter.size > 0 || abvMin || abvMax || producerSearch || searchQuery) && (
+      {(countryFilter.size > 0 || abvMin !== '' || abvMax !== '' || producerSearch || searchQuery) && (
         <div className="filter-chips">
           {searchQuery && (
             <span className="filter-chip">
               Search: {searchQuery}
-              <button onClick={() => navigate('/all')} aria-label="Clear search">×</button>
+              <button onClick={() => setSearchParams({})} aria-label="Clear search">×</button>
             </span>
           )}
           {[...countryFilter].map(c => (
@@ -158,9 +167,9 @@ export default function AllDrinksPage() {
               <button onClick={() => setProducerSearch('')} aria-label="Remove producer filter">×</button>
             </span>
           )}
-          {(abvMin || abvMax) && (
+          {(abvMin !== '' || abvMax !== '') && (
             <span className="filter-chip">
-              ABV: {abvMin || '0'}–{abvMax || '∞'}
+              ABV: {abvMin !== '' ? abvMin : '0'}–{abvMax !== '' ? abvMax : '∞'}
               <button onClick={() => { setAbvMin(''); setAbvMax(''); }} aria-label="Remove ABV filter">×</button>
             </span>
           )}
@@ -171,7 +180,7 @@ export default function AllDrinksPage() {
         drinks={visible}
         columnLayout={columnLayout}
         onColumnLayoutChange={handleColumnLayoutChange}
-        filterableCols={new Set(['country', '_producer'])}
+        filterableCols={FILTERABLE_ALL}
         onCellClick={(colKey, value) => {
           if (colKey === 'country') setCountryFilter(prev => new Set([...prev, value]));
           if (colKey === '_producer') setProducerSearch(value);

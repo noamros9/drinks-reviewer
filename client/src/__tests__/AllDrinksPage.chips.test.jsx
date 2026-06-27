@@ -94,7 +94,7 @@ test('search chip appears when ?q param set', async () => {
   expect(screen.getByText('Search: france')).toBeInTheDocument();
 });
 
-test('clicking × on search chip navigates to /all without ?q', async () => {
+test('clicking × on search chip clears ?q from URL', async () => {
   render(
     <MemoryRouter initialEntries={['/all?q=france']}>
       <AllDrinksPage />
@@ -104,4 +104,21 @@ test('clicking × on search chip navigates to /all without ?q', async () => {
   await screen.findByText('Grand Cru');
   fireEvent.click(screen.getByLabelText('Clear search'));
   expect(screen.getByTestId('location').textContent).toBe('/all');
+});
+
+test('ABV chip appears when abvMin is string "0"', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-abv'));
+  fireEvent.change(screen.getByTestId('abv-min'), { target: { value: '0' } });
+  expect(screen.getByText('ABV: 0–∞')).toBeInTheDocument();
+});
+
+test('ABV chip × clears when abvMin is "0"', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-abv'));
+  fireEvent.change(screen.getByTestId('abv-min'), { target: { value: '0' } });
+  fireEvent.click(screen.getByLabelText('Remove ABV filter'));
+  await waitFor(() => expect(document.querySelector('.filter-chips')).not.toBeInTheDocument());
 });

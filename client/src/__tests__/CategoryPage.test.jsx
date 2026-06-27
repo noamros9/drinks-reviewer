@@ -138,6 +138,16 @@ test('clicking a producer cell sets producerSearch filter', async () => {
   expect(screen.getByText('Reserve')).toBeInTheDocument();
 });
 
+test('variety cell is not filterable — clicking a blend does not filter', async () => {
+  const BLEND = { ...WINE_DRINK, id: '2', producer: 'Other', seriesAndName: 'BlendWine', variety: 'Cabernet/Merlot' };
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, BLEND]) }));
+  render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
+  await screen.findByText('Reserve');
+  fireEvent.click(screen.getAllByText('Cabernet/Merlot')[0]);
+  expect(screen.getByText('Reserve')).toBeInTheDocument();
+  expect(screen.getByText('BlendWine')).toBeInTheDocument();
+});
+
 test('clicking a country cell adds it to the country Set filter', async () => {
   const WINE_B = { ...WINE_DRINK, id: '2', producer: 'OtherProd', seriesAndName: 'OtherWine', country: 'Italy' };
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, WINE_B]) }));

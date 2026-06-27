@@ -72,6 +72,31 @@ test('search with empty query navigates to /all', () => {
   expect(screen.getByTestId('location')).not.toHaveTextContent('?q=');
 });
 
+test('query input shows ?q value on initial render', () => {
+  render(
+    <MemoryRouter initialEntries={['/all?q=merlot']}>
+      <Header />
+    </MemoryRouter>
+  );
+  expect(screen.getByRole('searchbox')).toHaveValue('merlot');
+});
+
+test('query input clears when ?q is removed from URL', () => {
+  render(
+    <MemoryRouter initialEntries={['/all?q=merlot']}>
+      <Header />
+      <LocationDisplay />
+    </MemoryRouter>
+  );
+  expect(screen.getByRole('searchbox')).toHaveValue('merlot');
+  fireEvent.submit(screen.getByRole('search')); // submits 'merlot' → /all?q=merlot (no change)
+  // Simulate navigating to /all (no q) — submit empty to clear
+  fireEvent.change(screen.getByRole('searchbox'), { target: { value: '' } });
+  fireEvent.submit(screen.getByRole('search'));
+  expect(screen.getByTestId('location').textContent).toBe('/all');
+  expect(screen.getByRole('searchbox')).toHaveValue('');
+});
+
 test('marks the matching nav link as active', () => {
   render(
     <MemoryRouter initialEntries={['/wine']}>
