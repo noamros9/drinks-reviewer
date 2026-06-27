@@ -59,6 +59,30 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
           onChange={onColumnLayoutChange}
         />
       )}
+      {hasAnyFilter && (
+        <div className="filter-chips">
+          {activeFilters.producerSearch && (
+            <span className="filter-chip">
+              {producerLabel}: {activeFilters.producerSearch}
+              <button onClick={() => onChange({ ...activeFilters, producerSearch: '' })} aria-label="Remove producer filter">×</button>
+            </span>
+          )}
+          {configs.flatMap(conf =>
+            [...(activeFilters[conf.key] ?? [])].map(val => (
+              <span key={`${conf.key}-${val}`} className="filter-chip">
+                {val}
+                <button onClick={() => { const next = new Set(activeFilters[conf.key]); next.delete(val); onChange({ ...activeFilters, [conf.key]: next }); }} aria-label={`Remove ${val} filter`}>×</button>
+              </span>
+            ))
+          )}
+          {(activeFilters.abvMin || activeFilters.abvMax) && (
+            <span className="filter-chip">
+              ABV: {activeFilters.abvMin || '0'}–{activeFilters.abvMax || '∞'}
+              <button onClick={() => onChange({ ...activeFilters, abvMin: '', abvMax: '' })} aria-label="Remove ABV filter">×</button>
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
