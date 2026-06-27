@@ -1,6 +1,11 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
+
+function LocationDisplay() {
+  const loc = useLocation();
+  return <div data-testid="location">{loc.pathname}{loc.search}</div>;
+}
 
 beforeEach(() => {
   document.documentElement.setAttribute('data-theme', 'dark');
@@ -36,6 +41,35 @@ test('defaults to light when no data-theme attribute set', () => {
   document.documentElement.removeAttribute('data-theme');
   render(<MemoryRouter><Header /></MemoryRouter>);
   expect(screen.getByTestId('theme-toggle')).toHaveTextContent('🌙');
+});
+
+test('renders search input', () => {
+  render(<MemoryRouter><Header /></MemoryRouter>);
+  expect(screen.getByRole('searchbox')).toBeInTheDocument();
+});
+
+test('search navigates to /all?q=term on submit', () => {
+  render(
+    <MemoryRouter initialEntries={['/']}>
+      <Header />
+      <LocationDisplay />
+    </MemoryRouter>
+  );
+  fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'chateau' } });
+  fireEvent.submit(screen.getByRole('search'));
+  expect(screen.getByTestId('location')).toHaveTextContent('/all?q=chateau');
+});
+
+test('search with empty query navigates to /all', () => {
+  render(
+    <MemoryRouter initialEntries={['/']}>
+      <Header />
+      <LocationDisplay />
+    </MemoryRouter>
+  );
+  fireEvent.submit(screen.getByRole('search'));
+  expect(screen.getByTestId('location')).toHaveTextContent('/all');
+  expect(screen.getByTestId('location')).not.toHaveTextContent('?q=');
 });
 
 test('marks the matching nav link as active', () => {

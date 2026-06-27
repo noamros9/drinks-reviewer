@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DrinkTable, { COLUMNS } from '../components/DrinkTable';
 import ColumnPanel from '../components/ColumnPanel';
 import FilterDropdown from '../components/FilterDropdown';
@@ -39,7 +40,10 @@ export default function AllDrinksPage() {
   const [countryFilter, setCountryFilter] = useState(new Set());
   const [abvMin, setAbvMin] = useState('');
   const [abvMax, setAbvMax] = useState('');
+  const [producerSearch, setProducerSearch] = useState('');
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
+  const [searchParams] = useSearchParams();
+  const searchQuery = (searchParams.get('q') || '').toLowerCase().trim();
 
   useEffect(() => {
     Promise.all(
@@ -61,11 +65,14 @@ export default function AllDrinksPage() {
     ? drinks
     : drinks.filter(d => d._category.toLowerCase() === filter);
 
-  const activeFilters = { producerSearch: '', country: countryFilter, abvMin, abvMax };
-  const hasFilter = countryFilter.size > 0 || abvMin !== '' || abvMax !== '';
-  const visible = hasFilter
+  const activeFilters = { producerSearch, country: countryFilter, abvMin, abvMax };
+  const hasFilter = countryFilter.size > 0 || abvMin !== '' || abvMax !== '' || producerSearch !== '';
+  const filterMatched = hasFilter
     ? categoryFiltered.filter(d => matchesFilters(d, activeFilters, 'all'))
     : categoryFiltered;
+  const visible = searchQuery
+    ? filterMatched.filter(d => Object.values(d).some(v => v && String(v).toLowerCase().includes(searchQuery)))
+    : filterMatched;
 
   const { options: countryOptions } = buildDropdownOptions(categoryFiltered, { key: 'country' });
   const countryCounts = countOptions(categoryFiltered, { key: 'country' }, activeFilters, 'all');
@@ -114,9 +121,10 @@ export default function AllDrinksPage() {
         drinks={visible}
         columnLayout={columnLayout}
         onColumnLayoutChange={handleColumnLayoutChange}
-        filterableCols={new Set(['country'])}
+        filterableCols={new Set(['country', '_producer'])}
         onCellClick={(colKey, value) => {
           if (colKey === 'country') setCountryFilter(prev => new Set([...prev, value]));
+          if (colKey === '_producer') setProducerSearch(value);
         }}
       />
     </div>
