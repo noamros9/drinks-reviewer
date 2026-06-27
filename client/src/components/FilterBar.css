@@ -177,3 +177,37 @@
 .filter-clear-all:hover { color: var(--danger); }
 
 .filter-bar-spacer { flex: 1; }
+
+.filter-chips {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.2rem 0.5rem 0.2rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.filter-chip button {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: color 0.1s;
+}
+
+.filter-chip button:hover { color: #fff; }

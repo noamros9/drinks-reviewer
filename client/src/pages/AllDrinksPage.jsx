@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import DrinkTable, { COLUMNS } from '../components/DrinkTable';
 import ColumnPanel from '../components/ColumnPanel';
 import FilterDropdown from '../components/FilterDropdown';
@@ -44,6 +44,7 @@ export default function AllDrinksPage() {
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
   const [searchParams] = useSearchParams();
   const searchQuery = (searchParams.get('q') || '').toLowerCase().trim();
+  const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all(
@@ -116,6 +117,34 @@ export default function AllDrinksPage() {
           onChange={handleColumnLayoutChange}
         />
       </div>
+      {(countryFilter.size > 0 || abvMin || abvMax || producerSearch || searchQuery) && (
+        <div className="filter-chips">
+          {searchQuery && (
+            <span className="filter-chip">
+              Search: {searchQuery}
+              <button onClick={() => navigate('/all')} aria-label="Clear search">×</button>
+            </span>
+          )}
+          {[...countryFilter].map(c => (
+            <span key={c} className="filter-chip">
+              {c}
+              <button onClick={() => setCountryFilter(prev => { const next = new Set(prev); next.delete(c); return next; })} aria-label={`Remove ${c} filter`}>×</button>
+            </span>
+          ))}
+          {producerSearch && (
+            <span className="filter-chip">
+              Producer: {producerSearch}
+              <button onClick={() => setProducerSearch('')} aria-label="Remove producer filter">×</button>
+            </span>
+          )}
+          {(abvMin || abvMax) && (
+            <span className="filter-chip">
+              ABV: {abvMin || '0'}–{abvMax || '∞'}
+              <button onClick={() => { setAbvMin(''); setAbvMax(''); }} aria-label="Remove ABV filter">×</button>
+            </span>
+          )}
+        </div>
+      )}
       <DrinkTable
         category="all"
         drinks={visible}
