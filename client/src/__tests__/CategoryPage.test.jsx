@@ -127,3 +127,23 @@ test('handles fetch error gracefully', async () => {
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText(/no entries yet/i);
 });
+
+test('clicking a producer cell sets producerSearch filter', async () => {
+  const WINE_B = { ...WINE_DRINK, id: '2', producer: 'OtherProd', seriesAndName: 'OtherWine' };
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, WINE_B]) }));
+  render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
+  await screen.findByText('Reserve');
+  fireEvent.click(screen.getAllByText('TestProd')[0]);
+  await waitFor(() => expect(screen.queryByText('OtherWine')).not.toBeInTheDocument());
+  expect(screen.getByText('Reserve')).toBeInTheDocument();
+});
+
+test('clicking a country cell adds it to the country Set filter', async () => {
+  const WINE_B = { ...WINE_DRINK, id: '2', producer: 'OtherProd', seriesAndName: 'OtherWine', country: 'Italy' };
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, WINE_B]) }));
+  render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
+  await screen.findByText('Reserve');
+  fireEvent.click(screen.getAllByText('France')[0]);
+  await waitFor(() => expect(screen.queryByText('OtherWine')).not.toBeInTheDocument());
+  expect(screen.getByText('Reserve')).toBeInTheDocument();
+});

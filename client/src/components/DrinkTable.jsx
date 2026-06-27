@@ -66,7 +66,7 @@ export const COLUMNS = {
   ],
 };
 
-export default function DrinkTable({ category, drinks, onEdit, columnLayout, onColumnLayoutChange }) {
+export default function DrinkTable({ category, drinks, onEdit, columnLayout, onColumnLayoutChange, onCellClick, filterableCols }) {
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
   const [dragKey, setDragKey] = useState(null);
@@ -207,6 +207,8 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
                 <td key={col.key} className={getCellClass(col.key, drink[col.key]) || undefined}>
                   {col.key === 'notionLink' && drink[col.key] ? (
                     <a href={drink[col.key]} target="_blank" rel="noopener noreferrer">↗ Open</a>
+                  ) : onCellClick && filterableCols?.has(col.key) && drink[col.key] != null && drink[col.key] !== '—' ? (
+                    <span className="cell-filterable" onClick={() => onCellClick(col.key, drink[col.key])}>{drink[col.key]}</span>
                   ) : (
                     drink[col.key] ?? '—'
                   )}

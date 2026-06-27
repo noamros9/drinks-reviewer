@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DrinkTable from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
-import { buildInitialFilters, matchesFilters } from '../utils/filterHelpers';
+import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
 
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
 
@@ -44,6 +44,20 @@ export default function CategoryPage({ category }) {
 
   const filtered = drinks.filter(d => matchesFilters(d, activeFilters, category));
 
+  const filterableCols = new Set([
+    PRODUCER_FIELD[category],
+    ...DROPDOWN_CONFIGS[category].map(c => c.key),
+  ]);
+
+  const handleCellClick = (colKey, value) => {
+    const producerCol = PRODUCER_FIELD[category];
+    setActiveFilters(prev =>
+      colKey === producerCol
+        ? { ...prev, producerSearch: value }
+        : { ...prev, [colKey]: new Set([...prev[colKey], value]) }
+    );
+  };
+
   const handleEdit = (drink) => {
     navigate('/admin', { state: { category, drink } });
   };
@@ -71,6 +85,8 @@ export default function CategoryPage({ category }) {
         onEdit={handleEdit}
         columnLayout={columnLayout}
         onColumnLayoutChange={handleColumnLayoutChange}
+        filterableCols={filterableCols}
+        onCellClick={handleCellClick}
       />
     </div>
   );

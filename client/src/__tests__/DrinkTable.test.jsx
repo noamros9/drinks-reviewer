@@ -332,3 +332,11 @@ test('drag with no columnLayout uses default layout', () => {
   fireEvent.drop(headers[2]);
   expect(onChange).toHaveBeenCalled();
 });
+
+test('clicking a filterable cell calls onCellClick with colKey and value', () => {
+  const onCellClick = vi.fn();
+  const filterableCols = new Set(['country', 'wineCategory']);
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} filterableCols={filterableCols} onCellClick={onCellClick} />);
+  fireEvent.click(screen.getAllByText('Italy')[0]);
+  expect(onCellClick).toHaveBeenCalledWith('country', 'Italy');
+});
