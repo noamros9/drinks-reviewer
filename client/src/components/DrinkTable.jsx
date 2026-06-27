@@ -66,9 +66,11 @@ export const COLUMNS = {
   ],
 };
 
-export default function DrinkTable({ category, drinks, onEdit, columnLayout, onColumnLayoutChange, onCellClick, filterableCols }) {
-  const [sortKey, setSortKey] = useState(null);
-  const [sortDir, setSortDir] = useState('asc');
+export default function DrinkTable({ category, drinks, onEdit, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort }) {
+  const [intKey, setIntKey] = useState(null);
+  const [intDir, setIntDir] = useState('asc');
+  const sortKey = onSort !== undefined ? propSortKey : intKey;
+  const sortDir = onSort !== undefined ? propSortDir : intDir;
   const [dragKey, setDragKey] = useState(null);
   const [dragOverKey, setDragOverKey] = useState(null);
   const dragWidth = useRef(0);
@@ -83,11 +85,13 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
     columnLayout ?? { order: allCols.map(c => c.key), hidden: new Set() };
 
   const handleSort = (key) => {
-    if (sortKey === key) {
-      setSortDir(d => (d === 'asc' ? 'desc' : 'asc'));
+    if (onSort) {
+      onSort(key);
+    } else if (intKey === key) {
+      setIntDir(d => (d === 'asc' ? 'desc' : 'asc'));
     } else {
-      setSortKey(key);
-      setSortDir('asc');
+      setIntKey(key);
+      setIntDir('asc');
     }
   };
 
