@@ -18,7 +18,7 @@ export default function AbvFilter({ abvMin, abvMax, onChange }) {
     : 'ABV';
 
   return (
-    <div className="filter-dropdown" ref={ref}>
+    <div className="filter-dropdown filter-dropdown--abv" ref={ref}>
       <button
         className={`filter-dropdown-btn${hasActive ? ' active' : ''}`}
         onClick={() => setOpen(o => !o)}
@@ -28,7 +28,7 @@ export default function AbvFilter({ abvMin, abvMax, onChange }) {
         <span className="filter-chevron">{open ? '▴' : '▾'}</span>
       </button>
       {open && (
-        <div className="filter-dropdown-menu abv-filter-menu">
+        <div className="filter-dropdown-menu">
           <div className="abv-filter-row">
             <span className="abv-filter-label">Min</span>
             <input
