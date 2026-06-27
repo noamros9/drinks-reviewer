@@ -11,10 +11,6 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
   const configs = DROPDOWN_CONFIGS[category] || [];
   const producerLabel = { wine: 'Producer', beer: 'Brewery', whiskey: 'Distillery', others: 'Distillery' }[category] ?? 'Producer';
 
-  const hasAnyFilter = activeFilters.producerSearch ||
-    configs.some(c => activeFilters[c.key]?.size > 0) ||
-    activeFilters.abvMin !== '' || activeFilters.abvMax !== '';
-
   const activeCount =
     (activeFilters.producerSearch ? 1 : 0) +
     configs.reduce((n, c) => n + (activeFilters[c.key]?.size || 0), 0) +
@@ -63,7 +59,7 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
           abvMax={activeFilters.abvMax ?? ''}
           onChange={({ abvMin, abvMax }) => onChange({ ...activeFilters, abvMin, abvMax })}
         />
-        {hasAnyFilter && (
+        {activeCount > 0 && (
           <button className="filter-clear-all" onClick={clearAll}>Clear all</button>
         )}
       </div>
@@ -75,7 +71,7 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
           onChange={onColumnLayoutChange}
         />
       )}
-      {hasAnyFilter && (
+      {activeCount > 0 && (
         <div className="filter-chips">
           {activeFilters.producerSearch && (
             <span className="filter-chip">
@@ -91,9 +87,9 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
               </span>
             ))
           )}
-          {(activeFilters.abvMin || activeFilters.abvMax) && (
+          {(activeFilters.abvMin !== '' || activeFilters.abvMax !== '') && (
             <span className="filter-chip">
-              ABV: {activeFilters.abvMin || '0'}–{activeFilters.abvMax || '∞'}
+              ABV: {activeFilters.abvMin !== '' ? activeFilters.abvMin : '0'}–{activeFilters.abvMax !== '' ? activeFilters.abvMax : '∞'}
               <button onClick={() => onChange({ ...activeFilters, abvMin: '', abvMax: '' })} aria-label="Remove ABV filter">×</button>
             </span>
           )}
