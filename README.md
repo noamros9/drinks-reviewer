@@ -17,6 +17,7 @@ A personal drinks review website for tracking wine, beer, whiskey, and other spi
 - Click any producer, type, country, variety, or region cell in a table to instantly add that value to the active filters; producer and country cells are also clickable on the All Drinks page
 - Active filter chips below the filter bar show every active filter at a glance; click × on any chip to remove just that value; global search query also appears as a dismissible chip on the All page
 - Sort presets in the page header: "Top rated" (avg ranking descending) and "Recently tasted" (last tasted date descending); clicking any column header deactivates the preset
+- Mobile responsive layout (≤768px): hamburger menu collapses nav links and search into a drawer; filter bar collapses behind a "Filters" pill; table scrolls horizontally with tighter padding
 - Variety filter splits blends — filtering by a single grape matches any drink containing that grape
 - ABV range filter (min/max) on all pages including the All page
 - Country filter on the All page; filters respect the active category tab

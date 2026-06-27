@@ -179,6 +179,15 @@ main {
   color: #fff;
 }
 
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  main { padding: 1.25rem 1rem; }
+
+  .page-header { flex-wrap: wrap; gap: 0.5rem; }
+
+  .sort-presets { margin-left: 0; flex-basis: 100%; }
+}
+
 /* ── Animations ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }

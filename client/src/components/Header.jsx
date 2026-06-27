@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Header.css';
 
 const NAV = [
@@ -16,8 +16,11 @@ export default function Header() {
     () => document.documentElement.getAttribute('data-theme') || 'light'
   );
   const [query, setQuery] = useState('');
+  const [navOpen, setNavOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => { setNavOpen(false); }, [location.pathname]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -33,7 +36,7 @@ export default function Header() {
   };
 
   return (
-    <header>
+    <header className={navOpen ? 'nav-open' : ''}>
       <div className="header-inner">
         <Link to="/" className="logo">Drinks Reviewer</Link>
         <nav>
@@ -64,6 +67,13 @@ export default function Header() {
         >
           {theme === 'dark' ? '☀️' : '🌙'}
         </button>
+        <button
+          className="hamburger"
+          onClick={() => setNavOpen(o => !o)}
+          aria-label="Toggle navigation"
+          aria-expanded={navOpen}
+          data-testid="hamburger"
+        >☰</button>
       </div>
     </header>
   );

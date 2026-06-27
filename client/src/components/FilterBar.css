@@ -6,6 +6,51 @@
   margin-bottom: 1.25rem;
 }
 
+.filter-toggle {
+  display: none;
+}
+
+.filter-controls {
+  display: contents;
+}
+
+@media (max-width: 768px) {
+  .filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    transition: border-color var(--transition), color var(--transition);
+  }
+
+  .filter-toggle:hover {
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+  }
+
+  .filter-controls {
+    display: none;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    flex-basis: 100%;
+    padding-top: 0.25rem;
+  }
+
+  .filter-bar.filters-open .filter-controls {
+    display: flex;
+  }
+
+  .filter-bar-spacer { display: none; }
+}
+
 .filter-search-wrapper {
   position: relative;
   display: flex;

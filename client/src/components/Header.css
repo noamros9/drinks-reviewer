@@ -104,3 +104,54 @@ header nav a.active {
   border-color: var(--text-secondary);
   transform: rotate(18deg);
 }
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  padding: 0.25rem 0.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .hamburger { display: flex; align-items: center; }
+
+  .header-inner {
+    flex-wrap: wrap;
+    padding: 0 1rem;
+    height: auto;
+    min-height: 60px;
+    gap: 0.75rem;
+  }
+
+  .logo { flex: 1; }
+
+  header nav,
+  .header-search {
+    display: none;
+    order: 10;
+    flex-basis: 100%;
+    padding-bottom: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  header nav { flex-direction: column; gap: 0; }
+
+  header nav a {
+    padding: 0.6rem 0.25rem;
+    font-size: 0.95rem;
+    border-radius: 0;
+  }
+
+  .header-search input {
+    width: 100%;
+  }
+
+  header.nav-open nav,
+  header.nav-open .header-search {
+    display: flex;
+  }
+}
