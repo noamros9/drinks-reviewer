@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import './Header.css';
 
@@ -15,7 +15,15 @@ export default function Header() {
   const [theme, setTheme] = useState(
     () => document.documentElement.getAttribute('data-theme') || 'light'
   );
+  const [query, setQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const q = query.trim();
+    navigate(q ? `/all?q=${encodeURIComponent(q)}` : '/all');
+  };
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -39,6 +47,15 @@ export default function Header() {
             </Link>
           ))}
         </nav>
+        <form className="header-search" onSubmit={handleSearch} role="search">
+          <input
+            type="search"
+            placeholder="Search drinks…"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            aria-label="Search all drinks"
+          />
+        </form>
         <button
           className="theme-toggle"
           onClick={toggleTheme}

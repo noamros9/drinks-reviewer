@@ -171,6 +171,25 @@ test('resetting columns removes localStorage entry', async () => {
   expect(localStorage.getItem('drinks_columns_all')).toBeNull();
 });
 
+test('?q search param filters drinks across all fields', async () => {
+  render(
+    <MemoryRouter initialEntries={['/all?q=france']}>
+      <AllDrinksPage />
+    </MemoryRouter>
+  );
+  expect(await screen.findByText('Grand Cru')).toBeInTheDocument();
+  expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument();
+  expect(screen.queryByText('Single Malt')).not.toBeInTheDocument();
+});
+
+test('clicking a producer cell filters to that producer', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByText('Château X'));
+  await waitFor(() => expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument());
+  expect(screen.getByText('Grand Cru')).toBeInTheDocument();
+});
+
 test('clicking a country cell adds it to the country filter', async () => {
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
   await screen.findByText('Grand Cru');
