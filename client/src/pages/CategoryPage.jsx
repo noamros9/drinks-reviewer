@@ -26,7 +26,19 @@ export default function CategoryPage({ category }) {
   const [drinks, setDrinks] = useState([]);
   const [activeFilters, setActiveFilters] = useState(() => buildInitialFilters(category));
   const [columnLayout, setColumnLayout] = useState(() => loadLayout(category));
+  const [sortKey, setSortKey] = useState(null);
+  const [sortDir, setSortDir] = useState('asc');
   const navigate = useNavigate();
+
+  const handleSort = (key) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir('asc'); }
+  };
+
+  const PRESETS = [
+    { label: 'Top rated', key: 'avgRanking', dir: 'desc' },
+    { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
+  ];
 
   useEffect(() => {
     setActiveFilters(buildInitialFilters(category));
@@ -70,6 +82,15 @@ export default function CategoryPage({ category }) {
           {filtered.length}{filtered.length !== drinks.length ? ` / ${drinks.length}` : ''}{' '}
           {drinks.length === 1 ? 'entry' : 'entries'}
         </span>
+        <div className="sort-presets">
+          {PRESETS.map(p => (
+            <button
+              key={p.label}
+              className={`sort-preset${sortKey === p.key && sortDir === p.dir ? ' active' : ''}`}
+              onClick={() => { setSortKey(p.key); setSortDir(p.dir); }}
+            >{p.label}</button>
+          ))}
+        </div>
       </div>
       <FilterBar
         category={category}
@@ -87,6 +108,9 @@ export default function CategoryPage({ category }) {
         onColumnLayoutChange={handleColumnLayoutChange}
         filterableCols={filterableCols}
         onCellClick={handleCellClick}
+        sortKey={sortKey}
+        sortDir={sortDir}
+        onSort={handleSort}
       />
     </div>
   );

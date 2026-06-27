@@ -34,6 +34,11 @@ function normalize(entries, category) {
   }));
 }
 
+const PRESETS = [
+  { label: 'Top rated', key: 'avgRanking', dir: 'desc' },
+  { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
+];
+
 export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
@@ -42,9 +47,16 @@ export default function AllDrinksPage() {
   const [abvMax, setAbvMax] = useState('');
   const [producerSearch, setProducerSearch] = useState('');
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
+  const [sortKey, setSortKey] = useState(null);
+  const [sortDir, setSortDir] = useState('asc');
   const [searchParams] = useSearchParams();
   const searchQuery = (searchParams.get('q') || '').toLowerCase().trim();
   const navigate = useNavigate();
+
+  const handleSort = (key) => {
+    if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir('asc'); }
+  };
 
   useEffect(() => {
     Promise.all(
@@ -83,6 +95,15 @@ export default function AllDrinksPage() {
       <div className="page-header">
         <h1>All Drinks</h1>
         <span className="count-badge">{visible.length} {visible.length === 1 ? 'entry' : 'entries'}</span>
+        <div className="sort-presets">
+          {PRESETS.map(p => (
+            <button
+              key={p.label}
+              className={`sort-preset${sortKey === p.key && sortDir === p.dir ? ' active' : ''}`}
+              onClick={() => { setSortKey(p.key); setSortDir(p.dir); }}
+            >{p.label}</button>
+          ))}
+        </div>
       </div>
       <div className="all-page-toolbar">
         <div className="category-tabs">
@@ -155,6 +176,9 @@ export default function AllDrinksPage() {
           if (colKey === 'country') setCountryFilter(prev => new Set([...prev, value]));
           if (colKey === '_producer') setProducerSearch(value);
         }}
+        sortKey={sortKey}
+        sortDir={sortDir}
+        onSort={handleSort}
       />
     </div>
   );
