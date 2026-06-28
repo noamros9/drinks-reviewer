@@ -4,6 +4,7 @@ import './Header.css';
 
 const NAV = [
   { path: '/all', label: 'All' },
+  { path: '/collection', label: 'Collection' },
   { path: '/wine', label: 'Wine' },
   { path: '/beer', label: 'Beer' },
   { path: '/whiskey', label: 'Whiskey' },
