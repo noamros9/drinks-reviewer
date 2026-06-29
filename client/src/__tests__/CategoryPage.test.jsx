@@ -83,7 +83,7 @@ test('fetch error (ok: false) leaves drinks empty without crashing', async () =>
 });
 
 test('loads column layout from localStorage', async () => {
-  localStorage.setItem('drinks_columns_wine', JSON.stringify({
+  localStorage.setItem('drinks_columns_v2_wine', JSON.stringify({
     order: COLUMNS.wine.map(c => c.key),
     hidden: ['region'],
   }));
@@ -94,18 +94,18 @@ test('loads column layout from localStorage', async () => {
   expect(screen.getByTestId('column-panel-btn')).toHaveTextContent('Columns');
 });
 
-test('loadLayout merges new columns missing from a stale saved order', async () => {
-  const oldOrder = COLUMNS.wine.map(c => c.key).filter(k => k !== 'tags');
-  localStorage.setItem('drinks_columns_wine', JSON.stringify({ order: oldOrder, hidden: [] }));
-  const drink = { id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: 'Merlot',
-    country: 'France', region: '', abv: '13', lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '', tags: ['gift'] };
-  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([drink]) }));
+test('stale v1 layout key is ignored and defaults apply', async () => {
+  localStorage.clear();
+  localStorage.setItem('drinks_columns_wine', JSON.stringify({ order: ['producer'], hidden: [] }));
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
-  expect(await screen.findByRole('columnheader', { name: /tags/i })).toBeInTheDocument();
+  await screen.findByText(/no entries yet/i);
+  expect(screen.getByTestId('column-panel-btn')).toBeInTheDocument();
+  expect(localStorage.getItem('drinks_columns_v2_wine')).toBeNull();
 });
 
 test('loadLayout falls back to null on invalid JSON', async () => {
-  localStorage.setItem('drinks_columns_wine', 'bad{json');
+  localStorage.setItem('drinks_columns_v2_wine', 'bad{json');
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText(/no entries yet/i);
@@ -118,18 +118,18 @@ test('column layout change is saved to localStorage', async () => {
   await screen.findByText(/no entries yet/i);
   fireEvent.click(screen.getByTestId('column-panel-btn'));
   fireEvent.click(screen.getByTestId('col-toggle-region'));
-  expect(localStorage.getItem('drinks_columns_wine')).not.toBeNull();
-  expect(JSON.parse(localStorage.getItem('drinks_columns_wine')).hidden).toContain('region');
+  expect(localStorage.getItem('drinks_columns_v2_wine')).not.toBeNull();
+  expect(JSON.parse(localStorage.getItem('drinks_columns_v2_wine')).hidden).toContain('region');
 });
 
 test('saving null layout removes localStorage entry', async () => {
-  localStorage.setItem('drinks_columns_wine', JSON.stringify({ order: [], hidden: [] }));
+  localStorage.setItem('drinks_columns_v2_wine', JSON.stringify({ order: [], hidden: [] }));
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText(/no entries yet/i);
   fireEvent.click(screen.getByTestId('column-panel-btn'));
   fireEvent.click(screen.getByText('Reset to default'));
-  expect(localStorage.getItem('drinks_columns_wine')).toBeNull();
+  expect(localStorage.getItem('drinks_columns_v2_wine')).toBeNull();
 });
 
 test('handles fetch error gracefully', async () => {

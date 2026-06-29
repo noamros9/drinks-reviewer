@@ -400,6 +400,31 @@ test('clicking a filterable cell calls onCellClick with colKey and value', () =>
   expect(onCellClick).toHaveBeenCalledWith('country', 'Italy');
 });
 
+// ── Sweetness column ─────────────────────────────────────────────────
+
+test('sweetness chip renders for wine', () => {
+  const drink = [{ ...WINE_ROWS[0], sweetness: 'Dry' }];
+  render(<DrinkTable category="wine" drinks={drink} />);
+  expect(screen.getByText('Dry')).toBeInTheDocument();
+  expect(screen.getByText('Dry')).toHaveClass('chip-sweetness-dry');
+});
+
+test('sweetness renders — when missing', () => {
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} />);
+  const cells = screen.getAllByText('—');
+  expect(cells.length).toBeGreaterThan(0);
+});
+
+test('all four sweetness values get distinct chip classes', () => {
+  const values = ['Dry', 'Off-Dry', 'Sweet', 'Extra-Dry'];
+  const classes = ['chip-sweetness-dry', 'chip-sweetness-offdry', 'chip-sweetness-sweet', 'chip-sweetness-extradry'];
+  values.forEach((sweetness, i) => {
+    const { unmount } = render(<DrinkTable category="wine" drinks={[{ ...WINE_ROWS[0], sweetness }]} />);
+    expect(screen.getByText(sweetness)).toHaveClass(classes[i]);
+    unmount();
+  });
+});
+
 // ── Tags column ──────────────────────────────────────────────────────
 
 const WINE_WITH_TAGS = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: 'Merlot',
