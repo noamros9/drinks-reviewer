@@ -23,31 +23,23 @@ Client → `http://localhost:5173` · Server → `http://localhost:3001`
 
 **Browsing & filtering**
 - Category pages (Wine, Beer, Whiskey, Others) and an All Drinks view
-- Multi-select filter bar per page — type, country, variety, ABV range, tags; each option shows a live count
-- Click any cell value to instantly filter by it
-- Active filter chips with one-click removal
-- Sort presets: Top Rated and Recently Tasted; click any column header to sort manually
 - Global search across all fields from the nav bar
-
-**Table**
-- Category-specific columns with color-coded chips (wine type, country Old/New World, beer style, sweetness, etc.)
-- Hide and reorder columns per category, persisted in localStorage
-- Mobile responsive — collapsible nav, filter pill, horizontal table scroll
+- Multi-select filter bar — type, country, variety, ABV range, sweetness, tags; live option counts
+- Click any cell value to instantly filter by it; dismiss individual filters via chips
+- Sort presets (Top Rated, Recently Tasted) or click any column header to sort manually
+- Color-coded chips on key columns (wine type, country Old/New World, beer style, sweetness, etc.)
+- Hide and reorder columns per category; mobile responsive throughout
 
 **My Collection**
-- `/collection` page for in-stock bottles; quantity badges with +/− controls
+- `/collection` page for in-stock bottles with quantity badges and +/− controls
 - Lots model — multiple lots per drink for different prices or vintages
 - "Pick for me" randomly selects from in-stock bottles
-- "Drank it" button pre-fills Admin with the drink and decrements the oldest lot on save
+- "Drank it" opens the drink in Admin pre-filled and decrements the oldest lot on save
 
 **Admin**
 - Add, edit, and delete entries across all categories
-- Two tabs: **Review** (tasting notes, ratings, sweetness, tags) and **Collection** (lot management)
-- Create collection-only entries (no review required) directly from the Collection tab
-
-**Tags & Sweetness**
-- Freeform tags on any entry — chip UI with autocomplete; clickable chips filter the table
-- Sweetness field on wine (Dry / Off-Dry / Sweet / Extra-Dry) — filterable, shown as a color chip
+- Two tabs: **Review** (tasting notes, ratings, sweetness, freeform tags with autocomplete) and **Collection** (lot management)
+- Create collection-only entries without a review from the Collection tab
 
 ## Testing
 
