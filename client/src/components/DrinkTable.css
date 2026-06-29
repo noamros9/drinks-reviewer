@@ -165,6 +165,12 @@ th:hover .col-hide-btn { opacity: 1; }
 .chip-country-israel    { background: #D5E5FF; color: #2048A0; }
 .chip-country-other     { background: #EBEBEB; color: #555555; }
 
+/* Sweetness */
+.chip-sweetness-dry      { background: #E8F5E9; color: #2E7D32; }
+.chip-sweetness-offdry   { background: #FFF9C4; color: #827717; }
+.chip-sweetness-sweet    { background: #FCE4EC; color: #AD1457; }
+.chip-sweetness-extradry { background: #E3F2FD; color: #1565C0; }
+
 /* Others page — drinkCategory */
 .chip-others-rum     { background: #F5E0CC; color: #7A3010; }
 .chip-others-vodka   { background: #E0EEFF; color: #2050A0; }
@@ -182,6 +188,10 @@ th:hover .col-hide-btn { opacity: 1; }
 .chip-beer-stout { background: #E8E0D8; color: #4A3010; }
 
 /* Dark mode */
+[data-theme="dark"] .chip-sweetness-dry      { background: rgba(232,245,233,0.18); color: #66BB6A; }
+[data-theme="dark"] .chip-sweetness-offdry   { background: rgba(255,249,196,0.18); color: #D4C020; }
+[data-theme="dark"] .chip-sweetness-sweet    { background: rgba(252,228,236,0.18); color: #E060A0; }
+[data-theme="dark"] .chip-sweetness-extradry { background: rgba(227,242,253,0.18); color: #60A8E0; }
 [data-theme="dark"] .chip-cat-wine    { background: rgba(240,217,255,0.18); color: #D4A0F0; }
 [data-theme="dark"] .chip-cat-beer    { background: rgba(255,240,192,0.18); color: #D4B060; }
 [data-theme="dark"] .chip-cat-whiskey { background: rgba(255,229,204,0.18); color: #D4906A; }

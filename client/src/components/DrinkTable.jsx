@@ -7,6 +7,7 @@ export const COLUMNS = {
     { key: 'producer',      label: 'Producer' },
     { key: 'seriesAndName', label: 'Name' },
     { key: 'wineCategory',  label: 'Type' },
+    { key: 'sweetness',     label: 'Sweetness' },
     { key: 'variety',       label: 'Variety' },
     { key: 'country',       label: 'Country' },
     { key: 'region',        label: 'Region' },
@@ -149,6 +150,10 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     }
     if (colKey === 'wineCategory') {
       const map = { Red: 'chip-wine-red', White: 'chip-wine-white', 'Rosé': 'chip-wine-rose', Sparkling: 'chip-wine-sparkling', Fortified: 'chip-wine-fortified' };
+      return map[value] || '';
+    }
+    if (colKey === 'sweetness') {
+      const map = { Dry: 'chip-sweetness-dry', 'Off-Dry': 'chip-sweetness-offdry', Sweet: 'chip-sweetness-sweet', 'Extra-Dry': 'chip-sweetness-extradry' };
       return map[value] || '';
     }
     if (colKey === 'drinkCategory') {
