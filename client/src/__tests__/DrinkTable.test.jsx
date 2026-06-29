@@ -62,36 +62,95 @@ test('unknown category falls back to empty columns via COLUMNS || [] (line 76)',
 
 // ── Color indicators ─────────────────────────────────────────────────
 
-test('wine type cells get the correct color class', () => {
+test('wine type cells get the correct chip class', () => {
   render(<DrinkTable category="wine" drinks={WINE_ROWS} />);
-  expect(screen.getByText('White')).toHaveClass('wine-type-white');
-  expect(screen.getByText('Red')).toHaveClass('wine-type-red');
+  expect(screen.getByText('White')).toHaveClass('chip-wine-white');
+  expect(screen.getByText('Red')).toHaveClass('chip-wine-red');
 });
 
-test('wine country cells get the correct world-group color class', () => {
+test('wine country cells get the correct world-group chip class', () => {
   render(<DrinkTable category="wine" drinks={WINE_ROWS} />);
-  expect(screen.getByText('Italy')).toHaveClass('wine-country-old-world');
-  expect(screen.getByText('Israel')).toHaveClass('wine-country-israel');
+  expect(screen.getByText('Italy')).toHaveClass('chip-country-old-world');
+  expect(screen.getByText('Israel')).toHaveClass('chip-country-israel');
 });
 
-test('New World country cell gets wine-country-new-world class (covers line 140)', () => {
+test('New World country cell gets chip-country-new-world class', () => {
   const australiaRow = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: 'Shiraz',
     country: 'Australia', region: '', abv: '14', lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '' }];
   render(<DrinkTable category="wine" drinks={australiaRow} />);
-  expect(screen.getByText('Australia')).toHaveClass('wine-country-new-world');
+  expect(screen.getByText('Australia')).toHaveClass('chip-country-new-world');
 });
 
-test('Other (non-Old/non-New) country gets wine-country-other class (covers line 141 truthy)', () => {
+test('Other (non-Old/non-New) country gets chip-country-other class', () => {
   const unknownRow = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: 'Red',
     country: 'UnknownLand', region: '', abv: '14', lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '' }];
   render(<DrinkTable category="wine" drinks={unknownRow} />);
-  expect(screen.getByText('UnknownLand')).toHaveClass('wine-country-other');
+  expect(screen.getByText('UnknownLand')).toHaveClass('chip-country-other');
 });
 
-test('beer category country cells do not get wine color classes', () => {
+test('beer category country cells do not get wine chip classes', () => {
   const beerRows = [{ id: '1', brewery: 'Goldstar', name: 'Lager', style: 'Lager', country: 'Israel', abv: '4.9', lastTasted: '01/01/2025', lastRanking: '7', avgRanking: '7', notionLink: '' }];
   render(<DrinkTable category="beer" drinks={beerRows} />);
-  expect(screen.getByText('Israel')).not.toHaveClass('wine-country-old-world');
+  expect(screen.getByText('Israel')).not.toHaveClass('chip-country-old-world');
+});
+
+test('_category column on All page gets category chip class', () => {
+  const allRows = [{ id: '1', _category: 'Wine', _producer: 'Chateau', name: 'Grand Cru', country: 'France', abv: '13', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '' }];
+  render(<DrinkTable category="all" drinks={allRows} />);
+  expect(screen.getByText('Wine')).toHaveClass('chip-cat-wine');
+});
+
+test('unknown _category value produces no chip class', () => {
+  const allRows = [{ id: '1', _category: 'Unknown', _producer: 'P', name: 'X', country: '', abv: '', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '' }];
+  render(<DrinkTable category="all" drinks={allRows} />);
+  expect(screen.getByText('Unknown')).not.toHaveClass('status-chip');
+});
+
+test('drinkCategory on others page gets chip class', () => {
+  const othersRows = [{ id: '1', drinkCategory: 'Rum', distillery: 'Bacardi', name: 'Gold', country: 'Cuba', style: '', age: '', abv: '40', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '' }];
+  render(<DrinkTable category="others" drinks={othersRows} />);
+  expect(screen.getByText('Rum')).toHaveClass('chip-others-rum');
+});
+
+test('unknown drinkCategory falls back to generic chip', () => {
+  const othersRows = [{ id: '1', drinkCategory: 'Brandy', distillery: 'X', name: 'Reserve', country: 'France', style: '', age: '', abv: '40', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '' }];
+  render(<DrinkTable category="others" drinks={othersRows} />);
+  expect(screen.getByText('Brandy')).toHaveClass('chip-others-generic');
+});
+
+test('whiskey style gets chip class', () => {
+  const whiskeyRows = [{ id: '1', distillery: 'Glenfarclas', name: '105', country: 'Scotland', region: 'Speyside', age: '10', style: 'Single Malt', abv: '60', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '' }];
+  render(<DrinkTable category="whiskey" drinks={whiskeyRows} />);
+  expect(screen.getByText('Single Malt')).toHaveClass('chip-whiskey-singlemalt');
+});
+
+test('beer ale-type styles get chip-beer-ale class', () => {
+  const beerRows = [{ id: '1', brewery: 'Brew Co', name: 'Pint', style: 'IPA', country: 'UK', abv: '5', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '' }];
+  render(<DrinkTable category="beer" drinks={beerRows} />);
+  expect(screen.getByText('IPA')).toHaveClass('chip-beer-ale');
+});
+
+test('beer lager-type styles get chip-beer-lager class', () => {
+  const beerRows = [{ id: '1', brewery: 'Brew Co', name: 'Pint', style: 'Pilsner', country: 'CZ', abv: '5', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '' }];
+  render(<DrinkTable category="beer" drinks={beerRows} />);
+  expect(screen.getByText('Pilsner')).toHaveClass('chip-beer-lager');
+});
+
+test('beer stout/porter styles get chip-beer-stout class', () => {
+  const beerRows = [{ id: '1', brewery: 'Brew Co', name: 'Pint', style: 'Stout', country: 'IE', abv: '5', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '' }];
+  render(<DrinkTable category="beer" drinks={beerRows} />);
+  expect(screen.getByText('Stout')).toHaveClass('chip-beer-stout');
+});
+
+test('chip cell that is also filterable gets both classes', () => {
+  const allRows = [{ id: '1', _category: 'Beer', _producer: 'Brew Co', name: 'Lager', country: 'UK', abv: '5', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '' }];
+  const handleClick = vi.fn();
+  render(<DrinkTable category="all" drinks={allRows} filterableCols={new Set(['_category'])} onCellClick={handleClick} />);
+  const chip = screen.getByText('Beer');
+  expect(chip).toHaveClass('chip-cat-beer');
+  expect(chip).toHaveClass('cell-filterable');
+  fireEvent.click(chip);
+  expect(handleClick).toHaveBeenCalledWith('_category', 'Beer');
 });
 
 // ── Sorting ──────────────────────────────────────────────────────────

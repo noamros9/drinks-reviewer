@@ -110,37 +110,73 @@ th:hover .col-hide-btn { opacity: 1; }
 .cell-filterable { cursor: pointer; }
 .cell-filterable:hover { text-decoration: underline; text-underline-offset: 2px; }
 
-/* ── Wine color indicators ── */
-td.wine-type-red,
-td.wine-type-white,
-td.wine-type-rose,
-td.wine-type-sparkling,
-td.wine-type-fortified,
-td.wine-country-old-world,
-td.wine-country-new-world,
-td.wine-country-israel,
-td.wine-country-other { position: relative; }
-
-td.wine-type-red          { --wine-color: #c94040; }
-td.wine-type-white        { --wine-color: #e8c040; }
-td.wine-type-rose         { --wine-color: #f07898; }
-td.wine-type-sparkling    { --wine-color: #4898c8; }
-td.wine-type-fortified    { --wine-color: #b06028; }
-td.wine-country-old-world { --wine-color: #5c9048; }
-td.wine-country-new-world { --wine-color: #d09020; }
-td.wine-country-israel    { --wine-color: #4068b8; }
-td.wine-country-other     { --wine-color: #888888; }
-
-td[class*="wine-type-"]::before,
-td[class*="wine-country-"]::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 55%;
-  background: var(--wine-color);
-  border-radius: 0 3px 3px 0;
-  box-shadow: 0 0 8px 2px var(--wine-color);
+/* ── Status chips ── */
+.status-chip {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
+
+/* Category */
+.chip-cat-wine    { background: #F0D9FF; color: #7B2F8B; }
+.chip-cat-beer    { background: #FFF0C0; color: #9B6A00; }
+.chip-cat-whiskey { background: #FFE5CC; color: #8B4513; }
+.chip-cat-others  { background: #D0F0E8; color: #1A7058; }
+
+/* Wine type */
+.chip-wine-red       { background: #FFD6D6; color: #A01515; }
+.chip-wine-white     { background: #FFF6CC; color: #8B7000; }
+.chip-wine-rose      { background: #FFE0F2; color: #C02878; }
+.chip-wine-sparkling { background: #E3F2FD; color: #0D47A1; }
+.chip-wine-fortified { background: #EDE7F6; color: #4527A0; }
+
+/* Wine country */
+.chip-country-old-world { background: #D5EDD5; color: #2D7A2D; }
+.chip-country-new-world { background: #FFF0CC; color: #9B6A00; }
+.chip-country-israel    { background: #D5E5FF; color: #2048A0; }
+.chip-country-other     { background: #EBEBEB; color: #555555; }
+
+/* Others page — drinkCategory */
+.chip-others-rum     { background: #F5E0CC; color: #7A3010; }
+.chip-others-vodka   { background: #E0EEFF; color: #2050A0; }
+.chip-others-liqueur { background: #EDE0FF; color: #5020A0; }
+.chip-others-generic { background: #EBEBEB; color: #555555; }
+
+/* Whiskey style */
+.chip-whiskey-singlemalt { background: #FFF0D8; color: #8B5A00; }
+.chip-whiskey-bourbon    { background: #FFE5CC; color: #7A3010; }
+.chip-whiskey-style      { background: #FFF0D8; color: #8B5A00; }
+
+/* Beer style */
+.chip-beer-ale   { background: #FFF0CC; color: #8B6000; }
+.chip-beer-lager { background: #E0EEFF; color: #1A5A9A; }
+.chip-beer-stout { background: #E8E0D8; color: #4A3010; }
+
+/* Dark mode */
+[data-theme="dark"] .chip-cat-wine    { background: rgba(240,217,255,0.18); color: #D4A0F0; }
+[data-theme="dark"] .chip-cat-beer    { background: rgba(255,240,192,0.18); color: #D4B060; }
+[data-theme="dark"] .chip-cat-whiskey { background: rgba(255,229,204,0.18); color: #D4906A; }
+[data-theme="dark"] .chip-cat-others  { background: rgba(208,240,232,0.18); color: #60C4A0; }
+[data-theme="dark"] .chip-wine-red       { background: rgba(255,214,214,0.18); color: #E06060; }
+[data-theme="dark"] .chip-wine-white     { background: rgba(255,246,204,0.18); color: #D4B840; }
+[data-theme="dark"] .chip-wine-rose      { background: rgba(255,224,242,0.18); color: #E060B0; }
+[data-theme="dark"] .chip-wine-sparkling { background: rgba(227,242,253,0.18); color: #60A8E0; }
+[data-theme="dark"] .chip-wine-fortified { background: rgba(237,231,246,0.18); color: #A080D8; }
+[data-theme="dark"] .chip-country-old-world { background: rgba(213,237,213,0.18); color: #80C880; }
+[data-theme="dark"] .chip-country-new-world { background: rgba(255,240,204,0.18); color: #D4B060; }
+[data-theme="dark"] .chip-country-israel    { background: rgba(213,229,255,0.18); color: #80A8E0; }
+[data-theme="dark"] .chip-country-other     { background: rgba(235,235,235,0.12); color: #A0A0A0; }
+[data-theme="dark"] .chip-others-rum        { background: rgba(245,224,204,0.18); color: #D49070; }
+[data-theme="dark"] .chip-others-vodka      { background: rgba(224,238,255,0.18); color: #80A8E0; }
+[data-theme="dark"] .chip-others-liqueur    { background: rgba(237,224,255,0.18); color: #B080E0; }
+[data-theme="dark"] .chip-others-generic    { background: rgba(235,235,235,0.12); color: #A0A0A0; }
+[data-theme="dark"] .chip-whiskey-singlemalt { background: rgba(255,240,216,0.18); color: #D4A060; }
+[data-theme="dark"] .chip-whiskey-bourbon    { background: rgba(255,229,204,0.18); color: #D4906A; }
+[data-theme="dark"] .chip-whiskey-style      { background: rgba(255,240,216,0.18); color: #D4A060; }
+[data-theme="dark"] .chip-beer-ale   { background: rgba(255,240,204,0.18); color: #D4B060; }
+[data-theme="dark"] .chip-beer-lager { background: rgba(224,238,255,0.18); color: #80B0E0; }
+[data-theme="dark"] .chip-beer-stout { background: rgba(232,224,216,0.18); color: #C0A080; }

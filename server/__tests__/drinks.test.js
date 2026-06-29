@@ -39,6 +39,14 @@ describe('GET /api/:category', () => {
     const res = await request(app).get('/api/unknown');
     expect(res.status).toBe(404);
   });
+
+  it('filters out collectionOnly entries', async () => {
+    await request(app).post('/api/wine').send({ producer: 'Normal', collectionOnly: false });
+    await request(app).post('/api/wine').send({ producer: 'Hidden', collectionOnly: true });
+    const res = await request(app).get('/api/wine');
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].producer).toBe('Normal');
+  });
 });
 
 describe('POST /api/:category', () => {
@@ -52,6 +60,16 @@ describe('POST /api/:category', () => {
   it('returns 404 for unknown category', async () => {
     const res = await request(app).post('/api/spirits').send({ name: 'Test' });
     expect(res.status).toBe(404);
+  });
+
+  it('sets collectionOnly when sent as true', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X', collectionOnly: true });
+    expect(res.body.collectionOnly).toBe(true);
+  });
+
+  it('does not set collectionOnly when not sent', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X' });
+    expect(res.body.collectionOnly).toBeUndefined();
   });
 });
 
@@ -68,6 +86,14 @@ describe('PUT /api/:category/:id', () => {
   it('returns 404 for non-existent entry', async () => {
     const res = await request(app).put('/api/wine/nonexistent-id').send({ producer: 'X' });
     expect(res.status).toBe(404);
+  });
+
+  it('clears collectionOnly when PUT sends collectionOnly: false', async () => {
+    const { body: drink } = await request(app).post('/api/wine').send({ producer: 'X', collectionOnly: true });
+    await request(app).put(`/api/wine/${drink.id}`).send({ producer: 'X', collectionOnly: false });
+    const res = await request(app).get('/api/wine');
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].collectionOnly).toBeUndefined();
   });
 });
 

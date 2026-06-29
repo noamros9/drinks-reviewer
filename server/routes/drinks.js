@@ -65,7 +65,7 @@ router.get('/:category', (req, res) => {
   const { category } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   try {
-    res.json(readData(category));
+    res.json(readData(category).filter(d => !d.collectionOnly));
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
   }
@@ -78,6 +78,7 @@ router.post('/:category', async (req, res) => {
     const entry = await withLock(category, () => {
       const data = readData(category);
       const newEntry = { id: randomUUID(), ...pickFields(req.body, category) };
+      if (req.body.collectionOnly === true) newEntry.collectionOnly = true;
       data.push(newEntry);
       writeData(category, data);
       return newEntry;
@@ -97,6 +98,10 @@ router.put('/:category/:id', async (req, res) => {
       const index = data.findIndex(d => d.id === id);
       if (index === -1) return null;
       data[index] = { ...data[index], ...pickFields(req.body, category), id };
+      if ('collectionOnly' in req.body) {
+        if (req.body.collectionOnly) data[index].collectionOnly = true;
+        else delete data[index].collectionOnly;
+      }
       writeData(category, data);
       return data[index];
     });
