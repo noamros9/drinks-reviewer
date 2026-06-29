@@ -37,6 +37,8 @@ A personal drinks review website for tracking wine, beer, whiskey, and other spi
 - Date picker in dd/mm/yyyy format
 - Ranking fields support decimal values (last ranking: 1 decimal, avg ranking: 2 decimals)
 - Notion link column opens the full tasting log in a new tab
+- **Sweetness** field on wine entries (Dry / Off-Dry / Sweet / Extra-Dry); filterable via the filter bar
+- **Custom tags** on all drink categories — freeform labels per entry, added in Admin; Tags column on all category pages (not All or Collection); click any tag chip to filter by it; autocomplete from existing tags
 
 ## Server
 
