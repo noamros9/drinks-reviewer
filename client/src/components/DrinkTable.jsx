@@ -138,17 +138,38 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     onColumnLayoutChange({ ...lay, hidden: next });
   };
 
-  const getCellClass = (colKey, value) => {
-    if (category !== 'wine') return '';
-    if (colKey === 'wineCategory') {
-      const map = { Red: 'wine-type-red', White: 'wine-type-white', 'Rosé': 'wine-type-rose', Sparkling: 'wine-type-sparkling', Fortified: 'wine-type-fortified' };
+  const getChipClass = (colKey, value) => {
+    if (colKey === '_category') {
+      const map = { Wine: 'chip-cat-wine', Beer: 'chip-cat-beer', Whiskey: 'chip-cat-whiskey', Others: 'chip-cat-others' };
       return map[value] || '';
     }
-    if (colKey === 'country') {
-      if (value === 'Israel') return 'wine-country-israel';
-      if (OLD_WORLD.includes(value)) return 'wine-country-old-world';
-      if (NEW_WORLD.includes(value)) return 'wine-country-new-world';
-      return value && value !== '—' ? 'wine-country-other' : '';
+    if (colKey === 'wineCategory') {
+      const map = { Red: 'chip-wine-red', White: 'chip-wine-white', 'Rosé': 'chip-wine-rose', Sparkling: 'chip-wine-sparkling', Fortified: 'chip-wine-fortified' };
+      return map[value] || '';
+    }
+    if (colKey === 'drinkCategory') {
+      const map = { Rum: 'chip-others-rum', Vodka: 'chip-others-vodka', Liqueur: 'chip-others-liqueur' };
+      return map[value] || 'chip-others-generic';
+    }
+    if (colKey === 'style') {
+      if (category === 'whiskey') {
+        const map = { 'Single Malt': 'chip-whiskey-singlemalt', Bourbon: 'chip-whiskey-bourbon' };
+        return map[value] || 'chip-whiskey-style';
+      }
+      if (category === 'beer') {
+        if (!value) return '';
+        const STOUTS = new Set(['Stout', 'Porter']);
+        const LAGERS = new Set(['Lager', 'Helles Lager', 'Hoppy Lager', 'Pilsner', 'Pale Lager']);
+        if (STOUTS.has(value)) return 'chip-beer-stout';
+        if (LAGERS.has(value)) return 'chip-beer-lager';
+        return 'chip-beer-ale';
+      }
+    }
+    if (colKey === 'country' && category === 'wine') {
+      if (value === 'Israel') return 'chip-country-israel';
+      if (OLD_WORLD.includes(value)) return 'chip-country-old-world';
+      if (NEW_WORLD.includes(value)) return 'chip-country-new-world';
+      return value && value !== '—' ? 'chip-country-other' : '';
     }
     return '';
   };
@@ -216,17 +237,27 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
         <tbody>
           {sorted.map(drink => (
             <tr key={drink.id}>
-              {visibleCols.map(col => (
-                <td key={col.key} className={getCellClass(col.key, drink[col.key]) || undefined}>
-                  {col.key === 'notionLink' && drink[col.key] ? (
-                    <a href={drink[col.key]} target="_blank" rel="noopener noreferrer">↗ Open</a>
-                  ) : onCellClick && filterableCols?.has(col.key) && drink[col.key] != null && drink[col.key] !== '—' ? (
-                    <span className="cell-filterable" onClick={() => onCellClick(col.key, drink[col.key])}>{drink[col.key]}</span>
-                  ) : (
-                    drink[col.key] ?? '—'
-                  )}
-                </td>
-              ))}
+              {visibleCols.map(col => {
+                const raw = drink[col.key];
+                const chipClass = getChipClass(col.key, raw);
+                const isFilterable = onCellClick && filterableCols?.has(col.key) && raw != null && raw !== '—';
+                let content;
+                if (col.key === 'notionLink' && raw) {
+                  content = <a href={raw} target="_blank" rel="noopener noreferrer">↗ Open</a>;
+                } else if (chipClass) {
+                  content = (
+                    <span
+                      className={`status-chip ${chipClass}${isFilterable ? ' cell-filterable' : ''}`}
+                      onClick={isFilterable ? () => onCellClick(col.key, raw) : undefined}
+                    >{raw ?? '—'}</span>
+                  );
+                } else if (isFilterable) {
+                  content = <span className="cell-filterable" onClick={() => onCellClick(col.key, raw)}>{raw}</span>;
+                } else {
+                  content = raw ?? '—';
+                }
+                return <td key={col.key}>{content}</td>;
+              })}
               {onEdit && (
                 <td>
                   <button className="btn-edit" onClick={() => onEdit(drink)}>Edit</button>
