@@ -11,17 +11,14 @@ const PRESETS = [
   { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
 ];
 
-function storageKey(category) { return `drinks_columns_${category}`; }
+function storageKey(category) { return `drinks_columns_v2_${category}`; }
 
 function loadLayout(category) {
   try {
     const raw = localStorage.getItem(storageKey(category));
     if (!raw) return null;
     const { order, hidden } = JSON.parse(raw);
-    const knownKeys = new Set(order);
-    const allKeys = COLUMNS[category].map(c => c.key);
-    const merged = [...order, ...allKeys.filter(k => !knownKeys.has(k))];
-    return { order: merged, hidden: new Set(hidden) };
+    return { order, hidden: new Set(hidden) };
   } catch { return null; }
 }
 
