@@ -75,6 +75,10 @@ export default function AdminPage() {
   );
   const isEditing = !!editState?.drink;
   const [message, setMessage] = useState('');
+  const [lots, setLots] = useState(editState?.drink?.collection ?? []);
+  const [newLotQty, setNewLotQty] = useState('1');
+  const [newLotPrice, setNewLotPrice] = useState('');
+  const [collectionMessage, setCollectionMessage] = useState('');
 
   const handleCategoryChange = (cat) => {
     setCategory(cat);
@@ -103,6 +107,31 @@ export default function AdminPage() {
       setForm(emptyForm(category));
     }
     setMessage(isEditing ? 'Entry updated!' : 'Entry added!');
+  };
+
+  const handleAddLot = async () => {
+    const qty = parseInt(newLotQty, 10);
+    if (!qty || qty < 1) return;
+    const body = { quantity: qty };
+    if (newLotPrice !== '') body.price = parseFloat(newLotPrice);
+    const res = await fetch(`/api/${category}/${form.id}/collection`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) { setCollectionMessage('Failed to add lot.'); return; }
+    const newLot = await res.json();
+    setLots(prev => [...prev, newLot]);
+    setNewLotQty('1');
+    setNewLotPrice('');
+    setCollectionMessage('Lot added!');
+  };
+
+  const handleDeleteLot = async (lotId) => {
+    const res = await fetch(`/api/${category}/${form.id}/collection/${lotId}`, { method: 'DELETE' });
+    if (!res.ok) { setCollectionMessage('Failed to remove lot.'); return; }
+    setLots(prev => prev.filter(l => l.id !== lotId));
+    setCollectionMessage('Lot removed.');
   };
 
   const handleDelete = async () => {
@@ -195,6 +224,35 @@ export default function AdminPage() {
 
         {message && <p className="success-message">{message}</p>}
       </form>
+
+      {isEditing && (
+        <section className="collection-section">
+          <h2>My Collection</h2>
+          <div className="lot-list">
+            {lots.length === 0 && <p className="no-lots">No bottles in collection.</p>}
+            {lots.map(lot => (
+              <div key={lot.id} className="lot-row">
+                <span className="lot-qty">Qty: {lot.quantity}</span>
+                <span className="lot-price">Price: {lot.price ?? '—'}</span>
+                <span className="lot-date">{lot.addedAt}</span>
+                <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteLot(lot.id)}>Remove</button>
+              </div>
+            ))}
+          </div>
+          <div className="add-lot-form">
+            <div className="form-group">
+              <label htmlFor="new-lot-qty">Quantity</label>
+              <input id="new-lot-qty" type="number" min="1" value={newLotQty} onChange={e => setNewLotQty(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="new-lot-price">Price</label>
+              <input id="new-lot-price" type="number" min="0" step="0.01" placeholder="Optional" value={newLotPrice} onChange={e => setNewLotPrice(e.target.value)} />
+            </div>
+            <button type="button" className="btn-primary" onClick={handleAddLot}>Add to Collection</button>
+          </div>
+          {collectionMessage && <p className="success-message">{collectionMessage}</p>}
+        </section>
+      )}
     </div>
   );
 }

@@ -86,3 +86,150 @@ describe('DELETE /api/:category/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('PUT /api/:category/:id preserves collection', () => {
+  it('preserves collection field when updating other fields', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X', seriesAndName: 'Y' });
+    await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 2 });
+    await request(app).put(`/api/wine/${wine.body.id}`).send({ producer: 'Updated' });
+    const res = await request(app).get('/api/collection');
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].producer).toBe('Updated');
+    expect(res.body[0].collection[0].quantity).toBe(2);
+  });
+});
+
+describe('GET /api/collection', () => {
+  it('returns empty array when no drinks have in-stock lots', async () => {
+    const res = await request(app).get('/api/collection');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([]);
+  });
+
+  it('returns drinks with in-stock lots, annotated with _category', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'Test', seriesAndName: 'X' });
+    await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 2, price: 30 });
+    const res = await request(app).get('/api/collection');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0]._category).toBe('wine');
+    expect(res.body[0].collection[0].quantity).toBe(2);
+  });
+
+  it('excludes drinks where all lots have quantity 0', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'Empty', seriesAndName: 'Y' });
+    const lot = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1 });
+    await request(app).patch(`/api/wine/${wine.body.id}/collection/${lot.body.id}`).send({ quantity: 0 });
+    const res = await request(app).get('/api/collection');
+    expect(res.body).toHaveLength(0);
+  });
+
+  it('aggregates drinks from multiple categories', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'W' });
+    const beer = await request(app).post('/api/beer').send({ brewery: 'B' });
+    await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1 });
+    await request(app).post(`/api/beer/${beer.body.id}/collection`).send({ quantity: 1 });
+    const res = await request(app).get('/api/collection');
+    expect(res.body).toHaveLength(2);
+    const categories = res.body.map(d => d._category).sort();
+    expect(categories).toEqual(['beer', 'wine']);
+  });
+});
+
+describe('POST /api/:category/:id/collection', () => {
+  it('adds a lot with quantity and price', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 3, price: 45 });
+    expect(res.status).toBe(201);
+    expect(res.body.quantity).toBe(3);
+    expect(res.body.price).toBe(45);
+    expect(res.body.id).toBeDefined();
+    expect(res.body.addedAt).toBeDefined();
+  });
+
+  it('stores null price when price is omitted', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1 });
+    expect(res.body.price).toBeNull();
+  });
+
+  it('returns 400 for quantity 0', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 0 });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 for non-integer quantity', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1.5 });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 404 for unknown category', async () => {
+    const res = await request(app).post('/api/unknown/123/collection').send({ quantity: 1 });
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for unknown drink id', async () => {
+    const res = await request(app).post('/api/wine/nonexistent/collection').send({ quantity: 1 });
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('PATCH /api/:category/:id/collection/:lotId', () => {
+  it('updates lot quantity', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const lot = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 2 });
+    const res = await request(app).patch(`/api/wine/${wine.body.id}/collection/${lot.body.id}`).send({ quantity: 5 });
+    expect(res.status).toBe(200);
+    expect(res.body.quantity).toBe(5);
+  });
+
+  it('allows setting quantity to 0', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const lot = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 2 });
+    const res = await request(app).patch(`/api/wine/${wine.body.id}/collection/${lot.body.id}`).send({ quantity: 0 });
+    expect(res.status).toBe(200);
+    expect(res.body.quantity).toBe(0);
+  });
+
+  it('returns 400 for negative quantity', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const lot = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 2 });
+    const res = await request(app).patch(`/api/wine/${wine.body.id}/collection/${lot.body.id}`).send({ quantity: -1 });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 404 for unknown lot', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).patch(`/api/wine/${wine.body.id}/collection/nonexistent`).send({ quantity: 1 });
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for unknown category', async () => {
+    const res = await request(app).patch('/api/unknown/123/collection/lot1').send({ quantity: 1 });
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('DELETE /api/:category/:id/collection/:lotId', () => {
+  it('removes a lot', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const lot = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1 });
+    const res = await request(app).delete(`/api/wine/${wine.body.id}/collection/${lot.body.id}`);
+    expect(res.status).toBe(204);
+    const collection = await request(app).get('/api/collection');
+    expect(collection.body).toHaveLength(0);
+  });
+
+  it('returns 404 for unknown lot', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).delete(`/api/wine/${wine.body.id}/collection/nonexistent`);
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for unknown category', async () => {
+    const res = await request(app).delete('/api/unknown/123/collection/lot1');
+    expect(res.status).toBe(404);
+  });
+});

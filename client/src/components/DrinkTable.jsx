@@ -66,7 +66,7 @@ export const COLUMNS = {
   ],
 };
 
-export default function DrinkTable({ category, drinks, onEdit, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort }) {
+export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort }) {
   const [intKey, setIntKey] = useState(null);
   const [intDir, setIntDir] = useState('asc');
   const sortKey = onSort !== undefined ? propSortKey : intKey;
@@ -202,6 +202,7 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
               </th>
             ))}
             {onEdit && <th>Actions</th>}
+            {renderRowExtra && <th>Stock</th>}
           </tr>
         </thead>
         <tbody>
@@ -223,6 +224,7 @@ export default function DrinkTable({ category, drinks, onEdit, columnLayout, onC
                   <button className="btn-edit" onClick={() => onEdit(drink)}>Edit</button>
                 </td>
               )}
+              {renderRowExtra && <td className="stock-cell">{renderRowExtra(drink)}</td>}
             </tr>
           ))}
         </tbody>

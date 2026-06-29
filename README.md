@@ -27,6 +27,9 @@ A personal drinks review website for tracking wine, beer, whiskey, and other spi
 - Sortable tables with category-specific fields per drink type
 - Bookmarks-inspired UI: frosted-glass nav, neutral Apple-style palette, DM Serif Display headings
 - Dark / light mode toggle (persisted across sessions)
+- **My Collection** page (`/collection`) tracks in-stock bottles across all categories; quantity badge per row with +/− controls; "Pick for me" randomly selects a drink from your collection
+- Collection uses a **lots model** — multiple lots per drink for different prices or vintages; price recorded per lot at time of purchase
+- Admin edit page includes a **My Collection section** to add lots (quantity + price) or remove them
 - Admin UI to add, edit, and delete entries
 - Date picker in dd/mm/yyyy format
 - Ranking fields support decimal values (last ranking: 1 decimal, avg ranking: 2 decimals)
