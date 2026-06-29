@@ -22,13 +22,16 @@ A personal drinks review website for tracking wine, beer, whiskey, and other spi
 - ABV range filter (min/max) on all pages including the All page
 - Country filter on the All page; filters respect the active category tab
 - Hide and reorder columns per category (persisted in localStorage); drag table headers or use the Columns panel
-- Color indicators on wine Type and Country columns: type shows red/white/rosé/sparkling/fortified; country shows Old World / New World / Israel / Other
+- Monday-style color chips on category/type columns: Category (All & Collection pages) shows Wine/Beer/Whiskey/Others each with a distinct pastel; Wine page Type column shows Red/White/Rosé/Sparkling/Fortified chips; Wine Country chips group by Old World / New World / Israel / Other; Beer Style chips group into Ale / Lager / Stout; Whiskey Style chips distinguish Single Malt and Bourbon; Others Category chips color Rum / Vodka / Liqueur separately
 - Whiskey entries have separate Country and Region fields (Scottish regions: Highlands, Islay, Speyside, Island)
 - Sortable tables with category-specific fields per drink type
 - Bookmarks-inspired UI: frosted-glass nav, neutral Apple-style palette, DM Serif Display headings
 - Dark / light mode toggle (persisted across sessions)
-- **My Collection** page (`/collection`) tracks in-stock bottles across all categories; quantity badge per row with +/− controls; "Pick for me" randomly selects a drink from your collection
+- **My Collection** page (`/collection`) tracks in-stock bottles across all categories; quantity badge per row with +/− controls; "Pick for me" randomly selects a drink from your collection; same Country, ABV, and column filters as the All Drinks page
 - Collection uses a **lots model** — multiple lots per drink for different prices or vintages; price recorded per lot at time of purchase
+- Admin page has two always-visible tabs: **Review** (add/edit tasting notes and ratings) and **Collection** (manage lots in edit mode; add a drink directly to collection without a review in create mode)
+- "Drank it" button on the Collection page opens the drink in Admin → Review tab pre-filled; saving marks it as reviewed and decrements the oldest lot by one
+- Admin **Collection tab (create mode)** accepts Category, Producer, Name, Country, ABV, Quantity, and Price — creates a `collectionOnly` entry visible only in My Collection until reviewed
 - Admin edit page includes a **My Collection section** to add lots (quantity + price) or remove them
 - Admin UI to add, edit, and delete entries
 - Date picker in dd/mm/yyyy format
