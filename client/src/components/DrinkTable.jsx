@@ -12,6 +12,7 @@ export const COLUMNS = {
     { key: 'region',        label: 'Region' },
     { key: 'abv',           label: 'ABV' },
     { key: 'lastTasted',    label: 'Last Tasted' },
+    { key: 'tags',          label: 'Tags' },
     { key: 'lastRanking',   label: 'Last Rating' },
     { key: 'avgRanking',    label: 'Avg Rating' },
     { key: 'notionLink',    label: 'Notion' },
@@ -23,6 +24,7 @@ export const COLUMNS = {
     { key: 'country',     label: 'Country' },
     { key: 'abv',         label: 'ABV' },
     { key: 'lastTasted',  label: 'Last Tasted' },
+    { key: 'tags',        label: 'Tags' },
     { key: 'lastRanking', label: 'Last Rating' },
     { key: 'avgRanking',  label: 'Avg Rating' },
     { key: 'notionLink',  label: 'Notion' },
@@ -36,6 +38,7 @@ export const COLUMNS = {
     { key: 'style',       label: 'Style' },
     { key: 'abv',         label: 'ABV' },
     { key: 'lastTasted',  label: 'Last Tasted' },
+    { key: 'tags',        label: 'Tags' },
     { key: 'lastRanking', label: 'Last Rating' },
     { key: 'avgRanking',  label: 'Avg Rating' },
     { key: 'notionLink',  label: 'Notion' },
@@ -49,6 +52,7 @@ export const COLUMNS = {
     { key: 'age',           label: 'Age' },
     { key: 'abv',           label: 'ABV' },
     { key: 'lastTasted',    label: 'Last Tasted' },
+    { key: 'tags',          label: 'Tags' },
     { key: 'lastRanking',   label: 'Last Rating' },
     { key: 'avgRanking',    label: 'Avg Rating' },
     { key: 'notionLink',    label: 'Notion' },
@@ -244,6 +248,22 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                 let content;
                 if (col.key === 'notionLink' && raw) {
                   content = <a href={raw} target="_blank" rel="noopener noreferrer">↗ Open</a>;
+                } else if (col.key === 'tags') {
+                  const tags = Array.isArray(raw) ? raw : [];
+                  const canFilter = onCellClick && filterableCols?.has('tags');
+                  content = tags.length > 0
+                    ? (
+                      <div className="tag-chips-cell">
+                        {tags.map(tag => (
+                          <span
+                            key={tag}
+                            className={`tag-chip-cell${canFilter ? ' cell-filterable' : ''}`}
+                            onClick={canFilter ? () => onCellClick('tags', tag) : undefined}
+                          >{tag}</span>
+                        ))}
+                      </div>
+                    )
+                    : '—';
                 } else if (chipClass) {
                   content = (
                     <span

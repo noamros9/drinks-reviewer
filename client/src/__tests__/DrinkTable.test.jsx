@@ -399,3 +399,61 @@ test('clicking a filterable cell calls onCellClick with colKey and value', () =>
   fireEvent.click(screen.getAllByText('Italy')[0]);
   expect(onCellClick).toHaveBeenCalledWith('country', 'Italy');
 });
+
+// ── Tags column ──────────────────────────────────────────────────────
+
+const WINE_WITH_TAGS = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: 'Merlot',
+  country: 'France', region: '', abv: '13', lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '',
+  tags: ['gift', 'organic'] }];
+
+test('tags column renders pill chips for each tag', () => {
+  render(<DrinkTable category="wine" drinks={WINE_WITH_TAGS} />);
+  expect(screen.getByText('gift')).toBeInTheDocument();
+  expect(screen.getByText('organic')).toBeInTheDocument();
+});
+
+test('tags column renders — for empty tags array', () => {
+  const drink = [{ ...WINE_WITH_TAGS[0], tags: [] }];
+  render(<DrinkTable category="wine" drinks={drink} />);
+  expect(screen.getAllByText('—').length).toBeGreaterThan(0);
+});
+
+test('tags column renders — for missing tags field', () => {
+  const drink = [{ ...WINE_WITH_TAGS[0], tags: undefined }];
+  render(<DrinkTable category="wine" drinks={drink} />);
+  expect(screen.getAllByText('—').length).toBeGreaterThan(0);
+});
+
+test('clicking a tag chip calls onCellClick with tags key and the specific tag', () => {
+  const onCellClick = vi.fn();
+  render(<DrinkTable category="wine" drinks={WINE_WITH_TAGS} filterableCols={new Set(['tags'])} onCellClick={onCellClick} />);
+  fireEvent.click(screen.getByText('gift'));
+  expect(onCellClick).toHaveBeenCalledWith('tags', 'gift');
+});
+
+test('tag chips have cell-filterable class when onCellClick and filterableCols provided', () => {
+  render(<DrinkTable category="wine" drinks={WINE_WITH_TAGS} filterableCols={new Set(['tags'])} onCellClick={vi.fn()} />);
+  expect(screen.getByText('gift')).toHaveClass('cell-filterable');
+});
+
+test('tag chips have no cell-filterable class when no onCellClick', () => {
+  render(<DrinkTable category="wine" drinks={WINE_WITH_TAGS} />);
+  expect(screen.getByText('gift')).not.toHaveClass('cell-filterable');
+});
+
+test('tags column appears on beer category', () => {
+  const beerRow = [{ id: '1', brewery: 'B', name: 'Lager', style: 'Lager', country: 'UK',
+    abv: '5', lastTasted: '', lastRanking: '7', avgRanking: '7', notionLink: '', tags: ['cellar'] }];
+  render(<DrinkTable category="beer" drinks={beerRow} />);
+  expect(screen.getByText('cellar')).toBeInTheDocument();
+});
+
+test('tags column does not appear on all page', () => {
+  render(<DrinkTable category="all" drinks={[{ id: '1', _category: 'Wine', _producer: 'P', name: 'W', country: 'France', abv: '', lastTasted: '', lastRanking: '', avgRanking: '', notionLink: '', tags: ['gift'] }]} />);
+  expect(screen.queryByRole('columnheader', { name: /^tags$/i })).not.toBeInTheDocument();
+});
+
+test('tags column does not appear on collection page', () => {
+  render(<DrinkTable category="collection" drinks={[{ id: '1', _category: 'Wine', _producer: 'P', name: 'W', country: 'France', abv: '', notionLink: '', tags: ['gift'] }]} />);
+  expect(screen.queryByRole('columnheader', { name: /^tags$/i })).not.toBeInTheDocument();
+});
