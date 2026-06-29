@@ -79,6 +79,8 @@ export default function AdminPage() {
   const [newLotQty, setNewLotQty] = useState('1');
   const [newLotPrice, setNewLotPrice] = useState('');
   const [collectionMessage, setCollectionMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('review');
+  const drankIt = editState?.drankIt ?? false;
 
   const handleCategoryChange = (cat) => {
     setCategory(cat);
@@ -101,6 +103,15 @@ export default function AdminPage() {
     });
     if (!res.ok) {
       setMessage('Save failed. Please try again.');
+      return;
+    }
+    if (drankIt && editState.lot) {
+      await fetch(`/api/${category}/${form.id}/collection/${editState.lot.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity: editState.lot.quantity - 1 }),
+      });
+      navigate('/collection');
       return;
     }
     if (!isEditing) {
@@ -148,6 +159,13 @@ export default function AdminPage() {
     <div className="admin-page">
       <h1>{isEditing ? 'Edit Entry' : 'Add Entry'}</h1>
 
+      {isEditing && (
+        <div className="category-tabs">
+          <button className={activeTab === 'review' ? 'active' : ''} onClick={() => setActiveTab('review')}>Review</button>
+          <button className={activeTab === 'collection' ? 'active' : ''} onClick={() => setActiveTab('collection')}>Collection</button>
+        </div>
+      )}
+
       {!isEditing && (
         <div className="category-tabs">
           {CATEGORIES.map(cat => (
@@ -162,6 +180,7 @@ export default function AdminPage() {
         </div>
       )}
 
+      {(!isEditing || activeTab === 'review') && (
       <form onSubmit={handleSubmit} className="admin-form">
         {FIELDS[category].map(field => (
           <div key={field.key} className="form-group">
@@ -224,8 +243,9 @@ export default function AdminPage() {
 
         {message && <p className="success-message">{message}</p>}
       </form>
+      )}
 
-      {isEditing && (
+      {isEditing && activeTab === 'collection' && (
         <section className="collection-section">
           <h2>My Collection</h2>
           <div className="lot-list">

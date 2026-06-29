@@ -15,11 +15,13 @@ const EDIT_DRINK = {
 };
 
 function renderEditPage(drink = EDIT_DRINK) {
-  return render(
+  const result = render(
     <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink } }]}>
       <AdminPage />
     </MemoryRouter>
   );
+  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  return result;
 }
 
 beforeEach(() => {
@@ -28,9 +30,25 @@ beforeEach(() => {
   );
 });
 
-test('shows My Collection section in edit mode', () => {
-  renderEditPage();
-  expect(screen.getByText(/my collection/i)).toBeInTheDocument();
+test('shows Review and Collection tabs in edit mode', () => {
+  render(
+    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink: EDIT_DRINK } }]}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+  expect(screen.getByRole('button', { name: /^review$/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^collection$/i })).toBeInTheDocument();
+});
+
+test('switching back to Review tab shows the form', () => {
+  render(
+    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink: EDIT_DRINK } }]}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^review$/i }));
+  expect(screen.getByLabelText(/producer/i)).toBeInTheDocument();
 });
 
 test('shows existing lot quantity', () => {
@@ -48,9 +66,10 @@ test('shows no bottles message when collection is empty', () => {
   expect(screen.getByText(/no bottles in collection/i)).toBeInTheDocument();
 });
 
-test('collection section is hidden in create mode', () => {
+test('tabs are hidden in create mode', () => {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
-  expect(screen.queryByText(/my collection/i)).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /^review$/i })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /^collection$/i })).not.toBeInTheDocument();
 });
 
 test('add lot calls POST to collection endpoint', async () => {

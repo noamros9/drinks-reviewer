@@ -1,5 +1,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
+
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return { ...actual, useNavigate: () => mockNavigate };
+});
 import CollectionPage from '../pages/CollectionPage';
 
 const LOT = { id: 'lot1', quantity: 2, price: 45, addedAt: '2026-01-01' };
@@ -169,6 +175,21 @@ test('pick spotlight omits country separator when country is empty', async () =>
   fireEvent.click(screen.getByRole('button', { name: /pick for me/i }));
   expect(screen.getByRole('dialog')).toBeInTheDocument();
   expect(screen.queryByText(/·/)).not.toBeInTheDocument();
+});
+
+test('"Drank it" button is rendered per row', async () => {
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  expect(screen.getByRole('button', { name: /drank it/i })).toBeInTheDocument();
+});
+
+test('"Drank it" navigates to admin with drink state and drankIt flag', async () => {
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByRole('button', { name: /drank it/i }));
+  expect(mockNavigate).toHaveBeenCalledWith('/admin', expect.objectContaining({
+    state: expect.objectContaining({ drankIt: true, lot: LOT }),
+  }));
 });
 
 test('decrement picks oldest lot when drink has multiple in-stock lots', async () => {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DrinkTable from '../components/DrinkTable';
 import './CollectionPage.css';
 
@@ -37,6 +38,7 @@ function fetchCollection(setDrinks) {
 export default function CollectionPage() {
   const [drinks, setDrinks] = useState([]);
   const [pick, setPick] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => { fetchCollection(setDrinks); }, []);
 
@@ -67,11 +69,17 @@ export default function CollectionPage() {
     setPick(drinks[Math.floor(Math.random() * drinks.length)]);
   };
 
+  const handleDrankIt = (drink) => {
+    const lot = oldestInStockLot(drink);
+    navigate('/admin', { state: { drink, category: drink._category.toLowerCase(), drankIt: true, lot } });
+  };
+
   const renderRowExtra = (drink) => (
     <div className="stock-controls">
       <button className="stock-btn" onClick={() => handleDecrement(drink)} aria-label="Remove one bottle">−</button>
       <span className="stock-badge" data-testid="stock-badge">{totalQty(drink)}</span>
       <button className="stock-btn" onClick={() => handleIncrement(drink)} aria-label="Add one bottle">+</button>
+      <button className="drank-it-btn" onClick={() => handleDrankIt(drink)}>Drank it</button>
     </div>
   );
 
@@ -98,7 +106,7 @@ export default function CollectionPage() {
       )}
 
       <DrinkTable
-        category="all"
+        category="collection"
         drinks={drinks}
         renderRowExtra={renderRowExtra}
       />
