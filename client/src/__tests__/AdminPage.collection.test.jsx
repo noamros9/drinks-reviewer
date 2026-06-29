@@ -147,11 +147,14 @@ test('remove lot failure shows error message', async () => {
   expect(await screen.findByText('Failed to remove lot.')).toBeInTheDocument();
 });
 
-test('add lot with qty 0 does not call fetch', () => {
+test('add lot with qty 0 does not call the collection endpoint', () => {
   renderEditPage({ ...EDIT_DRINK, collection: [] });
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '0' } });
   fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
-  expect(global.fetch).not.toHaveBeenCalled();
+  expect(global.fetch).not.toHaveBeenCalledWith(
+    '/api/wine/1/collection',
+    expect.anything()
+  );
 });
 
 test('add lot with price sends price in request body', async () => {

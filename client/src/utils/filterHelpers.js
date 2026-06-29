@@ -23,26 +23,32 @@ export const PRODUCER_FIELD = {
 export const DROPDOWN_CONFIGS = {
   wine: [
     { key: 'wineCategory', label: 'Type' },
+    { key: 'sweetness',    label: 'Sweetness' },
     { key: 'country',      label: 'Country',  worldGroups: true },
     { key: 'variety',      label: 'Variety',  varietyGroups: true },
     { key: 'region',       label: 'Region' },
+    { key: 'tags',         label: 'Tags',     multiValue: true },
   ],
   beer: [
     { key: 'style',   label: 'Style' },
     { key: 'country', label: 'Country' },
+    { key: 'tags',    label: 'Tags',    multiValue: true },
   ],
   whiskey: [
     { key: 'style',   label: 'Style' },
     { key: 'country', label: 'Country' },
     { key: 'region',  label: 'Region' },
+    { key: 'tags',    label: 'Tags',    multiValue: true },
   ],
   others: [
     { key: 'drinkCategory', label: 'Category' },
     { key: 'style',         label: 'Style' },
     { key: 'country',       label: 'Country' },
+    { key: 'tags',          label: 'Tags',    multiValue: true },
   ],
   all: [
     { key: 'country', label: 'Country' },
+    { key: 'tags',    label: 'Tags',    multiValue: true },
   ],
 };
 
@@ -97,6 +103,8 @@ export function matchesFilters(drink, activeFilters, category) {
       if (!matchCountry(drink.country, selected)) return false;
     } else if (conf.varietyGroups) {
       if (!matchVariety(drink[conf.key], selected)) return false;
+    } else if (conf.multiValue) {
+      if (![...selected].some(t => (drink[conf.key] || []).includes(t))) return false;
     } else {
       if (!selected.has(drink[conf.key])) return false;
     }
@@ -122,6 +130,12 @@ export function buildDropdownOptions(drinks, conf) {
     return { special, options: [...allGrapes].sort() };
   }
 
+  if (conf.multiValue) {
+    const allTags = new Set();
+    drinks.forEach(d => (d[conf.key] || []).forEach(t => allTags.add(t)));
+    return { special, options: [...allTags].sort() };
+  }
+
   const raw = [...new Set(drinks.map(d => d[conf.key]).filter(Boolean))].sort();
   return { special, options: raw };
 }
@@ -132,7 +146,9 @@ export function countOptions(drinks, conf, activeFilters, category) {
   const counts = {};
   filtered.forEach(d => {
     const raw = d[conf.key];
-    if (conf.varietyGroups) {
+    if (conf.multiValue) {
+      (d[conf.key] || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; });
+    } else if (conf.varietyGroups) {
       splitVarieties(raw).forEach(g => { counts[g] = (counts[g] || 0) + 1; });
       if (raw) {
         if (isBlend(raw)) counts['Blend'] = (counts['Blend'] || 0) + 1;

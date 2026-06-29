@@ -7,10 +7,10 @@ const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
 const ALLOWED_FIELDS = {
-  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'country', 'region', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink'],
-  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink'],
-  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink'],
-  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink'],
+  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink', 'tags'],
+  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink', 'tags'],
+  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink', 'tags'],
+  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink', 'tags'],
 };
 
 function dataDir() {
@@ -31,7 +31,7 @@ function writeData(category, data) {
 
 function pickFields(body, category) {
   const allowed = ALLOWED_FIELDS[category] || [];
-  return Object.fromEntries(allowed.map(k => [k, body[k] ?? '']));
+  return Object.fromEntries(allowed.map(k => [k, k === 'tags' ? (Array.isArray(body[k]) ? body[k] : []) : (body[k] ?? '')]));
 }
 
 // Per-category write locks to prevent concurrent read-modify-write races
@@ -43,7 +43,19 @@ async function withLock(category, fn) {
   try { return await fn(); } finally { delete writeLocks[category]; resolve(); }
 }
 
-// Must be before /:category to avoid "collection" being treated as a category name
+// Must be before /:category to avoid "tags"/"collection" being treated as category names
+router.get('/tags', (_req, res) => {
+  try {
+    const allTags = new Set();
+    for (const cat of CATEGORIES) {
+      readData(cat).forEach(d => (d.tags || []).forEach(t => allTags.add(t)));
+    }
+    res.json([...allTags].sort());
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
 router.get('/collection', (req, res) => {
   try {
     const result = [];

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import { parse, format, isValid } from 'date-fns';
@@ -11,6 +11,7 @@ const FIELDS = {
     { key: 'seriesAndName', label: 'Series & Name',          type: 'text' },
     { key: 'wineCategory',  label: 'Wine Type',              type: 'select', options: ['Red', 'White', 'Rosé', 'Sparkling', 'Fortified'] },
     { key: 'variety',       label: 'Variety',                type: 'text' },
+    { key: 'sweetness',     label: 'Sweetness',              type: 'select', options: ['Dry', 'Off-Dry', 'Sweet', 'Extra-Dry'] },
     { key: 'country',       label: 'Country of Origin',      type: 'text' },
     { key: 'region',        label: 'Region / Appellation',   type: 'text' },
     { key: 'abv',           label: 'ABV (%)',                type: 'number' },
@@ -18,6 +19,7 @@ const FIELDS = {
     { key: 'lastRanking',   label: 'Last Ranking (1–10)',    type: 'number' },
     { key: 'avgRanking',    label: 'Avg Ranking (1–10)',     type: 'number' },
     { key: 'notionLink',    label: 'Notion Link',            type: 'url' },
+    { key: 'tags',          label: 'Tags',                   type: 'tags', default: [] },
   ],
   beer: [
     { key: 'brewery',     label: 'Brewery',               type: 'text' },
@@ -29,6 +31,7 @@ const FIELDS = {
     { key: 'lastRanking', label: 'Last Ranking (1–10)',    type: 'number' },
     { key: 'avgRanking',  label: 'Avg Ranking (1–10)',     type: 'number' },
     { key: 'notionLink',  label: 'Notion Link',            type: 'url' },
+    { key: 'tags',        label: 'Tags',                   type: 'tags', default: [] },
   ],
   whiskey: [
     { key: 'distillery',  label: 'Distillery',             type: 'text' },
@@ -42,6 +45,7 @@ const FIELDS = {
     { key: 'lastRanking', label: 'Last Ranking (1–10)',    type: 'number' },
     { key: 'avgRanking',  label: 'Avg Ranking (1–10)',     type: 'number' },
     { key: 'notionLink',  label: 'Notion Link',            type: 'url' },
+    { key: 'tags',        label: 'Tags',                   type: 'tags', default: [] },
   ],
   others: [
     { key: 'drinkCategory', label: 'Drink Category',         type: 'text', placeholder: 'Rum, Vodka, Liqueur…' },
@@ -55,13 +59,14 @@ const FIELDS = {
     { key: 'lastRanking',   label: 'Last Ranking (1–10)',    type: 'number' },
     { key: 'avgRanking',    label: 'Avg Ranking (1–10)',     type: 'number' },
     { key: 'notionLink',    label: 'Notion Link',            type: 'url' },
+    { key: 'tags',          label: 'Tags',                   type: 'tags', default: [] },
   ],
 };
 
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
 function emptyForm(category) {
-  return Object.fromEntries(FIELDS[category].map(f => [f.key, '']));
+  return Object.fromEntries(FIELDS[category].map(f => [f.key, f.default ?? '']));
 }
 
 export default function AdminPage() {
@@ -81,9 +86,24 @@ export default function AdminPage() {
   const [collectionMessage, setCollectionMessage] = useState('');
   const [activeTab, setActiveTab] = useState('review');
   const drankIt = editState?.drankIt ?? false;
+  const [tagInput, setTagInput] = useState('');
+  const [allTags, setAllTags] = useState([]);
   const [colCat, setColCat] = useState('wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
   const [colMessage, setColMessage] = useState('');
+
+  useEffect(() => {
+    fetch('/api/tags').then(r => r.json()).then(data => { if (Array.isArray(data)) setAllTags(data); }).catch(() => {});
+  }, []);
+
+  const addTag = (key, tag) => {
+    if (!tag || (form[key] || []).includes(tag)) return;
+    setForm(prev => ({ ...prev, [key]: [...(prev[key] || []), tag] }));
+  };
+
+  const removeTag = (key, tag) => {
+    setForm(prev => ({ ...prev, [key]: prev[key].filter(t => t !== tag) }));
+  };
 
   const handleCategoryChange = (cat) => {
     setCategory(cat);
@@ -227,6 +247,33 @@ export default function AdminPage() {
                 placeholderText="dd/mm/yyyy"
                 className="date-picker-input"
               />
+            ) : field.type === 'tags' ? (
+              <div className="tags-input">
+                <div className="tags-chips">
+                  {(form[field.key] || []).map(tag => (
+                    <span key={tag} className="tag-chip">
+                      {tag}
+                      <button type="button" aria-label={`Remove ${tag}`} onClick={() => removeTag(field.key, tag)}>×</button>
+                    </span>
+                  ))}
+                </div>
+                <input
+                  list="tags-datalist"
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addTag(field.key, tagInput.trim());
+                      setTagInput('');
+                    }
+                  }}
+                  placeholder="Type a tag and press Enter"
+                />
+                <datalist id="tags-datalist">
+                  {allTags.map(t => <option key={t} value={t} />)}
+                </datalist>
+              </div>
             ) : field.type === 'select' ? (
               <select
                 id={field.key}
