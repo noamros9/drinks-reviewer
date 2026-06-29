@@ -38,6 +38,17 @@ test('lands on Review tab in drankIt mode', () => {
   expect(screen.getByRole('button', { name: /^review$/i })).toHaveClass('active');
 });
 
+test('saving in drankIt mode sends collectionOnly: false on PUT', async () => {
+  renderDrankIt();
+  fireEvent.submit(screen.getByRole('button', { name: /update/i }).closest('form'));
+  await waitFor(() => {
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/wine/1',
+      expect.objectContaining({ method: 'PUT', body: expect.stringContaining('"collectionOnly":false') })
+    );
+  });
+});
+
 test('saving in drankIt mode PATCHes the lot', async () => {
   renderDrankIt();
   fireEvent.submit(screen.getByRole('button', { name: /update/i }).closest('form'));

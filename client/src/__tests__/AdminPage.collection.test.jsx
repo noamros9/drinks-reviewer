@@ -72,10 +72,12 @@ test('tabs are visible in create mode', () => {
   expect(screen.getByRole('button', { name: /^collection$/i })).toBeInTheDocument();
 });
 
-test('collection tab in create mode shows save-first message', () => {
+test('collection tab in create mode shows the add-to-collection form', () => {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
   fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
-  expect(screen.getByText(/save this drink first/i)).toBeInTheDocument();
+  expect(screen.getByLabelText(/^producer$/i)).toBeInTheDocument();
+  expect(screen.getByLabelText(/^quantity$/i)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /add to collection/i })).toBeInTheDocument();
 });
 
 test('add lot calls POST to collection endpoint', async () => {

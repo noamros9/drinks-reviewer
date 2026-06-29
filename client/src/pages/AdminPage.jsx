@@ -81,6 +81,9 @@ export default function AdminPage() {
   const [collectionMessage, setCollectionMessage] = useState('');
   const [activeTab, setActiveTab] = useState('review');
   const drankIt = editState?.drankIt ?? false;
+  const [colCat, setColCat] = useState('wine');
+  const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
+  const [colMessage, setColMessage] = useState('');
 
   const handleCategoryChange = (cat) => {
     setCategory(cat);
@@ -96,10 +99,11 @@ export default function AdminPage() {
     e.preventDefault();
     const url = isEditing ? `/api/${category}/${form.id}` : `/api/${category}`;
     const method = isEditing ? 'PUT' : 'POST';
+    const body = drankIt ? { ...form, collectionOnly: false } : form;
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
+      body: JSON.stringify(body),
     });
     if (!res.ok) {
       setMessage('Save failed. Please try again.');
@@ -143,6 +147,29 @@ export default function AdminPage() {
     if (!res.ok) { setCollectionMessage('Failed to remove lot.'); return; }
     setLots(prev => prev.filter(l => l.id !== lotId));
     setCollectionMessage('Lot removed.');
+  };
+
+  const handleAddToCollection = async () => {
+    const producerKey = { wine: 'producer', beer: 'brewery', whiskey: 'distillery', others: 'distillery' }[colCat];
+    const nameKey = colCat === 'wine' ? 'seriesAndName' : 'name';
+    const drinkRes = await fetch(`/api/${colCat}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [producerKey]: colForm.producer, [nameKey]: colForm.name, country: colForm.country, abv: colForm.abv, collectionOnly: true }),
+    });
+    if (!drinkRes.ok) { setColMessage('Failed to add drink.'); return; }
+    const drink = await drinkRes.json();
+    const qty = parseInt(colForm.qty, 10);
+    if (qty >= 1) {
+      const lotBody = { quantity: qty };
+      if (colForm.price !== '') lotBody.price = parseFloat(colForm.price);
+      await fetch(`/api/${colCat}/${drink.id}/collection`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lotBody),
+      });
+    }
+    navigate('/collection');
   };
 
   const handleDelete = async () => {
@@ -244,7 +271,40 @@ export default function AdminPage() {
       )}
 
       {!isEditing && activeTab === 'collection' && (
-        <p className="no-lots">Save this drink first to manage its collection.</p>
+        <div className="admin-form">
+          <div className="category-tabs">
+            {CATEGORIES.map(cat => (
+              <button key={cat} className={colCat === cat ? 'active' : ''} onClick={() => setColCat(cat)}>
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
+          </div>
+          {[
+            { key: 'producer', label: 'Producer', type: 'text' },
+            { key: 'name',     label: 'Name',     type: 'text' },
+            { key: 'country',  label: 'Country',  type: 'text' },
+            { key: 'abv',      label: 'ABV (%)',  type: 'number' },
+            { key: 'qty',      label: 'Quantity', type: 'number' },
+            { key: 'price',    label: 'Price',    type: 'number', placeholder: 'Optional' },
+          ].map(f => (
+            <div key={f.key} className="form-group">
+              <label htmlFor={`col-${f.key}`}>{f.label}</label>
+              <input
+                id={`col-${f.key}`}
+                type={f.type}
+                min={f.type === 'number' ? (f.key === 'qty' ? 1 : 0) : undefined}
+                step={f.type === 'number' ? '0.1' : undefined}
+                placeholder={f.placeholder || ''}
+                value={colForm[f.key]}
+                onChange={e => setColForm(p => ({ ...p, [f.key]: e.target.value }))}
+              />
+            </div>
+          ))}
+          <div className="form-actions">
+            <button type="button" className="btn-primary" onClick={handleAddToCollection}>Add to Collection</button>
+          </div>
+          {colMessage && <p className="success-message">{colMessage}</p>}
+        </div>
       )}
 
       {isEditing && activeTab === 'collection' && (
