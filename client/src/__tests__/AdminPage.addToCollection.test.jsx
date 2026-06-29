@@ -20,6 +20,7 @@ function renderCollectionTab() {
 beforeEach(() => {
   mockNavigate.mockClear();
   global.fetch = vi.fn()
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/tags on mount
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'new-drink' }) })
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'lot1' }) });
 });
@@ -97,7 +98,9 @@ test('includes price in lot body when price is filled', async () => {
 });
 
 test('shows error message when drink POST fails', async () => {
-  global.fetch = vi.fn().mockResolvedValueOnce({ ok: false });
+  global.fetch = vi.fn()
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/tags on mount
+    .mockResolvedValueOnce({ ok: false });
   renderCollectionTab();
   fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
   expect(await screen.findByText(/failed to add drink/i)).toBeInTheDocument();

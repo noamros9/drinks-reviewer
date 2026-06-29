@@ -259,3 +259,45 @@ describe('DELETE /api/:category/:id/collection/:lotId', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('tags field', () => {
+  it('saves tags array on wine', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X', tags: ['gift', 'cellar'] });
+    expect(res.body.tags).toEqual(['gift', 'cellar']);
+  });
+
+  it('defaults tags to empty array when omitted', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X' });
+    expect(res.body.tags).toEqual([]);
+  });
+
+  it('saves tags on beer', async () => {
+    const res = await request(app).post('/api/beer').send({ brewery: 'B', tags: ['organic'] });
+    expect(res.body.tags).toEqual(['organic']);
+  });
+
+  it('sweetness is saved on wine', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X', sweetness: 'Dry' });
+    expect(res.body.sweetness).toBe('Dry');
+  });
+
+  it('sweetness is not allowed on beer', async () => {
+    const res = await request(app).post('/api/beer').send({ brewery: 'B', sweetness: 'Dry' });
+    expect(res.body.sweetness).toBeUndefined();
+  });
+});
+
+describe('GET /api/tags', () => {
+  it('returns empty array when no drinks have tags', async () => {
+    const res = await request(app).get('/api/tags');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([]);
+  });
+
+  it('returns unique tags sorted alphabetically across categories', async () => {
+    await request(app).post('/api/wine').send({ producer: 'W', tags: ['gift', 'organic'] });
+    await request(app).post('/api/beer').send({ brewery: 'B', tags: ['organic', 'cellar'] });
+    const res = await request(app).get('/api/tags');
+    expect(res.body).toEqual(['cellar', 'gift', 'organic']);
+  });
+});

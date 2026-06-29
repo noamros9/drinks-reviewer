@@ -110,6 +110,31 @@ th:hover .col-hide-btn { opacity: 1; }
 .cell-filterable { cursor: pointer; }
 .cell-filterable:hover { text-decoration: underline; text-underline-offset: 2px; }
 
+/* ── Tag chips in table cells ── */
+.tag-chips-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.tag-chip-cell {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.73rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.tag-chip-cell.cell-filterable:hover {
+  text-decoration: none;
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
 /* ── Status chips ── */
 .status-chip {
   display: inline-block;

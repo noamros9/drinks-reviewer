@@ -276,3 +276,87 @@ test('buildInitialFilters: unknown category returns base fields only (|| [] fall
   // No dropdown keys should be added
   expect(Object.keys(filters)).toEqual(['producerSearch', 'abvMin', 'abvMax']);
 });
+
+// ── sweetness filter ──────────────────────────────────────────────
+
+test('sweetness: matches wine with selected sweetness', () => {
+  const filters = buildInitialFilters('wine');
+  filters.sweetness = new Set(['Dry']);
+  expect(matchesFilters(wine({ sweetness: 'Dry' }), filters, 'wine')).toBe(true);
+});
+
+test('sweetness: excludes wine with different sweetness', () => {
+  const filters = buildInitialFilters('wine');
+  filters.sweetness = new Set(['Dry']);
+  expect(matchesFilters(wine({ sweetness: 'Sweet' }), filters, 'wine')).toBe(false);
+});
+
+// ── tags filter (multiValue) ──────────────────────────────────────
+
+test('tags: matches drink when any selected tag is in drink.tags', () => {
+  const filters = buildInitialFilters('wine');
+  filters.tags = new Set(['gift']);
+  expect(matchesFilters(wine({ tags: ['gift', 'organic'] }), filters, 'wine')).toBe(true);
+});
+
+test('tags: excludes drink when no selected tag is in drink.tags', () => {
+  const filters = buildInitialFilters('wine');
+  filters.tags = new Set(['cellar']);
+  expect(matchesFilters(wine({ tags: ['gift'] }), filters, 'wine')).toBe(false);
+});
+
+test('tags: passes when drink has no tags and tag filter is empty', () => {
+  const filters = buildInitialFilters('wine');
+  expect(matchesFilters(wine({ tags: [] }), filters, 'wine')).toBe(true);
+});
+
+test('tags: passes when drink.tags is undefined and no filter active', () => {
+  const filters = buildInitialFilters('wine');
+  expect(matchesFilters(wine(), filters, 'wine')).toBe(true);
+});
+
+test('tags: excludes drink with undefined tags when filter is active', () => {
+  const filters = buildInitialFilters('wine');
+  filters.tags = new Set(['gift']);
+  expect(matchesFilters(wine(), filters, 'wine')).toBe(false);
+});
+
+// ── buildDropdownOptions – multiValue (tags) ──────────────────────
+
+test('buildDropdownOptions tags: flattens arrays into unique sorted options', () => {
+  const drinks = [
+    wine({ tags: ['gift', 'organic'] }),
+    wine({ tags: ['organic', 'cellar'] }),
+  ];
+  const { special, options } = buildDropdownOptions(drinks, { key: 'tags', multiValue: true });
+  expect(special).toEqual([]);
+  expect(options).toEqual(['cellar', 'gift', 'organic']);
+});
+
+test('buildDropdownOptions tags: handles drinks with no tags', () => {
+  const drinks = [wine({ tags: [] }), wine()];
+  const { options } = buildDropdownOptions(drinks, { key: 'tags', multiValue: true });
+  expect(options).toEqual([]);
+});
+
+// ── countOptions – multiValue (tags) ─────────────────────────────
+
+test('countOptions tags: counts each tag individually', () => {
+  const drinks = [
+    wine({ tags: ['gift', 'organic'] }),
+    wine({ tags: ['gift'] }),
+  ];
+  const conf = { key: 'tags', label: 'Tags', multiValue: true };
+  const filters = buildInitialFilters('wine');
+  const counts = countOptions(drinks, conf, filters, 'wine');
+  expect(counts['gift']).toBe(2);
+  expect(counts['organic']).toBe(1);
+});
+
+// ── buildInitialFilters includes sweetness and tags for wine ──────
+
+test('buildInitialFilters wine: includes sweetness and tags Sets', () => {
+  const filters = buildInitialFilters('wine');
+  expect(filters.sweetness).toBeInstanceOf(Set);
+  expect(filters.tags).toBeInstanceOf(Set);
+});
