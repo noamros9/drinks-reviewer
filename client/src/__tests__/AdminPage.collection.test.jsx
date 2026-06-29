@@ -66,10 +66,16 @@ test('shows no bottles message when collection is empty', () => {
   expect(screen.getByText(/no bottles in collection/i)).toBeInTheDocument();
 });
 
-test('tabs are hidden in create mode', () => {
+test('tabs are visible in create mode', () => {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
-  expect(screen.queryByRole('button', { name: /^review$/i })).not.toBeInTheDocument();
-  expect(screen.queryByRole('button', { name: /^collection$/i })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^review$/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^collection$/i })).toBeInTheDocument();
+});
+
+test('collection tab in create mode shows save-first message', () => {
+  render(<MemoryRouter><AdminPage /></MemoryRouter>);
+  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  expect(screen.getByText(/save this drink first/i)).toBeInTheDocument();
 });
 
 test('add lot calls POST to collection endpoint', async () => {

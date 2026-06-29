@@ -159,14 +159,12 @@ export default function AdminPage() {
     <div className="admin-page">
       <h1>{isEditing ? 'Edit Entry' : 'Add Entry'}</h1>
 
-      {isEditing && (
-        <div className="category-tabs">
-          <button className={activeTab === 'review' ? 'active' : ''} onClick={() => setActiveTab('review')}>Review</button>
-          <button className={activeTab === 'collection' ? 'active' : ''} onClick={() => setActiveTab('collection')}>Collection</button>
-        </div>
-      )}
+      <div className="category-tabs">
+        <button className={activeTab === 'review' ? 'active' : ''} onClick={() => setActiveTab('review')}>Review</button>
+        <button className={activeTab === 'collection' ? 'active' : ''} onClick={() => setActiveTab('collection')}>Collection</button>
+      </div>
 
-      {!isEditing && (
+      {!isEditing && activeTab === 'review' && (
         <div className="category-tabs">
           {CATEGORIES.map(cat => (
             <button
@@ -180,7 +178,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {(!isEditing || activeTab === 'review') && (
+      {activeTab === 'review' && (
       <form onSubmit={handleSubmit} className="admin-form">
         {FIELDS[category].map(field => (
           <div key={field.key} className="form-group">
@@ -243,6 +241,10 @@ export default function AdminPage() {
 
         {message && <p className="success-message">{message}</p>}
       </form>
+      )}
+
+      {!isEditing && activeTab === 'collection' && (
+        <p className="no-lots">Save this drink first to manage its collection.</p>
       )}
 
       {isEditing && activeTab === 'collection' && (
