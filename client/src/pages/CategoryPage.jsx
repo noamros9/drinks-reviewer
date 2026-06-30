@@ -111,6 +111,7 @@ export default function CategoryPage({ category }) {
         sortKey={sortKey}
         sortDir={sortDir}
         onSort={handleSort}
+        activeVintage={activeFilters.vintage?.size === 1 ? [...activeFilters.vintage][0] : null}
       />
     </div>
   );

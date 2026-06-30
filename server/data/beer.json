@@ -1,686 +1,1289 @@
 [
-    {
-        "id":  "a4138ccf-179f-4bd5-9845-faff3e330c02",
-        "brewery":  "אלכסנדר",
-        "name":  "Tropical",
-        "style":  "IPA",
-        "country":  "Israel",
-        "abv":  7.8,
-        "lastTasted":  "26/06/2025",
-        "lastRanking":  9.5,
-        "avgRanking":  9.5,
-        "notionLink":  "https://www.notion.so/Tropical-IPA-2236f7bc4a3380fda31bfb6989310eb4?source=copy_link"
-    },
-    {
-        "id":  "7fc42fcd-d042-4a34-affe-e7bcee89092f",
-        "brewery":  "רונן",
-        "name":  "הבירה המכוערת",
-        "style":  "IPA",
-        "country":  "Israel",
-        "abv":  6.5,
-        "lastTasted":  "21/05/2025",
-        "lastRanking":  9,
-        "avgRanking":  9,
-        "notionLink":  "https://www.notion.so/1fe6f7bc4a3380b09d30ceacf824cec7?pvs=4"
-    },
-    {
-        "id":  "b31d8f88-d76b-466e-860f-537692d62335",
-        "brewery":  "מלכה",
-        "name":  "הינדי",
-        "style":  "IPA",
-        "country":  "Israel",
-        "abv":  6.2,
-        "lastTasted":  "02/08/2025",
-        "lastRanking":  9,
-        "avgRanking":  9,
-        "notionLink":  "https://www.notion.so/2456f7bc4a3380c79a33d31141393357?source=copy_link"
-    },
-    {
-        "id":  "d679f8a9-c93e-44c4-9d37-1a60436c787b",
-        "brewery":  "Thornbridge",
-        "name":  "Green Mountain",
-        "style":  "IPA",
-        "country":  "England",
-        "abv":  4.3,
-        "lastTasted":  "09/10/2025",
-        "lastRanking":  9,
-        "avgRanking":  9,
-        "notionLink":  "https://www.notion.so/Thornbridge-Green-Mountain-2996f7bc4a3380e2a392cc04c5f5d0ad"
-    },
-    {
-        "id":  "783dacd6-008c-4011-b916-c003bd6294bb",
-        "brewery":  "נגב",
-        "name":  "פורטר אלון",
-        "style":  "Porter",
-        "country":  "Israel",
-        "abv":  5,
-        "lastTasted":  "04/12/2025",
-        "lastRanking":  9,
-        "avgRanking":  9,
-        "notionLink":  "https://www.notion.so/2d96f7bc4a33809999eaffa9fa7098d5"
-    },
-    {
-        "id":  "be63f264-9965-45c2-a23c-e1ba39185148",
-        "brewery":  "נגב",
-        "name":  "אואזיס",
-        "style":  "Blonde Ale",
-        "country":  "Israel",
-        "abv":  4.7,
-        "lastTasted":  "14/04/2026",
-        "lastRanking":  8.5,
-        "avgRanking":  8.66,
-        "notionLink":  "https://www.notion.so/21d6f7bc4a3380b7bde7e4f0f61f7865"
-    },
-    {
-        "id":  "6ebd3fa3-4918-475f-bd21-14204f886895",
-        "brewery":  "BeerBazaar",
-        "name":  "Black Jack",
-        "style":  "Stout",
-        "country":  "Israel",
-        "abv":  4.7,
-        "lastTasted":  "24/03/2025",
-        "lastRanking":  8.5,
-        "avgRanking":  8.5,
-        "notionLink":  "https://www.notion.so/BeerBazaar-Black-Jack-1c26f7bc4a338082b55ce66eb03204bd?pvs=4"
-    },
-    {
-        "id":  "3d1188d1-d4be-436c-8dfd-0ddd5f319dc4",
-        "brewery":  "תומר",
-        "name":  "סטאוט",
-        "style":  "Stout",
-        "country":  "Israel",
-        "abv":  5,
-        "lastTasted":  "09/08/2025",
-        "lastRanking":  8.5,
-        "avgRanking":  8.5,
-        "notionLink":  "https://www.notion.so/24c6f7bc4a3380489277e8cd0234890f"
-    },
-    {
-        "id":  "d9b4f6ad-afd6-4f25-8914-ed6aa6371956",
-        "brewery":  "חלוץ חדש",
-        "name":  "חוצה ישראל",
-        "style":  "Wheat",
-        "country":  "Israel",
-        "abv":  5,
-        "lastTasted":  "24/02/2026",
-        "lastRanking":  8,
-        "avgRanking":  8.25,
-        "notionLink":  "https://www.notion.so/2fa6f7bc4a33803ca571da748c0b05b0"
-    },
-    {
-        "id":  "75c104f3-5e64-44cf-a3e2-e15abe7938b0",
-        "brewery":  "Jems",
-        "name":  "IPA",
-        "style":  "IPA",
-        "country":  "Israel",
-        "abv":  6,
-        "lastTasted":  "09/09/2025",
-        "lastRanking":  8,
-        "avgRanking":  8.25,
-        "notionLink":  "https://www.notion.so/Jem-s-IPA-1b26f7bc4a3380c9a349e7f2af9ee181?pvs=4"
-    },
-    {
-        "id":  "9816c21e-0356-4580-80a0-c248c6e9e2c3",
-        "brewery":  "Guinness",
-        "name":  "Guinness",
-        "style":  "Stout",
-        "country":  "Ireland",
-        "abv":  4.2,
-        "lastTasted":  "22/10/2025",
-        "lastRanking":  8.5,
-        "avgRanking":  8.25,
-        "notionLink":  "https://www.notion.so/Guinness-2996f7bc4a33804093b3ddccd9ad444a"
-    },
-    {
-        "id":  "ffa5c9ea-5e04-485b-9816-2bce59ba368a",
-        "brewery":  "מלכה",
-        "name":  "בהירה",
-        "style":  "Blonde Ale",
-        "country":  "Israel",
-        "abv":  6.5,
-        "lastTasted":  "07/06/2025",
-        "lastRanking":  8,
-        "avgRanking":  8,
-        "notionLink":  "https://www.notion.so/20d6f7bc4a33809fa6f9ef9254ed24b9"
-    },
-    {
-        "id":  "04f2a387-501f-44a4-b9d4-72032c11ae5c",
-        "brewery":  "Loch Lomond",
-        "name":  "Zoomtime",
-        "style":  "IPA",
-        "country":  "Scotland",
-        "abv":  4.5,
-        "lastTasted":  "20/11/2024",
-        "lastRanking":  8,
-        "avgRanking":  8,
-        "notionLink":  "https://www.notion.so/Loch-Lomond-Zoom-Time-1756f7bc4a3380779b11feb9b849eef0?pvs=4"
-    },
-    {
-        "id":  "3dfc47e7-5cf5-41f2-af6a-361f79a19479",
-        "brewery":  "Brewdog",
-        "name":  "Dead Pony Club",
-        "style":  "IPA",
-        "country":  "England",
-        "abv":  3.8,
-        "lastTasted":  "12/11/2024",
-        "lastRanking":  8,
-        "avgRanking":  8,
-        "notionLink":  "https://www.notion.so/Brewdog-Dead-Pony-Club-1756f7bc4a338079a5c6ccad58069c8b?pvs=4"
-    },
-    {
-        "id":  "a9c2c192-5a85-45a2-ae47-96cd70e738ff",
-        "brewery":  "שפירא",
-        "name":  "Pale Ale",
-        "style":  "Pale Ale",
-        "country":  "Israel",
-        "abv":  5,
-        "lastTasted":  "11/09/2025",
-        "lastRanking":  8,
-        "avgRanking":  8,
-        "notionLink":  "https://www.notion.so/Pale-Ale-27c6f7bc4a3380e2990ac5695d8eef6b"
-    },
-    {
-        "id":  "05b20ca6-3a84-4d32-87cd-53c6023cade4",
-        "brewery":  "Wychwood",
-        "name":  "King Goblin",
-        "style":  "Brown Ale",
-        "country":  "England",
-        "abv":  6.6,
-        "lastTasted":  "19/10/2025",
-        "lastRanking":  8,
-        "avgRanking":  8,
-        "notionLink":  "https://www.notion.so/Wychwood-King-Goblin-2996f7bc4a338030b09fc94f5b5d9777"
-    },
-    {
-        "id":  "c4286d18-80b8-4dd6-89f5-c45f696dd755",
-        "brewery":  "Shipyard",
-        "name":  "IPA",
-        "style":  "IPA",
-        "country":  "USA",
-        "abv":  5,
-        "lastTasted":  "06/11/2025",
-        "lastRanking":  8,
-        "avgRanking":  8,
-        "notionLink":  "https://www.notion.so/Shipyard-IPA-2b06f7bc4a338020bcfec1ae668b2e8f"
-    },
-    {
-        "id":  "b3d76857-4d9f-481a-bfbc-2fc42088c2b3",
-        "brewery":  "Lagunitas",
-        "name":  "IPA",
-        "style":  "IPA",
-        "country":  "USA",
-        "abv":  6.2,
-        "lastTasted":  "15/01/2026",
-        "lastRanking":  8,
-        "avgRanking":  7.75,
-        "notionLink":  "https://www.notion.so/Lagunitas-IPA-27c6f7bc4a33808f9c99d2b7e65cfa84"
-    },
-    {
-        "id":  "73ff76c1-3150-42af-9e98-c15818dde975",
-        "brewery":  "שקמה",
-        "name":  "Amber Ale",
-        "style":  "Amber Ale",
-        "country":  "Israel",
-        "abv":  5.5,
-        "lastTasted":  "30/06/2025",
-        "lastRanking":  8,
-        "avgRanking":  7.5,
-        "notionLink":  "https://www.notion.so/Amber-Ale-1df6f7bc4a338011b383f060ddbd4d0c?pvs=4"
-    },
-    {
-        "id":  "aec00ec7-925a-40cc-92e5-d42d319b26f7",
-        "brewery":  "Weihenstephan",
-        "name":  "Vitus",
-        "style":  "Weizenbock",
-        "country":  "Germany",
-        "abv":  7.7,
-        "lastTasted":  "20/06/2025",
-        "lastRanking":  7.5,
-        "avgRanking":  7.5,
-        "notionLink":  "https://www.notion.so/Weihenstephan-Vitus-21d6f7bc4a33803d94b7f56d94bc9982?source=copy_link"
-    },
-    {
-        "id":  "17524fa7-dad0-4e1b-a172-4fabbf619f3f",
-        "brewery":  "Benediktiner",
-        "name":  "Hell",
-        "style":  "Helles Lager",
-        "country":  "Germany",
-        "abv":  5,
-        "lastTasted":  "20/11/2025",
-        "lastRanking":  7.5,
-        "avgRanking":  7.5,
-        "notionLink":  "https://www.notion.so/Benediktiner-Hell-2be6f7bc4a3380bcae28d0d2"
-    },
-    {
-        "id":  "1a38727f-04d6-4fe8-bbf5-85355781aa33",
-        "brewery":  "אלכסנדר",
-        "name":  "Green",
-        "style":  "IPA",
-        "country":  "Israel",
-        "abv":  6,
-        "lastTasted":  "11/11/2025",
-        "lastRanking":  7.5,
-        "avgRanking":  7.33,
-        "notionLink":  "https://www.notion.so/Green-21d6f7bc4a3380f6886aeb0cf1c84151"
-    },
-    {
-        "id":  "e66f8f18-d01e-4e72-a1d3-7ee881a95da5",
-        "brewery":  "Carlsberg",
-        "name":  "Luma",
-        "style":  "Hoppy Lager",
-        "country":  "Israel",
-        "abv":  5.2,
-        "lastTasted":  "28/07/2025",
-        "lastRanking":  7,
-        "avgRanking":  7.25,
-        "notionLink":  "https://www.notion.so/Carlsberg-Luma-22a6f7bc4a33804abcfcd125990a876b"
-    },
-    {
-        "id":  "01df3484-529c-4a33-a517-39686b3c7f53",
-        "brewery":  "מלכה",
-        "name":  "אדמונית",
-        "style":  "Pale Ale",
-        "country":  "Israel",
-        "abv":  5.5,
-        "lastTasted":  "05/01/2026",
-        "lastRanking":  8.5,
-        "avgRanking":  7.25,
-        "notionLink":  "https://www.notion.so/21d6f7bc4a338062b0b9dff8aa6d5a7d?source=copy_link"
-    },
-    {
-        "id":  "7a36a086-49bc-4e48-861e-6e3e03d13ee6",
-        "brewery":  "Bavaria",
-        "name":  "8.6 Black",
-        "style":  "Stout",
-        "country":  "Netherlands",
-        "abv":  7.9,
-        "lastTasted":  "28/04/2025",
-        "lastRanking":  7,
-        "avgRanking":  7,
-        "notionLink":  "https://www.notion.so/Bavaria-8-6-Black-1ea6f7bc4a3380daae14f90e15698a70"
-    },
-    {
-        "id":  "b43b0687-e98f-47a1-93b2-fc60826ecfe6",
-        "brewery":  "עמק האלה",
-        "name":  "בירה אדמונית",
-        "style":  "Irish Red Ale",
-        "country":  "Israel",
-        "abv":  5.5,
-        "lastTasted":  "05/02/2025",
-        "lastRanking":  7,
-        "avgRanking":  7,
-        "notionLink":  "https://www.notion.so/1946f7bc4a33806e8cb6cf93c465aaff?pvs=4"
-    },
-    {
-        "id":  "e803324d-1a0e-4863-9b1e-0506588fd51f",
-        "brewery":  "Konigsbacher",
-        "name":  "Pilsner",
-        "style":  "Pilsner",
-        "country":  "Germany",
-        "abv":  4.6,
-        "lastTasted":  "24/06/2025",
-        "lastRanking":  7,
-        "avgRanking":  7,
-        "notionLink":  "https://www.notion.so/Konigsbacher-Pilsner-21d6f7bc4a3380e6b8fbe7ac1a5e4803?source=copy_link"
-    },
-    {
-        "id":  "2f5cbdf8-dc0a-4167-96d0-6680ab6d08cc",
-        "brewery":  "Corona",
-        "name":  "Extra",
-        "style":  "Pale Lager",
-        "country":  "Mexico",
-        "abv":  4.5,
-        "lastTasted":  "05/08/2025",
-        "lastRanking":  7,
-        "avgRanking":  7,
-        "notionLink":  "https://www.notion.so/Corona-Extra-24c6f7bc4a3380f7afb4d6ea88602ede?source=copy_link"
-    },
-    {
-        "id":  "63767e18-ccd2-4a7e-9cdf-917f6dfd4235",
-        "brewery":  "אלכסנדר",
-        "name":  "THAIPA",
-        "style":  "IPA",
-        "country":  "Israel",
-        "abv":  5.3,
-        "lastTasted":  "16/09/2025",
-        "lastRanking":  7,
-        "avgRanking":  7,
-        "notionLink":  "https://www.notion.so/THAIPA-27c6f7bc4a33804a98eaf481d1d1ed51"
-    },
-    {
-        "id":  "2d3dec26-a1df-4388-8935-3d9fc00fbdfe",
-        "brewery":  "תומר",
-        "name":  "אדמונית",
-        "style":  "Pale Ale",
-        "country":  "Israel",
-        "abv":  5,
-        "lastTasted":  "30/10/2025",
-        "lastRanking":  7.5,
-        "avgRanking":  7,
-        "notionLink":  "https://www.notion.so/27c6f7bc4a33807085f9ff10f029cd10"
-    },
-    {
-        "id":  "b98f273f-e6c0-4d6f-a17b-43dcda6b1673",
-        "brewery":  "Benediktiner",
-        "name":  "Dunkel",
-        "style":  "Weissbeir",
-        "country":  "Germany",
-        "abv":  5.4,
-        "lastTasted":  "10/01/2026",
-        "lastRanking":  7,
-        "avgRanking":  7,
-        "notionLink":  "https://www.notion.so/Benediktiner-Dunkel-2fa6f7bc4a3380f09468f9a2b9ee6a11"
-    },
-    {
-        "id":  "0e486ea2-ccec-4115-8bd9-b25026b313ed",
-        "brewery":  "Tuborg",
-        "name":  "Red",
-        "style":  "Lager",
-        "country":  "Denmark",
-        "abv":  5.2,
-        "lastTasted":  "24/05/2025",
-        "lastRanking":  6.5,
-        "avgRanking":  6.5,
-        "notionLink":  "https://www.notion.so/Tuborg-Red-1fe6f7bc4a3380f2b89cc5886ba108ea"
-    },
-    {
-        "id":  "5bbda27b-e540-48dd-aa3a-45cc44670000",
-        "brewery":  "תומר",
-        "name":  "בלונד",
-        "style":  "Blonde Ale",
-        "country":  "Israel",
-        "abv":  5.3,
-        "lastTasted":  "10/07/2025",
-        "lastRanking":  6.5,
-        "avgRanking":  6.5,
-        "notionLink":  "https://www.notion.so/23d6f7bc4a33800aaee7d763bdddeeea"
-    },
-    {
-        "id":  "946dc390-0c1a-475c-90c0-68b16ca5b7d1",
-        "brewery":  "Berliner",
-        "name":  "Geschichte",
-        "style":  "Hefeweizen",
-        "country":  "Germany",
-        "abv":  5.2,
-        "lastTasted":  "10/12/2025",
-        "lastRanking":  6.5,
-        "avgRanking":  6.5,
-        "notionLink":  "https://www.notion.so/Berliner-Geschichte-Hefeweizen-2d96f7bc4a3380fba586c6a0fa35209d"
-    },
-    {
-        "id":  "a6b193b9-d651-42f3-ada0-074de73398fd",
-        "brewery":  "נגב",
-        "name":  "אמבר אייל",
-        "style":  "Amber Ale",
-        "country":  "Israel",
-        "abv":  4.9,
-        "lastTasted":  "18/01/2026",
-        "lastRanking":  6.5,
-        "avgRanking":  6.5,
-        "notionLink":  "https://www.notion.so/2fa6f7bc4a3380bf8c24f70727cf027e"
-    },
-    {
-        "id":  "9446a2f9-f2ad-4646-be2b-8289f5516a72",
-        "brewery":  "גולדסטאר",
-        "name":  "Unifiltered",
-        "style":  "Lager",
-        "country":  "Israel",
-        "abv":  4.6,
-        "lastTasted":  "02/09/2025",
-        "lastRanking":  6,
-        "avgRanking":  6.25,
-        "notionLink":  "https://www.notion.so/Unfiltered-23d6f7bc4a3380feb058ea580b806c87"
-    },
-    {
-        "id":  "e4ef333c-5419-48e6-85b8-d5cd00252ca6",
-        "brewery":  "Pilsner Urquell",
-        "name":  "Pilsner Urquell",
-        "style":  "Pilsner",
-        "country":  "Czech Republic",
-        "abv":  4.4,
-        "lastTasted":  "31/05/2025",
-        "lastRanking":  6,
-        "avgRanking":  6,
-        "notionLink":  "https://www.notion.so/Pilsner-Urqull-20d6f7bc4a33806487f7f27d20c2d8bf?source=copy_link"
-    },
-    {
-        "id":  "609bc9af-6314-4ee7-8901-8873de32357a",
-        "brewery":  "הרצל",
-        "name":  "שש אחוז כפרה",
-        "style":  "Irish Red Ale",
-        "country":  "Israel",
-        "abv":  6,
-        "lastTasted":  "24/05/2025",
-        "lastRanking":  6,
-        "avgRanking":  6,
-        "notionLink":  "https://www.notion.so/1fe6f7bc4a3380c59f86d836826ccaeb?pvs=4"
-    },
-    {
-        "id":  "7eaa7f53-3e37-4769-aab1-d7ddee2136f2",
-        "brewery":  "בועה - בירה תל אביבית מתנשאת",
-        "name":  "מעושנת",
-        "style":  "Saison",
-        "country":  "Israel",
-        "abv":  7,
-        "lastTasted":  "29/01/2025",
-        "lastRanking":  6,
-        "avgRanking":  6,
-        "notionLink":  "https://www.notion.so/1946f7bc4a3380eb815efa1300c11fd0?pvs=4"
-    },
-    {
-        "id":  "ecd3cba2-da8d-4778-aa95-c4b4591bc5ec",
-        "brewery":  "Weihenstephan",
-        "name":  "Hefe Weissbier",
-        "style":  "Hefeweizen",
-        "country":  "Germany",
-        "abv":  5.4,
-        "lastTasted":  "02/07/2025",
-        "lastRanking":  6,
-        "avgRanking":  6,
-        "notionLink":  "https://www.notion.so/Weihenstephan-Hefe-Weissbier-22a6f7bc4a3380e29f10de7f5b36c046"
-    },
-    {
-        "id":  "c60818d4-8f1c-4340-ad3a-7c915eb8b2b0",
-        "brewery":  "Paulaner",
-        "name":  "Weissbeir",
-        "style":  "Weissbeir",
-        "country":  "Germany",
-        "abv":  5.5,
-        "lastTasted":  "23/11/2025",
-        "lastRanking":  6,
-        "avgRanking":  6,
-        "notionLink":  "https://www.notion.so/Paulaner-2be6f7bc4a3380baa788e2766564c3ee"
-    },
-    {
-        "id":  "02e4fa34-ff73-48df-ba03-39c31531c265",
-        "brewery":  "Brewdog",
-        "name":  "Punk IPA",
-        "style":  "IPA",
-        "country":  "England",
-        "abv":  5.4,
-        "lastTasted":  "04/01/2026",
-        "lastRanking":  6,
-        "avgRanking":  6,
-        "notionLink":  "https://www.notion.so/Brewdog-Punk-IPA-2fa6f7bc4a33809d843ccd3dc98d3c9a"
-    },
-    {
-        "id":  "30d5458d-6dda-4fba-aded-084ce5566b83",
-        "brewery":  "עמק האלה",
-        "name":  "טריפל בלגית",
-        "style":  "Belgian Tripel",
-        "country":  "Israel",
-        "abv":  9.2,
-        "lastTasted":  "18/05/2025",
-        "lastRanking":  5.5,
-        "avgRanking":  5.5,
-        "notionLink":  "https://www.notion.so/1f86f7bc4a33803f8aedeedd4e713442"
-    },
-    {
-        "id":  "f0671bff-ef35-472c-928e-d327a7a40ce3",
-        "brewery":  "שפירא",
-        "name":  "IPA",
-        "style":  "IPA",
-        "country":  "Israel",
-        "abv":  6.5,
-        "lastTasted":  "06/04/2025",
-        "lastRanking":  5.5,
-        "avgRanking":  5.5,
-        "notionLink":  "https://www.notion.so/IPA-1db6f7bc4a338010b882ccd52f7c3cad?pvs=4"
-    },
-    {
-        "id":  "8301fc4b-95c5-4594-953d-ca835db74051",
-        "brewery":  "מכבי",
-        "name":  "7.9",
-        "style":  "Lager",
-        "country":  "Israel",
-        "abv":  7.9,
-        "lastTasted":  "29/03/2025",
-        "lastRanking":  5.5,
-        "avgRanking":  5.5,
-        "notionLink":  "https://www.notion.so/7-9-1ca6f7bc4a3380ee8051cb865c576c04"
-    },
-    {
-        "id":  "f9b625f3-eb06-49dc-bcfd-a50c45d1023c",
-        "brewery":  "Stella Artois",
-        "name":  "Pilsner",
-        "style":  "Pilsner",
-        "country":  "Belgium",
-        "abv":  5,
-        "lastTasted":  "16/07/2025",
-        "lastRanking":  5.5,
-        "avgRanking":  5.5,
-        "notionLink":  "https://www.notion.so/Stella-Artois-23d6f7bc4a3380dd9559fd6f8c25cdb3"
-    },
-    {
-        "id":  "76fe2ce0-7ba3-41b5-b676-9e080b0312ec",
-        "brewery":  "Sullivan\u0027s",
-        "name":  "Black Marble",
-        "style":  "Stout",
-        "country":  "Ireland",
-        "abv":  5.1,
-        "lastTasted":  "19/11/2025",
-        "lastRanking":  5.5,
-        "avgRanking":  5.5,
-        "notionLink":  "https://www.notion.so/Sullivan-s-Black-Marble-2be6f7bc4a338027bd4bd5ec1b015864"
-    },
-    {
-        "id":  "a8e73ba3-da3f-40a5-a7f3-327ff33802d8",
-        "brewery":  "Wychwood",
-        "name":  "Hobgoblin",
-        "style":  "IPA",
-        "country":  "England",
-        "abv":  5,
-        "lastTasted":  "12/06/2025",
-        "lastRanking":  5,
-        "avgRanking":  5,
-        "notionLink":  "https://www.notion.so/Wychwood-Hobgoblin-IPA-1f36f7bc4a338038af12ee1af999f4c6?pvs=4"
-    },
-    {
-        "id":  "1d9bd251-5c75-4cb9-815b-aa7cbf230274",
-        "brewery":  "רונן",
-        "name":  "החיטה המחוצפת",
-        "style":  "Lager",
-        "country":  "Israel",
-        "abv":  6.1,
-        "lastTasted":  "21/02/2025",
-        "lastRanking":  5,
-        "avgRanking":  5,
-        "notionLink":  "https://www.notion.so/1a46f7bc4a33801c95a6cadb118b41dd?pvs=4"
-    },
-    {
-        "id":  "5aa537e9-f82b-4ff4-9218-68fb954dbc9f",
-        "brewery":  "שקמה",
-        "name":  "IPA",
-        "style":  "IPA",
-        "country":  "Israel",
-        "abv":  5.2,
-        "lastTasted":  "22/07/2025",
-        "lastRanking":  5,
-        "avgRanking":  5,
-        "notionLink":  "https://www.notion.so/IPA-23d6f7bc4a338033ad54dcd1f9ffc1c7?source=copy_link"
-    },
-    {
-        "id":  "139c9b90-b0ea-4add-8f9a-c8f971edca3e",
-        "brewery":  "תומר",
-        "name":  "חיטה",
-        "style":  "Wheat",
-        "country":  "Israel",
-        "abv":  6.5,
-        "lastTasted":  "06/11/2025",
-        "lastRanking":  5,
-        "avgRanking":  4.75,
-        "notionLink":  "https://www.notion.so/23d6f7bc4a33800aaee7d763bdddeeea"
-    },
-    {
-        "id":  "dfb9e881-7e4d-4136-ad99-375e31563bb0",
-        "brewery":  "Krombacher",
-        "name":  "Weizen",
-        "style":  "Hefeweizen",
-        "country":  "Germany",
-        "abv":  5.3,
-        "lastTasted":  "17/08/2025",
-        "lastRanking":  4.5,
-        "avgRanking":  4.5,
-        "notionLink":  "https://www.notion.so/Krombacher-Weizen-25a6f7bc4a3380b78308fd407af72348"
-    },
-    {
-        "id":  "2bb83925-b242-4f73-af58-d9862f2ca064",
-        "brewery":  "רונן",
-        "name":  "הכהה המרושעת",
-        "style":  "Dark Ale",
-        "country":  "Israel",
-        "abv":  6.2,
-        "lastTasted":  "06/05/2025",
-        "lastRanking":  4,
-        "avgRanking":  4,
-        "notionLink":  "https://www.notion.so/1f36f7bc4a3380cebdbecfacd579c02a"
-    },
-    {
-        "id":  "8318c96d-7799-44f8-8c06-ed633307666f",
-        "brewery":  "שקמה",
-        "name":  "Bitter Wheat",
-        "style":  "Hoppy Wheat",
-        "country":  "Israel",
-        "abv":  5.4,
-        "lastTasted":  "02/07/2025",
-        "lastRanking":  4,
-        "avgRanking":  4,
-        "notionLink":  "https://www.notion.so/Bitter-Wheat-22a6f7bc4a338082a8d1cb0e955ac6e3?source=copy_link"
-    },
-    {
-        "id":  "7d9944d1-7735-4ab8-9ab5-21d2380cabe8",
-        "brewery":  "Heineken",
-        "name":  "Lager",
-        "style":  "Pale Lager",
-        "country":  "Netherlands",
-        "abv":  5,
-        "lastTasted":  "19/03/2025",
-        "lastRanking":  2,
-        "avgRanking":  2,
-        "notionLink":  "https://www.notion.so/Heineken-Lager-1c26f7bc4a33808cb241feaa915beca5?pvs=4"
-    },
-    {
-        "id":  "2537015e-b8a1-49ba-8320-ca22c8f4c336",
-        "brewery":  "Bavaria",
-        "name":  "8.6 IPA",
-        "style":  "IPA",
-        "country":  "Netherlands",
-        "abv":  7,
-        "lastTasted":  "02/09/2025",
-        "lastRanking":  1,
-        "avgRanking":  1,
-        "notionLink":  "https://www.notion.so/Bavaria-8-6-IPA-2636f7bc4a338008827bd1be5ef60f87"
-    },
-    {
-        "id":  "3f760d77-70ca-49b3-b969-caa94dc7d5b3",
-        "brewery":  "Thornbridge",
-        "name":  "Jaipur",
-        "style":  "IPA",
-        "country":  "England",
-        "abv":  5.9,
-        "lastTasted":  "15/02/2026",
-        "lastRanking":  5,
-        "avgRanking":  5,
-        "notionLink":  "https://www.notion.so/Thornbridge-Jaipur-34f6f7bc4a338074b4eaca7400b42735"
-    }
+  {
+    "id": "a4138ccf-179f-4bd5-9845-faff3e330c02",
+    "brewery": "אלכסנדר",
+    "name": "Tropical",
+    "style": "IPA",
+    "country": "Israel",
+    "abv": 7.8,
+    "lastTasted": "26/06/2025",
+    "lastRanking": 9.5,
+    "avgRanking": 9.5,
+    "notionLink": "https://www.notion.so/Tropical-IPA-2236f7bc4a3380fda31bfb6989310eb4?source=copy_link",
+    "tastings": [
+      {
+        "id": "ca35be92-062d-4b4b-bff9-9ffd42624cff",
+        "date": "26/06/2025",
+        "rating": 9.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/a4138ccf-179f-4bd5-9845-faff3e330c02.webp"
+  },
+  {
+    "id": "7fc42fcd-d042-4a34-affe-e7bcee89092f",
+    "brewery": "רונן",
+    "name": "הבירה המכוערת",
+    "style": "IPA",
+    "country": "Israel",
+    "abv": 6.5,
+    "lastTasted": "21/05/2025",
+    "lastRanking": 9,
+    "avgRanking": 9,
+    "notionLink": "https://www.notion.so/1fe6f7bc4a3380b09d30ceacf824cec7?pvs=4",
+    "tastings": [
+      {
+        "id": "bee19f30-5625-4467-be4b-0564e907d73b",
+        "date": "21/05/2025",
+        "rating": 9
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/7fc42fcd-d042-4a34-affe-e7bcee89092f.jpg"
+  },
+  {
+    "id": "b31d8f88-d76b-466e-860f-537692d62335",
+    "brewery": "מלכה",
+    "name": "הינדי",
+    "style": "IPA",
+    "country": "Israel",
+    "abv": 6.2,
+    "lastTasted": "02/08/2025",
+    "lastRanking": 9,
+    "avgRanking": 9,
+    "notionLink": "https://www.notion.so/2456f7bc4a3380c79a33d31141393357?source=copy_link",
+    "tastings": [
+      {
+        "id": "155c99ae-3272-447a-bc38-5c9ef2e6d792",
+        "date": "02/08/2025",
+        "rating": 9
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/b31d8f88-d76b-466e-860f-537692d62335.jpg"
+  },
+  {
+    "id": "d679f8a9-c93e-44c4-9d37-1a60436c787b",
+    "brewery": "Thornbridge",
+    "name": "Green Mountain",
+    "style": "IPA",
+    "country": "England",
+    "abv": 4.3,
+    "lastTasted": "02/02/2026",
+    "lastRanking": 8,
+    "avgRanking": 8.5,
+    "notionLink": "https://www.notion.so/Thornbridge-Green-Mountain-2996f7bc4a3380e2a392cc04c5f5d0ad",
+    "tastings": [
+      {
+        "id": "eda66c88-acda-4d31-ba8b-1d7eb1fcb844",
+        "date": "09/10/2025",
+        "rating": 9
+      },
+      {
+        "id": "2980e54a-71c1-4633-bbe4-01e79af277bd",
+        "date": "02/02/2026",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/d679f8a9-c93e-44c4-9d37-1a60436c787b.jpg"
+  },
+  {
+    "id": "783dacd6-008c-4011-b916-c003bd6294bb",
+    "brewery": "נגב",
+    "name": "פורטר אלון",
+    "style": "Porter",
+    "country": "Israel",
+    "abv": 5,
+    "lastTasted": "04/12/2025",
+    "lastRanking": 9,
+    "avgRanking": 9,
+    "notionLink": "https://www.notion.so/2d96f7bc4a33809999eaffa9fa7098d5",
+    "tastings": [
+      {
+        "id": "2b04d80f-ceca-4cd4-9a90-42bd286d6791",
+        "date": "04/12/2025",
+        "rating": 9
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/783dacd6-008c-4011-b916-c003bd6294bb.png"
+  },
+  {
+    "id": "be63f264-9965-45c2-a23c-e1ba39185148",
+    "brewery": "נגב",
+    "name": "אואזיס",
+    "style": "Blonde Ale",
+    "country": "Israel",
+    "abv": 4.7,
+    "lastTasted": "14/04/2025",
+    "lastRanking": 8.5,
+    "avgRanking": 8.67,
+    "notionLink": "https://www.notion.so/21d6f7bc4a3380b7bde7e4f0f61f7865",
+    "tastings": [
+      {
+        "id": "e7ce750a-407f-44b0-b062-44787848ea79",
+        "date": "12/06/2025",
+        "rating": 8.5
+      },
+      {
+        "id": "c110d042-a38d-440b-a908-42ad88d91044",
+        "date": "30/12/2025",
+        "rating": 9
+      },
+      {
+        "id": "4f611e5b-dcc4-4153-95b0-130cd419800d",
+        "date": "14/04/2025",
+        "rating": 8.5
+      }
+    ],
+    "tastingCount": 3,
+    "imagePath": "/images/drinks/be63f264-9965-45c2-a23c-e1ba39185148.webp"
+  },
+  {
+    "id": "6ebd3fa3-4918-475f-bd21-14204f886895",
+    "brewery": "BeerBazaar",
+    "name": "Black Jack",
+    "style": "Stout",
+    "country": "Israel",
+    "abv": 4.7,
+    "lastTasted": "24/03/2025",
+    "lastRanking": 8.5,
+    "avgRanking": 8.5,
+    "notionLink": "https://www.notion.so/BeerBazaar-Black-Jack-1c26f7bc4a338082b55ce66eb03204bd?pvs=4",
+    "tastings": [
+      {
+        "id": "24e57e81-c739-437d-ae9a-cd71de4b65f4",
+        "date": "24/03/2025",
+        "rating": 8.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/6ebd3fa3-4918-475f-bd21-14204f886895.jpg"
+  },
+  {
+    "id": "3d1188d1-d4be-436c-8dfd-0ddd5f319dc4",
+    "brewery": "תומר",
+    "name": "סטאוט",
+    "style": "Stout",
+    "country": "Israel",
+    "abv": 5,
+    "lastTasted": "09/08/2025",
+    "lastRanking": 8.5,
+    "avgRanking": 8.5,
+    "notionLink": "https://www.notion.so/24c6f7bc4a3380489277e8cd0234890f",
+    "tastings": [
+      {
+        "id": "a9ef29b2-1dd4-40e4-b367-b7950bee6dbe",
+        "date": "09/08/2025",
+        "rating": 8.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/3d1188d1-d4be-436c-8dfd-0ddd5f319dc4.jpg"
+  },
+  {
+    "id": "d9b4f6ad-afd6-4f25-8914-ed6aa6371956",
+    "brewery": "חלוץ חדש",
+    "name": "חוצה ישראל",
+    "style": "Wheat",
+    "country": "Israel",
+    "abv": 5,
+    "lastTasted": "24/02/2026",
+    "lastRanking": 8,
+    "avgRanking": 8.25,
+    "notionLink": "https://www.notion.so/2fa6f7bc4a33803ca571da748c0b05b0",
+    "tastings": [
+      {
+        "id": "600dc7c9-0b55-4621-a29c-dc5698aa4dfc",
+        "date": "28/01/2026",
+        "rating": 8.5
+      },
+      {
+        "id": "8c74357d-2a76-442d-9742-e81c210133a8",
+        "date": "24/02/2026",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/d9b4f6ad-afd6-4f25-8914-ed6aa6371956.png"
+  },
+  {
+    "id": "75c104f3-5e64-44cf-a3e2-e15abe7938b0",
+    "brewery": "Jems",
+    "name": "IPA",
+    "style": "IPA",
+    "country": "Israel",
+    "abv": 6,
+    "lastTasted": "09/09/2025",
+    "lastRanking": 8,
+    "avgRanking": 8.25,
+    "notionLink": "https://www.notion.so/Jem-s-IPA-1b26f7bc4a3380c9a349e7f2af9ee181?pvs=4",
+    "tastings": [
+      {
+        "id": "06a0e85c-925f-46ac-a5d7-89931bfce1d3",
+        "date": "05/03/2025",
+        "rating": 8.5
+      },
+      {
+        "id": "9120ac6c-9d51-43d0-b698-a7cef36cafe1",
+        "date": "09/09/2025",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/75c104f3-5e64-44cf-a3e2-e15abe7938b0.jpg"
+  },
+  {
+    "id": "9816c21e-0356-4580-80a0-c248c6e9e2c3",
+    "brewery": "Guinness",
+    "name": "Guinness",
+    "style": "Stout",
+    "country": "Ireland",
+    "abv": 4.2,
+    "lastTasted": "22/10/2025",
+    "lastRanking": 8.5,
+    "avgRanking": 8.25,
+    "notionLink": "https://www.notion.so/Guinness-2996f7bc4a33804093b3ddccd9ad444a",
+    "tastings": [
+      {
+        "id": "80565e95-9088-48b1-9c48-b58342c8abc7",
+        "date": "05/10/2025",
+        "rating": 8
+      },
+      {
+        "id": "4d799da2-2741-40a1-a361-23e897387c6a",
+        "date": "22/10/2025",
+        "rating": 8.5
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/9816c21e-0356-4580-80a0-c248c6e9e2c3.webp"
+  },
+  {
+    "id": "ffa5c9ea-5e04-485b-9816-2bce59ba368a",
+    "brewery": "מלכה",
+    "name": "בהירה",
+    "style": "Blonde Ale",
+    "country": "Israel",
+    "abv": 6.5,
+    "lastTasted": "07/06/2025",
+    "lastRanking": 8,
+    "avgRanking": 8,
+    "notionLink": "https://www.notion.so/20d6f7bc4a33809fa6f9ef9254ed24b9",
+    "tastings": [
+      {
+        "id": "2955ba38-50df-4e82-a17d-ae835e7fc146",
+        "date": "07/06/2025",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/ffa5c9ea-5e04-485b-9816-2bce59ba368a.jpg"
+  },
+  {
+    "id": "04f2a387-501f-44a4-b9d4-72032c11ae5c",
+    "brewery": "Loch Lomond",
+    "name": "Zoomtime",
+    "style": "IPA",
+    "country": "Scotland",
+    "abv": 4.5,
+    "lastTasted": "20/11/2024",
+    "lastRanking": 8,
+    "avgRanking": 8,
+    "notionLink": "https://www.notion.so/Loch-Lomond-Zoom-Time-1756f7bc4a3380779b11feb9b849eef0?pvs=4",
+    "tastings": [
+      {
+        "id": "a0a60f21-04f0-4097-a26e-fbfb4e98b1ee",
+        "date": "20/11/2024",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/04f2a387-501f-44a4-b9d4-72032c11ae5c.png"
+  },
+  {
+    "id": "3dfc47e7-5cf5-41f2-af6a-361f79a19479",
+    "brewery": "Brewdog",
+    "name": "Dead Pony Club",
+    "style": "IPA",
+    "country": "England",
+    "abv": 3.8,
+    "lastTasted": "12/11/2024",
+    "lastRanking": 8,
+    "avgRanking": 8,
+    "notionLink": "https://www.notion.so/Brewdog-Dead-Pony-Club-1756f7bc4a338079a5c6ccad58069c8b?pvs=4",
+    "tastings": [
+      {
+        "id": "472e3567-a868-4dab-973f-813def207316",
+        "date": "12/11/2024",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/3dfc47e7-5cf5-41f2-af6a-361f79a19479.png"
+  },
+  {
+    "id": "a9c2c192-5a85-45a2-ae47-96cd70e738ff",
+    "brewery": "שפירא",
+    "name": "Pale Ale",
+    "style": "Pale Ale",
+    "country": "Israel",
+    "abv": 5,
+    "lastTasted": "11/09/2025",
+    "lastRanking": 8,
+    "avgRanking": 8,
+    "notionLink": "https://www.notion.so/Pale-Ale-27c6f7bc4a3380e2990ac5695d8eef6b",
+    "tastings": [
+      {
+        "id": "0244b131-4636-422e-976c-716a825acca1",
+        "date": "11/09/2025",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/a9c2c192-5a85-45a2-ae47-96cd70e738ff.webp"
+  },
+  {
+    "id": "05b20ca6-3a84-4d32-87cd-53c6023cade4",
+    "brewery": "Wychwood",
+    "name": "King Goblin",
+    "style": "Brown Ale",
+    "country": "England",
+    "abv": 6.6,
+    "lastTasted": "19/10/2025",
+    "lastRanking": 8,
+    "avgRanking": 8,
+    "notionLink": "https://www.notion.so/Wychwood-King-Goblin-2996f7bc4a338030b09fc94f5b5d9777",
+    "tastings": [
+      {
+        "id": "8e77e52e-6356-4dfb-a2d9-544e722684e6",
+        "date": "19/10/2025",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/05b20ca6-3a84-4d32-87cd-53c6023cade4.jpg"
+  },
+  {
+    "id": "c4286d18-80b8-4dd6-89f5-c45f696dd755",
+    "brewery": "Shipyard",
+    "name": "IPA",
+    "style": "IPA",
+    "country": "USA",
+    "abv": 5,
+    "lastTasted": "06/11/2025",
+    "lastRanking": 8,
+    "avgRanking": 8,
+    "notionLink": "https://www.notion.so/Shipyard-IPA-2b06f7bc4a338020bcfec1ae668b2e8f",
+    "tastings": [
+      {
+        "id": "e5a43c7a-0fd1-493b-8030-1d790fca96e2",
+        "date": "06/11/2025",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/c4286d18-80b8-4dd6-89f5-c45f696dd755.jpg"
+  },
+  {
+    "id": "b3d76857-4d9f-481a-bfbc-2fc42088c2b3",
+    "brewery": "Lagunitas",
+    "name": "IPA",
+    "style": "IPA",
+    "country": "USA",
+    "abv": 6.2,
+    "lastTasted": "15/01/2026",
+    "lastRanking": 8,
+    "avgRanking": 7.75,
+    "notionLink": "https://www.notion.so/Lagunitas-IPA-27c6f7bc4a33808f9c99d2b7e65cfa84",
+    "tastings": [
+      {
+        "id": "19959ed1-a6b5-4865-aee4-996f4bf2da15",
+        "date": "11/09/2025",
+        "rating": 7.5
+      },
+      {
+        "id": "1200b61a-fd5d-48af-928a-7471e0635648",
+        "date": "15/01/2026",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/b3d76857-4d9f-481a-bfbc-2fc42088c2b3.png"
+  },
+  {
+    "id": "73ff76c1-3150-42af-9e98-c15818dde975",
+    "brewery": "שקמה",
+    "name": "Amber Ale",
+    "style": "Amber Ale",
+    "country": "Israel",
+    "abv": 5.5,
+    "lastTasted": "30/06/2025",
+    "lastRanking": 8,
+    "avgRanking": 7.5,
+    "notionLink": "https://www.notion.so/Amber-Ale-1df6f7bc4a338011b383f060ddbd4d0c?pvs=4",
+    "tastings": [
+      {
+        "id": "de5bbf39-69fb-43f1-abf3-ebbeca508406",
+        "date": "22/04/2025",
+        "rating": 7
+      },
+      {
+        "id": "16c6c6c2-c1e3-4d2b-b784-2487e7f14f42",
+        "date": "30/06/2025",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/73ff76c1-3150-42af-9e98-c15818dde975.jpg"
+  },
+  {
+    "id": "aec00ec7-925a-40cc-92e5-d42d319b26f7",
+    "brewery": "Weihenstephan",
+    "name": "Vitus",
+    "style": "Weizenbock",
+    "country": "Germany",
+    "abv": 7.7,
+    "lastTasted": "20/06/2025",
+    "lastRanking": 7.5,
+    "avgRanking": 7.5,
+    "notionLink": "https://www.notion.so/Weihenstephan-Vitus-21d6f7bc4a33803d94b7f56d94bc9982?source=copy_link",
+    "tastings": [
+      {
+        "id": "f50dd5dd-ceac-4e86-acd8-a6a2693caa87",
+        "date": "20/06/2025",
+        "rating": 7.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/aec00ec7-925a-40cc-92e5-d42d319b26f7.webp"
+  },
+  {
+    "id": "17524fa7-dad0-4e1b-a172-4fabbf619f3f",
+    "brewery": "Benediktiner",
+    "name": "Hell",
+    "style": "Helles Lager",
+    "country": "Germany",
+    "abv": 5,
+    "lastTasted": "20/11/2025",
+    "lastRanking": 7.5,
+    "avgRanking": 7.5,
+    "notionLink": "https://app.notion.com/p/2be6f7bc4a3380bcae28d0d248b339a7",
+    "imagePath": "/images/drinks/17524fa7-dad0-4e1b-a172-4fabbf619f3f.jpg",
+    "tastings": [
+      {
+        "id": "9bce8134-e477-42d6-a8ea-6a4b8b6f0cb0",
+        "date": "20/11/2025",
+        "rating": 7.5
+      }
+    ],
+    "tastingCount": 1
+  },
+  {
+    "id": "1a38727f-04d6-4fe8-bbf5-85355781aa33",
+    "brewery": "אלכסנדר",
+    "name": "Green",
+    "style": "IPA",
+    "country": "Israel",
+    "abv": 6,
+    "lastTasted": "11/11/2025",
+    "lastRanking": 7.5,
+    "avgRanking": 7.17,
+    "notionLink": "https://www.notion.so/Green-21d6f7bc4a3380f6886aeb0cf1c84151",
+    "tastings": [
+      {
+        "id": "02bca16b-ae9d-4678-81a5-e8efa1ca5f84",
+        "date": "18/06/2025",
+        "rating": 6
+      },
+      {
+        "id": "8ac7f920-d79d-44e2-9e43-dfd4bd38fad6",
+        "date": "25/08/2025",
+        "rating": 8
+      },
+      {
+        "id": "7a6ec21d-9510-4adb-a83a-9832cc5042c8",
+        "date": "11/11/2025",
+        "rating": 7.5
+      }
+    ],
+    "tastingCount": 3,
+    "imagePath": "/images/drinks/1a38727f-04d6-4fe8-bbf5-85355781aa33.webp"
+  },
+  {
+    "id": "e66f8f18-d01e-4e72-a1d3-7ee881a95da5",
+    "brewery": "Carlsberg",
+    "name": "Luma",
+    "style": "Hoppy Lager",
+    "country": "Israel",
+    "abv": 5.2,
+    "lastTasted": "28/07/2025",
+    "lastRanking": 8,
+    "avgRanking": 7.33,
+    "notionLink": "https://www.notion.so/Carlsberg-Luma-22a6f7bc4a33804abcfcd125990a876b",
+    "tastings": [
+      {
+        "id": "26013e1f-4ecc-4397-9786-aaa96505f29c",
+        "date": "02/07/2025",
+        "rating": 7.5
+      },
+      {
+        "id": "9d950e3d-53b1-43f3-9c9c-8398f7b89eb6",
+        "date": "06/07/2025",
+        "rating": 6.5
+      },
+      {
+        "id": "1d8fa7dd-b645-477f-bbaf-f7a22ca6a9ed",
+        "date": "28/07/2025",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 3,
+    "imagePath": "/images/drinks/e66f8f18-d01e-4e72-a1d3-7ee881a95da5.jpg"
+  },
+  {
+    "id": "01df3484-529c-4a33-a517-39686b3c7f53",
+    "brewery": "מלכה",
+    "name": "אדמונית",
+    "style": "Pale Ale",
+    "country": "Israel",
+    "abv": 5.5,
+    "lastTasted": "05/01/2026",
+    "lastRanking": 8.5,
+    "avgRanking": 7.25,
+    "notionLink": "https://www.notion.so/21d6f7bc4a338062b0b9dff8aa6d5a7d?source=copy_link",
+    "tastings": [
+      {
+        "id": "a4c52971-7206-4805-9557-df1eebc2e367",
+        "date": "12/06/2025",
+        "rating": 6
+      },
+      {
+        "id": "93ccd5ac-49c4-42b7-b6f2-c7dd1b021818",
+        "date": "05/01/2026",
+        "rating": 8.5
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/01df3484-529c-4a33-a517-39686b3c7f53.webp"
+  },
+  {
+    "id": "7a36a086-49bc-4e48-861e-6e3e03d13ee6",
+    "brewery": "Bavaria",
+    "name": "8.6 Black",
+    "style": "Stout",
+    "country": "Netherlands",
+    "abv": 7.9,
+    "lastTasted": "28/04/2025",
+    "lastRanking": 7,
+    "avgRanking": 7,
+    "notionLink": "https://www.notion.so/Bavaria-8-6-Black-1ea6f7bc4a3380daae14f90e15698a70",
+    "tastings": [
+      {
+        "id": "94609ff3-b58f-4b3d-bc34-2a7206f88159",
+        "date": "28/04/2025",
+        "rating": 7
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/7a36a086-49bc-4e48-861e-6e3e03d13ee6.jpg"
+  },
+  {
+    "id": "b43b0687-e98f-47a1-93b2-fc60826ecfe6",
+    "brewery": "עמק האלה",
+    "name": "בירה אדמונית",
+    "style": "Irish Red Ale",
+    "country": "Israel",
+    "abv": 5.5,
+    "lastTasted": "05/02/2025",
+    "lastRanking": 7,
+    "avgRanking": 7,
+    "notionLink": "https://www.notion.so/1946f7bc4a33806e8cb6cf93c465aaff?pvs=4",
+    "tastings": [
+      {
+        "id": "b012ab26-461c-48dc-8cfc-85d2709f6115",
+        "date": "05/02/2025",
+        "rating": 7
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/b43b0687-e98f-47a1-93b2-fc60826ecfe6.jpg"
+  },
+  {
+    "id": "e803324d-1a0e-4863-9b1e-0506588fd51f",
+    "brewery": "Konigsbacher",
+    "name": "Pilsner",
+    "style": "Pilsner",
+    "country": "Germany",
+    "abv": 4.6,
+    "lastTasted": "24/06/2025",
+    "lastRanking": 7,
+    "avgRanking": 7,
+    "notionLink": "https://www.notion.so/Konigsbacher-Pilsner-21d6f7bc4a3380e6b8fbe7ac1a5e4803?source=copy_link",
+    "tastings": [
+      {
+        "id": "be3f36ce-aa47-4331-80dc-6aca34e11856",
+        "date": "24/06/2025",
+        "rating": 7
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/e803324d-1a0e-4863-9b1e-0506588fd51f.jpg"
+  },
+  {
+    "id": "2f5cbdf8-dc0a-4167-96d0-6680ab6d08cc",
+    "brewery": "Corona",
+    "name": "Extra",
+    "style": "Pale Lager",
+    "country": "Mexico",
+    "abv": 4.5,
+    "lastTasted": "05/08/2025",
+    "lastRanking": 7,
+    "avgRanking": 7,
+    "notionLink": "https://www.notion.so/Corona-Extra-24c6f7bc4a3380f7afb4d6ea88602ede?source=copy_link",
+    "tastings": [
+      {
+        "id": "9faa718e-a2a8-4f9e-9266-152d2c144b35",
+        "date": "05/08/2025",
+        "rating": 7
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/2f5cbdf8-dc0a-4167-96d0-6680ab6d08cc.jpg"
+  },
+  {
+    "id": "63767e18-ccd2-4a7e-9cdf-917f6dfd4235",
+    "brewery": "אלכסנדר",
+    "name": "THAIPA",
+    "style": "IPA",
+    "country": "Israel",
+    "abv": 5.3,
+    "lastTasted": "16/09/2025",
+    "lastRanking": 7,
+    "avgRanking": 7,
+    "notionLink": "https://www.notion.so/THAIPA-27c6f7bc4a33804a98eaf481d1d1ed51",
+    "tastings": [
+      {
+        "id": "389a79a1-c027-4c74-b644-2c0eadb0a024",
+        "date": "16/09/2025",
+        "rating": 7
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/63767e18-ccd2-4a7e-9cdf-917f6dfd4235.jpg"
+  },
+  {
+    "id": "2d3dec26-a1df-4388-8935-3d9fc00fbdfe",
+    "brewery": "תומר",
+    "name": "אדמונית",
+    "style": "Pale Ale",
+    "country": "Israel",
+    "abv": 5,
+    "lastTasted": "30/10/2025",
+    "lastRanking": 7.5,
+    "avgRanking": 7,
+    "notionLink": "https://www.notion.so/27c6f7bc4a33807085f9ff10f029cd10",
+    "tastings": [
+      {
+        "id": "7d09690b-bc51-40df-8184-3a6740439c46",
+        "date": "21/09/2025",
+        "rating": 6.5
+      },
+      {
+        "id": "178133cf-e714-49c0-9b3c-c49ac41dbad8",
+        "date": "30/10/2025",
+        "rating": 7.5
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/2d3dec26-a1df-4388-8935-3d9fc00fbdfe.jpg"
+  },
+  {
+    "id": "b98f273f-e6c0-4d6f-a17b-43dcda6b1673",
+    "brewery": "Benediktiner",
+    "name": "Dunkel",
+    "style": "Weissbeir",
+    "country": "Germany",
+    "abv": 5.4,
+    "lastTasted": "10/01/2026",
+    "lastRanking": 7,
+    "avgRanking": 7,
+    "notionLink": "https://www.notion.so/Benediktiner-Dunkel-2fa6f7bc4a3380f09468f9a2b9ee6a11",
+    "tastings": [
+      {
+        "id": "c2df8977-8138-4e68-8c33-a11fd5640b77",
+        "date": "10/01/2026",
+        "rating": 7
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/b98f273f-e6c0-4d6f-a17b-43dcda6b1673.png"
+  },
+  {
+    "id": "0e486ea2-ccec-4115-8bd9-b25026b313ed",
+    "brewery": "Tuborg",
+    "name": "Red",
+    "style": "Lager",
+    "country": "Denmark",
+    "abv": 5.2,
+    "lastTasted": "24/05/2025",
+    "lastRanking": 6.5,
+    "avgRanking": 6.5,
+    "notionLink": "https://www.notion.so/Tuborg-Red-1fe6f7bc4a3380f2b89cc5886ba108ea",
+    "tastings": [
+      {
+        "id": "4048d464-5cd5-44cf-aea9-6932a77cecc9",
+        "date": "24/05/2025",
+        "rating": 6.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/0e486ea2-ccec-4115-8bd9-b25026b313ed.jpg"
+  },
+  {
+    "id": "5bbda27b-e540-48dd-aa3a-45cc44670000",
+    "brewery": "תומר",
+    "name": "בלונד",
+    "style": "Blonde Ale",
+    "country": "Israel",
+    "abv": 5.3,
+    "lastTasted": "08/11/2025",
+    "lastRanking": 5,
+    "avgRanking": 4.75,
+    "notionLink": "https://www.notion.so/23d6f7bc4a33800aaee7d763bdddeeea",
+    "tastings": [
+      {
+        "id": "9d1467b3-72ae-4b47-a0e0-e7b4d6618abc",
+        "date": "12/10/2025",
+        "rating": 4.5
+      },
+      {
+        "id": "9128a3d4-12b0-4e10-aaae-d39215a8f32e",
+        "date": "08/11/2025",
+        "rating": 5
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/5bbda27b-e540-48dd-aa3a-45cc44670000.jpg"
+  },
+  {
+    "id": "946dc390-0c1a-475c-90c0-68b16ca5b7d1",
+    "brewery": "Berliner",
+    "name": "Geschichte",
+    "style": "Hefeweizen",
+    "country": "Germany",
+    "abv": 5.2,
+    "lastTasted": "10/12/2025",
+    "lastRanking": 6.5,
+    "avgRanking": 6.5,
+    "notionLink": "https://www.notion.so/Berliner-Geschichte-Hefeweizen-2d96f7bc4a3380fba586c6a0fa35209d",
+    "tastings": [
+      {
+        "id": "c9a3b4bb-6820-4d77-ab33-2458c02bf643",
+        "date": "10/12/2025",
+        "rating": 6.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/946dc390-0c1a-475c-90c0-68b16ca5b7d1.png"
+  },
+  {
+    "id": "a6b193b9-d651-42f3-ada0-074de73398fd",
+    "brewery": "נגב",
+    "name": "אמבר אייל",
+    "style": "Amber Ale",
+    "country": "Israel",
+    "abv": 4.9,
+    "lastTasted": "18/01/2026",
+    "lastRanking": 6.5,
+    "avgRanking": 6.5,
+    "notionLink": "https://www.notion.so/2fa6f7bc4a3380bf8c24f70727cf027e",
+    "tastings": [
+      {
+        "id": "18d38bfd-a096-4634-99f6-8668ad61914a",
+        "date": "18/01/2026",
+        "rating": 6.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/a6b193b9-d651-42f3-ada0-074de73398fd.png"
+  },
+  {
+    "id": "9446a2f9-f2ad-4646-be2b-8289f5516a72",
+    "brewery": "גולדסטאר",
+    "name": "Unifiltered",
+    "style": "Lager",
+    "country": "Israel",
+    "abv": 4.6,
+    "lastTasted": "02/09/2025",
+    "lastRanking": 7,
+    "avgRanking": 6.75,
+    "notionLink": "https://www.notion.so/Unfiltered-23d6f7bc4a3380feb058ea580b806c87",
+    "tastings": [
+      {
+        "id": "1363fee4-af67-4b2b-9704-3013c0995b35",
+        "date": "26/07/2025",
+        "rating": 6.5
+      },
+      {
+        "id": "a00ea8b0-e81f-47d0-bc55-717cabea55cc",
+        "date": "02/09/2025",
+        "rating": 7
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/9446a2f9-f2ad-4646-be2b-8289f5516a72.webp"
+  },
+  {
+    "id": "e4ef333c-5419-48e6-85b8-d5cd00252ca6",
+    "brewery": "Pilsner Urquell",
+    "name": "Pilsner Urquell",
+    "style": "Pilsner",
+    "country": "Czech Republic",
+    "abv": 4.4,
+    "lastTasted": "31/05/2025",
+    "lastRanking": 6,
+    "avgRanking": 6,
+    "notionLink": "https://www.notion.so/Pilsner-Urqull-20d6f7bc4a33806487f7f27d20c2d8bf?source=copy_link",
+    "tastings": [
+      {
+        "id": "28902372-35c5-4a94-9d1d-c9a9d827e226",
+        "date": "31/05/2025",
+        "rating": 6
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/e4ef333c-5419-48e6-85b8-d5cd00252ca6.jpg"
+  },
+  {
+    "id": "609bc9af-6314-4ee7-8901-8873de32357a",
+    "brewery": "הרצל",
+    "name": "שש אחוז כפרה",
+    "style": "Irish Red Ale",
+    "country": "Israel",
+    "abv": 6,
+    "lastTasted": "24/05/2025",
+    "lastRanking": 6,
+    "avgRanking": 6,
+    "notionLink": "https://www.notion.so/1fe6f7bc4a3380c59f86d836826ccaeb?pvs=4",
+    "tastings": [
+      {
+        "id": "8e802f1c-435f-429a-bba6-e66699837289",
+        "date": "24/05/2025",
+        "rating": 6
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/609bc9af-6314-4ee7-8901-8873de32357a.webp"
+  },
+  {
+    "id": "7eaa7f53-3e37-4769-aab1-d7ddee2136f2",
+    "brewery": "בועה - בירה תל אביבית מתנשאת",
+    "name": "מעושנת",
+    "style": "Saison",
+    "country": "Israel",
+    "abv": 7,
+    "lastTasted": "29/01/2025",
+    "lastRanking": 6,
+    "avgRanking": 6,
+    "notionLink": "https://www.notion.so/1946f7bc4a3380eb815efa1300c11fd0?pvs=4",
+    "tastings": [
+      {
+        "id": "4fe3670d-4415-406c-bae2-f29b373a29e4",
+        "date": "29/01/2025",
+        "rating": 6
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/7eaa7f53-3e37-4769-aab1-d7ddee2136f2.jpg"
+  },
+  {
+    "id": "ecd3cba2-da8d-4778-aa95-c4b4591bc5ec",
+    "brewery": "Weihenstephan",
+    "name": "Hefe Weissbier",
+    "style": "Hefeweizen",
+    "country": "Germany",
+    "abv": 5.4,
+    "lastTasted": "02/07/2025",
+    "lastRanking": 6,
+    "avgRanking": 6,
+    "notionLink": "https://www.notion.so/Weihenstephan-Hefe-Weissbier-22a6f7bc4a3380e29f10de7f5b36c046",
+    "tastings": [
+      {
+        "id": "77fffc5a-72a5-42c8-9e2e-bcbcca3f4609",
+        "date": "02/07/2025",
+        "rating": 6
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/ecd3cba2-da8d-4778-aa95-c4b4591bc5ec.jpg"
+  },
+  {
+    "id": "c60818d4-8f1c-4340-ad3a-7c915eb8b2b0",
+    "brewery": "Paulaner",
+    "name": "Weissbeir",
+    "style": "Weissbeir",
+    "country": "Germany",
+    "abv": 5.5,
+    "lastTasted": "25/11/2025",
+    "lastRanking": 6,
+    "avgRanking": 6,
+    "notionLink": "https://www.notion.so/Paulaner-2be6f7bc4a3380baa788e2766564c3ee",
+    "tastings": [
+      {
+        "id": "3a71613e-86f0-424c-b92a-f010732ce6a3",
+        "date": "25/11/2025",
+        "rating": 6
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/c60818d4-8f1c-4340-ad3a-7c915eb8b2b0.jpg"
+  },
+  {
+    "id": "02e4fa34-ff73-48df-ba03-39c31531c265",
+    "brewery": "Brewdog",
+    "name": "Punk IPA",
+    "style": "IPA",
+    "country": "England",
+    "abv": 5.4,
+    "lastTasted": "04/01/2026",
+    "lastRanking": 6,
+    "avgRanking": 6,
+    "notionLink": "https://www.notion.so/Brewdog-Punk-IPA-2fa6f7bc4a33809d843ccd3dc98d3c9a",
+    "tastings": [
+      {
+        "id": "ec310bcf-3aab-44e2-8f07-ca87fdb50236",
+        "date": "04/01/2026",
+        "rating": 6
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/02e4fa34-ff73-48df-ba03-39c31531c265.png"
+  },
+  {
+    "id": "30d5458d-6dda-4fba-aded-084ce5566b83",
+    "brewery": "עמק האלה",
+    "name": "טריפל בלגית",
+    "style": "Belgian Tripel",
+    "country": "Israel",
+    "abv": 9.2,
+    "lastTasted": "18/05/2025",
+    "lastRanking": 5.5,
+    "avgRanking": 5.5,
+    "notionLink": "https://www.notion.so/1f86f7bc4a33803f8aedeedd4e713442",
+    "tastings": [
+      {
+        "id": "0555ce2e-8320-4a4a-85e4-e84c9ef8ca61",
+        "date": "18/05/2025",
+        "rating": 5.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/30d5458d-6dda-4fba-aded-084ce5566b83.jpg"
+  },
+  {
+    "id": "f0671bff-ef35-472c-928e-d327a7a40ce3",
+    "brewery": "שפירא",
+    "name": "IPA",
+    "style": "IPA",
+    "country": "Israel",
+    "abv": 6.5,
+    "lastTasted": "06/04/2025",
+    "lastRanking": 5.5,
+    "avgRanking": 5.5,
+    "notionLink": "https://www.notion.so/IPA-1db6f7bc4a338010b882ccd52f7c3cad?pvs=4",
+    "tastings": [
+      {
+        "id": "d28c6c4c-e3f2-4582-a8fe-ca183c9e39bf",
+        "date": "06/04/2025",
+        "rating": 5.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/f0671bff-ef35-472c-928e-d327a7a40ce3.jpg"
+  },
+  {
+    "id": "8301fc4b-95c5-4594-953d-ca835db74051",
+    "brewery": "מכבי",
+    "name": "7.9",
+    "style": "Lager",
+    "country": "Israel",
+    "abv": 7.9,
+    "lastTasted": "29/03/2025",
+    "lastRanking": 5.5,
+    "avgRanking": 5.5,
+    "notionLink": "https://www.notion.so/7-9-1ca6f7bc4a3380ee8051cb865c576c04",
+    "tastings": [
+      {
+        "id": "1076a7d8-4bda-4019-bc0e-26ab6340555f",
+        "date": "29/03/2025",
+        "rating": 5.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/8301fc4b-95c5-4594-953d-ca835db74051.jpg"
+  },
+  {
+    "id": "f9b625f3-eb06-49dc-bcfd-a50c45d1023c",
+    "brewery": "Stella Artois",
+    "name": "Pilsner",
+    "style": "Pilsner",
+    "country": "Belgium",
+    "abv": 5,
+    "lastTasted": "16/07/2025",
+    "lastRanking": 5.5,
+    "avgRanking": 5.5,
+    "notionLink": "https://www.notion.so/Stella-Artois-23d6f7bc4a3380dd9559fd6f8c25cdb3",
+    "tastings": [
+      {
+        "id": "f30c25da-f88d-436c-a29a-5122cdc91dec",
+        "date": "16/07/2025",
+        "rating": 5.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/f9b625f3-eb06-49dc-bcfd-a50c45d1023c.jpg"
+  },
+  {
+    "id": "76fe2ce0-7ba3-41b5-b676-9e080b0312ec",
+    "brewery": "Sullivan's",
+    "name": "Black Marble",
+    "style": "Stout",
+    "country": "Ireland",
+    "abv": 5.1,
+    "lastTasted": "19/11/2025",
+    "lastRanking": 5.5,
+    "avgRanking": 5.5,
+    "notionLink": "https://www.notion.so/Sullivan-s-Black-Marble-2be6f7bc4a338027bd4bd5ec1b015864",
+    "tastings": [
+      {
+        "id": "b0433944-e284-421e-a4d7-6f2f53b4e393",
+        "date": "19/11/2025",
+        "rating": 5.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/76fe2ce0-7ba3-41b5-b676-9e080b0312ec.webp"
+  },
+  {
+    "id": "a8e73ba3-da3f-40a5-a7f3-327ff33802d8",
+    "brewery": "Wychwood",
+    "name": "Hobgoblin",
+    "style": "IPA",
+    "country": "England",
+    "abv": 5,
+    "lastTasted": "12/06/2025",
+    "lastRanking": 5,
+    "avgRanking": 5,
+    "notionLink": "https://www.notion.so/Wychwood-Hobgoblin-IPA-1f36f7bc4a338038af12ee1af999f4c6?pvs=4",
+    "tastings": [
+      {
+        "id": "4ab0c866-16de-48de-94da-6981ead29660",
+        "date": "12/05/2025",
+        "rating": 5
+      },
+      {
+        "id": "56228bb4-bda4-407c-a3ea-b6acc1d65991",
+        "date": "12/06/2025",
+        "rating": 5
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/a8e73ba3-da3f-40a5-a7f3-327ff33802d8.jpg"
+  },
+  {
+    "id": "1d9bd251-5c75-4cb9-815b-aa7cbf230274",
+    "brewery": "רונן",
+    "name": "החיטה המחוצפת",
+    "style": "Lager",
+    "country": "Israel",
+    "abv": 6.1,
+    "lastTasted": "21/02/2025",
+    "lastRanking": 5,
+    "avgRanking": 5,
+    "notionLink": "https://www.notion.so/1a46f7bc4a33801c95a6cadb118b41dd?pvs=4",
+    "tastings": [
+      {
+        "id": "18d68fc3-be09-49d6-b2e2-7d8990b8960a",
+        "date": "21/02/2025",
+        "rating": 5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/1d9bd251-5c75-4cb9-815b-aa7cbf230274.jpg"
+  },
+  {
+    "id": "5aa537e9-f82b-4ff4-9218-68fb954dbc9f",
+    "brewery": "שקמה",
+    "name": "IPA",
+    "style": "IPA",
+    "country": "Israel",
+    "abv": 5.2,
+    "lastTasted": "22/07/2025",
+    "lastRanking": 5,
+    "avgRanking": 5,
+    "notionLink": "https://www.notion.so/IPA-23d6f7bc4a338033ad54dcd1f9ffc1c7?source=copy_link",
+    "tastings": [
+      {
+        "id": "29a6619e-21ac-4e31-9e58-78bb099dfdf7",
+        "date": "22/07/2025",
+        "rating": 5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/5aa537e9-f82b-4ff4-9218-68fb954dbc9f.jpg"
+  },
+  {
+    "id": "139c9b90-b0ea-4add-8f9a-c8f971edca3e",
+    "brewery": "תומר",
+    "name": "חיטה",
+    "style": "Wheat",
+    "country": "Israel",
+    "abv": 6.5,
+    "lastTasted": "08/11/2025",
+    "lastRanking": 5,
+    "avgRanking": 4.75,
+    "notionLink": "https://www.notion.so/23d6f7bc4a33800aaee7d763bdddeeea",
+    "tastings": [
+      {
+        "id": "d8a16747-3605-448e-b400-cac522772b23",
+        "date": "12/10/2025",
+        "rating": 4.5
+      },
+      {
+        "id": "68a16b19-b240-4b75-b346-342dbf4f8792",
+        "date": "08/11/2025",
+        "rating": 5
+      }
+    ],
+    "tastingCount": 2,
+    "imagePath": "/images/drinks/139c9b90-b0ea-4add-8f9a-c8f971edca3e.jpg"
+  },
+  {
+    "id": "dfb9e881-7e4d-4136-ad99-375e31563bb0",
+    "brewery": "Krombacher",
+    "name": "Weizen",
+    "style": "Hefeweizen",
+    "country": "Germany",
+    "abv": 5.3,
+    "lastTasted": "17/08/2025",
+    "lastRanking": 4.5,
+    "avgRanking": 4.5,
+    "notionLink": "https://www.notion.so/Krombacher-Weizen-25a6f7bc4a3380b78308fd407af72348",
+    "tastings": [
+      {
+        "id": "9f401238-30d3-483d-aa8e-5cfb618c9894",
+        "date": "17/08/2025",
+        "rating": 4.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/dfb9e881-7e4d-4136-ad99-375e31563bb0.jpg"
+  },
+  {
+    "id": "2bb83925-b242-4f73-af58-d9862f2ca064",
+    "brewery": "רונן",
+    "name": "הכהה המרושעת",
+    "style": "Dark Ale",
+    "country": "Israel",
+    "abv": 6.2,
+    "lastTasted": "06/05/2025",
+    "lastRanking": 4,
+    "avgRanking": 4,
+    "notionLink": "https://www.notion.so/1f36f7bc4a3380cebdbecfacd579c02a",
+    "tastings": [
+      {
+        "id": "3fd1c712-4c38-4a00-b6c2-029ec30993dd",
+        "date": "06/05/2025",
+        "rating": 4
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/2bb83925-b242-4f73-af58-d9862f2ca064.jpg"
+  },
+  {
+    "id": "8318c96d-7799-44f8-8c06-ed633307666f",
+    "brewery": "שקמה",
+    "name": "Bitter Wheat",
+    "style": "Hoppy Wheat",
+    "country": "Israel",
+    "abv": 5.4,
+    "lastTasted": "02/07/2025",
+    "lastRanking": 4,
+    "avgRanking": 4,
+    "notionLink": "https://www.notion.so/Bitter-Wheat-22a6f7bc4a338082a8d1cb0e955ac6e3?source=copy_link",
+    "tastings": [
+      {
+        "id": "18a86cc0-3ff2-4052-83ff-b0774393905c",
+        "date": "02/07/2025",
+        "rating": 4
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/8318c96d-7799-44f8-8c06-ed633307666f.jpg"
+  },
+  {
+    "id": "7d9944d1-7735-4ab8-9ab5-21d2380cabe8",
+    "brewery": "Heineken",
+    "name": "Lager",
+    "style": "Pale Lager",
+    "country": "Netherlands",
+    "abv": 5,
+    "lastTasted": "19/03/2025",
+    "lastRanking": 2,
+    "avgRanking": 2,
+    "notionLink": "https://www.notion.so/Heineken-Lager-1c26f7bc4a33808cb241feaa915beca5?pvs=4",
+    "tastings": [
+      {
+        "id": "7aa64869-d1e6-44a3-8d75-0f85ae99b9ef",
+        "date": "19/03/2025",
+        "rating": 2
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/7d9944d1-7735-4ab8-9ab5-21d2380cabe8.jpg"
+  },
+  {
+    "id": "2537015e-b8a1-49ba-8320-ca22c8f4c336",
+    "brewery": "Bavaria",
+    "name": "8.6 IPA",
+    "style": "IPA",
+    "country": "Netherlands",
+    "abv": 7,
+    "lastTasted": "02/09/2025",
+    "lastRanking": 1,
+    "avgRanking": 1,
+    "notionLink": "https://www.notion.so/Bavaria-8-6-IPA-2636f7bc4a338008827bd1be5ef60f87",
+    "tastings": [
+      {
+        "id": "16fed6ae-3406-49a1-a3d1-3533965a40f7",
+        "date": "02/09/2025",
+        "rating": 1
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/2537015e-b8a1-49ba-8320-ca22c8f4c336.webp"
+  },
+  {
+    "id": "3f760d77-70ca-49b3-b969-caa94dc7d5b3",
+    "brewery": "Thornbridge",
+    "name": "Jaipur",
+    "style": "IPA",
+    "country": "England",
+    "abv": 5.9,
+    "lastTasted": "15/02/2026",
+    "lastRanking": 5,
+    "avgRanking": 5,
+    "notionLink": "https://www.notion.so/Thornbridge-Jaipur-34f6f7bc4a338074b4eaca7400b42735",
+    "tastings": [
+      {
+        "id": "fa06c425-1603-42cc-bb73-23b129af58b0",
+        "date": "15/02/2026",
+        "rating": 5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/3f760d77-70ca-49b3-b969-caa94dc7d5b3.png"
+  }
 ]

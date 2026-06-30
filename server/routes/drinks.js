@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { randomUUID } = require('crypto');
+const { computeFromTastings } = require('../tastingsHelper');
 
 const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
@@ -137,6 +138,53 @@ router.delete('/:category/:id', async (req, res) => {
     });
     if (!found) return res.status(404).json({ error: 'Entry not found' });
     res.status(204).end();
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.post('/:category/:id/tastings', async (req, res) => {
+  const { category, id } = req.params;
+  if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  const { date, rating, vintage } = req.body;
+  if (!date || rating == null || isNaN(Number(rating))) return res.status(400).json({ error: 'date and rating are required' });
+  try {
+    const drink = await withLock(category, () => {
+      const data = readData(category);
+      const d = data.find(x => x.id === id);
+      if (!d) return null;
+      const tasting = { id: randomUUID(), date, rating: Number(rating) };
+      if (vintage) tasting.vintage = vintage;
+      d.tastings = [...(d.tastings || []), tasting];
+      Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
+      writeData(category, data);
+      return d;
+    });
+    if (!drink) return res.status(404).json({ error: 'Entry not found' });
+    res.status(201).json(drink);
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.delete('/:category/:id/tastings/:tastingId', async (req, res) => {
+  const { category, id, tastingId } = req.params;
+  if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  try {
+    const drink = await withLock(category, () => {
+      const data = readData(category);
+      const d = data.find(x => x.id === id);
+      if (!d) return null;
+      const before = (d.tastings || []).length;
+      d.tastings = (d.tastings || []).filter(t => t.id !== tastingId);
+      if (d.tastings.length === before) return false;
+      Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
+      writeData(category, data);
+      return d;
+    });
+    if (drink === null) return res.status(404).json({ error: 'Entry not found' });
+    if (drink === false) return res.status(404).json({ error: 'Tasting not found' });
+    res.json(drink);
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
   }

@@ -1,0 +1,162 @@
+const request = require('supertest');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const { computeFromTastings } = require('../tastingsHelper');
+
+let app;
+let tmpDir;
+
+beforeAll(() => {
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'drinks-tasting-test-'));
+  ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
+    fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
+  });
+  process.env.DATA_DIR = tmpDir;
+  jest.resetModules();
+  app = require('../index');
+});
+
+afterAll(() => {
+  fs.rmSync(tmpDir, { recursive: true });
+  delete process.env.DATA_DIR;
+  jest.resetModules();
+});
+
+beforeEach(() => {
+  ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
+    fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
+  });
+});
+
+async function createDrink(category = 'wine', body = { producer: 'Test' }) {
+  const res = await request(app).post(`/api/${category}`).send(body);
+  return res.body;
+}
+
+describe('POST /api/:category/:id/tastings', () => {
+  it('appends a tasting and recomputes derived fields', async () => {
+    const drink = await createDrink('wine');
+    const res = await request(app)
+      .post(`/api/wine/${drink.id}/tastings`)
+      .send({ date: '15/03/2025', rating: 8, vintage: '2021' });
+    expect(res.status).toBe(201);
+    expect(res.body.tastings).toHaveLength(1);
+    expect(res.body.tastings[0].date).toBe('15/03/2025');
+    expect(res.body.tastings[0].rating).toBe(8);
+    expect(res.body.tastings[0].vintage).toBe('2021');
+    expect(res.body.lastRanking).toBe(8);
+    expect(res.body.avgRanking).toBe(8);
+    expect(res.body.lastTasted).toBe('15/03/2025');
+    expect(res.body.tastingCount).toBe(1);
+  });
+
+  it('averages multiple tastings correctly', async () => {
+    const drink = await createDrink('wine');
+    await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7 });
+    const res = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/06/2025', rating: 9 });
+    expect(res.body.avgRanking).toBe(8);
+    expect(res.body.lastRanking).toBe(9);
+    expect(res.body.tastingCount).toBe(2);
+  });
+
+  it('returns 400 when date is missing', async () => {
+    const drink = await createDrink('wine');
+    const res = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ rating: 7 });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when rating is missing', async () => {
+    const drink = await createDrink('wine');
+    const res = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025' });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 404 for unknown category', async () => {
+    const res = await request(app).post('/api/nope/abc/tastings').send({ date: '01/01/2025', rating: 7 });
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for unknown drink id', async () => {
+    const res = await request(app).post('/api/wine/nonexistent/tastings').send({ date: '01/01/2025', rating: 7 });
+    expect(res.status).toBe(404);
+  });
+
+  it('works for non-wine category without vintage', async () => {
+    const drink = await createDrink('beer', { brewery: 'BrewCo', name: 'Lager' });
+    const res = await request(app)
+      .post(`/api/beer/${drink.id}/tastings`)
+      .send({ date: '10/05/2025', rating: 7.5 });
+    expect(res.status).toBe(201);
+    expect(res.body.tastings[0].vintage).toBeUndefined();
+  });
+});
+
+describe('DELETE /api/:category/:id/tastings/:tastingId', () => {
+  it('removes tasting and recomputes derived fields', async () => {
+    const drink = await createDrink('wine');
+    const add1 = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7 });
+    await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/06/2025', rating: 9 });
+    const tastingIdToRemove = add1.body.tastings[0].id;
+    const res = await request(app).delete(`/api/wine/${drink.id}/tastings/${tastingIdToRemove}`);
+    expect(res.status).toBe(200);
+    expect(res.body.tastings).toHaveLength(1);
+    expect(res.body.avgRanking).toBe(9);
+    expect(res.body.tastingCount).toBe(1);
+  });
+
+  it('returns 404 for unknown tasting id', async () => {
+    const drink = await createDrink('wine');
+    await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7 });
+    const res = await request(app).delete(`/api/wine/${drink.id}/tastings/nonexistent`);
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for unknown drink id', async () => {
+    const res = await request(app).delete('/api/wine/nonexistent/tastings/abc');
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('computeFromTastings', () => {
+  it('returns empty object for empty array', () => {
+    expect(computeFromTastings([], true)).toEqual({});
+  });
+
+  it('returns empty object for null', () => {
+    expect(computeFromTastings(null, true)).toEqual({});
+  });
+
+  it('computes correct fields from single tasting', () => {
+    const result = computeFromTastings([{ id: 'a', date: '15/03/2025', rating: 8.5, vintage: '2021' }], true);
+    expect(result.avgRanking).toBe(8.5);
+    expect(result.lastRanking).toBe(8.5);
+    expect(result.lastTasted).toBe('15/03/2025');
+    expect(result.tastingCount).toBe(1);
+    expect(result.vintage).toBe('2021');
+  });
+
+  it('picks last vintage for wine', () => {
+    const tastings = [
+      { id: 'a', date: '01/01/2023', rating: 7, vintage: '2019' },
+      { id: 'b', date: '01/01/2024', rating: 8, vintage: '2021' },
+    ];
+    const result = computeFromTastings(tastings, true);
+    expect(result.vintage).toBe('2021');
+  });
+
+  it('does not include vintage for non-wine', () => {
+    const result = computeFromTastings([{ id: 'a', date: '01/01/2024', rating: 7 }], false);
+    expect(result.vintage).toBeUndefined();
+  });
+
+  it('rounds avgRanking to 2 decimal places', () => {
+    const tastings = [
+      { id: 'a', date: '01/01/2023', rating: 7 },
+      { id: 'b', date: '01/06/2023', rating: 8 },
+      { id: 'c', date: '01/01/2024', rating: 8 },
+    ];
+    const result = computeFromTastings(tastings, false);
+    expect(result.avgRanking).toBe(7.67);
+  });
+});

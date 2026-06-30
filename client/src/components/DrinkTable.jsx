@@ -2,6 +2,19 @@ import { useState, useRef } from 'react';
 import { OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
 import './DrinkTable.css';
 
+export function deriveFromFiltered(tastings, vintage) {
+  const filtered = vintage ? tastings.filter(t => t.vintage === vintage) : tastings;
+  if (!filtered.length) return {};
+  const ratings = filtered.map(t => t.rating);
+  const last = filtered[filtered.length - 1];
+  return {
+    avgRanking: Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length * 100) / 100,
+    lastRanking: last.rating,
+    lastTasted: last.date,
+    tastingCount: filtered.length,
+  };
+}
+
 export const COLUMNS = {
   wine: [
     { key: 'producer',      label: 'Producer' },
@@ -14,8 +27,10 @@ export const COLUMNS = {
     { key: 'abv',           label: 'ABV' },
     { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'tags',          label: 'Tags' },
+    { key: 'vintage',       label: 'Vintage' },
     { key: 'lastRanking',   label: 'Last Rating' },
     { key: 'avgRanking',    label: 'Avg Rating' },
+    { key: 'tastingCount',  label: 'Tastings' },
     { key: 'notionLink',    label: 'Notion' },
   ],
   beer: [
@@ -79,7 +94,7 @@ export const COLUMNS = {
   ],
 };
 
-export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort }) {
+export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort, activeVintage }) {
   const [intKey, setIntKey] = useState(null);
   const [intDir, setIntDir] = useState('asc');
   const sortKey = onSort !== undefined ? propSortKey : intKey;
@@ -87,6 +102,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
   const [dragKey, setDragKey] = useState(null);
   const [dragOverKey, setDragOverKey] = useState(null);
   const dragWidth = useRef(0);
+  const [selectedVintages, setSelectedVintages] = useState({});
 
   const allCols = COLUMNS[category] || [];
   const colMap = Object.fromEntries(allCols.map(c => [c.key, c]));
@@ -244,14 +260,34 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
           </tr>
         </thead>
         <tbody>
-          {sorted.map(drink => (
+          {sorted.map(drink => {
+            const selVintage = activeVintage ?? selectedVintages[drink.id] ?? null;
+            const derived = drink.tastings?.length ? deriveFromFiltered(drink.tastings, selVintage) : null;
+            const uniqueVintages = drink.tastings?.length
+              ? [...new Set(drink.tastings.map(t => t.vintage).filter(Boolean))]
+              : [];
+            return (
             <tr key={drink.id}>
               {visibleCols.map(col => {
-                const raw = drink[col.key];
+                const raw = (derived && ['avgRanking','lastRanking','lastTasted','tastingCount'].includes(col.key))
+                  ? derived[col.key]
+                  : drink[col.key];
                 const chipClass = getChipClass(col.key, raw);
                 const isFilterable = onCellClick && filterableCols?.has(col.key) && raw != null && raw !== '—';
                 let content;
-                if (col.key === 'notionLink' && raw) {
+                if (col.key === 'vintage' && uniqueVintages.length > 0) {
+                  content = (
+                    <select
+                      className="vintage-select"
+                      value={selVintage ?? ''}
+                      onChange={e => setSelectedVintages(prev => ({ ...prev, [drink.id]: e.target.value || null }))}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      <option value="">All</option>
+                      {uniqueVintages.map(v => <option key={v} value={v}>{v}</option>)}
+                    </select>
+                  );
+                } else if (col.key === 'notionLink' && raw) {
                   content = <a href={raw} target="_blank" rel="noopener noreferrer">↗ Open</a>;
                 } else if (col.key === 'tags') {
                   const tags = Array.isArray(raw) ? raw : [];
@@ -290,7 +326,8 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
               )}
               {renderRowExtra && <td className="stock-cell">{renderRowExtra(drink)}</td>}
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>

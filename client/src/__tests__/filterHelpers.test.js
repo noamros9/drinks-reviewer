@@ -360,3 +360,54 @@ test('buildInitialFilters wine: includes sweetness and tags Sets', () => {
   expect(filters.sweetness).toBeInstanceOf(Set);
   expect(filters.tags).toBeInstanceOf(Set);
 });
+
+// ── vintage filter (vintageFromTastings) ─────────────────────────
+
+const VINTAGE_CONF = { key: 'vintage', label: 'Vintage', vintageFromTastings: true };
+
+function wineWithTastings(vintages) {
+  return wine({
+    tastings: vintages.map(v => ({ id: 'x', date: '01/01/2024', rating: 8, vintage: v })),
+  });
+}
+
+test('matchesFilters vintage: matches when any tasting vintage is selected', () => {
+  const filters = buildInitialFilters('wine');
+  filters.vintage = new Set(['2021']);
+  const drink = wineWithTastings(['2019', '2021']);
+  expect(matchesFilters(drink, filters, 'wine')).toBe(true);
+});
+
+test('matchesFilters vintage: excludes drink when no tasting matches', () => {
+  const filters = buildInitialFilters('wine');
+  filters.vintage = new Set(['2022']);
+  const drink = wineWithTastings(['2019', '2021']);
+  expect(matchesFilters(drink, filters, 'wine')).toBe(false);
+});
+
+test('matchesFilters vintage: passes when filter is empty', () => {
+  const filters = buildInitialFilters('wine');
+  const drink = wineWithTastings(['2021']);
+  expect(matchesFilters(drink, filters, 'wine')).toBe(true);
+});
+
+test('matchesFilters vintage: excludes drink with no tastings when vintage filter is active', () => {
+  const filters = buildInitialFilters('wine');
+  filters.vintage = new Set(['2021']);
+  expect(matchesFilters(wine(), filters, 'wine')).toBe(false);
+});
+
+test('buildDropdownOptions vintageFromTastings: collects all unique vintages across tastings', () => {
+  const drinks = [wineWithTastings(['2019', '2021']), wineWithTastings(['2021', '2022'])];
+  const { options } = buildDropdownOptions(drinks, VINTAGE_CONF);
+  expect(options).toEqual(['2019', '2021', '2022']);
+});
+
+test('countOptions vintageFromTastings: counts wines per unique vintage', () => {
+  const drinks = [wineWithTastings(['2019', '2021']), wineWithTastings(['2021'])];
+  const filters = buildInitialFilters('wine');
+  const counts = countOptions(drinks, VINTAGE_CONF, filters, 'wine');
+  expect(counts['2019']).toBe(1);
+  expect(counts['2021']).toBe(2);
+  expect(counts['2022']).toBeUndefined();
+});

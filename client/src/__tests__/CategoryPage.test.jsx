@@ -167,3 +167,23 @@ test('clicking a country cell adds it to the country Set filter', async () => {
   await waitFor(() => expect(screen.queryByText('OtherWine')).not.toBeInTheDocument());
   expect(screen.getByText('Reserve')).toBeInTheDocument();
 });
+
+test('selecting exactly one vintage filter syncs all per-row vintage dropdowns', async () => {
+  const WINE_WITH_TASTINGS = {
+    ...WINE_DRINK, id: '1',
+    tastings: [
+      { id: 't1', date: '01/01/2023', rating: 7, vintage: '2019' },
+      { id: 't2', date: '01/01/2024', rating: 9, vintage: '2021' },
+    ],
+    tastingCount: 2, vintage: '2021',
+  };
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_WITH_TASTINGS]) }));
+  render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
+  await screen.findByText('Reserve');
+  fireEvent.click(screen.getByTestId('filter-dropdown-vintage'));
+  fireEvent.click(screen.getByRole('checkbox', { name: /2021/ }));
+  await waitFor(() => {
+    const select = screen.getByRole('combobox');
+    expect(select.value).toBe('2021');
+  });
+});
