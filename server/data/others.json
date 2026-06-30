@@ -1,72 +1,117 @@
 [
-    {
-        "id":  "35a5422f-c45a-4656-b5d8-e8f1c2db1609",
-        "drinkCategory":  "Rum",
-        "distillery":  "Captain Morgan",
-        "name":  "Dark Rum",
-        "country":  "Virgin Islands (US)",
-        "style":  "Blend",
-        "age":  null,
-        "abv":  40,
-        "lastTasted":  "02/02/2025",
-        "lastRanking":  4,
-        "avgRanking":  4,
-        "notionLink":  "https://www.notion.so/Captain-Morgan-Dark-Rum-1946f7bc4a33806d8b18f0b0307bcd7c?pvs=4"
-    },
-    {
-        "id":  "f6599a66-22d6-4af6-84fe-b8cf42836db5",
-        "drinkCategory":  "Vodka",
-        "distillery":  "Van Gogh",
-        "name":  "Dutch Caramel",
-        "country":  "Netherlands",
-        "style":  "-",
-        "age":  null,
-        "abv":  40,
-        "lastTasted":  "14/04/2025",
-        "lastRanking":  8,
-        "avgRanking":  8,
-        "notionLink":  "https://www.notion.so/Van-Gogh-Vodka-Dutch-Caramel-1db6f7bc4a33808c84d6dc05041cfd02?pvs=4"
-    },
-    {
-        "id":  "4878c40a-785c-412a-b9b1-fee01dd8d005",
-        "drinkCategory":  "Rum",
-        "distillery":  "Appleton Estate",
-        "name":  "8 Years Reserve",
-        "country":  "Jamaica",
-        "style":  "Straight",
-        "age":  8,
-        "abv":  43,
-        "lastTasted":  "20/05/2025",
-        "lastRanking":  7.5,
-        "avgRanking":  7.5,
-        "notionLink":  "https://www.notion.so/Appleton-Estate-8-Years-Reserve-1fe6f7bc4a3380b397cbfcf33219ecbe"
-    },
-    {
-        "id":  "f483b881-c150-40a0-8459-6be4df74139f",
-        "drinkCategory":  "Liqueur",
-        "distillery":  "BEHN",
-        "name":  "Kleiner Feigling",
-        "country":  "Germany",
-        "style":  "-",
-        "age":  null,
-        "abv":  20,
-        "lastTasted":  "05/01/2026",
-        "lastRanking":  5.5,
-        "avgRanking":  5.5,
-        "notionLink":  "https://www.notion.so/BEHN-Kleiner-Feigling-2fa6f7bc4a3380808ec1ed9a385e5d6f"
-    },
-    {
-        "id":  "697abab3-fd17-4ff2-8cb8-f8d57e5a4982",
-        "drinkCategory":  "Rum",
-        "distillery":  "El Supremo",
-        "name":  "5",
-        "country":  "Paraguay",
-        "style":  "Straight",
-        "age":  5,
-        "abv":  40,
-        "lastTasted":  "13/04/2026",
-        "lastRanking":  4,
-        "avgRanking":  4,
-        "notionLink":  "https://www.notion.so/El-Supremo-5-3566f7bc4a33809a985df14045ef1d4f"
-    }
+  {
+    "id": "35a5422f-c45a-4656-b5d8-e8f1c2db1609",
+    "drinkCategory": "Rum",
+    "distillery": "Captain Morgan",
+    "name": "Dark Rum",
+    "country": "Virgin Islands (US)",
+    "style": "Blend",
+    "age": null,
+    "abv": 40,
+    "lastTasted": "02/02/2025",
+    "lastRanking": 4,
+    "avgRanking": 4,
+    "notionLink": "https://www.notion.so/Captain-Morgan-Dark-Rum-1946f7bc4a33806d8b18f0b0307bcd7c?pvs=4",
+    "tastings": [
+      {
+        "id": "42b77e86-baa0-4cef-ba5a-ac8b8cc83ab0",
+        "date": "02/02/2025",
+        "rating": 4
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/35a5422f-c45a-4656-b5d8-e8f1c2db1609.webp"
+  },
+  {
+    "id": "f6599a66-22d6-4af6-84fe-b8cf42836db5",
+    "drinkCategory": "Vodka",
+    "distillery": "Van Gogh",
+    "name": "Dutch Caramel",
+    "country": "Netherlands",
+    "style": "-",
+    "age": null,
+    "abv": 40,
+    "lastTasted": "14/04/2025",
+    "lastRanking": 8,
+    "avgRanking": 8,
+    "notionLink": "https://www.notion.so/Van-Gogh-Vodka-Dutch-Caramel-1db6f7bc4a33808c84d6dc05041cfd02?pvs=4",
+    "tastings": [
+      {
+        "id": "8c4c8090-db10-4b33-8eb2-adde6e264e28",
+        "date": "14/04/2025",
+        "rating": 8
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/f6599a66-22d6-4af6-84fe-b8cf42836db5.jpg"
+  },
+  {
+    "id": "4878c40a-785c-412a-b9b1-fee01dd8d005",
+    "drinkCategory": "Rum",
+    "distillery": "Appleton Estate",
+    "name": "8 Years Reserve",
+    "country": "Jamaica",
+    "style": "Straight",
+    "age": 8,
+    "abv": 43,
+    "lastTasted": "20/05/2025",
+    "lastRanking": 7.5,
+    "avgRanking": 7.5,
+    "notionLink": "https://www.notion.so/Appleton-Estate-8-Years-Reserve-1fe6f7bc4a3380b397cbfcf33219ecbe",
+    "tastings": [
+      {
+        "id": "b3c63b27-ba31-4b4a-bece-df75ec5b83e2",
+        "date": "20/05/2025",
+        "rating": 7.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/4878c40a-785c-412a-b9b1-fee01dd8d005.jpg"
+  },
+  {
+    "id": "f483b881-c150-40a0-8459-6be4df74139f",
+    "drinkCategory": "Liqueur",
+    "distillery": "BEHN",
+    "name": "Kleiner Feigling",
+    "country": "Germany",
+    "style": "-",
+    "age": null,
+    "abv": 20,
+    "lastTasted": "05/01/2026",
+    "lastRanking": 5.5,
+    "avgRanking": 5.5,
+    "notionLink": "https://www.notion.so/BEHN-Kleiner-Feigling-2fa6f7bc4a3380808ec1ed9a385e5d6f",
+    "tastings": [
+      {
+        "id": "9f6ba692-c210-4520-9edf-97fc53434c47",
+        "date": "05/01/2026",
+        "rating": 5.5
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/f483b881-c150-40a0-8459-6be4df74139f.png"
+  },
+  {
+    "id": "697abab3-fd17-4ff2-8cb8-f8d57e5a4982",
+    "drinkCategory": "Rum",
+    "distillery": "El Supremo",
+    "name": "5",
+    "country": "Paraguay",
+    "style": "Straight",
+    "age": 5,
+    "abv": 40,
+    "lastTasted": "13/04/2026",
+    "lastRanking": 4,
+    "avgRanking": 4,
+    "notionLink": "https://www.notion.so/El-Supremo-5-3566f7bc4a33809a985df14045ef1d4f",
+    "tastings": [
+      {
+        "id": "05ce0927-1ed0-458b-ac5a-40368bd06710",
+        "date": "13/04/2026",
+        "rating": 4
+      }
+    ],
+    "tastingCount": 1,
+    "imagePath": "/images/drinks/697abab3-fd17-4ff2-8cb8-f8d57e5a4982.png"
+  }
 ]

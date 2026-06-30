@@ -87,6 +87,11 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState('review');
   const drankIt = editState?.drankIt ?? false;
   const [tagInput, setTagInput] = useState('');
+  const [tastings, setTastings] = useState(editState?.drink?.tastings ?? []);
+  const [newTastingDate, setNewTastingDate] = useState(null);
+  const [newTastingRating, setNewTastingRating] = useState('');
+  const [newTastingVintage, setNewTastingVintage] = useState('');
+  const [tastingsMessage, setTastingsMessage] = useState('');
   const [allTags, setAllTags] = useState([]);
   const [colCat, setColCat] = useState('wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
@@ -192,6 +197,32 @@ export default function AdminPage() {
     navigate('/collection');
   };
 
+  const handleAddTasting = async () => {
+    if (!newTastingDate || !newTastingRating) return;
+    const body = { date: format(newTastingDate, 'dd/MM/yyyy'), rating: Number(newTastingRating) };
+    if (category === 'wine' && newTastingVintage) body.vintage = newTastingVintage;
+    const res = await fetch(`/api/${category}/${form.id}/tastings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) { setTastingsMessage('Failed to add tasting.'); return; }
+    const updated = await res.json();
+    setTastings(updated.tastings);
+    setNewTastingDate(null);
+    setNewTastingRating('');
+    setNewTastingVintage('');
+    setTastingsMessage('Tasting added!');
+  };
+
+  const handleDeleteTasting = async (tastingId) => {
+    const res = await fetch(`/api/${category}/${form.id}/tastings/${tastingId}`, { method: 'DELETE' });
+    if (!res.ok) { setTastingsMessage('Failed to remove tasting.'); return; }
+    const updated = await res.json();
+    setTastings(updated.tastings);
+    setTastingsMessage('Tasting removed.');
+  };
+
   const handleDelete = async () => {
     if (!window.confirm('Delete this entry?')) return;
     const res = await fetch(`/api/${category}/${form.id}`, { method: 'DELETE' });
@@ -209,6 +240,7 @@ export default function AdminPage() {
       <div className="category-tabs">
         <button className={activeTab === 'review' ? 'active' : ''} onClick={() => setActiveTab('review')}>Review</button>
         <button className={activeTab === 'collection' ? 'active' : ''} onClick={() => setActiveTab('collection')}>Collection</button>
+        {isEditing && <button className={activeTab === 'tastings' ? 'active' : ''} onClick={() => setActiveTab('tastings')}>Tastings</button>}
       </div>
 
       {!isEditing && activeTab === 'review' && (
@@ -380,6 +412,46 @@ export default function AdminPage() {
             <button type="button" className="btn-primary" onClick={handleAddLot}>Add to Collection</button>
           </div>
           {collectionMessage && <p className="success-message">{collectionMessage}</p>}
+        </section>
+      )}
+      {isEditing && activeTab === 'tastings' && (
+        <section className="collection-section">
+          <h2>Tasting History</h2>
+          <div className="lot-list">
+            {tastings.length === 0 && <p className="no-lots">No tastings recorded.</p>}
+            {tastings.map(t => (
+              <div key={t.id} className="lot-row">
+                <span>{t.date}</span>
+                <span className="lot-qty">{t.rating}</span>
+                {category === 'wine' && <span className="lot-date">{t.vintage || '—'}</span>}
+                <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteTasting(t.id)}>Remove</button>
+              </div>
+            ))}
+          </div>
+          <div className="add-lot-form">
+            <div className="form-group">
+              <label>Date</label>
+              <DatePicker
+                selected={newTastingDate}
+                onChange={setNewTastingDate}
+                dateFormat="dd/MM/yyyy"
+                placeholderText="dd/mm/yyyy"
+                className="date-picker-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Rating (1–10)</label>
+              <input type="number" min="1" max="10" step="0.5" value={newTastingRating} onChange={e => setNewTastingRating(e.target.value)} />
+            </div>
+            {category === 'wine' && (
+              <div className="form-group">
+                <label>Vintage</label>
+                <input type="text" placeholder="e.g. 2021" value={newTastingVintage} onChange={e => setNewTastingVintage(e.target.value)} />
+              </div>
+            )}
+            <button type="button" className="btn-primary" onClick={handleAddTasting}>Add Tasting</button>
+          </div>
+          {tastingsMessage && <p className="success-message">{tastingsMessage}</p>}
         </section>
       )}
     </div>
