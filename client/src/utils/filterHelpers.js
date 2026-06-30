@@ -28,6 +28,7 @@ export const DROPDOWN_CONFIGS = {
     { key: 'variety',      label: 'Variety',  varietyGroups: true },
     { key: 'region',       label: 'Region' },
     { key: 'tags',         label: 'Tags',     multiValue: true },
+    { key: 'vintage',      label: 'Vintage',  vintageFromTastings: true },
   ],
   beer: [
     { key: 'style',   label: 'Style' },
@@ -103,6 +104,9 @@ export function matchesFilters(drink, activeFilters, category) {
       if (!matchCountry(drink.country, selected)) return false;
     } else if (conf.varietyGroups) {
       if (!matchVariety(drink[conf.key], selected)) return false;
+    } else if (conf.vintageFromTastings) {
+      const tastingVintages = new Set((drink.tastings || []).map(t => t.vintage).filter(Boolean));
+      if (![...selected].some(v => tastingVintages.has(v))) return false;
     } else if (conf.multiValue) {
       if (![...selected].some(t => (drink[conf.key] || []).includes(t))) return false;
     } else {
@@ -130,6 +134,12 @@ export function buildDropdownOptions(drinks, conf) {
     return { special, options: [...allGrapes].sort() };
   }
 
+  if (conf.vintageFromTastings) {
+    const all = new Set();
+    drinks.forEach(d => (d.tastings || []).forEach(t => { if (t.vintage) all.add(t.vintage); }));
+    return { special, options: [...all].sort() };
+  }
+
   if (conf.multiValue) {
     const allTags = new Set();
     drinks.forEach(d => (d[conf.key] || []).forEach(t => allTags.add(t)));
@@ -146,7 +156,11 @@ export function countOptions(drinks, conf, activeFilters, category) {
   const counts = {};
   filtered.forEach(d => {
     const raw = d[conf.key];
-    if (conf.multiValue) {
+    if (conf.vintageFromTastings) {
+      new Set((d.tastings || []).map(t => t.vintage).filter(Boolean)).forEach(v => {
+        counts[v] = (counts[v] || 0) + 1;
+      });
+    } else if (conf.multiValue) {
       (d[conf.key] || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; });
     } else if (conf.varietyGroups) {
       splitVarieties(raw).forEach(g => { counts[g] = (counts[g] || 0) + 1; });

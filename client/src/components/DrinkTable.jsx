@@ -21,13 +21,13 @@ export const COLUMNS = {
     { key: 'seriesAndName', label: 'Name' },
     { key: 'wineCategory',  label: 'Type' },
     { key: 'sweetness',     label: 'Sweetness' },
-    { key: 'vintage',       label: 'Vintage' },
     { key: 'variety',       label: 'Variety' },
     { key: 'country',       label: 'Country' },
     { key: 'region',        label: 'Region' },
     { key: 'abv',           label: 'ABV' },
     { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'tags',          label: 'Tags' },
+    { key: 'vintage',       label: 'Vintage' },
     { key: 'lastRanking',   label: 'Last Rating' },
     { key: 'avgRanking',    label: 'Avg Rating' },
     { key: 'tastingCount',  label: 'Tastings' },
@@ -278,6 +278,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                 if (col.key === 'vintage' && uniqueVintages.length > 0) {
                   content = (
                     <select
+                      className="vintage-select"
                       value={selVintage ?? ''}
                       onChange={e => setSelectedVintages(prev => ({ ...prev, [drink.id]: e.target.value || null }))}
                       onClick={e => e.stopPropagation()}
