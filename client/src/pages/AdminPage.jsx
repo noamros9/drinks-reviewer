@@ -421,7 +421,8 @@ export default function AdminPage() {
         </section>
       )}
       {isEditing && activeTab === 'tastings' && (
-        <section className="collection-section">
+        <section className="collection-section tastings-section">
+          <div className="tastings-main">
           <h2>Tasting History</h2>
           <div className="lot-list">
             {tastings.length === 0 && <p className="no-lots">No tastings recorded.</p>}
@@ -465,6 +466,12 @@ export default function AdminPage() {
             <button type="button" className="btn-primary" onClick={handleAddTasting}>Add Tasting</button>
           </div>
           {tastingsMessage && <p className="success-message">{tastingsMessage}</p>}
+          </div>
+          {tastings.length > 0 && tastings[tastings.length - 1].imageUrl && (
+            <div className="tastings-preview">
+              <img src={tastings[tastings.length - 1].imageUrl} alt="" data-testid="tastings-preview-img" />
+            </div>
+          )}
         </section>
       )}
     </div>

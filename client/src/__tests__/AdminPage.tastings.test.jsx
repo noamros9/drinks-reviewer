@@ -150,6 +150,17 @@ test('shows error message when delete tasting fails', async () => {
   await waitFor(() => expect(screen.getByText(/failed to remove/i)).toBeInTheDocument());
 });
 
+test('shows large preview of most recent tasting image', () => {
+  const drinkWithImg = { ...EDIT_DRINK, tastings: [{ ...TASTING, imageUrl: '/images/drinks/abc.jpg' }] };
+  renderTastingsTab(drinkWithImg);
+  expect(screen.getByTestId('tastings-preview-img')).toHaveAttribute('src', '/images/drinks/abc.jpg');
+});
+
+test('does not show preview when most recent tasting has no image', () => {
+  renderTastingsTab();
+  expect(screen.queryByTestId('tastings-preview-img')).not.toBeInTheDocument();
+});
+
 test('shows Add photo button when tasting has no image', () => {
   renderTastingsTab();
   expect(screen.getByText(/add photo/i)).toBeInTheDocument();

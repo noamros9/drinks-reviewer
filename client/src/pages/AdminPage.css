@@ -268,3 +268,29 @@
 .btn-upload-img input[type="file"] {
   display: none;
 }
+
+.tastings-section {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.tastings-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.tastings-preview {
+  flex-shrink: 0;
+  width: 220px;
+  position: sticky;
+  top: 1rem;
+}
+
+.tastings-preview img {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  object-fit: contain;
+  max-height: 320px;
+}
