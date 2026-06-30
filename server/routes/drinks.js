@@ -8,10 +8,10 @@ const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
 const ALLOWED_FIELDS = {
-  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink', 'tags'],
-  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink', 'tags'],
-  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink', 'tags'],
-  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink', 'tags'],
+  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'tags'],
+  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'tags'],
+  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'tags'],
+  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'tags'],
 };
 
 function dataDir() {

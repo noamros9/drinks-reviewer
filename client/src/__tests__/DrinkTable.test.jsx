@@ -240,14 +240,6 @@ test('null drink field renders as em dash', () => {
   expect(dashes.length).toBeGreaterThan(0);
 });
 
-test('notionLink renders as an anchor tag', () => {
-  const rowWithLink = [{ id: '1', producer: 'Test', seriesAndName: 'Wine', wineCategory: 'Red',
-    variety: 'Merlot', country: 'France', region: '', abv: '13', lastTasted: '', lastRanking: '8', avgRanking: '8',
-    notionLink: 'https://notion.so/test' }];
-  render(<DrinkTable category="wine" drinks={rowWithLink} />);
-  expect(screen.getByRole('link', { name: /open/i })).toHaveAttribute('href', 'https://notion.so/test');
-});
-
 test('renders others category columns', () => {
   const othersRows = [{ id: '1', drinkCategory: 'Rum', distillery: 'Bacardi', name: 'White Rum',
     country: 'Cuba', style: 'Light', age: '3', abv: '40', lastTasted: '', lastRanking: '7', avgRanking: '7', notionLink: '' }];
