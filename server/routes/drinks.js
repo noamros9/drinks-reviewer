@@ -2,7 +2,20 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { randomUUID } = require('crypto');
+const multer = require('multer');
 const { computeFromTastings } = require('../tastingsHelper');
+
+function imagesDir() {
+  return process.env.IMAGES_DIR || path.join(__dirname, '../../client/public/images/drinks');
+}
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => { fs.mkdirSync(imagesDir(), { recursive: true }); cb(null, imagesDir()); },
+    filename: (_req, file, cb) => cb(null, `${randomUUID()}${path.extname(file.originalname)}`),
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
@@ -188,6 +201,23 @@ router.delete('/:category/:id/tastings/:tastingId', async (req, res) => {
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
   }
+});
+
+router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), (req, res) => {
+  const { category, id, tastingId } = req.params;
+  if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const data = readData(category);
+  const drink = data.find(d => d.id === id);
+  if (!drink) return res.status(404).json({ error: 'Entry not found' });
+  const tasting = (drink.tastings || []).find(t => t.id === tastingId);
+  if (!tasting) return res.status(404).json({ error: 'Tasting not found' });
+  if (tasting.imageUrl) {
+    try { fs.unlinkSync(path.join(imagesDir(), path.basename(tasting.imageUrl))); } catch {}
+  }
+  tasting.imageUrl = `/images/drinks/${req.file.filename}`;
+  writeData(category, data);
+  res.json(drink);
 });
 
 router.post('/:category/:id/collection', async (req, res) => {

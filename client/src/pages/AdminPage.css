@@ -233,3 +233,38 @@
 .tag-chip button:hover {
   color: var(--danger);
 }
+
+.tasting-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tasting-thumb-placeholder {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.btn-upload-img {
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-upload-img:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-upload-img input[type="file"] {
+  display: none;
+}

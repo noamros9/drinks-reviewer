@@ -149,3 +149,44 @@ test('shows error message when delete tasting fails', async () => {
   fireEvent.click(screen.getByRole('button', { name: /remove/i }));
   await waitFor(() => expect(screen.getByText(/failed to remove/i)).toBeInTheDocument());
 });
+
+test('shows Add photo button when tasting has no image', () => {
+  renderTastingsTab();
+  expect(screen.getByText(/add photo/i)).toBeInTheDocument();
+});
+
+test('shows thumbnail and Change photo when tasting has imageUrl', () => {
+  const drinkWithImg = { ...EDIT_DRINK, tastings: [{ ...TASTING, imageUrl: '/images/drinks/abc.jpg' }] };
+  renderTastingsTab(drinkWithImg);
+  expect(screen.getByTestId('tasting-img-t1')).toHaveAttribute('src', '/images/drinks/abc.jpg');
+  expect(screen.getByText(/change photo/i)).toBeInTheDocument();
+});
+
+test('uploading an image calls POST with FormData and updates tastings', async () => {
+  const updatedDrink = { ...EDIT_DRINK, tastings: [{ ...TASTING, imageUrl: '/images/drinks/new.jpg' }] };
+  global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve(updatedDrink) });
+  renderTastingsTab();
+  const fileInput = screen.getByTestId('img-upload-t1');
+  const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.change(fileInput, { target: { files: [file] } });
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+    '/api/wine/1/tastings/t1/image',
+    expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
+  ));
+  await waitFor(() => expect(screen.getByText(/change photo/i)).toBeInTheDocument());
+});
+
+test('file input with no file does not call fetch', () => {
+  renderTastingsTab();
+  fireEvent.change(screen.getByTestId('img-upload-t1'), { target: { files: [] } });
+  expect(global.fetch).not.toHaveBeenCalledWith(expect.stringContaining('/image'), expect.anything());
+});
+
+test('shows error when image upload fails', async () => {
+  global.fetch.mockResolvedValue({ ok: false });
+  renderTastingsTab();
+  const fileInput = screen.getByTestId('img-upload-t1');
+  const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.change(fileInput, { target: { files: [file] } });
+  await waitFor(() => expect(screen.getByText(/failed to upload/i)).toBeInTheDocument());
+});

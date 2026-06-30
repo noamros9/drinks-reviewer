@@ -211,6 +211,16 @@ export default function AdminPage() {
     setTastingsMessage('Tasting added!');
   };
 
+  const handleTastingImage = async (tastingId, file) => {
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch(`/api/${category}/${form.id}/tastings/${tastingId}/image`, { method: 'POST', body: fd });
+    if (!res.ok) { setTastingsMessage('Failed to upload image.'); return; }
+    const updated = await res.json();
+    setTastings(updated.tastings);
+  };
+
   const handleDeleteTasting = async (tastingId) => {
     const res = await fetch(`/api/${category}/${form.id}/tastings/${tastingId}`, { method: 'DELETE' });
     if (!res.ok) { setTastingsMessage('Failed to remove tasting.'); return; }
@@ -417,9 +427,16 @@ export default function AdminPage() {
             {tastings.length === 0 && <p className="no-lots">No tastings recorded.</p>}
             {tastings.map(t => (
               <div key={t.id} className="lot-row">
+                {t.imageUrl
+                  ? <img src={t.imageUrl} alt="" className="tasting-thumb" data-testid={`tasting-img-${t.id}`} />
+                  : <div className="tasting-thumb-placeholder" data-testid={`tasting-placeholder-${t.id}`} />}
                 <span>{t.date}</span>
                 <span className="lot-qty">{t.rating}</span>
                 {category === 'wine' && <span className="lot-date">{t.vintage || '—'}</span>}
+                <label className="btn-upload-img">
+                  {t.imageUrl ? 'Change photo' : 'Add photo'}
+                  <input type="file" accept="image/*" data-testid={`img-upload-${t.id}`} onChange={e => handleTastingImage(t.id, e.target.files[0])} />
+                </label>
                 <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteTasting(t.id)}>Remove</button>
               </div>
             ))}
