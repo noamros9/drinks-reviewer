@@ -18,7 +18,6 @@ const FIELDS = {
     { key: 'lastTasted',    label: 'Last Tasted',            type: 'date' },
     { key: 'lastRanking',   label: 'Last Ranking (1–10)',    type: 'number' },
     { key: 'avgRanking',    label: 'Avg Ranking (1–10)',     type: 'number' },
-    { key: 'notionLink',    label: 'Notion Link',            type: 'url' },
     { key: 'tags',          label: 'Tags',                   type: 'tags', default: [] },
   ],
   beer: [
@@ -30,7 +29,6 @@ const FIELDS = {
     { key: 'lastTasted',  label: 'Last Tasted',            type: 'date' },
     { key: 'lastRanking', label: 'Last Ranking (1–10)',    type: 'number' },
     { key: 'avgRanking',  label: 'Avg Ranking (1–10)',     type: 'number' },
-    { key: 'notionLink',  label: 'Notion Link',            type: 'url' },
     { key: 'tags',        label: 'Tags',                   type: 'tags', default: [] },
   ],
   whiskey: [
@@ -44,7 +42,6 @@ const FIELDS = {
     { key: 'lastTasted',  label: 'Last Tasted',            type: 'date' },
     { key: 'lastRanking', label: 'Last Ranking (1–10)',    type: 'number' },
     { key: 'avgRanking',  label: 'Avg Ranking (1–10)',     type: 'number' },
-    { key: 'notionLink',  label: 'Notion Link',            type: 'url' },
     { key: 'tags',        label: 'Tags',                   type: 'tags', default: [] },
   ],
   others: [
@@ -58,7 +55,6 @@ const FIELDS = {
     { key: 'lastTasted',    label: 'Last Tasted',            type: 'date' },
     { key: 'lastRanking',   label: 'Last Ranking (1–10)',    type: 'number' },
     { key: 'avgRanking',    label: 'Avg Ranking (1–10)',     type: 'number' },
-    { key: 'notionLink',    label: 'Notion Link',            type: 'url' },
     { key: 'tags',          label: 'Tags',                   type: 'tags', default: [] },
   ],
 };

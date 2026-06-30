@@ -31,7 +31,6 @@ export const COLUMNS = {
     { key: 'lastRanking',   label: 'Last Rating' },
     { key: 'avgRanking',    label: 'Avg Rating' },
     { key: 'tastingCount',  label: 'Tastings' },
-    { key: 'notionLink',    label: 'Notion' },
   ],
   beer: [
     { key: 'brewery',     label: 'Brewery' },
@@ -43,7 +42,6 @@ export const COLUMNS = {
     { key: 'tags',        label: 'Tags' },
     { key: 'lastRanking', label: 'Last Rating' },
     { key: 'avgRanking',  label: 'Avg Rating' },
-    { key: 'notionLink',  label: 'Notion' },
   ],
   whiskey: [
     { key: 'distillery',  label: 'Distillery' },
@@ -57,7 +55,6 @@ export const COLUMNS = {
     { key: 'tags',        label: 'Tags' },
     { key: 'lastRanking', label: 'Last Rating' },
     { key: 'avgRanking',  label: 'Avg Rating' },
-    { key: 'notionLink',  label: 'Notion' },
   ],
   others: [
     { key: 'drinkCategory', label: 'Category' },
@@ -71,7 +68,6 @@ export const COLUMNS = {
     { key: 'tags',          label: 'Tags' },
     { key: 'lastRanking',   label: 'Last Rating' },
     { key: 'avgRanking',    label: 'Avg Rating' },
-    { key: 'notionLink',    label: 'Notion' },
   ],
   all: [
     { key: '_category',   label: 'Category' },
@@ -82,7 +78,6 @@ export const COLUMNS = {
     { key: 'lastTasted',  label: 'Last Tasted' },
     { key: 'lastRanking', label: 'Last Rating' },
     { key: 'avgRanking',  label: 'Avg Rating' },
-    { key: 'notionLink',  label: 'Notion' },
   ],
   collection: [
     { key: '_category',   label: 'Category' },
@@ -90,7 +85,6 @@ export const COLUMNS = {
     { key: 'name',        label: 'Name' },
     { key: 'country',     label: 'Country' },
     { key: 'abv',         label: 'ABV' },
-    { key: 'notionLink',  label: 'Notion' },
   ],
 };
 
@@ -287,8 +281,6 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                       {uniqueVintages.map(v => <option key={v} value={v}>{v}</option>)}
                     </select>
                   );
-                } else if (col.key === 'notionLink' && raw) {
-                  content = <a href={raw} target="_blank" rel="noopener noreferrer">↗ Open</a>;
                 } else if (col.key === 'tags') {
                   const tags = Array.isArray(raw) ? raw : [];
                   const canFilter = onCellClick && filterableCols?.has('tags');

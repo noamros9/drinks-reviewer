@@ -162,7 +162,7 @@ test('entry with no name and no seriesAndName uses empty string fallback', async
 });
 
 test('resetting columns removes localStorage entry', async () => {
-  const ALL_KEYS = ['_category', '_producer', 'name', 'country', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'notionLink'];
+  const ALL_KEYS = ['_category', '_producer', 'name', 'country', 'abv', 'lastTasted', 'lastRanking', 'avgRanking'];
   localStorage.setItem('drinks_columns_all', JSON.stringify({ order: ALL_KEYS, hidden: ['abv'] }));
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
   await screen.findByText('Grand Cru');
