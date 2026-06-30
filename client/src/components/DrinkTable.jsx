@@ -94,7 +94,7 @@ export const COLUMNS = {
   ],
 };
 
-export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort }) {
+export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort, activeVintage }) {
   const [intKey, setIntKey] = useState(null);
   const [intDir, setIntDir] = useState('asc');
   const sortKey = onSort !== undefined ? propSortKey : intKey;
@@ -261,7 +261,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
         </thead>
         <tbody>
           {sorted.map(drink => {
-            const selVintage = selectedVintages[drink.id] ?? null;
+            const selVintage = activeVintage ?? selectedVintages[drink.id] ?? null;
             const derived = drink.tastings?.length ? deriveFromFiltered(drink.tastings, selVintage) : null;
             const uniqueVintages = drink.tastings?.length
               ? [...new Set(drink.tastings.map(t => t.vintage).filter(Boolean))]
