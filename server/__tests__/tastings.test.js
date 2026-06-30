@@ -6,20 +6,25 @@ const { computeFromTastings } = require('../tastingsHelper');
 
 let app;
 let tmpDir;
+let imgDir;
 
 beforeAll(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'drinks-tasting-test-'));
+  imgDir = fs.mkdtempSync(path.join(os.tmpdir(), 'drinks-img-test-'));
   ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
     fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
   });
   process.env.DATA_DIR = tmpDir;
+  process.env.IMAGES_DIR = imgDir;
   jest.resetModules();
   app = require('../index');
 });
 
 afterAll(() => {
   fs.rmSync(tmpDir, { recursive: true });
+  fs.rmSync(imgDir, { recursive: true });
   delete process.env.DATA_DIR;
+  delete process.env.IMAGES_DIR;
   jest.resetModules();
 });
 
@@ -158,5 +163,65 @@ describe('computeFromTastings', () => {
     ];
     const result = computeFromTastings(tastings, false);
     expect(result.avgRanking).toBe(7.67);
+  });
+});
+
+describe('POST /api/:category/:id/tastings/:tastingId/image', () => {
+  it('saves the uploaded image and updates imageUrl on the tasting', async () => {
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
+    const tastingId = addRes.body.tastings[0].id;
+    const res = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/${tastingId}/image`)
+      .attach('image', Buffer.from('fakepng'), { filename: 'bottle.png', contentType: 'image/png' });
+    expect(res.status).toBe(200);
+    expect(res.body.tastings[0].imageUrl).toMatch(/^\/images\/drinks\/.+\.png$/);
+    expect(fs.existsSync(path.join(imgDir, path.basename(res.body.tastings[0].imageUrl)))).toBe(true);
+  });
+
+  it('replaces old image file when uploading a new one', async () => {
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
+    const tastingId = addRes.body.tastings[0].id;
+    const first = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/${tastingId}/image`)
+      .attach('image', Buffer.from('img1'), { filename: 'a.jpg', contentType: 'image/jpeg' });
+    const firstFile = path.join(imgDir, path.basename(first.body.tastings[0].imageUrl));
+    const second = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/${tastingId}/image`)
+      .attach('image', Buffer.from('img2'), { filename: 'b.jpg', contentType: 'image/jpeg' });
+    expect(second.status).toBe(200);
+    expect(fs.existsSync(firstFile)).toBe(false);
+    expect(second.body.tastings[0].imageUrl).not.toBe(first.body.tastings[0].imageUrl);
+  });
+
+  it('returns 400 when no file is attached', async () => {
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
+    const tastingId = addRes.body.tastings[0].id;
+    const res = await request(app).post(`/api/wine/${drink.id}/tastings/${tastingId}/image`);
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 404 for unknown category', async () => {
+    const res = await request(app)
+      .post('/api/nope/abc/tastings/xyz/image')
+      .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for unknown drink id', async () => {
+    const res = await request(app)
+      .post('/api/wine/nonexistent/tastings/xyz/image')
+      .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for unknown tasting id', async () => {
+    const drink = await createDrink('wine');
+    const res = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/nonexistent/image`)
+      .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
+    expect(res.status).toBe(404);
   });
 });

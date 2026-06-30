@@ -14,7 +14,8 @@
       {
         "id": "ca35be92-062d-4b4b-bff9-9ffd42624cff",
         "date": "26/06/2025",
-        "rating": 9.5
+        "rating": 9.5,
+        "imageUrl": "/images/drinks/a4138ccf-179f-4bd5-9845-faff3e330c02.webp"
       }
     ],
     "tastingCount": 1,
@@ -35,7 +36,8 @@
       {
         "id": "bee19f30-5625-4467-be4b-0564e907d73b",
         "date": "21/05/2025",
-        "rating": 9
+        "rating": 9,
+        "imageUrl": "/images/drinks/7fc42fcd-d042-4a34-affe-e7bcee89092f.jpg"
       }
     ],
     "tastingCount": 1,
@@ -56,7 +58,8 @@
       {
         "id": "155c99ae-3272-447a-bc38-5c9ef2e6d792",
         "date": "02/08/2025",
-        "rating": 9
+        "rating": 9,
+        "imageUrl": "/images/drinks/b31d8f88-d76b-466e-860f-537692d62335.jpg"
       }
     ],
     "tastingCount": 1,
@@ -77,12 +80,14 @@
       {
         "id": "eda66c88-acda-4d31-ba8b-1d7eb1fcb844",
         "date": "09/10/2025",
-        "rating": 9
+        "rating": 9,
+        "imageUrl": "/images/drinks/d679f8a9-c93e-44c4-9d37-1a60436c787b.jpg"
       },
       {
         "id": "2980e54a-71c1-4633-bbe4-01e79af277bd",
         "date": "02/02/2026",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/d679f8a9-c93e-44c4-9d37-1a60436c787b.jpg"
       }
     ],
     "tastingCount": 2,
@@ -103,7 +108,8 @@
       {
         "id": "2b04d80f-ceca-4cd4-9a90-42bd286d6791",
         "date": "04/12/2025",
-        "rating": 9
+        "rating": 9,
+        "imageUrl": "/images/drinks/783dacd6-008c-4011-b916-c003bd6294bb.png"
       }
     ],
     "tastingCount": 1,
@@ -124,17 +130,20 @@
       {
         "id": "e7ce750a-407f-44b0-b062-44787848ea79",
         "date": "12/06/2025",
-        "rating": 8.5
+        "rating": 8.5,
+        "imageUrl": "/images/drinks/be63f264-9965-45c2-a23c-e1ba39185148.webp"
       },
       {
         "id": "c110d042-a38d-440b-a908-42ad88d91044",
         "date": "30/12/2025",
-        "rating": 9
+        "rating": 9,
+        "imageUrl": "/images/drinks/be63f264-9965-45c2-a23c-e1ba39185148.webp"
       },
       {
         "id": "4f611e5b-dcc4-4153-95b0-130cd419800d",
         "date": "14/04/2025",
-        "rating": 8.5
+        "rating": 8.5,
+        "imageUrl": "/images/drinks/be63f264-9965-45c2-a23c-e1ba39185148.webp"
       }
     ],
     "tastingCount": 3,
@@ -155,7 +164,8 @@
       {
         "id": "24e57e81-c739-437d-ae9a-cd71de4b65f4",
         "date": "24/03/2025",
-        "rating": 8.5
+        "rating": 8.5,
+        "imageUrl": "/images/drinks/6ebd3fa3-4918-475f-bd21-14204f886895.jpg"
       }
     ],
     "tastingCount": 1,
@@ -176,7 +186,8 @@
       {
         "id": "a9ef29b2-1dd4-40e4-b367-b7950bee6dbe",
         "date": "09/08/2025",
-        "rating": 8.5
+        "rating": 8.5,
+        "imageUrl": "/images/drinks/3d1188d1-d4be-436c-8dfd-0ddd5f319dc4.jpg"
       }
     ],
     "tastingCount": 1,
@@ -197,12 +208,14 @@
       {
         "id": "600dc7c9-0b55-4621-a29c-dc5698aa4dfc",
         "date": "28/01/2026",
-        "rating": 8.5
+        "rating": 8.5,
+        "imageUrl": "/images/drinks/d9b4f6ad-afd6-4f25-8914-ed6aa6371956.png"
       },
       {
         "id": "8c74357d-2a76-442d-9742-e81c210133a8",
         "date": "24/02/2026",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/d9b4f6ad-afd6-4f25-8914-ed6aa6371956.png"
       }
     ],
     "tastingCount": 2,
@@ -223,12 +236,14 @@
       {
         "id": "06a0e85c-925f-46ac-a5d7-89931bfce1d3",
         "date": "05/03/2025",
-        "rating": 8.5
+        "rating": 8.5,
+        "imageUrl": "/images/drinks/75c104f3-5e64-44cf-a3e2-e15abe7938b0.jpg"
       },
       {
         "id": "9120ac6c-9d51-43d0-b698-a7cef36cafe1",
         "date": "09/09/2025",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/75c104f3-5e64-44cf-a3e2-e15abe7938b0.jpg"
       }
     ],
     "tastingCount": 2,
@@ -249,12 +264,14 @@
       {
         "id": "80565e95-9088-48b1-9c48-b58342c8abc7",
         "date": "05/10/2025",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/9816c21e-0356-4580-80a0-c248c6e9e2c3.webp"
       },
       {
         "id": "4d799da2-2741-40a1-a361-23e897387c6a",
         "date": "22/10/2025",
-        "rating": 8.5
+        "rating": 8.5,
+        "imageUrl": "/images/drinks/9816c21e-0356-4580-80a0-c248c6e9e2c3.webp"
       }
     ],
     "tastingCount": 2,
@@ -275,7 +292,8 @@
       {
         "id": "2955ba38-50df-4e82-a17d-ae835e7fc146",
         "date": "07/06/2025",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/ffa5c9ea-5e04-485b-9816-2bce59ba368a.jpg"
       }
     ],
     "tastingCount": 1,
@@ -296,7 +314,8 @@
       {
         "id": "a0a60f21-04f0-4097-a26e-fbfb4e98b1ee",
         "date": "20/11/2024",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/04f2a387-501f-44a4-b9d4-72032c11ae5c.png"
       }
     ],
     "tastingCount": 1,
@@ -317,7 +336,8 @@
       {
         "id": "472e3567-a868-4dab-973f-813def207316",
         "date": "12/11/2024",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/3dfc47e7-5cf5-41f2-af6a-361f79a19479.png"
       }
     ],
     "tastingCount": 1,
@@ -338,7 +358,8 @@
       {
         "id": "0244b131-4636-422e-976c-716a825acca1",
         "date": "11/09/2025",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/a9c2c192-5a85-45a2-ae47-96cd70e738ff.webp"
       }
     ],
     "tastingCount": 1,
@@ -359,7 +380,8 @@
       {
         "id": "8e77e52e-6356-4dfb-a2d9-544e722684e6",
         "date": "19/10/2025",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/05b20ca6-3a84-4d32-87cd-53c6023cade4.jpg"
       }
     ],
     "tastingCount": 1,
@@ -380,7 +402,8 @@
       {
         "id": "e5a43c7a-0fd1-493b-8030-1d790fca96e2",
         "date": "06/11/2025",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/c4286d18-80b8-4dd6-89f5-c45f696dd755.jpg"
       }
     ],
     "tastingCount": 1,
@@ -401,12 +424,14 @@
       {
         "id": "19959ed1-a6b5-4865-aee4-996f4bf2da15",
         "date": "11/09/2025",
-        "rating": 7.5
+        "rating": 7.5,
+        "imageUrl": "/images/drinks/b3d76857-4d9f-481a-bfbc-2fc42088c2b3.png"
       },
       {
         "id": "1200b61a-fd5d-48af-928a-7471e0635648",
         "date": "15/01/2026",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/b3d76857-4d9f-481a-bfbc-2fc42088c2b3.png"
       }
     ],
     "tastingCount": 2,
@@ -427,12 +452,14 @@
       {
         "id": "de5bbf39-69fb-43f1-abf3-ebbeca508406",
         "date": "22/04/2025",
-        "rating": 7
+        "rating": 7,
+        "imageUrl": "/images/drinks/73ff76c1-3150-42af-9e98-c15818dde975.jpg"
       },
       {
         "id": "16c6c6c2-c1e3-4d2b-b784-2487e7f14f42",
         "date": "30/06/2025",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/73ff76c1-3150-42af-9e98-c15818dde975.jpg"
       }
     ],
     "tastingCount": 2,
@@ -453,7 +480,8 @@
       {
         "id": "f50dd5dd-ceac-4e86-acd8-a6a2693caa87",
         "date": "20/06/2025",
-        "rating": 7.5
+        "rating": 7.5,
+        "imageUrl": "/images/drinks/aec00ec7-925a-40cc-92e5-d42d319b26f7.webp"
       }
     ],
     "tastingCount": 1,
@@ -475,7 +503,8 @@
       {
         "id": "9bce8134-e477-42d6-a8ea-6a4b8b6f0cb0",
         "date": "20/11/2025",
-        "rating": 7.5
+        "rating": 7.5,
+        "imageUrl": "/images/drinks/17524fa7-dad0-4e1b-a172-4fabbf619f3f.jpg"
       }
     ],
     "tastingCount": 1
@@ -495,17 +524,20 @@
       {
         "id": "02bca16b-ae9d-4678-81a5-e8efa1ca5f84",
         "date": "18/06/2025",
-        "rating": 6
+        "rating": 6,
+        "imageUrl": "/images/drinks/1a38727f-04d6-4fe8-bbf5-85355781aa33.webp"
       },
       {
         "id": "8ac7f920-d79d-44e2-9e43-dfd4bd38fad6",
         "date": "25/08/2025",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/1a38727f-04d6-4fe8-bbf5-85355781aa33.webp"
       },
       {
         "id": "7a6ec21d-9510-4adb-a83a-9832cc5042c8",
         "date": "11/11/2025",
-        "rating": 7.5
+        "rating": 7.5,
+        "imageUrl": "/images/drinks/1a38727f-04d6-4fe8-bbf5-85355781aa33.webp"
       }
     ],
     "tastingCount": 3,
@@ -526,17 +558,20 @@
       {
         "id": "26013e1f-4ecc-4397-9786-aaa96505f29c",
         "date": "02/07/2025",
-        "rating": 7.5
+        "rating": 7.5,
+        "imageUrl": "/images/drinks/e66f8f18-d01e-4e72-a1d3-7ee881a95da5.jpg"
       },
       {
         "id": "9d950e3d-53b1-43f3-9c9c-8398f7b89eb6",
         "date": "06/07/2025",
-        "rating": 6.5
+        "rating": 6.5,
+        "imageUrl": "/images/drinks/e66f8f18-d01e-4e72-a1d3-7ee881a95da5.jpg"
       },
       {
         "id": "1d8fa7dd-b645-477f-bbaf-f7a22ca6a9ed",
         "date": "28/07/2025",
-        "rating": 8
+        "rating": 8,
+        "imageUrl": "/images/drinks/e66f8f18-d01e-4e72-a1d3-7ee881a95da5.jpg"
       }
     ],
     "tastingCount": 3,
@@ -557,12 +592,14 @@
       {
         "id": "a4c52971-7206-4805-9557-df1eebc2e367",
         "date": "12/06/2025",
-        "rating": 6
+        "rating": 6,
+        "imageUrl": "/images/drinks/01df3484-529c-4a33-a517-39686b3c7f53.webp"
       },
       {
         "id": "93ccd5ac-49c4-42b7-b6f2-c7dd1b021818",
         "date": "05/01/2026",
-        "rating": 8.5
+        "rating": 8.5,
+        "imageUrl": "/images/drinks/01df3484-529c-4a33-a517-39686b3c7f53.webp"
       }
     ],
     "tastingCount": 2,
@@ -583,7 +620,8 @@
       {
         "id": "94609ff3-b58f-4b3d-bc34-2a7206f88159",
         "date": "28/04/2025",
-        "rating": 7
+        "rating": 7,
+        "imageUrl": "/images/drinks/7a36a086-49bc-4e48-861e-6e3e03d13ee6.jpg"
       }
     ],
     "tastingCount": 1,
@@ -604,7 +642,8 @@
       {
         "id": "b012ab26-461c-48dc-8cfc-85d2709f6115",
         "date": "05/02/2025",
-        "rating": 7
+        "rating": 7,
+        "imageUrl": "/images/drinks/b43b0687-e98f-47a1-93b2-fc60826ecfe6.jpg"
       }
     ],
     "tastingCount": 1,
@@ -625,7 +664,8 @@
       {
         "id": "be3f36ce-aa47-4331-80dc-6aca34e11856",
         "date": "24/06/2025",
-        "rating": 7
+        "rating": 7,
+        "imageUrl": "/images/drinks/e803324d-1a0e-4863-9b1e-0506588fd51f.jpg"
       }
     ],
     "tastingCount": 1,
@@ -646,7 +686,8 @@
       {
         "id": "9faa718e-a2a8-4f9e-9266-152d2c144b35",
         "date": "05/08/2025",
-        "rating": 7
+        "rating": 7,
+        "imageUrl": "/images/drinks/2f5cbdf8-dc0a-4167-96d0-6680ab6d08cc.jpg"
       }
     ],
     "tastingCount": 1,
@@ -667,7 +708,8 @@
       {
         "id": "389a79a1-c027-4c74-b644-2c0eadb0a024",
         "date": "16/09/2025",
-        "rating": 7
+        "rating": 7,
+        "imageUrl": "/images/drinks/63767e18-ccd2-4a7e-9cdf-917f6dfd4235.jpg"
       }
     ],
     "tastingCount": 1,
@@ -688,12 +730,14 @@
       {
         "id": "7d09690b-bc51-40df-8184-3a6740439c46",
         "date": "21/09/2025",
-        "rating": 6.5
+        "rating": 6.5,
+        "imageUrl": "/images/drinks/2d3dec26-a1df-4388-8935-3d9fc00fbdfe.jpg"
       },
       {
         "id": "178133cf-e714-49c0-9b3c-c49ac41dbad8",
         "date": "30/10/2025",
-        "rating": 7.5
+        "rating": 7.5,
+        "imageUrl": "/images/drinks/2d3dec26-a1df-4388-8935-3d9fc00fbdfe.jpg"
       }
     ],
     "tastingCount": 2,
@@ -714,7 +758,8 @@
       {
         "id": "c2df8977-8138-4e68-8c33-a11fd5640b77",
         "date": "10/01/2026",
-        "rating": 7
+        "rating": 7,
+        "imageUrl": "/images/drinks/b98f273f-e6c0-4d6f-a17b-43dcda6b1673.png"
       }
     ],
     "tastingCount": 1,
@@ -735,7 +780,8 @@
       {
         "id": "4048d464-5cd5-44cf-aea9-6932a77cecc9",
         "date": "24/05/2025",
-        "rating": 6.5
+        "rating": 6.5,
+        "imageUrl": "/images/drinks/0e486ea2-ccec-4115-8bd9-b25026b313ed.jpg"
       }
     ],
     "tastingCount": 1,
@@ -756,12 +802,14 @@
       {
         "id": "9d1467b3-72ae-4b47-a0e0-e7b4d6618abc",
         "date": "12/10/2025",
-        "rating": 4.5
+        "rating": 4.5,
+        "imageUrl": "/images/drinks/5bbda27b-e540-48dd-aa3a-45cc44670000.jpg"
       },
       {
         "id": "9128a3d4-12b0-4e10-aaae-d39215a8f32e",
         "date": "08/11/2025",
-        "rating": 5
+        "rating": 5,
+        "imageUrl": "/images/drinks/5bbda27b-e540-48dd-aa3a-45cc44670000.jpg"
       }
     ],
     "tastingCount": 2,
@@ -782,7 +830,8 @@
       {
         "id": "c9a3b4bb-6820-4d77-ab33-2458c02bf643",
         "date": "10/12/2025",
-        "rating": 6.5
+        "rating": 6.5,
+        "imageUrl": "/images/drinks/946dc390-0c1a-475c-90c0-68b16ca5b7d1.png"
       }
     ],
     "tastingCount": 1,
@@ -803,7 +852,8 @@
       {
         "id": "18d38bfd-a096-4634-99f6-8668ad61914a",
         "date": "18/01/2026",
-        "rating": 6.5
+        "rating": 6.5,
+        "imageUrl": "/images/drinks/a6b193b9-d651-42f3-ada0-074de73398fd.png"
       }
     ],
     "tastingCount": 1,
@@ -824,12 +874,14 @@
       {
         "id": "1363fee4-af67-4b2b-9704-3013c0995b35",
         "date": "26/07/2025",
-        "rating": 6.5
+        "rating": 6.5,
+        "imageUrl": "/images/drinks/9446a2f9-f2ad-4646-be2b-8289f5516a72.webp"
       },
       {
         "id": "a00ea8b0-e81f-47d0-bc55-717cabea55cc",
         "date": "02/09/2025",
-        "rating": 7
+        "rating": 7,
+        "imageUrl": "/images/drinks/9446a2f9-f2ad-4646-be2b-8289f5516a72.webp"
       }
     ],
     "tastingCount": 2,
@@ -850,7 +902,8 @@
       {
         "id": "28902372-35c5-4a94-9d1d-c9a9d827e226",
         "date": "31/05/2025",
-        "rating": 6
+        "rating": 6,
+        "imageUrl": "/images/drinks/e4ef333c-5419-48e6-85b8-d5cd00252ca6.jpg"
       }
     ],
     "tastingCount": 1,
@@ -871,7 +924,8 @@
       {
         "id": "8e802f1c-435f-429a-bba6-e66699837289",
         "date": "24/05/2025",
-        "rating": 6
+        "rating": 6,
+        "imageUrl": "/images/drinks/609bc9af-6314-4ee7-8901-8873de32357a.webp"
       }
     ],
     "tastingCount": 1,
@@ -892,7 +946,8 @@
       {
         "id": "4fe3670d-4415-406c-bae2-f29b373a29e4",
         "date": "29/01/2025",
-        "rating": 6
+        "rating": 6,
+        "imageUrl": "/images/drinks/7eaa7f53-3e37-4769-aab1-d7ddee2136f2.jpg"
       }
     ],
     "tastingCount": 1,
@@ -913,7 +968,8 @@
       {
         "id": "77fffc5a-72a5-42c8-9e2e-bcbcca3f4609",
         "date": "02/07/2025",
-        "rating": 6
+        "rating": 6,
+        "imageUrl": "/images/drinks/ecd3cba2-da8d-4778-aa95-c4b4591bc5ec.jpg"
       }
     ],
     "tastingCount": 1,
@@ -934,7 +990,8 @@
       {
         "id": "3a71613e-86f0-424c-b92a-f010732ce6a3",
         "date": "25/11/2025",
-        "rating": 6
+        "rating": 6,
+        "imageUrl": "/images/drinks/c60818d4-8f1c-4340-ad3a-7c915eb8b2b0.jpg"
       }
     ],
     "tastingCount": 1,
@@ -955,7 +1012,8 @@
       {
         "id": "ec310bcf-3aab-44e2-8f07-ca87fdb50236",
         "date": "04/01/2026",
-        "rating": 6
+        "rating": 6,
+        "imageUrl": "/images/drinks/02e4fa34-ff73-48df-ba03-39c31531c265.png"
       }
     ],
     "tastingCount": 1,
@@ -976,7 +1034,8 @@
       {
         "id": "0555ce2e-8320-4a4a-85e4-e84c9ef8ca61",
         "date": "18/05/2025",
-        "rating": 5.5
+        "rating": 5.5,
+        "imageUrl": "/images/drinks/30d5458d-6dda-4fba-aded-084ce5566b83.jpg"
       }
     ],
     "tastingCount": 1,
@@ -997,7 +1056,8 @@
       {
         "id": "d28c6c4c-e3f2-4582-a8fe-ca183c9e39bf",
         "date": "06/04/2025",
-        "rating": 5.5
+        "rating": 5.5,
+        "imageUrl": "/images/drinks/f0671bff-ef35-472c-928e-d327a7a40ce3.jpg"
       }
     ],
     "tastingCount": 1,
@@ -1018,7 +1078,8 @@
       {
         "id": "1076a7d8-4bda-4019-bc0e-26ab6340555f",
         "date": "29/03/2025",
-        "rating": 5.5
+        "rating": 5.5,
+        "imageUrl": "/images/drinks/8301fc4b-95c5-4594-953d-ca835db74051.jpg"
       }
     ],
     "tastingCount": 1,
@@ -1039,7 +1100,8 @@
       {
         "id": "f30c25da-f88d-436c-a29a-5122cdc91dec",
         "date": "16/07/2025",
-        "rating": 5.5
+        "rating": 5.5,
+        "imageUrl": "/images/drinks/f9b625f3-eb06-49dc-bcfd-a50c45d1023c.jpg"
       }
     ],
     "tastingCount": 1,
@@ -1060,7 +1122,8 @@
       {
         "id": "b0433944-e284-421e-a4d7-6f2f53b4e393",
         "date": "19/11/2025",
-        "rating": 5.5
+        "rating": 5.5,
+        "imageUrl": "/images/drinks/76fe2ce0-7ba3-41b5-b676-9e080b0312ec.webp"
       }
     ],
     "tastingCount": 1,
@@ -1081,12 +1144,14 @@
       {
         "id": "4ab0c866-16de-48de-94da-6981ead29660",
         "date": "12/05/2025",
-        "rating": 5
+        "rating": 5,
+        "imageUrl": "/images/drinks/a8e73ba3-da3f-40a5-a7f3-327ff33802d8.jpg"
       },
       {
         "id": "56228bb4-bda4-407c-a3ea-b6acc1d65991",
         "date": "12/06/2025",
-        "rating": 5
+        "rating": 5,
+        "imageUrl": "/images/drinks/a8e73ba3-da3f-40a5-a7f3-327ff33802d8.jpg"
       }
     ],
     "tastingCount": 2,
@@ -1107,7 +1172,8 @@
       {
         "id": "18d68fc3-be09-49d6-b2e2-7d8990b8960a",
         "date": "21/02/2025",
-        "rating": 5
+        "rating": 5,
+        "imageUrl": "/images/drinks/1d9bd251-5c75-4cb9-815b-aa7cbf230274.jpg"
       }
     ],
     "tastingCount": 1,
@@ -1128,7 +1194,8 @@
       {
         "id": "29a6619e-21ac-4e31-9e58-78bb099dfdf7",
         "date": "22/07/2025",
-        "rating": 5
+        "rating": 5,
+        "imageUrl": "/images/drinks/5aa537e9-f82b-4ff4-9218-68fb954dbc9f.jpg"
       }
     ],
     "tastingCount": 1,
@@ -1149,12 +1216,14 @@
       {
         "id": "d8a16747-3605-448e-b400-cac522772b23",
         "date": "12/10/2025",
-        "rating": 4.5
+        "rating": 4.5,
+        "imageUrl": "/images/drinks/139c9b90-b0ea-4add-8f9a-c8f971edca3e.jpg"
       },
       {
         "id": "68a16b19-b240-4b75-b346-342dbf4f8792",
         "date": "08/11/2025",
-        "rating": 5
+        "rating": 5,
+        "imageUrl": "/images/drinks/139c9b90-b0ea-4add-8f9a-c8f971edca3e.jpg"
       }
     ],
     "tastingCount": 2,
@@ -1175,7 +1244,8 @@
       {
         "id": "9f401238-30d3-483d-aa8e-5cfb618c9894",
         "date": "17/08/2025",
-        "rating": 4.5
+        "rating": 4.5,
+        "imageUrl": "/images/drinks/dfb9e881-7e4d-4136-ad99-375e31563bb0.jpg"
       }
     ],
     "tastingCount": 1,
@@ -1196,7 +1266,8 @@
       {
         "id": "3fd1c712-4c38-4a00-b6c2-029ec30993dd",
         "date": "06/05/2025",
-        "rating": 4
+        "rating": 4,
+        "imageUrl": "/images/drinks/2bb83925-b242-4f73-af58-d9862f2ca064.jpg"
       }
     ],
     "tastingCount": 1,
@@ -1217,7 +1288,8 @@
       {
         "id": "18a86cc0-3ff2-4052-83ff-b0774393905c",
         "date": "02/07/2025",
-        "rating": 4
+        "rating": 4,
+        "imageUrl": "/images/drinks/8318c96d-7799-44f8-8c06-ed633307666f.jpg"
       }
     ],
     "tastingCount": 1,
@@ -1238,7 +1310,8 @@
       {
         "id": "7aa64869-d1e6-44a3-8d75-0f85ae99b9ef",
         "date": "19/03/2025",
-        "rating": 2
+        "rating": 2,
+        "imageUrl": "/images/drinks/7d9944d1-7735-4ab8-9ab5-21d2380cabe8.jpg"
       }
     ],
     "tastingCount": 1,
@@ -1259,7 +1332,8 @@
       {
         "id": "16fed6ae-3406-49a1-a3d1-3533965a40f7",
         "date": "02/09/2025",
-        "rating": 1
+        "rating": 1,
+        "imageUrl": "/images/drinks/2537015e-b8a1-49ba-8320-ca22c8f4c336.webp"
       }
     ],
     "tastingCount": 1,
@@ -1280,7 +1354,8 @@
       {
         "id": "fa06c425-1603-42cc-bb73-23b129af58b0",
         "date": "15/02/2026",
-        "rating": 5
+        "rating": 5,
+        "imageUrl": "/images/drinks/3f760d77-70ca-49b3-b969-caa94dc7d5b3.png"
       }
     ],
     "tastingCount": 1,

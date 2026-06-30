@@ -46,6 +46,7 @@ Client → `http://localhost:5173` · Server → `http://localhost:3001`
 **Admin**
 - Add, edit, and delete entries across all categories
 - Three tabs when editing: **Review**, **Collection**, and **Tastings** (add/remove individual tastings with date, rating, optional vintage)
+- Each tasting row supports a per-tasting photo upload; the most recent tasting's image is shown as a large preview to the right of the list
 - Create collection-only entries without a review from the Collection tab
 
 ## Testing
