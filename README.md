@@ -36,9 +36,15 @@ Client → `http://localhost:5173` · Server → `http://localhost:3001`
 - "Pick for me" randomly selects from in-stock bottles
 - "Drank it" opens the drink in Admin pre-filled and decrements the oldest lot on save
 
+**Tasting history**
+- Full tasting log per drink — date, rating, and vintage (wine) stored in `tastings[]`
+- Derived fields (`avgRanking`, `lastRanking`, `lastTasted`, `tastingCount`, `vintage`) are recomputed from tastings on every change
+- Wine table has a per-row vintage switcher; selecting a vintage filters all derived cells live
+- Tastings count column on the wine table
+
 **Admin**
 - Add, edit, and delete entries across all categories
-- Two tabs: **Review** (tasting notes, ratings, sweetness, freeform tags with autocomplete) and **Collection** (lot management)
+- Three tabs when editing: **Review**, **Collection**, and **Tastings** (add/remove individual tastings with date, rating, optional vintage)
 - Create collection-only entries without a review from the Collection tab
 
 ## Testing
