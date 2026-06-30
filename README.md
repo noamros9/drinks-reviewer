@@ -39,8 +39,9 @@ Client → `http://localhost:5173` · Server → `http://localhost:3001`
 **Tasting history**
 - Full tasting log per drink — date, rating, and vintage (wine) stored in `tastings[]`
 - Derived fields (`avgRanking`, `lastRanking`, `lastTasted`, `tastingCount`, `vintage`) are recomputed from tastings on every change
-- Wine table has a per-row vintage switcher; selecting a vintage filters all derived cells live
+- Wine table has a per-row vintage switcher (after the Tags column); selecting a vintage filters all derived cells live
 - Tastings count column on the wine table
+- Vintage filter in the wine filter bar — matches across all tasting vintages; selecting one vintage automatically syncs all per-row dropdowns
 
 **Admin**
 - Add, edit, and delete entries across all categories
