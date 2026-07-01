@@ -38,16 +38,19 @@ Client → `http://localhost:5173` · Server → `http://localhost:3001`
 
 **Tasting history**
 - Full tasting log per drink — date, rating, and vintage (wine) stored in `tastings[]`
-- Derived fields (`avgRanking`, `lastRanking`, `lastTasted`, `tastingCount`, `vintage`) are recomputed from tastings on every change
-- Wine table has a per-row vintage switcher (after the Tags column); selecting a vintage filters all derived cells live
-- Tastings count column on the wine table
+- Derived fields (`avgRating`, `lastRating`, `lastTasted`, `tastingCount`, `vintage`) are recomputed from tastings on every change; they are read-only on the review form
+- Wine table has a per-row vintage switcher; selecting a vintage filters all derived cells live
 - Vintage filter in the wine filter bar — matches across all tasting vintages; selecting one vintage automatically syncs all per-row dropdowns
+- Tags column appears before Last Tasted in all table views by default
 
 **Admin**
 - Add, edit, and delete entries across all categories
-- Three tabs when editing: **Review**, **Collection**, and **Tastings** (add/remove individual tastings with date, rating, optional vintage)
+- Three tabs when editing: **Review**, **Collection**, and **Tastings**
+- Tastings tab: add tastings (date, rating, optional vintage); edit existing tastings inline; tastings are displayed newest-first
 - Each tasting row supports a per-tasting photo upload; the most recent tasting's image is shown as a large preview to the right of the list
+- Derived fields (Last Tasted, Last Rating, Avg Rating) are read-only on the Review tab — edit them via the Tastings tab
 - Create collection-only entries without a review from the Collection tab
+- All dropdowns use a styled custom select matching the app design
 
 ## Testing
 
