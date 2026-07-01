@@ -3,8 +3,8 @@ import { MemoryRouter } from 'react-router-dom';
 import CategoryPage from '../pages/CategoryPage';
 
 const DRINKS = [
-  { id: '1', producer: 'Alpha', seriesAndName: 'Low', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '12', lastTasted: '01/01/2020', lastRanking: '6', avgRanking: '6', notionLink: '' },
-  { id: '2', producer: 'Beta',  seriesAndName: 'High', wineCategory: 'White', variety: 'Chardonnay', country: 'Italy', region: '', abv: '13', lastTasted: '31/12/2025', lastRanking: '9', avgRanking: '9', notionLink: '' },
+  { id: '1', producer: 'Alpha', seriesAndName: 'Low', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '12', lastTasted: '01/01/2020', lastRating: '6', avgRating: '6', notionLink: '' },
+  { id: '2', producer: 'Beta',  seriesAndName: 'High', wineCategory: 'White', variety: 'Chardonnay', country: 'Italy', region: '', abv: '13', lastTasted: '31/12/2025', lastRating: '9', avgRating: '9', notionLink: '' },
 ];
 
 beforeEach(() => {
@@ -18,13 +18,13 @@ test('sort preset buttons are rendered', async () => {
   expect(screen.getByRole('button', { name: 'Recently tasted' })).toBeInTheDocument();
 });
 
-test('"Top rated" preset sorts by avgRanking descending', async () => {
+test('"Top rated" preset sorts by avgRating descending', async () => {
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Low');
   fireEvent.click(screen.getByRole('button', { name: 'Top rated' }));
   const rows = screen.getAllByRole('row');
-  expect(rows[1]).toHaveTextContent('High'); // avgRanking 9 first
-  expect(rows[2]).toHaveTextContent('Low');  // avgRanking 6 second
+  expect(rows[1]).toHaveTextContent('High'); // avgRating 9 first
+  expect(rows[2]).toHaveTextContent('Low');  // avgRating 6 second
 });
 
 test('"Recently tasted" preset sorts by lastTasted descending', async () => {

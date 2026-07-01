@@ -7,8 +7,6 @@
     "country": "Israel",
     "abv": 7.8,
     "lastTasted": "26/06/2025",
-    "lastRanking": 9.5,
-    "avgRanking": 9.5,
     "notionLink": "https://www.notion.so/Tropical-IPA-2236f7bc4a3380fda31bfb6989310eb4?source=copy_link",
     "tastings": [
       {
@@ -19,7 +17,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/a4138ccf-179f-4bd5-9845-faff3e330c02.webp"
+    "imagePath": "/images/drinks/a4138ccf-179f-4bd5-9845-faff3e330c02.webp",
+    "lastRating": 9.5,
+    "avgRating": 9.5
   },
   {
     "id": "7fc42fcd-d042-4a34-affe-e7bcee89092f",
@@ -29,8 +29,6 @@
     "country": "Israel",
     "abv": 6.5,
     "lastTasted": "21/05/2025",
-    "lastRanking": 9,
-    "avgRanking": 9,
     "notionLink": "https://www.notion.so/1fe6f7bc4a3380b09d30ceacf824cec7?pvs=4",
     "tastings": [
       {
@@ -41,7 +39,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/7fc42fcd-d042-4a34-affe-e7bcee89092f.jpg"
+    "imagePath": "/images/drinks/7fc42fcd-d042-4a34-affe-e7bcee89092f.jpg",
+    "lastRating": 9,
+    "avgRating": 9
   },
   {
     "id": "b31d8f88-d76b-466e-860f-537692d62335",
@@ -51,8 +51,6 @@
     "country": "Israel",
     "abv": 6.2,
     "lastTasted": "02/08/2025",
-    "lastRanking": 9,
-    "avgRanking": 9,
     "notionLink": "https://www.notion.so/2456f7bc4a3380c79a33d31141393357?source=copy_link",
     "tastings": [
       {
@@ -63,7 +61,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/b31d8f88-d76b-466e-860f-537692d62335.jpg"
+    "imagePath": "/images/drinks/b31d8f88-d76b-466e-860f-537692d62335.jpg",
+    "lastRating": 9,
+    "avgRating": 9
   },
   {
     "id": "d679f8a9-c93e-44c4-9d37-1a60436c787b",
@@ -73,8 +73,6 @@
     "country": "England",
     "abv": 4.3,
     "lastTasted": "02/02/2026",
-    "lastRanking": 8,
-    "avgRanking": 8.5,
     "notionLink": "https://www.notion.so/Thornbridge-Green-Mountain-2996f7bc4a3380e2a392cc04c5f5d0ad",
     "tastings": [
       {
@@ -91,7 +89,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/d679f8a9-c93e-44c4-9d37-1a60436c787b.jpg"
+    "imagePath": "/images/drinks/d679f8a9-c93e-44c4-9d37-1a60436c787b.jpg",
+    "lastRating": 8,
+    "avgRating": 8.5
   },
   {
     "id": "783dacd6-008c-4011-b916-c003bd6294bb",
@@ -101,8 +101,6 @@
     "country": "Israel",
     "abv": 5,
     "lastTasted": "04/12/2025",
-    "lastRanking": 9,
-    "avgRanking": 9,
     "notionLink": "https://www.notion.so/2d96f7bc4a33809999eaffa9fa7098d5",
     "tastings": [
       {
@@ -113,7 +111,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/783dacd6-008c-4011-b916-c003bd6294bb.png"
+    "imagePath": "/images/drinks/783dacd6-008c-4011-b916-c003bd6294bb.png",
+    "lastRating": 9,
+    "avgRating": 9
   },
   {
     "id": "be63f264-9965-45c2-a23c-e1ba39185148",
@@ -123,8 +123,6 @@
     "country": "Israel",
     "abv": 4.7,
     "lastTasted": "14/04/2025",
-    "lastRanking": 8.5,
-    "avgRanking": 8.67,
     "notionLink": "https://www.notion.so/21d6f7bc4a3380b7bde7e4f0f61f7865",
     "tastings": [
       {
@@ -147,7 +145,9 @@
       }
     ],
     "tastingCount": 3,
-    "imagePath": "/images/drinks/be63f264-9965-45c2-a23c-e1ba39185148.webp"
+    "imagePath": "/images/drinks/be63f264-9965-45c2-a23c-e1ba39185148.webp",
+    "lastRating": 8.5,
+    "avgRating": 8.67
   },
   {
     "id": "6ebd3fa3-4918-475f-bd21-14204f886895",
@@ -157,8 +157,6 @@
     "country": "Israel",
     "abv": 4.7,
     "lastTasted": "24/03/2025",
-    "lastRanking": 8.5,
-    "avgRanking": 8.5,
     "notionLink": "https://www.notion.so/BeerBazaar-Black-Jack-1c26f7bc4a338082b55ce66eb03204bd?pvs=4",
     "tastings": [
       {
@@ -169,7 +167,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/6ebd3fa3-4918-475f-bd21-14204f886895.jpg"
+    "imagePath": "/images/drinks/6ebd3fa3-4918-475f-bd21-14204f886895.jpg",
+    "lastRating": 8.5,
+    "avgRating": 8.5
   },
   {
     "id": "3d1188d1-d4be-436c-8dfd-0ddd5f319dc4",
@@ -179,8 +179,6 @@
     "country": "Israel",
     "abv": 5,
     "lastTasted": "09/08/2025",
-    "lastRanking": 8.5,
-    "avgRanking": 8.5,
     "notionLink": "https://www.notion.so/24c6f7bc4a3380489277e8cd0234890f",
     "tastings": [
       {
@@ -191,7 +189,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/3d1188d1-d4be-436c-8dfd-0ddd5f319dc4.jpg"
+    "imagePath": "/images/drinks/3d1188d1-d4be-436c-8dfd-0ddd5f319dc4.jpg",
+    "lastRating": 8.5,
+    "avgRating": 8.5
   },
   {
     "id": "d9b4f6ad-afd6-4f25-8914-ed6aa6371956",
@@ -201,8 +201,6 @@
     "country": "Israel",
     "abv": 5,
     "lastTasted": "24/02/2026",
-    "lastRanking": 8,
-    "avgRanking": 8.25,
     "notionLink": "https://www.notion.so/2fa6f7bc4a33803ca571da748c0b05b0",
     "tastings": [
       {
@@ -219,7 +217,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/d9b4f6ad-afd6-4f25-8914-ed6aa6371956.png"
+    "imagePath": "/images/drinks/d9b4f6ad-afd6-4f25-8914-ed6aa6371956.png",
+    "lastRating": 8,
+    "avgRating": 8.25
   },
   {
     "id": "75c104f3-5e64-44cf-a3e2-e15abe7938b0",
@@ -229,8 +229,6 @@
     "country": "Israel",
     "abv": 6,
     "lastTasted": "09/09/2025",
-    "lastRanking": 8,
-    "avgRanking": 8.25,
     "notionLink": "https://www.notion.so/Jem-s-IPA-1b26f7bc4a3380c9a349e7f2af9ee181?pvs=4",
     "tastings": [
       {
@@ -247,7 +245,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/75c104f3-5e64-44cf-a3e2-e15abe7938b0.jpg"
+    "imagePath": "/images/drinks/75c104f3-5e64-44cf-a3e2-e15abe7938b0.jpg",
+    "lastRating": 8,
+    "avgRating": 8.25
   },
   {
     "id": "9816c21e-0356-4580-80a0-c248c6e9e2c3",
@@ -257,8 +257,6 @@
     "country": "Ireland",
     "abv": 4.2,
     "lastTasted": "22/10/2025",
-    "lastRanking": 8.5,
-    "avgRanking": 8.25,
     "notionLink": "https://www.notion.so/Guinness-2996f7bc4a33804093b3ddccd9ad444a",
     "tastings": [
       {
@@ -275,7 +273,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/9816c21e-0356-4580-80a0-c248c6e9e2c3.webp"
+    "imagePath": "/images/drinks/9816c21e-0356-4580-80a0-c248c6e9e2c3.webp",
+    "lastRating": 8.5,
+    "avgRating": 8.25
   },
   {
     "id": "ffa5c9ea-5e04-485b-9816-2bce59ba368a",
@@ -285,8 +285,6 @@
     "country": "Israel",
     "abv": 6.5,
     "lastTasted": "07/06/2025",
-    "lastRanking": 8,
-    "avgRanking": 8,
     "notionLink": "https://www.notion.so/20d6f7bc4a33809fa6f9ef9254ed24b9",
     "tastings": [
       {
@@ -297,7 +295,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/ffa5c9ea-5e04-485b-9816-2bce59ba368a.jpg"
+    "imagePath": "/images/drinks/ffa5c9ea-5e04-485b-9816-2bce59ba368a.jpg",
+    "lastRating": 8,
+    "avgRating": 8
   },
   {
     "id": "04f2a387-501f-44a4-b9d4-72032c11ae5c",
@@ -307,8 +307,6 @@
     "country": "Scotland",
     "abv": 4.5,
     "lastTasted": "20/11/2024",
-    "lastRanking": 8,
-    "avgRanking": 8,
     "notionLink": "https://www.notion.so/Loch-Lomond-Zoom-Time-1756f7bc4a3380779b11feb9b849eef0?pvs=4",
     "tastings": [
       {
@@ -319,7 +317,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/04f2a387-501f-44a4-b9d4-72032c11ae5c.png"
+    "imagePath": "/images/drinks/04f2a387-501f-44a4-b9d4-72032c11ae5c.png",
+    "lastRating": 8,
+    "avgRating": 8
   },
   {
     "id": "3dfc47e7-5cf5-41f2-af6a-361f79a19479",
@@ -329,8 +329,6 @@
     "country": "England",
     "abv": 3.8,
     "lastTasted": "12/11/2024",
-    "lastRanking": 8,
-    "avgRanking": 8,
     "notionLink": "https://www.notion.so/Brewdog-Dead-Pony-Club-1756f7bc4a338079a5c6ccad58069c8b?pvs=4",
     "tastings": [
       {
@@ -341,7 +339,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/3dfc47e7-5cf5-41f2-af6a-361f79a19479.png"
+    "imagePath": "/images/drinks/3dfc47e7-5cf5-41f2-af6a-361f79a19479.png",
+    "lastRating": 8,
+    "avgRating": 8
   },
   {
     "id": "a9c2c192-5a85-45a2-ae47-96cd70e738ff",
@@ -351,8 +351,6 @@
     "country": "Israel",
     "abv": 5,
     "lastTasted": "11/09/2025",
-    "lastRanking": 8,
-    "avgRanking": 8,
     "notionLink": "https://www.notion.so/Pale-Ale-27c6f7bc4a3380e2990ac5695d8eef6b",
     "tastings": [
       {
@@ -363,7 +361,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/a9c2c192-5a85-45a2-ae47-96cd70e738ff.webp"
+    "imagePath": "/images/drinks/a9c2c192-5a85-45a2-ae47-96cd70e738ff.webp",
+    "lastRating": 8,
+    "avgRating": 8
   },
   {
     "id": "05b20ca6-3a84-4d32-87cd-53c6023cade4",
@@ -373,8 +373,6 @@
     "country": "England",
     "abv": 6.6,
     "lastTasted": "19/10/2025",
-    "lastRanking": 8,
-    "avgRanking": 8,
     "notionLink": "https://www.notion.so/Wychwood-King-Goblin-2996f7bc4a338030b09fc94f5b5d9777",
     "tastings": [
       {
@@ -385,7 +383,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/05b20ca6-3a84-4d32-87cd-53c6023cade4.jpg"
+    "imagePath": "/images/drinks/05b20ca6-3a84-4d32-87cd-53c6023cade4.jpg",
+    "lastRating": 8,
+    "avgRating": 8
   },
   {
     "id": "c4286d18-80b8-4dd6-89f5-c45f696dd755",
@@ -395,8 +395,6 @@
     "country": "USA",
     "abv": 5,
     "lastTasted": "06/11/2025",
-    "lastRanking": 8,
-    "avgRanking": 8,
     "notionLink": "https://www.notion.so/Shipyard-IPA-2b06f7bc4a338020bcfec1ae668b2e8f",
     "tastings": [
       {
@@ -407,7 +405,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/c4286d18-80b8-4dd6-89f5-c45f696dd755.jpg"
+    "imagePath": "/images/drinks/c4286d18-80b8-4dd6-89f5-c45f696dd755.jpg",
+    "lastRating": 8,
+    "avgRating": 8
   },
   {
     "id": "b3d76857-4d9f-481a-bfbc-2fc42088c2b3",
@@ -417,8 +417,6 @@
     "country": "USA",
     "abv": 6.2,
     "lastTasted": "15/01/2026",
-    "lastRanking": 8,
-    "avgRanking": 7.75,
     "notionLink": "https://www.notion.so/Lagunitas-IPA-27c6f7bc4a33808f9c99d2b7e65cfa84",
     "tastings": [
       {
@@ -435,7 +433,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/b3d76857-4d9f-481a-bfbc-2fc42088c2b3.png"
+    "imagePath": "/images/drinks/b3d76857-4d9f-481a-bfbc-2fc42088c2b3.png",
+    "lastRating": 8,
+    "avgRating": 7.75
   },
   {
     "id": "73ff76c1-3150-42af-9e98-c15818dde975",
@@ -445,8 +445,6 @@
     "country": "Israel",
     "abv": 5.5,
     "lastTasted": "30/06/2025",
-    "lastRanking": 8,
-    "avgRanking": 7.5,
     "notionLink": "https://www.notion.so/Amber-Ale-1df6f7bc4a338011b383f060ddbd4d0c?pvs=4",
     "tastings": [
       {
@@ -463,7 +461,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/73ff76c1-3150-42af-9e98-c15818dde975.jpg"
+    "imagePath": "/images/drinks/73ff76c1-3150-42af-9e98-c15818dde975.jpg",
+    "lastRating": 8,
+    "avgRating": 7.5
   },
   {
     "id": "aec00ec7-925a-40cc-92e5-d42d319b26f7",
@@ -473,8 +473,6 @@
     "country": "Germany",
     "abv": 7.7,
     "lastTasted": "20/06/2025",
-    "lastRanking": 7.5,
-    "avgRanking": 7.5,
     "notionLink": "https://www.notion.so/Weihenstephan-Vitus-21d6f7bc4a33803d94b7f56d94bc9982?source=copy_link",
     "tastings": [
       {
@@ -485,7 +483,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/aec00ec7-925a-40cc-92e5-d42d319b26f7.webp"
+    "imagePath": "/images/drinks/aec00ec7-925a-40cc-92e5-d42d319b26f7.webp",
+    "lastRating": 7.5,
+    "avgRating": 7.5
   },
   {
     "id": "17524fa7-dad0-4e1b-a172-4fabbf619f3f",
@@ -495,8 +495,6 @@
     "country": "Germany",
     "abv": 5,
     "lastTasted": "20/11/2025",
-    "lastRanking": 7.5,
-    "avgRanking": 7.5,
     "notionLink": "https://app.notion.com/p/2be6f7bc4a3380bcae28d0d248b339a7",
     "imagePath": "/images/drinks/17524fa7-dad0-4e1b-a172-4fabbf619f3f.jpg",
     "tastings": [
@@ -507,7 +505,9 @@
         "imageUrl": "/images/drinks/17524fa7-dad0-4e1b-a172-4fabbf619f3f.jpg"
       }
     ],
-    "tastingCount": 1
+    "tastingCount": 1,
+    "lastRating": 7.5,
+    "avgRating": 7.5
   },
   {
     "id": "1a38727f-04d6-4fe8-bbf5-85355781aa33",
@@ -517,8 +517,6 @@
     "country": "Israel",
     "abv": 6,
     "lastTasted": "11/11/2025",
-    "lastRanking": 7.5,
-    "avgRanking": 7.17,
     "notionLink": "https://www.notion.so/Green-21d6f7bc4a3380f6886aeb0cf1c84151",
     "tastings": [
       {
@@ -541,7 +539,9 @@
       }
     ],
     "tastingCount": 3,
-    "imagePath": "/images/drinks/1a38727f-04d6-4fe8-bbf5-85355781aa33.webp"
+    "imagePath": "/images/drinks/1a38727f-04d6-4fe8-bbf5-85355781aa33.webp",
+    "lastRating": 7.5,
+    "avgRating": 7.17
   },
   {
     "id": "e66f8f18-d01e-4e72-a1d3-7ee881a95da5",
@@ -551,8 +551,6 @@
     "country": "Israel",
     "abv": 5.2,
     "lastTasted": "28/07/2025",
-    "lastRanking": 8,
-    "avgRanking": 7.33,
     "notionLink": "https://www.notion.so/Carlsberg-Luma-22a6f7bc4a33804abcfcd125990a876b",
     "tastings": [
       {
@@ -575,7 +573,9 @@
       }
     ],
     "tastingCount": 3,
-    "imagePath": "/images/drinks/e66f8f18-d01e-4e72-a1d3-7ee881a95da5.jpg"
+    "imagePath": "/images/drinks/e66f8f18-d01e-4e72-a1d3-7ee881a95da5.jpg",
+    "lastRating": 8,
+    "avgRating": 7.33
   },
   {
     "id": "01df3484-529c-4a33-a517-39686b3c7f53",
@@ -585,8 +585,6 @@
     "country": "Israel",
     "abv": 5.5,
     "lastTasted": "05/01/2026",
-    "lastRanking": 8.5,
-    "avgRanking": 7.25,
     "notionLink": "https://www.notion.so/21d6f7bc4a338062b0b9dff8aa6d5a7d?source=copy_link",
     "tastings": [
       {
@@ -603,7 +601,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/01df3484-529c-4a33-a517-39686b3c7f53.webp"
+    "imagePath": "/images/drinks/01df3484-529c-4a33-a517-39686b3c7f53.webp",
+    "lastRating": 8.5,
+    "avgRating": 7.25
   },
   {
     "id": "7a36a086-49bc-4e48-861e-6e3e03d13ee6",
@@ -613,8 +613,6 @@
     "country": "Netherlands",
     "abv": 7.9,
     "lastTasted": "28/04/2025",
-    "lastRanking": 7,
-    "avgRanking": 7,
     "notionLink": "https://www.notion.so/Bavaria-8-6-Black-1ea6f7bc4a3380daae14f90e15698a70",
     "tastings": [
       {
@@ -625,7 +623,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/7a36a086-49bc-4e48-861e-6e3e03d13ee6.jpg"
+    "imagePath": "/images/drinks/7a36a086-49bc-4e48-861e-6e3e03d13ee6.jpg",
+    "lastRating": 7,
+    "avgRating": 7
   },
   {
     "id": "b43b0687-e98f-47a1-93b2-fc60826ecfe6",
@@ -635,8 +635,6 @@
     "country": "Israel",
     "abv": 5.5,
     "lastTasted": "05/02/2025",
-    "lastRanking": 7,
-    "avgRanking": 7,
     "notionLink": "https://www.notion.so/1946f7bc4a33806e8cb6cf93c465aaff?pvs=4",
     "tastings": [
       {
@@ -647,7 +645,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/b43b0687-e98f-47a1-93b2-fc60826ecfe6.jpg"
+    "imagePath": "/images/drinks/b43b0687-e98f-47a1-93b2-fc60826ecfe6.jpg",
+    "lastRating": 7,
+    "avgRating": 7
   },
   {
     "id": "e803324d-1a0e-4863-9b1e-0506588fd51f",
@@ -657,8 +657,6 @@
     "country": "Germany",
     "abv": 4.6,
     "lastTasted": "24/06/2025",
-    "lastRanking": 7,
-    "avgRanking": 7,
     "notionLink": "https://www.notion.so/Konigsbacher-Pilsner-21d6f7bc4a3380e6b8fbe7ac1a5e4803?source=copy_link",
     "tastings": [
       {
@@ -669,7 +667,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/e803324d-1a0e-4863-9b1e-0506588fd51f.jpg"
+    "imagePath": "/images/drinks/e803324d-1a0e-4863-9b1e-0506588fd51f.jpg",
+    "lastRating": 7,
+    "avgRating": 7
   },
   {
     "id": "2f5cbdf8-dc0a-4167-96d0-6680ab6d08cc",
@@ -679,8 +679,6 @@
     "country": "Mexico",
     "abv": 4.5,
     "lastTasted": "05/08/2025",
-    "lastRanking": 7,
-    "avgRanking": 7,
     "notionLink": "https://www.notion.so/Corona-Extra-24c6f7bc4a3380f7afb4d6ea88602ede?source=copy_link",
     "tastings": [
       {
@@ -691,7 +689,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/2f5cbdf8-dc0a-4167-96d0-6680ab6d08cc.jpg"
+    "imagePath": "/images/drinks/2f5cbdf8-dc0a-4167-96d0-6680ab6d08cc.jpg",
+    "lastRating": 7,
+    "avgRating": 7
   },
   {
     "id": "63767e18-ccd2-4a7e-9cdf-917f6dfd4235",
@@ -701,8 +701,6 @@
     "country": "Israel",
     "abv": 5.3,
     "lastTasted": "16/09/2025",
-    "lastRanking": 7,
-    "avgRanking": 7,
     "notionLink": "https://www.notion.so/THAIPA-27c6f7bc4a33804a98eaf481d1d1ed51",
     "tastings": [
       {
@@ -713,7 +711,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/63767e18-ccd2-4a7e-9cdf-917f6dfd4235.jpg"
+    "imagePath": "/images/drinks/63767e18-ccd2-4a7e-9cdf-917f6dfd4235.jpg",
+    "lastRating": 7,
+    "avgRating": 7
   },
   {
     "id": "2d3dec26-a1df-4388-8935-3d9fc00fbdfe",
@@ -723,8 +723,6 @@
     "country": "Israel",
     "abv": 5,
     "lastTasted": "30/10/2025",
-    "lastRanking": 7.5,
-    "avgRanking": 7,
     "notionLink": "https://www.notion.so/27c6f7bc4a33807085f9ff10f029cd10",
     "tastings": [
       {
@@ -741,7 +739,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/2d3dec26-a1df-4388-8935-3d9fc00fbdfe.jpg"
+    "imagePath": "/images/drinks/2d3dec26-a1df-4388-8935-3d9fc00fbdfe.jpg",
+    "lastRating": 7.5,
+    "avgRating": 7
   },
   {
     "id": "b98f273f-e6c0-4d6f-a17b-43dcda6b1673",
@@ -751,8 +751,6 @@
     "country": "Germany",
     "abv": 5.4,
     "lastTasted": "10/01/2026",
-    "lastRanking": 7,
-    "avgRanking": 7,
     "notionLink": "https://www.notion.so/Benediktiner-Dunkel-2fa6f7bc4a3380f09468f9a2b9ee6a11",
     "tastings": [
       {
@@ -763,7 +761,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/b98f273f-e6c0-4d6f-a17b-43dcda6b1673.png"
+    "imagePath": "/images/drinks/b98f273f-e6c0-4d6f-a17b-43dcda6b1673.png",
+    "lastRating": 7,
+    "avgRating": 7
   },
   {
     "id": "0e486ea2-ccec-4115-8bd9-b25026b313ed",
@@ -773,8 +773,6 @@
     "country": "Denmark",
     "abv": 5.2,
     "lastTasted": "24/05/2025",
-    "lastRanking": 6.5,
-    "avgRanking": 6.5,
     "notionLink": "https://www.notion.so/Tuborg-Red-1fe6f7bc4a3380f2b89cc5886ba108ea",
     "tastings": [
       {
@@ -785,7 +783,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/0e486ea2-ccec-4115-8bd9-b25026b313ed.jpg"
+    "imagePath": "/images/drinks/0e486ea2-ccec-4115-8bd9-b25026b313ed.jpg",
+    "lastRating": 6.5,
+    "avgRating": 6.5
   },
   {
     "id": "5bbda27b-e540-48dd-aa3a-45cc44670000",
@@ -795,8 +795,6 @@
     "country": "Israel",
     "abv": 5.3,
     "lastTasted": "08/11/2025",
-    "lastRanking": 5,
-    "avgRanking": 4.75,
     "notionLink": "https://www.notion.so/23d6f7bc4a33800aaee7d763bdddeeea",
     "tastings": [
       {
@@ -813,7 +811,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/5bbda27b-e540-48dd-aa3a-45cc44670000.jpg"
+    "imagePath": "/images/drinks/5bbda27b-e540-48dd-aa3a-45cc44670000.jpg",
+    "lastRating": 5,
+    "avgRating": 4.75
   },
   {
     "id": "946dc390-0c1a-475c-90c0-68b16ca5b7d1",
@@ -823,8 +823,6 @@
     "country": "Germany",
     "abv": 5.2,
     "lastTasted": "10/12/2025",
-    "lastRanking": 6.5,
-    "avgRanking": 6.5,
     "notionLink": "https://www.notion.so/Berliner-Geschichte-Hefeweizen-2d96f7bc4a3380fba586c6a0fa35209d",
     "tastings": [
       {
@@ -835,7 +833,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/946dc390-0c1a-475c-90c0-68b16ca5b7d1.png"
+    "imagePath": "/images/drinks/946dc390-0c1a-475c-90c0-68b16ca5b7d1.png",
+    "lastRating": 6.5,
+    "avgRating": 6.5
   },
   {
     "id": "a6b193b9-d651-42f3-ada0-074de73398fd",
@@ -845,8 +845,6 @@
     "country": "Israel",
     "abv": 4.9,
     "lastTasted": "18/01/2026",
-    "lastRanking": 6.5,
-    "avgRanking": 6.5,
     "notionLink": "https://www.notion.so/2fa6f7bc4a3380bf8c24f70727cf027e",
     "tastings": [
       {
@@ -857,7 +855,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/a6b193b9-d651-42f3-ada0-074de73398fd.png"
+    "imagePath": "/images/drinks/a6b193b9-d651-42f3-ada0-074de73398fd.png",
+    "lastRating": 6.5,
+    "avgRating": 6.5
   },
   {
     "id": "9446a2f9-f2ad-4646-be2b-8289f5516a72",
@@ -867,8 +867,6 @@
     "country": "Israel",
     "abv": 4.6,
     "lastTasted": "02/09/2025",
-    "lastRanking": 7,
-    "avgRanking": 6.75,
     "notionLink": "https://www.notion.so/Unfiltered-23d6f7bc4a3380feb058ea580b806c87",
     "tastings": [
       {
@@ -885,7 +883,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/9446a2f9-f2ad-4646-be2b-8289f5516a72.webp"
+    "imagePath": "/images/drinks/9446a2f9-f2ad-4646-be2b-8289f5516a72.webp",
+    "lastRating": 7,
+    "avgRating": 6.75
   },
   {
     "id": "e4ef333c-5419-48e6-85b8-d5cd00252ca6",
@@ -895,8 +895,6 @@
     "country": "Czech Republic",
     "abv": 4.4,
     "lastTasted": "31/05/2025",
-    "lastRanking": 6,
-    "avgRanking": 6,
     "notionLink": "https://www.notion.so/Pilsner-Urqull-20d6f7bc4a33806487f7f27d20c2d8bf?source=copy_link",
     "tastings": [
       {
@@ -907,7 +905,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/e4ef333c-5419-48e6-85b8-d5cd00252ca6.jpg"
+    "imagePath": "/images/drinks/e4ef333c-5419-48e6-85b8-d5cd00252ca6.jpg",
+    "lastRating": 6,
+    "avgRating": 6
   },
   {
     "id": "609bc9af-6314-4ee7-8901-8873de32357a",
@@ -917,8 +917,6 @@
     "country": "Israel",
     "abv": 6,
     "lastTasted": "24/05/2025",
-    "lastRanking": 6,
-    "avgRanking": 6,
     "notionLink": "https://www.notion.so/1fe6f7bc4a3380c59f86d836826ccaeb?pvs=4",
     "tastings": [
       {
@@ -929,7 +927,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/609bc9af-6314-4ee7-8901-8873de32357a.webp"
+    "imagePath": "/images/drinks/609bc9af-6314-4ee7-8901-8873de32357a.webp",
+    "lastRating": 6,
+    "avgRating": 6
   },
   {
     "id": "7eaa7f53-3e37-4769-aab1-d7ddee2136f2",
@@ -939,8 +939,6 @@
     "country": "Israel",
     "abv": 7,
     "lastTasted": "29/01/2025",
-    "lastRanking": 6,
-    "avgRanking": 6,
     "notionLink": "https://www.notion.so/1946f7bc4a3380eb815efa1300c11fd0?pvs=4",
     "tastings": [
       {
@@ -951,7 +949,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/7eaa7f53-3e37-4769-aab1-d7ddee2136f2.jpg"
+    "imagePath": "/images/drinks/7eaa7f53-3e37-4769-aab1-d7ddee2136f2.jpg",
+    "lastRating": 6,
+    "avgRating": 6
   },
   {
     "id": "ecd3cba2-da8d-4778-aa95-c4b4591bc5ec",
@@ -961,8 +961,6 @@
     "country": "Germany",
     "abv": 5.4,
     "lastTasted": "02/07/2025",
-    "lastRanking": 6,
-    "avgRanking": 6,
     "notionLink": "https://www.notion.so/Weihenstephan-Hefe-Weissbier-22a6f7bc4a3380e29f10de7f5b36c046",
     "tastings": [
       {
@@ -973,7 +971,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/ecd3cba2-da8d-4778-aa95-c4b4591bc5ec.jpg"
+    "imagePath": "/images/drinks/ecd3cba2-da8d-4778-aa95-c4b4591bc5ec.jpg",
+    "lastRating": 6,
+    "avgRating": 6
   },
   {
     "id": "c60818d4-8f1c-4340-ad3a-7c915eb8b2b0",
@@ -983,8 +983,6 @@
     "country": "Germany",
     "abv": 5.5,
     "lastTasted": "25/11/2025",
-    "lastRanking": 6,
-    "avgRanking": 6,
     "notionLink": "https://www.notion.so/Paulaner-2be6f7bc4a3380baa788e2766564c3ee",
     "tastings": [
       {
@@ -995,7 +993,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/c60818d4-8f1c-4340-ad3a-7c915eb8b2b0.jpg"
+    "imagePath": "/images/drinks/c60818d4-8f1c-4340-ad3a-7c915eb8b2b0.jpg",
+    "lastRating": 6,
+    "avgRating": 6
   },
   {
     "id": "02e4fa34-ff73-48df-ba03-39c31531c265",
@@ -1005,8 +1005,6 @@
     "country": "England",
     "abv": 5.4,
     "lastTasted": "04/01/2026",
-    "lastRanking": 6,
-    "avgRanking": 6,
     "notionLink": "https://www.notion.so/Brewdog-Punk-IPA-2fa6f7bc4a33809d843ccd3dc98d3c9a",
     "tastings": [
       {
@@ -1017,7 +1015,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/02e4fa34-ff73-48df-ba03-39c31531c265.png"
+    "imagePath": "/images/drinks/02e4fa34-ff73-48df-ba03-39c31531c265.png",
+    "lastRating": 6,
+    "avgRating": 6
   },
   {
     "id": "30d5458d-6dda-4fba-aded-084ce5566b83",
@@ -1027,8 +1027,6 @@
     "country": "Israel",
     "abv": 9.2,
     "lastTasted": "18/05/2025",
-    "lastRanking": 5.5,
-    "avgRanking": 5.5,
     "notionLink": "https://www.notion.so/1f86f7bc4a33803f8aedeedd4e713442",
     "tastings": [
       {
@@ -1039,7 +1037,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/30d5458d-6dda-4fba-aded-084ce5566b83.jpg"
+    "imagePath": "/images/drinks/30d5458d-6dda-4fba-aded-084ce5566b83.jpg",
+    "lastRating": 5.5,
+    "avgRating": 5.5
   },
   {
     "id": "f0671bff-ef35-472c-928e-d327a7a40ce3",
@@ -1049,8 +1049,6 @@
     "country": "Israel",
     "abv": 6.5,
     "lastTasted": "06/04/2025",
-    "lastRanking": 5.5,
-    "avgRanking": 5.5,
     "notionLink": "https://www.notion.so/IPA-1db6f7bc4a338010b882ccd52f7c3cad?pvs=4",
     "tastings": [
       {
@@ -1061,7 +1059,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/f0671bff-ef35-472c-928e-d327a7a40ce3.jpg"
+    "imagePath": "/images/drinks/f0671bff-ef35-472c-928e-d327a7a40ce3.jpg",
+    "lastRating": 5.5,
+    "avgRating": 5.5
   },
   {
     "id": "8301fc4b-95c5-4594-953d-ca835db74051",
@@ -1071,8 +1071,6 @@
     "country": "Israel",
     "abv": 7.9,
     "lastTasted": "29/03/2025",
-    "lastRanking": 5.5,
-    "avgRanking": 5.5,
     "notionLink": "https://www.notion.so/7-9-1ca6f7bc4a3380ee8051cb865c576c04",
     "tastings": [
       {
@@ -1083,7 +1081,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/8301fc4b-95c5-4594-953d-ca835db74051.jpg"
+    "imagePath": "/images/drinks/8301fc4b-95c5-4594-953d-ca835db74051.jpg",
+    "lastRating": 5.5,
+    "avgRating": 5.5
   },
   {
     "id": "f9b625f3-eb06-49dc-bcfd-a50c45d1023c",
@@ -1093,8 +1093,6 @@
     "country": "Belgium",
     "abv": 5,
     "lastTasted": "16/07/2025",
-    "lastRanking": 5.5,
-    "avgRanking": 5.5,
     "notionLink": "https://www.notion.so/Stella-Artois-23d6f7bc4a3380dd9559fd6f8c25cdb3",
     "tastings": [
       {
@@ -1105,7 +1103,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/f9b625f3-eb06-49dc-bcfd-a50c45d1023c.jpg"
+    "imagePath": "/images/drinks/f9b625f3-eb06-49dc-bcfd-a50c45d1023c.jpg",
+    "lastRating": 5.5,
+    "avgRating": 5.5
   },
   {
     "id": "76fe2ce0-7ba3-41b5-b676-9e080b0312ec",
@@ -1115,8 +1115,6 @@
     "country": "Ireland",
     "abv": 5.1,
     "lastTasted": "19/11/2025",
-    "lastRanking": 5.5,
-    "avgRanking": 5.5,
     "notionLink": "https://www.notion.so/Sullivan-s-Black-Marble-2be6f7bc4a338027bd4bd5ec1b015864",
     "tastings": [
       {
@@ -1127,7 +1125,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/76fe2ce0-7ba3-41b5-b676-9e080b0312ec.webp"
+    "imagePath": "/images/drinks/76fe2ce0-7ba3-41b5-b676-9e080b0312ec.webp",
+    "lastRating": 5.5,
+    "avgRating": 5.5
   },
   {
     "id": "a8e73ba3-da3f-40a5-a7f3-327ff33802d8",
@@ -1137,8 +1137,6 @@
     "country": "England",
     "abv": 5,
     "lastTasted": "12/06/2025",
-    "lastRanking": 5,
-    "avgRanking": 5,
     "notionLink": "https://www.notion.so/Wychwood-Hobgoblin-IPA-1f36f7bc4a338038af12ee1af999f4c6?pvs=4",
     "tastings": [
       {
@@ -1155,7 +1153,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/a8e73ba3-da3f-40a5-a7f3-327ff33802d8.jpg"
+    "imagePath": "/images/drinks/a8e73ba3-da3f-40a5-a7f3-327ff33802d8.jpg",
+    "lastRating": 5,
+    "avgRating": 5
   },
   {
     "id": "1d9bd251-5c75-4cb9-815b-aa7cbf230274",
@@ -1165,8 +1165,6 @@
     "country": "Israel",
     "abv": 6.1,
     "lastTasted": "21/02/2025",
-    "lastRanking": 5,
-    "avgRanking": 5,
     "notionLink": "https://www.notion.so/1a46f7bc4a33801c95a6cadb118b41dd?pvs=4",
     "tastings": [
       {
@@ -1177,7 +1175,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/1d9bd251-5c75-4cb9-815b-aa7cbf230274.jpg"
+    "imagePath": "/images/drinks/1d9bd251-5c75-4cb9-815b-aa7cbf230274.jpg",
+    "lastRating": 5,
+    "avgRating": 5
   },
   {
     "id": "5aa537e9-f82b-4ff4-9218-68fb954dbc9f",
@@ -1187,8 +1187,6 @@
     "country": "Israel",
     "abv": 5.2,
     "lastTasted": "22/07/2025",
-    "lastRanking": 5,
-    "avgRanking": 5,
     "notionLink": "https://www.notion.so/IPA-23d6f7bc4a338033ad54dcd1f9ffc1c7?source=copy_link",
     "tastings": [
       {
@@ -1199,7 +1197,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/5aa537e9-f82b-4ff4-9218-68fb954dbc9f.jpg"
+    "imagePath": "/images/drinks/5aa537e9-f82b-4ff4-9218-68fb954dbc9f.jpg",
+    "lastRating": 5,
+    "avgRating": 5
   },
   {
     "id": "139c9b90-b0ea-4add-8f9a-c8f971edca3e",
@@ -1209,8 +1209,6 @@
     "country": "Israel",
     "abv": 6.5,
     "lastTasted": "08/11/2025",
-    "lastRanking": 5,
-    "avgRanking": 4.75,
     "notionLink": "https://www.notion.so/23d6f7bc4a33800aaee7d763bdddeeea",
     "tastings": [
       {
@@ -1227,7 +1225,9 @@
       }
     ],
     "tastingCount": 2,
-    "imagePath": "/images/drinks/139c9b90-b0ea-4add-8f9a-c8f971edca3e.jpg"
+    "imagePath": "/images/drinks/139c9b90-b0ea-4add-8f9a-c8f971edca3e.jpg",
+    "lastRating": 5,
+    "avgRating": 4.75
   },
   {
     "id": "dfb9e881-7e4d-4136-ad99-375e31563bb0",
@@ -1237,8 +1237,6 @@
     "country": "Germany",
     "abv": 5.3,
     "lastTasted": "17/08/2025",
-    "lastRanking": 4.5,
-    "avgRanking": 4.5,
     "notionLink": "https://www.notion.so/Krombacher-Weizen-25a6f7bc4a3380b78308fd407af72348",
     "tastings": [
       {
@@ -1249,7 +1247,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/dfb9e881-7e4d-4136-ad99-375e31563bb0.jpg"
+    "imagePath": "/images/drinks/dfb9e881-7e4d-4136-ad99-375e31563bb0.jpg",
+    "lastRating": 4.5,
+    "avgRating": 4.5
   },
   {
     "id": "2bb83925-b242-4f73-af58-d9862f2ca064",
@@ -1259,8 +1259,6 @@
     "country": "Israel",
     "abv": 6.2,
     "lastTasted": "06/05/2025",
-    "lastRanking": 4,
-    "avgRanking": 4,
     "notionLink": "https://www.notion.so/1f36f7bc4a3380cebdbecfacd579c02a",
     "tastings": [
       {
@@ -1271,7 +1269,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/2bb83925-b242-4f73-af58-d9862f2ca064.jpg"
+    "imagePath": "/images/drinks/2bb83925-b242-4f73-af58-d9862f2ca064.jpg",
+    "lastRating": 4,
+    "avgRating": 4
   },
   {
     "id": "8318c96d-7799-44f8-8c06-ed633307666f",
@@ -1281,8 +1281,6 @@
     "country": "Israel",
     "abv": 5.4,
     "lastTasted": "02/07/2025",
-    "lastRanking": 4,
-    "avgRanking": 4,
     "notionLink": "https://www.notion.so/Bitter-Wheat-22a6f7bc4a338082a8d1cb0e955ac6e3?source=copy_link",
     "tastings": [
       {
@@ -1293,7 +1291,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/8318c96d-7799-44f8-8c06-ed633307666f.jpg"
+    "imagePath": "/images/drinks/8318c96d-7799-44f8-8c06-ed633307666f.jpg",
+    "lastRating": 4,
+    "avgRating": 4
   },
   {
     "id": "7d9944d1-7735-4ab8-9ab5-21d2380cabe8",
@@ -1303,8 +1303,6 @@
     "country": "Netherlands",
     "abv": 5,
     "lastTasted": "19/03/2025",
-    "lastRanking": 2,
-    "avgRanking": 2,
     "notionLink": "https://www.notion.so/Heineken-Lager-1c26f7bc4a33808cb241feaa915beca5?pvs=4",
     "tastings": [
       {
@@ -1315,7 +1313,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/7d9944d1-7735-4ab8-9ab5-21d2380cabe8.jpg"
+    "imagePath": "/images/drinks/7d9944d1-7735-4ab8-9ab5-21d2380cabe8.jpg",
+    "lastRating": 2,
+    "avgRating": 2
   },
   {
     "id": "2537015e-b8a1-49ba-8320-ca22c8f4c336",
@@ -1325,8 +1325,6 @@
     "country": "Netherlands",
     "abv": 7,
     "lastTasted": "02/09/2025",
-    "lastRanking": 1,
-    "avgRanking": 1,
     "notionLink": "https://www.notion.so/Bavaria-8-6-IPA-2636f7bc4a338008827bd1be5ef60f87",
     "tastings": [
       {
@@ -1337,7 +1335,9 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/2537015e-b8a1-49ba-8320-ca22c8f4c336.webp"
+    "imagePath": "/images/drinks/2537015e-b8a1-49ba-8320-ca22c8f4c336.webp",
+    "lastRating": 1,
+    "avgRating": 1
   },
   {
     "id": "3f760d77-70ca-49b3-b969-caa94dc7d5b3",
@@ -1347,8 +1347,6 @@
     "country": "England",
     "abv": 5.9,
     "lastTasted": "15/02/2026",
-    "lastRanking": 5,
-    "avgRanking": 5,
     "notionLink": "https://www.notion.so/Thornbridge-Jaipur-34f6f7bc4a338074b4eaca7400b42735",
     "tastings": [
       {
@@ -1359,6 +1357,8 @@
       }
     ],
     "tastingCount": 1,
-    "imagePath": "/images/drinks/3f760d77-70ca-49b3-b969-caa94dc7d5b3.png"
+    "imagePath": "/images/drinks/3f760d77-70ca-49b3-b969-caa94dc7d5b3.png",
+    "lastRating": 5,
+    "avgRating": 5
   }
 ]

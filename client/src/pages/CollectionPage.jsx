@@ -182,7 +182,7 @@ export default function CollectionPage() {
             <p className="pick-name">{pick.name}</p>
             <p>{pick._category}{pick.country ? ` · ${pick.country}` : ''}</p>
             {pick.abv && <p>ABV: {pick.abv}%</p>}
-            {pick.avgRanking && <p>Rating: {pick.avgRanking}</p>}
+            {pick.avgRating && <p>Rating: {pick.avgRating}</p>}
             <p>In stock: {totalQty(pick)}</p>
           </div>
         </div>

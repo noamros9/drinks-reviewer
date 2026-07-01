@@ -106,3 +106,12 @@ test('adding a tag in edit mode with no prior tags works (covers || [] branch)',
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(screen.getByText('gift')).toBeInTheDocument();
 });
+
+test('renders without crashing when /api/tags fetch rejects', async () => {
+  global.fetch = vi.fn((url) => {
+    if (url === '/api/tags') return Promise.reject(new Error('network error'));
+    return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-id' }) });
+  });
+  renderAdmin();
+  await waitFor(() => expect(screen.getByPlaceholderText(/type a tag/i)).toBeInTheDocument());
+});

@@ -8,8 +8,8 @@ export function deriveFromFiltered(tastings, vintage) {
   const ratings = filtered.map(t => t.rating);
   const last = filtered[filtered.length - 1];
   return {
-    avgRanking: Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length * 100) / 100,
-    lastRanking: last.rating,
+    avgRating: Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length * 100) / 100,
+    lastRating: last.rating,
     lastTasted: last.date,
     tastingCount: filtered.length,
   };
@@ -25,11 +25,11 @@ export const COLUMNS = {
     { key: 'country',       label: 'Country' },
     { key: 'region',        label: 'Region' },
     { key: 'abv',           label: 'ABV' },
-    { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'tags',          label: 'Tags' },
+    { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'vintage',       label: 'Vintage' },
-    { key: 'lastRanking',   label: 'Last Rating' },
-    { key: 'avgRanking',    label: 'Avg Rating' },
+    { key: 'lastRating',    label: 'Last Rating' },
+    { key: 'avgRating',     label: 'Avg Rating' },
     { key: 'tastingCount',  label: 'Tastings' },
   ],
   beer: [
@@ -38,10 +38,10 @@ export const COLUMNS = {
     { key: 'style',       label: 'Style' },
     { key: 'country',     label: 'Country' },
     { key: 'abv',         label: 'ABV' },
-    { key: 'lastTasted',  label: 'Last Tasted' },
     { key: 'tags',        label: 'Tags' },
-    { key: 'lastRanking', label: 'Last Rating' },
-    { key: 'avgRanking',  label: 'Avg Rating' },
+    { key: 'lastTasted',  label: 'Last Tasted' },
+    { key: 'lastRating',  label: 'Last Rating' },
+    { key: 'avgRating',   label: 'Avg Rating' },
   ],
   whiskey: [
     { key: 'distillery',  label: 'Distillery' },
@@ -51,10 +51,10 @@ export const COLUMNS = {
     { key: 'age',         label: 'Age' },
     { key: 'style',       label: 'Style' },
     { key: 'abv',         label: 'ABV' },
-    { key: 'lastTasted',  label: 'Last Tasted' },
     { key: 'tags',        label: 'Tags' },
-    { key: 'lastRanking', label: 'Last Rating' },
-    { key: 'avgRanking',  label: 'Avg Rating' },
+    { key: 'lastTasted',  label: 'Last Tasted' },
+    { key: 'lastRating',  label: 'Last Rating' },
+    { key: 'avgRating',   label: 'Avg Rating' },
   ],
   others: [
     { key: 'drinkCategory', label: 'Category' },
@@ -64,10 +64,10 @@ export const COLUMNS = {
     { key: 'style',         label: 'Style' },
     { key: 'age',           label: 'Age' },
     { key: 'abv',           label: 'ABV' },
-    { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'tags',          label: 'Tags' },
-    { key: 'lastRanking',   label: 'Last Rating' },
-    { key: 'avgRanking',    label: 'Avg Rating' },
+    { key: 'lastTasted',    label: 'Last Tasted' },
+    { key: 'lastRating',    label: 'Last Rating' },
+    { key: 'avgRating',     label: 'Avg Rating' },
   ],
   all: [
     { key: '_category',   label: 'Category' },
@@ -75,9 +75,10 @@ export const COLUMNS = {
     { key: 'name',        label: 'Name' },
     { key: 'country',     label: 'Country' },
     { key: 'abv',         label: 'ABV' },
+    { key: 'tags',        label: 'Tags' },
     { key: 'lastTasted',  label: 'Last Tasted' },
-    { key: 'lastRanking', label: 'Last Rating' },
-    { key: 'avgRanking',  label: 'Avg Rating' },
+    { key: 'lastRating',  label: 'Last Rating' },
+    { key: 'avgRating',   label: 'Avg Rating' },
   ],
   collection: [
     { key: '_category',   label: 'Category' },
@@ -193,7 +194,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     return '';
   };
 
-  const NUMERIC_KEYS = new Set(['abv', 'lastRanking', 'avgRanking', 'age']);
+  const NUMERIC_KEYS = new Set(['abv', 'lastRating', 'avgRating', 'age']);
 
   const sorted = [...drinks].sort((a, b) => {
     if (!sortKey) return 0;
@@ -263,7 +264,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
             return (
             <tr key={drink.id}>
               {visibleCols.map(col => {
-                const raw = (derived && ['avgRanking','lastRanking','lastTasted','tastingCount'].includes(col.key))
+                const raw = (derived && ['avgRating','lastRating','lastTasted','tastingCount'].includes(col.key))
                   ? derived[col.key]
                   : drink[col.key];
                 const chipClass = getChipClass(col.key, raw);

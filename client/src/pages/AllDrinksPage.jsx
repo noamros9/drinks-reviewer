@@ -12,7 +12,7 @@ const STORAGE_KEY = 'drinks_columns_all';
 const FILTERABLE_ALL = new Set(['country', '_producer']);
 
 const PRESETS = [
-  { label: 'Top rated', key: 'avgRanking', dir: 'desc' },
+  { label: 'Top rated', key: 'avgRating', dir: 'desc' },
   { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
 ];
 

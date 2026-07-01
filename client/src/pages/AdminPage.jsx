@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
-import { parse, format, isValid } from 'date-fns';
+import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 import './AdminPage.css';
 
@@ -15,9 +15,6 @@ const FIELDS = {
     { key: 'country',       label: 'Country of Origin',      type: 'text' },
     { key: 'region',        label: 'Region / Appellation',   type: 'text' },
     { key: 'abv',           label: 'ABV (%)',                type: 'number' },
-    { key: 'lastTasted',    label: 'Last Tasted',            type: 'date' },
-    { key: 'lastRanking',   label: 'Last Ranking (1–10)',    type: 'number' },
-    { key: 'avgRanking',    label: 'Avg Ranking (1–10)',     type: 'number' },
     { key: 'tags',          label: 'Tags',                   type: 'tags', default: [] },
   ],
   beer: [
@@ -26,9 +23,6 @@ const FIELDS = {
     { key: 'style',       label: 'Style',                  type: 'text' },
     { key: 'country',     label: 'Country of Origin',      type: 'text' },
     { key: 'abv',         label: 'ABV (%)',                type: 'number' },
-    { key: 'lastTasted',  label: 'Last Tasted',            type: 'date' },
-    { key: 'lastRanking', label: 'Last Ranking (1–10)',    type: 'number' },
-    { key: 'avgRanking',  label: 'Avg Ranking (1–10)',     type: 'number' },
     { key: 'tags',        label: 'Tags',                   type: 'tags', default: [] },
   ],
   whiskey: [
@@ -39,9 +33,6 @@ const FIELDS = {
     { key: 'age',         label: 'Age (years)',             type: 'number' },
     { key: 'style',       label: 'Style',                  type: 'text' },
     { key: 'abv',         label: 'ABV (%)',                type: 'number' },
-    { key: 'lastTasted',  label: 'Last Tasted',            type: 'date' },
-    { key: 'lastRanking', label: 'Last Ranking (1–10)',    type: 'number' },
-    { key: 'avgRanking',  label: 'Avg Ranking (1–10)',     type: 'number' },
     { key: 'tags',        label: 'Tags',                   type: 'tags', default: [] },
   ],
   others: [
@@ -52,9 +43,6 @@ const FIELDS = {
     { key: 'style',         label: 'Style',                  type: 'text' },
     { key: 'age',           label: 'Age (years)',             type: 'number' },
     { key: 'abv',           label: 'ABV (%)',                type: 'number' },
-    { key: 'lastTasted',    label: 'Last Tasted',            type: 'date' },
-    { key: 'lastRanking',   label: 'Last Ranking (1–10)',    type: 'number' },
-    { key: 'avgRanking',    label: 'Avg Ranking (1–10)',     type: 'number' },
     { key: 'tags',          label: 'Tags',                   type: 'tags', default: [] },
   ],
 };
@@ -115,6 +103,8 @@ export default function AdminPage() {
   const [newTastingRating, setNewTastingRating] = useState('');
   const [newTastingVintage, setNewTastingVintage] = useState('');
   const [tastingsMessage, setTastingsMessage] = useState('');
+  const [editingTastingId, setEditingTastingId] = useState(null);
+  const [editTastingForm, setEditTastingForm] = useState({});
   const [allTags, setAllTags] = useState([]);
   const [colCat, setColCat] = useState('wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
@@ -256,6 +246,26 @@ export default function AdminPage() {
     setTastingsMessage('Tasting removed.');
   };
 
+  const startEditTasting = (t) => {
+    setEditingTastingId(t.id);
+    setEditTastingForm({ date: t.date, rating: String(t.rating), vintage: t.vintage || '' });
+  };
+
+  const handleSaveTasting = async (tastingId) => {
+    const body = { date: editTastingForm.date, rating: Number(editTastingForm.rating) };
+    if (category === 'wine' && editTastingForm.vintage) body.vintage = editTastingForm.vintage;
+    const res = await fetch(`/api/${category}/${form.id}/tastings/${tastingId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) { setTastingsMessage('Failed to update tasting.'); return; }
+    const updated = await res.json();
+    setTastings(updated.tastings);
+    setEditingTastingId(null);
+    setTastingsMessage('Tasting updated!');
+  };
+
   const handleDelete = async () => {
     if (!window.confirm('Delete this entry?')) return;
     const res = await fetch(`/api/${category}/${form.id}`, { method: 'DELETE' });
@@ -295,24 +305,7 @@ export default function AdminPage() {
         {FIELDS[category].map(field => (
           <div key={field.key} className="form-group">
             <label htmlFor={field.key}>{field.label}</label>
-            {field.type === 'date' ? (
-              <DatePicker
-                id={field.key}
-                selected={(() => {
-                  const d = parse(form[field.key] || '', 'dd/MM/yyyy', new Date());
-                  return isValid(d) ? d : null;
-                })()}
-                onChange={(date) =>
-                  setForm(prev => ({
-                    ...prev,
-                    [field.key]: date ? format(date, 'dd/MM/yyyy') : '',
-                  }))
-                }
-                dateFormat="dd/MM/yyyy"
-                placeholderText="dd/mm/yyyy"
-                className="date-picker-input"
-              />
-            ) : field.type === 'tags' ? (
+            {field.type === 'tags' ? (
               <div className="tags-input">
                 <div className="tags-chips">
                   {(form[field.key] || []).map(tag => (
@@ -355,12 +348,19 @@ export default function AdminPage() {
                 onChange={handleChange}
                 placeholder={field.placeholder || ''}
                 min={field.type === 'number' ? 0 : undefined}
-                max={field.key.includes('Ranking') ? 10 : undefined}
-                step={field.key === 'avgRanking' ? '0.01' : field.type === 'number' ? '0.1' : undefined}
+                step={field.type === 'number' ? '0.1' : undefined}
               />
             )}
           </div>
         ))}
+
+        {isEditing && (form.lastTasted || form.lastRating != null || form.avgRating != null) && (
+          <div className="derived-fields">
+            {form.lastTasted   && <div className="form-group"><label>Last Tasted</label><input readOnly value={form.lastTasted} className="input-readonly" /></div>}
+            {form.lastRating != null && form.lastRating !== '' && <div className="form-group"><label>Last Rating</label><input readOnly value={form.lastRating} className="input-readonly" /></div>}
+            {form.avgRating  != null && form.avgRating  !== '' && <div className="form-group"><label>Avg Rating</label><input readOnly value={form.avgRating}  className="input-readonly" /></div>}
+          </div>
+        )}
 
         <div className="form-actions">
           <button type="submit" className="btn-primary">
@@ -448,19 +448,55 @@ export default function AdminPage() {
           <h2>Tasting History</h2>
           <div className="lot-list">
             {tastings.length === 0 && <p className="no-lots">No tastings recorded.</p>}
-            {tastings.map(t => (
+            {[...tastings].reverse().map(t => (
               <div key={t.id} className="lot-row">
                 {t.imageUrl
                   ? <img src={t.imageUrl} alt="" className="tasting-thumb" data-testid={`tasting-img-${t.id}`} />
                   : <div className="tasting-thumb-placeholder" data-testid={`tasting-placeholder-${t.id}`} />}
-                <span>{t.date}</span>
-                <span className="lot-qty">{t.rating}</span>
-                {category === 'wine' && <span className="lot-date">{t.vintage || '—'}</span>}
-                <label className="btn-upload-img">
-                  {t.imageUrl ? 'Change photo' : 'Add photo'}
-                  <input type="file" accept="image/*" data-testid={`img-upload-${t.id}`} onChange={e => handleTastingImage(t.id, e.target.files[0])} />
-                </label>
-                <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteTasting(t.id)}>Remove</button>
+                {editingTastingId === t.id ? (
+                  <>
+                    <input
+                      type="text"
+                      data-testid="edit-tasting-date"
+                      className="tasting-inline-input"
+                      value={editTastingForm.date}
+                      onChange={e => setEditTastingForm(f => ({ ...f, date: e.target.value }))}
+                      placeholder="dd/mm/yyyy"
+                    />
+                    <input
+                      type="number"
+                      min="1" max="10" step="0.5"
+                      data-testid="edit-tasting-rating"
+                      className="tasting-inline-input tasting-inline-rating"
+                      value={editTastingForm.rating}
+                      onChange={e => setEditTastingForm(f => ({ ...f, rating: e.target.value }))}
+                    />
+                    {category === 'wine' && (
+                      <input
+                        type="text"
+                        data-testid="edit-tasting-vintage"
+                        className="tasting-inline-input tasting-inline-vintage"
+                        value={editTastingForm.vintage}
+                        onChange={e => setEditTastingForm(f => ({ ...f, vintage: e.target.value }))}
+                        placeholder="Vintage"
+                      />
+                    )}
+                    <button type="button" className="btn-primary btn-sm" onClick={() => handleSaveTasting(t.id)}>Save</button>
+                    <button type="button" className="btn-sm" onClick={() => setEditingTastingId(null)}>Cancel</button>
+                  </>
+                ) : (
+                  <>
+                    <span>{t.date}</span>
+                    <span className="lot-qty">{t.rating}</span>
+                    {category === 'wine' && <span className="lot-date">{t.vintage || '—'}</span>}
+                    <label className="btn-upload-img">
+                      {t.imageUrl ? 'Change photo' : 'Add photo'}
+                      <input type="file" accept="image/*" data-testid={`img-upload-${t.id}`} onChange={e => handleTastingImage(t.id, e.target.files[0])} />
+                    </label>
+                    <button type="button" className="btn-edit btn-sm" onClick={() => startEditTasting(t)}>Edit</button>
+                    <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteTasting(t.id)}>Remove</button>
+                  </>
+                )}
               </div>
             ))}
           </div>

@@ -65,7 +65,7 @@ test('shows success message after adding', async () => {
 const EDIT_DRINK = {
   id: '1', producer: 'Château Test', seriesAndName: 'Reserve', wineCategory: 'Red',
   variety: 'Merlot', country: 'France', region: 'Bordeaux', abv: '13.5',
-  lastTasted: '01/01/2025', lastRanking: '9', avgRanking: '8.5', notionLink: '',
+  lastTasted: '01/01/2025', lastRating: '9', avgRating: '8.5', notionLink: '',
 };
 
 function renderEditPage() {
@@ -159,30 +159,14 @@ test('location.state with category but no drink initialises emptyForm with that 
   expect(screen.queryByRole('heading', { name: /edit entry/i })).not.toBeInTheDocument();
 });
 
-test('DatePicker onChange with a date updates form (covers setForm truthy branch)', async () => {
-  const user = userEvent.setup();
-  render(<MemoryRouter><AdminPage /></MemoryRouter>);
-  const datepicker = screen.getByTestId('mock-datepicker');
-  await user.type(datepicker, 'x'); // value='x' → onChange(Date) → date truthy branch
-  expect(datepicker).toHaveValue('x');
-});
-
-test('DatePicker onChange with null clears the date field (covers setForm falsy branch)', async () => {
-  const user = userEvent.setup();
-  render(<MemoryRouter><AdminPage /></MemoryRouter>);
-  const datepicker = screen.getByTestId('mock-datepicker');
-  await user.type(datepicker, 'x'); // set a value first
-  await user.clear(datepicker);     // value='' → onChange(null) → date falsy branch
-  expect(datepicker).toHaveValue('');
-});
 
 test('null field values render as empty string via ?? fallback', () => {
   render(
     <MemoryRouter initialEntries={[{ pathname: '/admin', state: {
       category: 'wine',
       drink: { id: '1', producer: null, seriesAndName: null, wineCategory: null, variety: null,
-               country: null, region: null, abv: null, lastTasted: null, lastRanking: null,
-               avgRanking: null, notionLink: null },
+               country: null, region: null, abv: null, lastTasted: null, lastRating: null,
+               avgRating: null, notionLink: null },
     }}]}>
       <AdminPage />
     </MemoryRouter>
@@ -202,10 +186,51 @@ test('shows error message when delete fails (res.ok false on DELETE)', async () 
   window.confirm = vi.fn(() => true);
   global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
   render(
-    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '13', lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '' } } }]}>
+    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' } } }]}>
       <AdminPage />
     </MemoryRouter>
   );
   fireEvent.click(screen.getByRole('button', { name: /delete/i }));
   expect(await screen.findByText('Delete failed. Please try again.')).toBeInTheDocument();
+});
+
+// ── CustomSelect: pre-selected value + outside-click ─────────────
+
+test('CustomSelect shows cs-selected on matching option and not on placeholder when value is set', () => {
+  renderEditPage();
+  const trigger = screen.getByLabelText(/wine type/i);
+  fireEvent.click(trigger);
+  const opts = document.querySelectorAll('.custom-select-menu li');
+  const placeholder = opts[0];
+  const redOpt = [...opts].find(li => li.textContent === 'Red');
+  expect(placeholder.className).not.toContain('cs-selected');
+  expect(redOpt.className).toContain('cs-selected');
+});
+
+test('clicking outside an open CustomSelect closes it', async () => {
+  render(<MemoryRouter><AdminPage /></MemoryRouter>);
+  const trigger = screen.getByLabelText(/wine type/i);
+  fireEvent.click(trigger);
+  expect(document.querySelector('.custom-select-menu')).toBeInTheDocument();
+  fireEvent.mouseDown(document.body);
+  await waitFor(() => expect(document.querySelector('.custom-select-menu')).not.toBeInTheDocument());
+});
+
+test('selecting an option from CustomSelect updates the value and closes menu', async () => {
+  render(<MemoryRouter><AdminPage /></MemoryRouter>);
+  const trigger = screen.getByLabelText(/wine type/i);
+  fireEvent.click(trigger);
+  fireEvent.mouseDown(screen.getByText('Red'));
+  await waitFor(() => expect(document.querySelector('.custom-select-menu')).not.toBeInTheDocument());
+  expect(trigger).toHaveTextContent('Red');
+});
+
+test('selecting the placeholder option in CustomSelect clears the value', async () => {
+  renderEditPage();
+  const trigger = screen.getByLabelText(/wine type/i);
+  fireEvent.click(trigger);
+  const opts = document.querySelectorAll('.custom-select-menu li');
+  fireEvent.mouseDown(opts[0]);
+  await waitFor(() => expect(document.querySelector('.custom-select-menu')).not.toBeInTheDocument());
+  expect(trigger).toHaveTextContent('Select…');
 });

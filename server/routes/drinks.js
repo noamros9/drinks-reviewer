@@ -21,10 +21,10 @@ const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
 const ALLOWED_FIELDS = {
-  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'tags'],
-  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'tags'],
-  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'tags'],
-  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'lastTasted', 'lastRanking', 'avgRanking', 'tags'],
+  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'tags'],
+  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'tags'],
+  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'tags'],
+  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags'],
 };
 
 function dataDir() {
@@ -191,6 +191,33 @@ router.delete('/:category/:id/tastings/:tastingId', async (req, res) => {
       const before = (d.tastings || []).length;
       d.tastings = (d.tastings || []).filter(t => t.id !== tastingId);
       if (d.tastings.length === before) return false;
+      Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
+      writeData(category, data);
+      return d;
+    });
+    if (drink === null) return res.status(404).json({ error: 'Entry not found' });
+    if (drink === false) return res.status(404).json({ error: 'Tasting not found' });
+    res.json(drink);
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.put('/:category/:id/tastings/:tastingId', async (req, res) => {
+  const { category, id, tastingId } = req.params;
+  if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  const { date, rating, vintage } = req.body;
+  if (!date || rating == null || isNaN(Number(rating))) return res.status(400).json({ error: 'date and rating are required' });
+  try {
+    const drink = await withLock(category, () => {
+      const data = readData(category);
+      const d = data.find(x => x.id === id);
+      if (!d) return null;
+      const tasting = (d.tastings || []).find(t => t.id === tastingId);
+      if (!tasting) return false;
+      tasting.date = date;
+      tasting.rating = Number(rating);
+      if (category === 'wine') tasting.vintage = vintage || undefined;
       Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
       writeData(category, data);
       return d;

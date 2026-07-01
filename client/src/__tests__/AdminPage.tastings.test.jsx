@@ -19,7 +19,7 @@ const TASTING = { id: 't1', date: '15/03/2025', rating: 8, vintage: '2021' };
 const EDIT_DRINK = {
   id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red',
   variety: 'Merlot', country: 'France', region: '', abv: '13',
-  lastTasted: '15/03/2025', lastRanking: 8, avgRanking: 8,
+  lastTasted: '15/03/2025', lastRating: 8, avgRating: 8,
   notionLink: '', tags: [], tastings: [TASTING],
 };
 
@@ -105,7 +105,7 @@ test('shows dash for missing vintage in wine tasting', () => {
 test('no vintage input for non-wine categories', () => {
   const beerDrink = {
     id: 'b1', brewery: 'BrewCo', name: 'Lager', style: 'Lager',
-    country: 'Germany', abv: '5', lastTasted: '', lastRanking: 7, avgRanking: 7,
+    country: 'Germany', abv: '5', lastTasted: '', lastRating: 7, avgRating: 7,
     notionLink: '', tags: [], tastings: [],
   };
   renderTastingsTab(beerDrink, 'beer');
@@ -200,4 +200,83 @@ test('shows error when image upload fails', async () => {
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
   fireEvent.change(fileInput, { target: { files: [file] } });
   await waitFor(() => expect(screen.getByText(/failed to upload/i)).toBeInTheDocument());
+});
+
+// ── Inline tasting edit ───────────────────────────────────────────
+
+test('Edit button appears on each tasting row', () => {
+  renderTastingsTab();
+  expect(screen.getByRole('button', { name: /^edit$/i })).toBeInTheDocument();
+});
+
+test('clicking Edit shows inline inputs with current values', () => {
+  renderTastingsTab();
+  fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+  expect(screen.getByTestId('edit-tasting-date')).toHaveValue('15/03/2025');
+  expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument();
+});
+
+test('Cancel exits edit mode and restores display', () => {
+  renderTastingsTab();
+  fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+  expect(screen.queryByTestId('edit-tasting-date')).not.toBeInTheDocument();
+  expect(screen.getByText('15/03/2025')).toBeInTheDocument();
+});
+
+test('Save calls PUT and updates tasting list', async () => {
+  const updated = { ...EDIT_DRINK, tastings: [{ ...TASTING, date: '20/04/2025', rating: 9 }] };
+  global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve(updated) });
+  renderTastingsTab();
+  fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+  fireEvent.change(screen.getByTestId('edit-tasting-date'), { target: { value: '20/04/2025' } });
+  fireEvent.change(screen.getByTestId('edit-tasting-rating'), { target: { value: '9' } });
+  fireEvent.click(screen.getByRole('button', { name: /save/i }));
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+    '/api/wine/1/tastings/t1',
+    expect.objectContaining({ method: 'PUT' })
+  ));
+  await waitFor(() => expect(screen.getByText('20/04/2025')).toBeInTheDocument());
+});
+
+test('Save shows error when PUT fails', async () => {
+  global.fetch.mockResolvedValue({ ok: false });
+  renderTastingsTab();
+  fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /save/i }));
+  await waitFor(() => expect(screen.getByText(/failed to update/i)).toBeInTheDocument());
+});
+
+test('vintage input appears in edit mode for wine and is editable', () => {
+  renderTastingsTab();
+  fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+  const vintageInput = screen.getByTestId('edit-tasting-vintage');
+  expect(vintageInput).toHaveValue('2021');
+  fireEvent.change(vintageInput, { target: { value: '2022' } });
+  expect(vintageInput).toHaveValue('2022');
+});
+
+test('vintage input absent in edit mode for non-wine', () => {
+  const beerDrink = {
+    id: 'b1', brewery: 'BrewCo', name: 'Lager', style: 'Lager',
+    country: 'Germany', abv: '5', tags: [],
+    tastings: [{ id: 't1', date: '01/01/2024', rating: 7 }],
+  };
+  renderTastingsTab(beerDrink, 'beer');
+  fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+  expect(screen.queryByPlaceholderText('Vintage')).not.toBeInTheDocument();
+});
+
+// ── Derived read-only fields on Review tab ────────────────────────
+
+test('derived fields render as read-only on review tab when editing', () => {
+  render(
+    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink: EDIT_DRINK } }]}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+  expect(screen.getByDisplayValue('15/03/2025')).toHaveAttribute('readonly');
+  const readonlyInputs = screen.getAllByDisplayValue('8');
+  readonlyInputs.forEach(el => expect(el).toHaveAttribute('readonly'));
 });

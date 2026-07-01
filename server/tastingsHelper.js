@@ -19,8 +19,8 @@ function computeFromTastings(tastings, isWine) {
   const avg = Math.round(ratings.reduce((a, b) => a + b, 0) / ratings.length * 100) / 100;
   const last = tastings[tastings.length - 1];
   const result = {
-    avgRanking: avg,
-    lastRanking: last.rating,
+    avgRating: avg,
+    lastRating: last.rating,
     lastTasted: last.date,
     tastingCount: tastings.length,
   };

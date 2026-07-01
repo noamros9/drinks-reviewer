@@ -2,8 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AllDrinksPage from '../pages/AllDrinksPage';
 
-const WINE = { id: 'w1', producer: 'Alpha', seriesAndName: 'Low', country: 'France', abv: '12', lastTasted: '01/01/2020', lastRanking: '6', avgRanking: '6', notionLink: '' };
-const BEER = { id: 'b1', brewery: 'Beta', name: 'High', country: 'UK', abv: '5', lastTasted: '31/12/2025', lastRanking: '9', avgRanking: '9', notionLink: '' };
+const WINE = { id: 'w1', producer: 'Alpha', seriesAndName: 'Low', country: 'France', abv: '12', lastTasted: '01/01/2020', lastRating: '6', avgRating: '6', notionLink: '' };
+const BEER = { id: 'b1', brewery: 'Beta', name: 'High', country: 'UK', abv: '5', lastTasted: '31/12/2025', lastRating: '9', avgRating: '9', notionLink: '' };
 
 beforeEach(() => {
   global.fetch = vi.fn((url) => {
@@ -19,13 +19,13 @@ test('sort preset buttons render on All page', async () => {
   expect(screen.getByRole('button', { name: 'Recently tasted' })).toBeInTheDocument();
 });
 
-test('"Top rated" sorts all drinks by avgRanking descending', async () => {
+test('"Top rated" sorts all drinks by avgRating descending', async () => {
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
   await screen.findByText('Low');
   fireEvent.click(screen.getByRole('button', { name: 'Top rated' }));
   const rows = screen.getAllByRole('row');
-  expect(rows[1]).toHaveTextContent('High'); // avgRanking 9
-  expect(rows[2]).toHaveTextContent('Low');  // avgRanking 6
+  expect(rows[1]).toHaveTextContent('High'); // avgRating 9
+  expect(rows[2]).toHaveTextContent('Low');  // avgRating 6
 });
 
 test('"Recently tasted" sorts all drinks by lastTasted descending', async () => {

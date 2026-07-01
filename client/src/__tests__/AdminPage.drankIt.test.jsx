@@ -16,7 +16,7 @@ const LOT = { id: 'lot1', quantity: 2, price: 30, addedAt: '2026-01-01' };
 const DRINK = {
   id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red',
   variety: 'Merlot', country: 'France', region: '', abv: '13',
-  lastTasted: '', lastRanking: '8', avgRanking: '8', notionLink: '',
+  lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '',
   collection: [LOT],
 };
 

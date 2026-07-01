@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import CollectionPage from '../pages/CollectionPage';
 
 const LOT = { id: 'lot1', quantity: 2, price: 45, addedAt: '2026-01-01' };
-const WINE = { id: 'w1', _category: 'wine', producer: 'Château X', seriesAndName: 'Grand Cru', country: 'France', abv: '13', avgRanking: '9', collection: [LOT] };
+const WINE = { id: 'w1', _category: 'wine', producer: 'Château X', seriesAndName: 'Grand Cru', country: 'France', abv: '13', avgRating: '9', collection: [LOT] };
 const BEER = { id: 'b1', _category: 'beer', brewery: 'Brew Co', name: 'Pale Ale', country: 'UK', abv: '5', collection: [LOT] };
 
 function mockFetch(data = [WINE, BEER]) {
