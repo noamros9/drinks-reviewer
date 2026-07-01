@@ -135,8 +135,10 @@ test('delete does nothing when confirm is cancelled', async () => {
 
 test('select field renders for wine type', () => {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
-  expect(screen.getByLabelText(/wine type/i)).toBeInTheDocument();
-  expect(screen.getByRole('option', { name: /red/i })).toBeInTheDocument();
+  const trigger = screen.getByLabelText(/wine type/i);
+  expect(trigger).toBeInTheDocument();
+  fireEvent.click(trigger);
+  expect(screen.getByText('Red')).toBeInTheDocument();
 });
 
 test('changing a field updates form state', () => {
@@ -186,7 +188,7 @@ test('null field values render as empty string via ?? fallback', () => {
     </MemoryRouter>
   );
   expect(screen.getByLabelText(/producer/i)).toHaveValue('');
-  expect(screen.getByLabelText(/wine type/i)).toHaveValue('');
+  expect(screen.getByLabelText(/wine type/i)).toHaveTextContent('Select…');
 });
 
 test('shows error message when save fails (res.ok false on POST)', async () => {
