@@ -304,6 +304,22 @@
   flex-shrink: 0;
 }
 
+.btn-photo-add {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1rem;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  transition: border-color 0.15s;
+  align-self: flex-end;
+  white-space: nowrap;
+}
+.btn-photo-add.has-photo { border-color: var(--accent); }
+.btn-photo-add input[type="file"] { display: none; }
+
 .btn-upload-img {
   cursor: pointer;
   font-size: 0.78rem;

@@ -1977,5 +1977,83 @@
     "imagePath": "/images/drinks/24238a6a-a298-4be1-a546-afea30e94fff.png",
     "lastRating": 8.5,
     "avgRating": 8.5
+  },
+  {
+    "id": "1193afe5-0b37-4a3a-aa4e-0b9ec39ca67a",
+    "producer": "טפרברג",
+    "seriesAndName": "Roots Red",
+    "wineCategory": "Red",
+    "variety": "Non Disclosed",
+    "sweetness": "Dry",
+    "country": "Israel",
+    "region": "",
+    "abv": "13",
+    "tags": [],
+    "tastings": [
+      {
+        "id": "1b82351b-0e4b-444f-9564-147e26234cef",
+        "date": "24/06/2026",
+        "rating": 6,
+        "vintage": "2024",
+        "imageUrl": "/images/drinks/441d385a-bf37-4603-af31-9123b8d8cb0c.png"
+      }
+    ],
+    "avgRating": 6,
+    "lastRating": 6,
+    "lastTasted": "24/06/2026",
+    "tastingCount": 1,
+    "vintage": "2024"
+  },
+  {
+    "id": "50f11d20-5d08-4b93-9072-b98df3b321b6",
+    "producer": "טפרברג",
+    "seriesAndName": "Roots White",
+    "wineCategory": "White",
+    "variety": "Non Disclosed",
+    "sweetness": "Dry",
+    "country": "Israel",
+    "region": "",
+    "abv": "12",
+    "tags": [],
+    "tastings": [
+      {
+        "id": "cfccab41-65b4-4630-b8d3-909b151e0d31",
+        "date": "24/05/2026",
+        "rating": 8,
+        "vintage": "2024",
+        "imageUrl": "/images/drinks/2b94c55f-553c-4560-af8e-3d104267415b.png"
+      }
+    ],
+    "avgRating": 8,
+    "lastRating": 8,
+    "lastTasted": "24/05/2026",
+    "tastingCount": 1,
+    "vintage": "2024"
+  },
+  {
+    "id": "8b20d27e-509a-4696-972b-6851cdf4db02",
+    "producer": "Hans Greyl",
+    "seriesAndName": "",
+    "wineCategory": "White",
+    "variety": "Sauvignon Blanc",
+    "sweetness": "Dry",
+    "country": "New Zealand",
+    "region": "Marlborough",
+    "abv": "12.5",
+    "tags": [],
+    "tastings": [
+      {
+        "id": "d7039eb4-7057-439b-8372-b2aba5f99628",
+        "date": "20/05/2026",
+        "rating": 8.5,
+        "vintage": "2023",
+        "imageUrl": "/images/drinks/0bb523c8-9444-4a28-82ce-ab5d58ca56db.png"
+      }
+    ],
+    "avgRating": 8.5,
+    "lastRating": 8.5,
+    "lastTasted": "20/05/2026",
+    "tastingCount": 1,
+    "vintage": "2023"
   }
 ]
