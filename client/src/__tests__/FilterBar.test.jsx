@@ -189,6 +189,22 @@ test('onColumnLayoutChange with unknown category hits COLUMNS || [] fallback', (
   expect(screen.getByTestId('column-panel-btn')).toBeInTheDocument();
 });
 
+test('tags dropdown shows count next to each tag option', () => {
+  const drinks = [
+    { id: '1', producer: 'A', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', tags: ['organic', 'gift'] },
+    { id: '2', producer: 'B', wineCategory: 'White', variety: 'Chardonnay', country: 'Italy', region: '', tags: ['organic'] },
+    { id: '3', producer: 'C', wineCategory: 'Red', variety: 'Cabernet', country: 'Spain', region: '', tags: [] },
+  ];
+  renderBar('wine', drinks);
+  fireEvent.click(screen.getByTestId('filter-dropdown-tags'));
+  expect(screen.getByText('organic')).toBeInTheDocument();
+  expect(screen.getByText('gift')).toBeInTheDocument();
+  const countSpans = document.querySelectorAll('.filter-option-count');
+  const countValues = [...countSpans].map(s => s.textContent);
+  expect(countValues).toContain('2'); // organic appears in 2 drinks
+  expect(countValues).toContain('1'); // gift appears in 1 drink
+});
+
 test('clear all also resets abv filter', () => {
   const activeFilters = { ...buildInitialFilters('wine'), abvMin: '10', abvMax: '15' };
   const onChange = vi.fn();
