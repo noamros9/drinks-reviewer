@@ -4,33 +4,34 @@ import DatePicker from 'react-datepicker';
 import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomSelect from '../components/CustomSelect';
+import AutocompleteInput from '../components/AutocompleteInput';
 import './AdminPage.css';
 
 const FIELDS = {
   wine: [
-    { key: 'producer',      label: 'Producer',              type: 'text' },
+    { key: 'producer',      label: 'Producer',              type: 'text', autocomplete: true },
     { key: 'seriesAndName', label: 'Series & Name',          type: 'text' },
     { key: 'wineCategory',  label: 'Wine Type',              type: 'select', options: ['Red', 'White', 'Rosé', 'Sparkling', 'Fortified'] },
-    { key: 'variety',       label: 'Variety',                type: 'text' },
+    { key: 'variety',       label: 'Variety',                type: 'text', autocomplete: true },
     { key: 'sweetness',     label: 'Sweetness',              type: 'select', options: ['Extra-Dry', 'Dry', 'Off-Dry', 'Sweet'] },
-    { key: 'country',       label: 'Country of Origin',      type: 'text' },
-    { key: 'region',        label: 'Region / Appellation',   type: 'text' },
+    { key: 'country',       label: 'Country of Origin',      type: 'text', autocomplete: true },
+    { key: 'region',        label: 'Region / Appellation',   type: 'text', autocomplete: true },
     { key: 'abv',           label: 'ABV (%)',                type: 'number' },
     { key: 'tags',          label: 'Tags',                   type: 'tags', default: [] },
   ],
   beer: [
-    { key: 'brewery',     label: 'Brewery',               type: 'text' },
+    { key: 'brewery',     label: 'Brewery',               type: 'text', autocomplete: true },
     { key: 'name',        label: 'Beer Name',              type: 'text' },
     { key: 'style',       label: 'Style',                  type: 'text' },
-    { key: 'country',     label: 'Country of Origin',      type: 'text' },
+    { key: 'country',     label: 'Country of Origin',      type: 'text', autocomplete: true },
     { key: 'abv',         label: 'ABV (%)',                type: 'number' },
     { key: 'tags',        label: 'Tags',                   type: 'tags', default: [] },
   ],
   whiskey: [
-    { key: 'distillery',  label: 'Distillery',             type: 'text' },
+    { key: 'distillery',  label: 'Distillery',             type: 'text', autocomplete: true },
     { key: 'name',        label: 'Name',                   type: 'text' },
-    { key: 'country',     label: 'Country of Origin',      type: 'text' },
-    { key: 'region',      label: 'Region',                 type: 'text', placeholder: 'Speyside, Islay, Highlands…' },
+    { key: 'country',     label: 'Country of Origin',      type: 'text', autocomplete: true },
+    { key: 'region',      label: 'Region',                 type: 'text', placeholder: 'Speyside, Islay, Highlands…', autocomplete: true },
     { key: 'age',         label: 'Age (years)',             type: 'number' },
     { key: 'style',       label: 'Style',                  type: 'text' },
     { key: 'abv',         label: 'ABV (%)',                type: 'number' },
@@ -38,9 +39,9 @@ const FIELDS = {
   ],
   others: [
     { key: 'drinkCategory', label: 'Drink Category',         type: 'text', placeholder: 'Rum, Vodka, Liqueur…' },
-    { key: 'distillery',    label: 'Distillery',             type: 'text' },
+    { key: 'distillery',    label: 'Distillery',             type: 'text', autocomplete: true },
     { key: 'name',          label: 'Name',                   type: 'text' },
-    { key: 'country',       label: 'Country of Origin',      type: 'text' },
+    { key: 'country',       label: 'Country of Origin',      type: 'text', autocomplete: true },
     { key: 'style',         label: 'Style',                  type: 'text' },
     { key: 'age',           label: 'Age (years)',             type: 'number' },
     { key: 'abv',           label: 'ABV (%)',                type: 'number' },
@@ -83,6 +84,7 @@ export default function AdminPage() {
   const newTastingImageRef = useRef(null);
   const [editTastingForm, setEditTastingForm] = useState({});
   const [allTags, setAllTags] = useState([]);
+  const [suggestions, setSuggestions] = useState({});
   const [colCat, setColCat] = useState('wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
   const [colMessage, setColMessage] = useState('');
@@ -90,6 +92,17 @@ export default function AdminPage() {
   useEffect(() => {
     fetch('/api/tags').then(r => r.json()).then(data => { if (Array.isArray(data)) setAllTags(data); }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    const keys = FIELDS[category].filter(f => f.autocomplete).map(f => f.key);
+    fetch(`/api/${category}`).then(r => r.json()).then(drinks => {
+      const map = {};
+      keys.forEach(k => {
+        map[k] = [...new Set(drinks.map(d => d[k]).filter(Boolean))].sort();
+      });
+      setSuggestions(map);
+    }).catch(() => {});
+  }, [category]);
 
   const addTag = (key, tag) => {
     if (!tag || (form[key] || []).includes(tag)) return;
@@ -334,6 +347,15 @@ export default function AdminPage() {
                 value={form[field.key] ?? ''}
                 onChange={val => setForm(prev => ({ ...prev, [field.key]: val }))}
                 options={field.options}
+              />
+            ) : field.autocomplete ? (
+              <AutocompleteInput
+                id={field.key}
+                name={field.key}
+                value={form[field.key] ?? ''}
+                onChange={handleChange}
+                suggestions={suggestions[field.key] || []}
+                placeholder={field.placeholder || ''}
               />
             ) : (
               <input

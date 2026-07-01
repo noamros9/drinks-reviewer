@@ -9,9 +9,10 @@ vi.mock('react-datepicker', () => ({
 }));
 
 beforeEach(() => {
-  global.fetch = vi.fn((url) => {
+  global.fetch = vi.fn((url, opts) => {
     if (url === '/api/tags') return Promise.resolve({ ok: true, json: () => Promise.resolve(['cellar', 'gift', 'organic']) });
-    return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-id' }) });
+    if (opts?.method === 'POST' || opts?.method === 'PUT') return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-id' }) });
+    return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
   });
 });
 
@@ -87,7 +88,7 @@ test('tags are included in POST body', async () => {
   fireEvent.keyDown(input, { key: 'Enter' });
   fireEvent.submit(screen.getByRole('button', { name: /^add$/i }).closest('form'));
   await waitFor(() => {
-    const call = global.fetch.mock.calls.find(([url]) => url === '/api/wine');
+    const call = global.fetch.mock.calls.find(([url, opts]) => url === '/api/wine' && opts?.body);
     const body = JSON.parse(call[1].body);
     expect(body.tags).toContain('gift');
   });
