@@ -34,13 +34,13 @@ test('renders Tastings column header for wine', () => {
   expect(screen.getByRole('columnheader', { name: /tastings/i })).toBeInTheDocument();
 });
 
-test('vintage column shows a select with unique vintages', () => {
+test('vintage column shows a custom select with unique vintages', () => {
   render(<DrinkTable category="wine" drinks={[WINE_WITH_TASTINGS]} />);
-  const select = screen.getByRole('combobox');
-  expect(select).toBeInTheDocument();
-  expect(screen.getByRole('option', { name: /all/i })).toBeInTheDocument();
-  expect(screen.getByRole('option', { name: '2019' })).toBeInTheDocument();
-  expect(screen.getByRole('option', { name: '2021' })).toBeInTheDocument();
+  const trigger = screen.getByRole('button', { name: 'All' });
+  expect(trigger).toBeInTheDocument();
+  fireEvent.click(trigger);
+  expect(screen.getByText('2019')).toBeInTheDocument();
+  expect(screen.getByText('2021')).toBeInTheDocument();
 });
 
 test('shows derived cells from all tastings by default (avg 8, count 2)', () => {
@@ -52,8 +52,8 @@ test('shows derived cells from all tastings by default (avg 8, count 2)', () => 
 
 test('selecting a vintage filters avgRating and tastingCount', () => {
   render(<DrinkTable category="wine" drinks={[WINE_WITH_TASTINGS]} />);
-  const select = screen.getByRole('combobox');
-  fireEvent.change(select, { target: { value: '2019' } });
+  fireEvent.click(screen.getByRole('button', { name: 'All' }));
+  fireEvent.mouseDown(screen.getByText('2019'));
   // tastingCount drops to 1 and lastTasted changes to the 2019 tasting date
   expect(screen.getByText('1')).toBeInTheDocument();
   expect(screen.getByText('01/01/2024')).toBeInTheDocument();
@@ -63,25 +63,27 @@ test('selecting a vintage filters avgRating and tastingCount', () => {
 
 test('selecting All restores full-set values', () => {
   render(<DrinkTable category="wine" drinks={[WINE_WITH_TASTINGS]} />);
-  const select = screen.getByRole('combobox');
-  fireEvent.change(select, { target: { value: '2019' } });
-  fireEvent.change(select, { target: { value: '' } });
+  fireEvent.click(screen.getByRole('button', { name: 'All' }));
+  fireEvent.mouseDown(screen.getByText('2019'));
+  // trigger now shows '2019', click it to reopen
+  fireEvent.click(screen.getByRole('button', { name: '2019' }));
+  fireEvent.mouseDown(screen.getByText('All'));
   // count goes back to 2, last tasted back to 2021 date
   expect(screen.getByText('2')).toBeInTheDocument();
   expect(screen.getByText('01/06/2025')).toBeInTheDocument();
 });
 
-test('clicking vintage select does not propagate the click event', () => {
+test('clicking vintage trigger does not propagate the click event', () => {
   const onEdit = vi.fn();
   render(<DrinkTable category="wine" drinks={[WINE_WITH_TASTINGS]} onEdit={onEdit} />);
-  fireEvent.click(screen.getByRole('combobox'));
+  fireEvent.click(screen.getByRole('button', { name: 'All' }));
   expect(onEdit).not.toHaveBeenCalled();
 });
 
 test('wine without tastings shows no vintage dropdown', () => {
   const noTastingWine = { ...WINE_WITH_TASTINGS, id: 'w2', tastings: [] };
   render(<DrinkTable category="wine" drinks={[noTastingWine]} />);
-  expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'All' })).not.toBeInTheDocument();
 });
 
 test('vintage column is not in COLUMNS for non-wine, but tastingCount is', () => {

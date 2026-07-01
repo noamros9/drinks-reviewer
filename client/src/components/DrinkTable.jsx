@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
+import CustomSelect from './CustomSelect';
 import './DrinkTable.css';
 
 export function deriveFromFiltered(tastings, vintage) {
@@ -275,15 +276,13 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                 let content;
                 if (col.key === 'vintage' && uniqueVintages.length > 0) {
                   content = (
-                    <select
-                      className="vintage-select"
+                    <CustomSelect
+                      compact
                       value={selVintage ?? ''}
-                      onChange={e => setSelectedVintages(prev => ({ ...prev, [drink.id]: e.target.value || null }))}
-                      onClick={e => e.stopPropagation()}
-                    >
-                      <option value="">All</option>
-                      {uniqueVintages.map(v => <option key={v} value={v}>{v}</option>)}
-                    </select>
+                      onChange={v => setSelectedVintages(prev => ({ ...prev, [drink.id]: v || null }))}
+                      options={uniqueVintages}
+                      placeholder="All"
+                    />
                   );
                 } else if (col.key === 'tags') {
                   const tags = Array.isArray(raw) ? raw : [];

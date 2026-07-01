@@ -183,7 +183,6 @@ test('selecting exactly one vintage filter syncs all per-row vintage dropdowns',
   fireEvent.click(screen.getByTestId('filter-dropdown-vintage'));
   fireEvent.click(screen.getByRole('checkbox', { name: /2021/ }));
   await waitFor(() => {
-    const select = screen.getByRole('combobox');
-    expect(select.value).toBe('2021');
+    expect(screen.getByRole('button', { name: '2021' })).toBeInTheDocument();
   });
 });
