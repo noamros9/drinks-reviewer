@@ -7,8 +7,8 @@ function LocationDisplay() {
   return <div data-testid="location">{loc.pathname}{loc.search}</div>;
 }
 
-const WINE = { id: 'w1', producer: 'Château X', seriesAndName: 'Grand Cru', country: 'France', abv: '13', lastTasted: '01/03/2025', lastRanking: '8.5', avgRanking: '8.2', notionLink: '' };
-const BEER = { id: 'b1', brewery: 'Brew Co', name: 'Pale Ale', country: 'UK', abv: '5', lastTasted: '15/04/2025', lastRanking: '7', avgRanking: '7.1', notionLink: '' };
+const WINE = { id: 'w1', producer: 'Château X', seriesAndName: 'Grand Cru', country: 'France', abv: '13', lastTasted: '01/03/2025', lastRating: '8.5', avgRating: '8.2', notionLink: '' };
+const BEER = { id: 'b1', brewery: 'Brew Co', name: 'Pale Ale', country: 'UK', abv: '5', lastTasted: '15/04/2025', lastRating: '7', avgRating: '7.1', notionLink: '' };
 
 beforeEach(() => {
   global.fetch = vi.fn((url) => {

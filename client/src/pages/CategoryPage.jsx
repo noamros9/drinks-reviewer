@@ -7,11 +7,11 @@ import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS }
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
 
 const PRESETS = [
-  { label: 'Top rated', key: 'avgRanking', dir: 'desc' },
+  { label: 'Top rated', key: 'avgRating', dir: 'desc' },
   { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
 ];
 
-function storageKey(category) { return `drinks_columns_v2_${category}`; }
+function storageKey(category) { return `drinks_columns_v3_${category}`; }
 
 function loadLayout(category) {
   try {

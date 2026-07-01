@@ -15,8 +15,8 @@ const WINE_WITH_TASTINGS = {
   tags: [],
   vintage: '2021',
   lastTasted: '01/06/2025',
-  lastRanking: 9,
-  avgRanking: 8,
+  lastRating: 9,
+  avgRating: 8,
   tastingCount: 2,
   tastings: [
     { id: 't1', date: '01/01/2024', rating: 7, vintage: '2019' },
@@ -45,19 +45,19 @@ test('vintage column shows a select with unique vintages', () => {
 
 test('shows derived cells from all tastings by default (avg 8, count 2)', () => {
   render(<DrinkTable category="wine" drinks={[WINE_WITH_TASTINGS]} />);
-  // tastingCount = 2 (unique), avgRanking = 8 (may also appear in other columns, use getAllByText)
+  // tastingCount = 2 (unique), avgRating = 8 (may also appear in other columns, use getAllByText)
   expect(screen.getAllByText('8').length).toBeGreaterThanOrEqual(1);
   expect(screen.getByText('2')).toBeInTheDocument();
 });
 
-test('selecting a vintage filters avgRanking and tastingCount', () => {
+test('selecting a vintage filters avgRating and tastingCount', () => {
   render(<DrinkTable category="wine" drinks={[WINE_WITH_TASTINGS]} />);
   const select = screen.getByRole('combobox');
   fireEvent.change(select, { target: { value: '2019' } });
   // tastingCount drops to 1 and lastTasted changes to the 2019 tasting date
   expect(screen.getByText('1')).toBeInTheDocument();
   expect(screen.getByText('01/01/2024')).toBeInTheDocument();
-  // avgRanking and lastRanking both show 7 (duplicated is fine, just check it's present)
+  // avgRating and lastRating both show 7 (duplicated is fine, just check it's present)
   expect(screen.getAllByText('7').length).toBeGreaterThanOrEqual(1);
 });
 
@@ -106,7 +106,7 @@ describe('deriveFromFiltered (unit)', () => {
       { id: 't2', date: '01/06/2025', rating: 9, vintage: '2021' },
     ];
     const result = deriveFromFiltered(tastings, null);
-    expect(result.avgRanking).toBe(8);
+    expect(result.avgRating).toBe(8);
     expect(result.tastingCount).toBe(2);
   });
 });

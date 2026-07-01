@@ -2,10 +2,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AllDrinksPage from '../pages/AllDrinksPage';
 
-const WINE_ENTRY    = { id: 'w1', producer: 'Château X', seriesAndName: 'Grand Cru', country: 'France', abv: '13', lastTasted: '01/03/2025', lastRanking: '8.5', avgRanking: '8.2', notionLink: '' };
-const BEER_ENTRY    = { id: 'b1', brewery: 'Brew Co',    name: 'Pale Ale',   country: 'UK',     abv: '5',  lastTasted: '15/04/2025', lastRanking: '7',   avgRanking: '7.1', notionLink: '' };
-const WHISKEY_ENTRY = { id: 'k1', distillery: 'Glenfid', name: 'Single Malt', country: 'Scotland', abv: '43', lastTasted: '10/01/2025', lastRanking: '9', avgRanking: '9', notionLink: '' };
-const OTHERS_ENTRY  = { id: 'o1', distillery: 'Suntory', name: 'Sake',       country: 'Japan',  abv: '15', lastTasted: '20/02/2025', lastRanking: '8',   avgRanking: '8', notionLink: '' };
+const WINE_ENTRY    = { id: 'w1', producer: 'Château X', seriesAndName: 'Grand Cru', country: 'France', abv: '13', lastTasted: '01/03/2025', lastRating: '8.5', avgRating: '8.2', notionLink: '' };
+const BEER_ENTRY    = { id: 'b1', brewery: 'Brew Co',    name: 'Pale Ale',   country: 'UK',     abv: '5',  lastTasted: '15/04/2025', lastRating: '7',   avgRating: '7.1', notionLink: '' };
+const WHISKEY_ENTRY = { id: 'k1', distillery: 'Glenfid', name: 'Single Malt', country: 'Scotland', abv: '43', lastTasted: '10/01/2025', lastRating: '9', avgRating: '9', notionLink: '' };
+const OTHERS_ENTRY  = { id: 'o1', distillery: 'Suntory', name: 'Sake',       country: 'Japan',  abv: '15', lastTasted: '20/02/2025', lastRating: '8',   avgRating: '8', notionLink: '' };
 
 beforeEach(() => {
   global.fetch = vi.fn((url) => {
@@ -106,7 +106,7 @@ test('column layout change is saved to localStorage', async () => {
 
 test('entry with no producer/brewery/distillery shows em-dash in Producer column', async () => {
   const NO_PRODUCER = { id: 'x1', name: 'Mystery Drink', country: 'France', abv: '12',
-    lastTasted: '01/01/2025', lastRanking: '7', avgRanking: '7', notionLink: '' };
+    lastTasted: '01/01/2025', lastRating: '7', avgRating: '7', notionLink: '' };
   global.fetch = vi.fn((url) => {
     const data = url.includes('wine') ? [NO_PRODUCER] : [];
     return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
@@ -151,7 +151,7 @@ test('normalize returns empty array for non-array response', async () => {
 });
 
 test('entry with no name and no seriesAndName uses empty string fallback', async () => {
-  const NO_NAME = { id: 'n1', producer: 'NoName Co', country: 'France', abv: '12', lastTasted: '', lastRanking: '7', avgRanking: '7', notionLink: '' };
+  const NO_NAME = { id: 'n1', producer: 'NoName Co', country: 'France', abv: '12', lastTasted: '', lastRating: '7', avgRating: '7', notionLink: '' };
   global.fetch = vi.fn((url) =>
     url.includes('wine')
       ? Promise.resolve({ ok: true, json: () => Promise.resolve([NO_NAME]) })
@@ -162,7 +162,7 @@ test('entry with no name and no seriesAndName uses empty string fallback', async
 });
 
 test('resetting columns removes localStorage entry', async () => {
-  const ALL_KEYS = ['_category', '_producer', 'name', 'country', 'abv', 'lastTasted', 'lastRanking', 'avgRanking'];
+  const ALL_KEYS = ['_category', '_producer', 'name', 'country', 'abv', 'lastTasted', 'lastRating', 'avgRating'];
   localStorage.setItem('drinks_columns_all', JSON.stringify({ order: ALL_KEYS, hidden: ['abv'] }));
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
   await screen.findByText('Grand Cru');
