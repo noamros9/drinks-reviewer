@@ -106,6 +106,14 @@ describe('PUT /api/:category/:id', () => {
     const res = await request(app).put(`/api/wine/${drink.id}`).send({ producer: 'X', collectionOnly: true });
     expect(res.body.collectionOnly).toBe(true);
   });
+
+  it('preserves fields omitted from PUT body', async () => {
+    const createRes = await request(app).post('/api/wine').send({ producer: 'X', abv: '14%', region: 'Bordeaux' });
+    const id = createRes.body.id;
+    const updateRes = await request(app).put(`/api/wine/${id}`).send({ producer: 'Y' });
+    expect(updateRes.body.abv).toBe('14%');
+    expect(updateRes.body.region).toBe('Bordeaux');
+  });
 });
 
 describe('DELETE /api/:category/:id', () => {
@@ -377,6 +385,12 @@ describe('500 error handling when data file is corrupt', () => {
   });
   it('PUT /api/wine/:id/tastings/:tastingId returns 500', async () => {
     expect((await request(app).put('/api/wine/any-id/tastings/t1').send({ date: '01/01/2025', rating: 7 })).status).toBe(500);
+  });
+  it('POST /api/wine/:id/tastings/:tastingId/image returns 500', async () => {
+    const res = await request(app)
+      .post('/api/wine/any-id/tastings/t1/image')
+      .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
+    expect(res.status).toBe(500);
   });
   it('POST /api/wine/:id/collection returns 500', async () => {
     expect((await request(app).post('/api/wine/any-id/collection').send({ quantity: 1 })).status).toBe(500);

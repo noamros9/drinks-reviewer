@@ -13,6 +13,7 @@ const upload = multer({
     filename: (_req, file, cb) => cb(null, `${randomUUID()}${path.extname(file.originalname)}`),
   }),
   limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
 });
 
 const router = express.Router();
@@ -39,9 +40,13 @@ function writeData(category, data) {
   fs.writeFileSync(path.join(DATA_DIR_PATH, `${category}.json`), JSON.stringify(data, null, 2));
 }
 
-function pickFields(body, category) {
+function pickFields(body, category, partial = false) {
   const allowed = ALLOWED_FIELDS[category];
-  return Object.fromEntries(allowed.map(k => [k, k === 'tags' ? (Array.isArray(body[k]) ? body[k] : []) : (body[k] ?? '')]));
+  return Object.fromEntries(
+    allowed
+      .filter(k => !partial || k in body)
+      .map(k => [k, k === 'tags' ? (Array.isArray(body[k]) ? body[k] : []) : (body[k] ?? '')])
+  );
 }
 
 // Per-category write locks to prevent concurrent read-modify-write races
@@ -119,7 +124,7 @@ router.put('/:category/:id', async (req, res) => {
       const data = readData(category);
       const index = data.findIndex(d => d.id === id);
       if (index === -1) return null;
-      data[index] = { ...data[index], ...pickFields(req.body, category), id };
+      data[index] = { ...data[index], ...pickFields(req.body, category, true), id };
       if ('collectionOnly' in req.body) {
         if (req.body.collectionOnly) data[index].collectionOnly = true;
         else delete data[index].collectionOnly;
@@ -187,7 +192,11 @@ router.delete('/:category/:id/tastings/:tastingId', async (req, res) => {
       const before = (d.tastings || []).length;
       d.tastings = (d.tastings || []).filter(t => t.id !== tastingId);
       if (d.tastings.length === before) return false;
-      Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
+      if (d.tastings.length === 0) {
+        for (const k of ['avgRating', 'lastRating', 'lastTasted', 'tastingCount', 'vintage']) delete d[k];
+      } else {
+        Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
+      }
       writeData(category, data);
       return d;
     });
@@ -226,21 +235,32 @@ router.put('/:category/:id/tastings/:tastingId', async (req, res) => {
   }
 });
 
-router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), (req, res) => {
+router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), async (req, res) => {
   const { category, id, tastingId } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const data = readData(category);
-  const drink = data.find(d => d.id === id);
-  if (!drink) return res.status(404).json({ error: 'Entry not found' });
-  const tasting = (drink.tastings || []).find(t => t.id === tastingId);
-  if (!tasting) return res.status(404).json({ error: 'Tasting not found' });
-  if (tasting.imageUrl) {
-    try { fs.unlinkSync(path.join(IMAGES_DIR_PATH, path.basename(tasting.imageUrl))); } catch {}
+  const cleanupUpload = () => { try { fs.unlinkSync(req.file.path); } catch {} };
+  try {
+    const drink = await withLock(category, () => {
+      const data = readData(category);
+      const d = data.find(x => x.id === id);
+      if (!d) return null;
+      const tasting = (d.tastings || []).find(t => t.id === tastingId);
+      if (!tasting) return false;
+      if (tasting.imageUrl) {
+        try { fs.unlinkSync(path.join(IMAGES_DIR_PATH, path.basename(tasting.imageUrl))); } catch {}
+      }
+      tasting.imageUrl = `/images/drinks/${req.file.filename}`;
+      writeData(category, data);
+      return d;
+    });
+    if (drink === null) { cleanupUpload(); return res.status(404).json({ error: 'Entry not found' }); }
+    if (drink === false) { cleanupUpload(); return res.status(404).json({ error: 'Tasting not found' }); }
+    res.json(drink);
+  } catch {
+    cleanupUpload();
+    res.status(500).json({ error: 'Data unavailable' });
   }
-  tasting.imageUrl = `/images/drinks/${req.file.filename}`;
-  writeData(category, data);
-  res.json(drink);
 });
 
 router.post('/:category/:id/collection', async (req, res) => {

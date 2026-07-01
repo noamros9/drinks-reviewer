@@ -122,6 +122,19 @@ describe('DELETE /api/:category/:id/tastings/:tastingId', () => {
     expect(res.body.tastingCount).toBe(1);
   });
 
+  it('clears derived tasting fields when the last tasting is deleted', async () => {
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7, vintage: '2020' });
+    const tastingId = addRes.body.tastings[0].id;
+    const res = await request(app).delete(`/api/wine/${drink.id}/tastings/${tastingId}`);
+    expect(res.status).toBe(200);
+    expect(res.body.avgRating).toBeUndefined();
+    expect(res.body.lastRating).toBeUndefined();
+    expect(res.body.lastTasted).toBeUndefined();
+    expect(res.body.tastingCount).toBeUndefined();
+    expect(res.body.vintage).toBeUndefined();
+  });
+
   it('returns 404 for unknown tasting id', async () => {
     const drink = await createDrink('wine');
     await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7 });
@@ -235,6 +248,46 @@ describe('POST /api/:category/:id/tastings/:tastingId/image', () => {
       .post(`/api/wine/${drink.id}/tastings/nonexistent/image`)
       .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
     expect(res.status).toBe(404);
+  });
+
+  it('returns 400 and rejects non-image file types', async () => {
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
+    const tastingId = addRes.body.tastings[0].id;
+    const res = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/${tastingId}/image`)
+      .attach('image', Buffer.from('<html>xss</html>'), { filename: 'shell.html', contentType: 'text/html' });
+    expect(res.status).toBe(400);
+  });
+
+  it('cleans up uploaded file when drink is not found', async () => {
+    const filesBefore = fs.readdirSync(imgDir).length;
+    const res = await request(app)
+      .post('/api/wine/nonexistent/tastings/xyz/image')
+      .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
+    expect(res.status).toBe(404);
+    expect(fs.readdirSync(imgDir).length).toBe(filesBefore);
+  });
+
+  it('cleans up uploaded file when tasting is not found', async () => {
+    const drink = await createDrink('wine');
+    const filesBefore = fs.readdirSync(imgDir).length;
+    const res = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/nonexistent/image`)
+      .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
+    expect(res.status).toBe(404);
+    expect(fs.readdirSync(imgDir).length).toBe(filesBefore);
+  });
+
+  it('returns 500 and cleans up uploaded file when data is corrupt', async () => {
+    const filesBefore = fs.readdirSync(imgDir).length;
+    fs.writeFileSync(path.join(tmpDir, 'wine.json'), 'INVALID');
+    const res = await request(app)
+      .post('/api/wine/any/tastings/any/image')
+      .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
+    expect(res.status).toBe(500);
+    expect(fs.readdirSync(imgDir).length).toBe(filesBefore);
+    fs.writeFileSync(path.join(tmpDir, 'wine.json'), '[]');
   });
 });
 
