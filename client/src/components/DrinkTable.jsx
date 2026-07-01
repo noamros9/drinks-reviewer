@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
+import CustomSelect from './CustomSelect';
 import './DrinkTable.css';
 
 export function deriveFromFiltered(tastings, vintage) {
@@ -25,36 +26,38 @@ export const COLUMNS = {
     { key: 'country',       label: 'Country' },
     { key: 'region',        label: 'Region' },
     { key: 'abv',           label: 'ABV' },
+    { key: 'vintage',       label: 'Vintage' },
     { key: 'tags',          label: 'Tags' },
     { key: 'lastTasted',    label: 'Last Tasted' },
-    { key: 'vintage',       label: 'Vintage' },
     { key: 'lastRating',    label: 'Last Rating' },
     { key: 'avgRating',     label: 'Avg Rating' },
     { key: 'tastingCount',  label: 'Tastings' },
   ],
   beer: [
-    { key: 'brewery',     label: 'Brewery' },
-    { key: 'name',        label: 'Name' },
-    { key: 'style',       label: 'Style' },
-    { key: 'country',     label: 'Country' },
-    { key: 'abv',         label: 'ABV' },
-    { key: 'tags',        label: 'Tags' },
-    { key: 'lastTasted',  label: 'Last Tasted' },
-    { key: 'lastRating',  label: 'Last Rating' },
-    { key: 'avgRating',   label: 'Avg Rating' },
+    { key: 'brewery',      label: 'Brewery' },
+    { key: 'name',         label: 'Name' },
+    { key: 'style',        label: 'Style' },
+    { key: 'country',      label: 'Country' },
+    { key: 'abv',          label: 'ABV' },
+    { key: 'tags',         label: 'Tags' },
+    { key: 'lastTasted',   label: 'Last Tasted' },
+    { key: 'lastRating',   label: 'Last Rating' },
+    { key: 'avgRating',    label: 'Avg Rating' },
+    { key: 'tastingCount', label: 'Tastings' },
   ],
   whiskey: [
-    { key: 'distillery',  label: 'Distillery' },
-    { key: 'name',        label: 'Name' },
-    { key: 'country',     label: 'Country' },
-    { key: 'region',      label: 'Region' },
-    { key: 'age',         label: 'Age' },
-    { key: 'style',       label: 'Style' },
-    { key: 'abv',         label: 'ABV' },
-    { key: 'tags',        label: 'Tags' },
-    { key: 'lastTasted',  label: 'Last Tasted' },
-    { key: 'lastRating',  label: 'Last Rating' },
-    { key: 'avgRating',   label: 'Avg Rating' },
+    { key: 'distillery',   label: 'Distillery' },
+    { key: 'name',         label: 'Name' },
+    { key: 'country',      label: 'Country' },
+    { key: 'region',       label: 'Region' },
+    { key: 'age',          label: 'Age' },
+    { key: 'style',        label: 'Style' },
+    { key: 'abv',          label: 'ABV' },
+    { key: 'tags',         label: 'Tags' },
+    { key: 'lastTasted',   label: 'Last Tasted' },
+    { key: 'lastRating',   label: 'Last Rating' },
+    { key: 'avgRating',    label: 'Avg Rating' },
+    { key: 'tastingCount', label: 'Tastings' },
   ],
   others: [
     { key: 'drinkCategory', label: 'Category' },
@@ -68,6 +71,7 @@ export const COLUMNS = {
     { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'lastRating',    label: 'Last Rating' },
     { key: 'avgRating',     label: 'Avg Rating' },
+    { key: 'tastingCount',  label: 'Tastings' },
   ],
   all: [
     { key: '_category',   label: 'Category' },
@@ -272,15 +276,13 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                 let content;
                 if (col.key === 'vintage' && uniqueVintages.length > 0) {
                   content = (
-                    <select
-                      className="vintage-select"
+                    <CustomSelect
+                      compact
                       value={selVintage ?? ''}
-                      onChange={e => setSelectedVintages(prev => ({ ...prev, [drink.id]: e.target.value || null }))}
-                      onClick={e => e.stopPropagation()}
-                    >
-                      <option value="">All</option>
-                      {uniqueVintages.map(v => <option key={v} value={v}>{v}</option>)}
-                    </select>
+                      onChange={v => setSelectedVintages(prev => ({ ...prev, [drink.id]: v || null }))}
+                      options={uniqueVintages}
+                      placeholder="All"
+                    />
                   );
                 } else if (col.key === 'tags') {
                   const tags = Array.isArray(raw) ? raw : [];

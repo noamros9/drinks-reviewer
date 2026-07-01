@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
+import CustomSelect from '../components/CustomSelect';
 import './AdminPage.css';
 
 const FIELDS = {
@@ -53,32 +54,6 @@ function emptyForm(category) {
   return Object.fromEntries(FIELDS[category].map(f => [f.key, f.default ?? '']));
 }
 
-function CustomSelect({ id, value, onChange, options, placeholder = 'Select…' }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!open) return;
-    const close = e => { if (!ref.current?.contains(e.target)) setOpen(false); };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
-  }, [open]);
-  return (
-    <div ref={ref} className="custom-select">
-      <button id={id} type="button" className={`custom-select-trigger${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)}>
-        <span className={value ? '' : 'cs-placeholder'}>{value || placeholder}</span>
-        <svg width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0l5 6 5-6z" fill="currentColor"/></svg>
-      </button>
-      {open && (
-        <ul className="custom-select-menu">
-          <li className={!value ? 'cs-selected' : ''} onMouseDown={() => { onChange(''); setOpen(false); }}>{placeholder}</li>
-          {options.map(opt => (
-            <li key={opt} className={value === opt ? 'cs-selected' : ''} onMouseDown={() => { onChange(opt); setOpen(false); }}>{opt}</li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
 
 export default function AdminPage() {
   const location = useLocation();
@@ -493,7 +468,7 @@ export default function AdminPage() {
                       {t.imageUrl ? 'Change photo' : 'Add photo'}
                       <input type="file" accept="image/*" data-testid={`img-upload-${t.id}`} onChange={e => handleTastingImage(t.id, e.target.files[0])} />
                     </label>
-                    <button type="button" className="btn-edit btn-sm" onClick={() => startEditTasting(t)}>Edit</button>
+                    <button type="button" className="btn-tasting-edit btn-sm" onClick={() => startEditTasting(t)}>Edit</button>
                     <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteTasting(t.id)}>Remove</button>
                   </>
                 )}
