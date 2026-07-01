@@ -73,9 +73,13 @@ a:hover {
   text-decoration: underline;
 }
 
-button {
+button, select, input {
   cursor: pointer;
   font-family: inherit;
+}
+
+input {
+  cursor: text;
 }
 
 /* ── Page layout ── */
