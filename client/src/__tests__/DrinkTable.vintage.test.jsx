@@ -84,10 +84,12 @@ test('wine without tastings shows no vintage dropdown', () => {
   expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
 });
 
-test('vintage and tastingCount columns are not in COLUMNS for non-wine', () => {
+test('vintage column is not in COLUMNS for non-wine, but tastingCount is', () => {
   expect(COLUMNS.beer.find(c => c.key === 'vintage')).toBeUndefined();
-  expect(COLUMNS.beer.find(c => c.key === 'tastingCount')).toBeUndefined();
+  expect(COLUMNS.beer.find(c => c.key === 'tastingCount')).toBeDefined();
   expect(COLUMNS.whiskey.find(c => c.key === 'vintage')).toBeUndefined();
+  expect(COLUMNS.whiskey.find(c => c.key === 'tastingCount')).toBeDefined();
+  expect(COLUMNS.others.find(c => c.key === 'tastingCount')).toBeDefined();
 });
 
 describe('deriveFromFiltered (unit)', () => {

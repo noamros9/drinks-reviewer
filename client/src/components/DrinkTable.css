@@ -66,8 +66,9 @@ tr:hover td {
   background: transparent;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 4px 10px;
+  padding: 2px 10px;
   font-size: 0.78rem;
+  line-height: 1.4;
   color: var(--text-secondary);
   transition: border-color 0.15s, color 0.15s;
 }
