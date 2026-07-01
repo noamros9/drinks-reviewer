@@ -25,7 +25,7 @@ export default function CustomSelect({ id, value, onChange, options, placeholder
   const handleOpen = () => {
     if (compact && triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      setMenuStyle({ position: 'fixed', top: rect.bottom + 4, left: rect.left, minWidth: rect.width, zIndex: 9999 });
+      setMenuStyle({ position: 'fixed', top: rect.bottom + 4, left: rect.left, right: 'auto', minWidth: rect.width, zIndex: 9999 });
     }
     setOpen(o => !o);
   };

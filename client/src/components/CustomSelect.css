@@ -67,7 +67,7 @@
 }
 
 .custom-select-compact .custom-select-trigger {
-  padding: 2px 8px;
+  padding: 0 8px;
   font-size: 0.8rem;
   gap: 0.3rem;
   line-height: 1;
