@@ -88,12 +88,23 @@ describe('PUT /api/:category/:id', () => {
     expect(res.status).toBe(404);
   });
 
+  it('returns 404 for unknown category', async () => {
+    const res = await request(app).put('/api/spirits/abc').send({ name: 'X' });
+    expect(res.status).toBe(404);
+  });
+
   it('clears collectionOnly when PUT sends collectionOnly: false', async () => {
     const { body: drink } = await request(app).post('/api/wine').send({ producer: 'X', collectionOnly: true });
     await request(app).put(`/api/wine/${drink.id}`).send({ producer: 'X', collectionOnly: false });
     const res = await request(app).get('/api/wine');
     expect(res.body).toHaveLength(1);
     expect(res.body[0].collectionOnly).toBeUndefined();
+  });
+
+  it('sets collectionOnly to true via PUT', async () => {
+    const { body: drink } = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).put(`/api/wine/${drink.id}`).send({ producer: 'X', collectionOnly: true });
+    expect(res.body.collectionOnly).toBe(true);
   });
 });
 
@@ -109,6 +120,11 @@ describe('DELETE /api/:category/:id', () => {
 
   it('returns 404 for non-existent entry', async () => {
     const res = await request(app).delete('/api/beer/nonexistent-id');
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for unknown category', async () => {
+    const res = await request(app).delete('/api/spirits/abc');
     expect(res.status).toBe(404);
   });
 });
@@ -148,6 +164,13 @@ describe('GET /api/collection', () => {
     await request(app).patch(`/api/wine/${wine.body.id}/collection/${lot.body.id}`).send({ quantity: 0 });
     const res = await request(app).get('/api/collection');
     expect(res.body).toHaveLength(0);
+  });
+
+  it('excludes drinks with no collection property (covers drink.collection || [] branch)', async () => {
+    await request(app).post('/api/wine').send({ producer: 'No Collection' });
+    const res = await request(app).get('/api/collection');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([]);
   });
 
   it('aggregates drinks from multiple categories', async () => {
@@ -203,6 +226,11 @@ describe('POST /api/:category/:id/collection', () => {
 });
 
 describe('PATCH /api/:category/:id/collection/:lotId', () => {
+  it('returns 404 for unknown drink id', async () => {
+    const res = await request(app).patch('/api/wine/nonexistent/collection/lot1').send({ quantity: 1 });
+    expect(res.status).toBe(404);
+  });
+
   it('updates lot quantity', async () => {
     const wine = await request(app).post('/api/wine').send({ producer: 'X' });
     const lot = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 2 });
@@ -239,6 +267,11 @@ describe('PATCH /api/:category/:id/collection/:lotId', () => {
 });
 
 describe('DELETE /api/:category/:id/collection/:lotId', () => {
+  it('returns 404 for unknown drink id', async () => {
+    const res = await request(app).delete('/api/wine/nonexistent/collection/lot1');
+    expect(res.status).toBe(404);
+  });
+
   it('removes a lot', async () => {
     const wine = await request(app).post('/api/wine').send({ producer: 'X' });
     const lot = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1 });
@@ -294,10 +327,64 @@ describe('GET /api/tags', () => {
     expect(res.body).toEqual([]);
   });
 
+  it('handles drinks with no tags field (covers d.tags || [] branch)', async () => {
+    const data = [{ id: 'x', producer: 'Y' }]; // no tags property
+    fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(data));
+    const res = await request(app).get('/api/tags');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([]);
+  });
+
   it('returns unique tags sorted alphabetically across categories', async () => {
     await request(app).post('/api/wine').send({ producer: 'W', tags: ['gift', 'organic'] });
     await request(app).post('/api/beer').send({ brewery: 'B', tags: ['organic', 'cellar'] });
     const res = await request(app).get('/api/tags');
     expect(res.body).toEqual(['cellar', 'gift', 'organic']);
+  });
+});
+
+describe('500 error handling when data file is corrupt', () => {
+  beforeEach(() => {
+    fs.writeFileSync(path.join(tmpDir, 'wine.json'), 'INVALID JSON');
+  });
+  afterEach(() => {
+    fs.writeFileSync(path.join(tmpDir, 'wine.json'), '[]');
+  });
+
+  it('GET /api/tags returns 500', async () => {
+    expect((await request(app).get('/api/tags')).status).toBe(500);
+  });
+  it('GET /api/collection returns 500', async () => {
+    expect((await request(app).get('/api/collection')).status).toBe(500);
+  });
+  it('GET /api/wine returns 500', async () => {
+    expect((await request(app).get('/api/wine')).status).toBe(500);
+  });
+  it('POST /api/wine returns 500', async () => {
+    expect((await request(app).post('/api/wine').send({ producer: 'X' })).status).toBe(500);
+  });
+  it('PUT /api/wine/:id returns 500', async () => {
+    expect((await request(app).put('/api/wine/any-id').send({ producer: 'X' })).status).toBe(500);
+  });
+  it('DELETE /api/wine/:id returns 500', async () => {
+    expect((await request(app).delete('/api/wine/any-id')).status).toBe(500);
+  });
+  it('POST /api/wine/:id/tastings returns 500', async () => {
+    expect((await request(app).post('/api/wine/any-id/tastings').send({ date: '01/01/2025', rating: 7 })).status).toBe(500);
+  });
+  it('DELETE /api/wine/:id/tastings/:tastingId returns 500', async () => {
+    expect((await request(app).delete('/api/wine/any-id/tastings/t1')).status).toBe(500);
+  });
+  it('PUT /api/wine/:id/tastings/:tastingId returns 500', async () => {
+    expect((await request(app).put('/api/wine/any-id/tastings/t1').send({ date: '01/01/2025', rating: 7 })).status).toBe(500);
+  });
+  it('POST /api/wine/:id/collection returns 500', async () => {
+    expect((await request(app).post('/api/wine/any-id/collection').send({ quantity: 1 })).status).toBe(500);
+  });
+  it('PATCH /api/wine/:id/collection/:lotId returns 500', async () => {
+    expect((await request(app).patch('/api/wine/any-id/collection/lot1').send({ quantity: 2 })).status).toBe(500);
+  });
+  it('DELETE /api/wine/:id/collection/:lotId returns 500', async () => {
+    expect((await request(app).delete('/api/wine/any-id/collection/lot1')).status).toBe(500);
   });
 });

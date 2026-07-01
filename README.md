@@ -55,6 +55,7 @@ Client → `http://localhost:5173` · Server → `http://localhost:3001`
 ## Testing
 
 ```bash
-npm test                # Jest (API) + Vitest (React)
-npm run test:coverage   # Must reach 100% on all metrics
+npm test                      # Jest (API) + Vitest (React)
+npm run test:coverage:server  # Server coverage — enforced at 100% all metrics
+npm run test:coverage         # Client coverage — enforced at 90% all metrics
 ```

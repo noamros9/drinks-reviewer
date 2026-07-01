@@ -11,7 +11,8 @@
     "test:server": "jest",
     "test:client": "vitest run",
     "test": "npm run test:server && npm run test:client",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:server": "jest --coverage"
   },
   "dependencies": {
     "cors": "^2.8.5",

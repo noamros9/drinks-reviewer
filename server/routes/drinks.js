@@ -5,13 +5,11 @@ const { randomUUID } = require('crypto');
 const multer = require('multer');
 const { computeFromTastings } = require('../tastingsHelper');
 
-function imagesDir() {
-  return process.env.IMAGES_DIR || path.join(__dirname, '../../client/public/images/drinks');
-}
+const IMAGES_DIR_PATH = process.env.IMAGES_DIR || path.join(__dirname, '../../client/public/images/drinks');
 
 const upload = multer({
   storage: multer.diskStorage({
-    destination: (_req, _file, cb) => { fs.mkdirSync(imagesDir(), { recursive: true }); cb(null, imagesDir()); },
+    destination: (_req, _file, cb) => { fs.mkdirSync(IMAGES_DIR_PATH, { recursive: true }); cb(null, IMAGES_DIR_PATH); },
     filename: (_req, file, cb) => cb(null, `${randomUUID()}${path.extname(file.originalname)}`),
   }),
   limits: { fileSize: 10 * 1024 * 1024 },
@@ -27,24 +25,22 @@ const ALLOWED_FIELDS = {
   others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags'],
 };
 
-function dataDir() {
-  return process.env.DATA_DIR || path.join(__dirname, '../data');
-}
+const DATA_DIR_PATH = process.env.DATA_DIR || path.join(__dirname, '../data');
 
 function readData(category) {
   try {
-    return JSON.parse(fs.readFileSync(path.join(dataDir(), `${category}.json`), 'utf8'));
+    return JSON.parse(fs.readFileSync(path.join(DATA_DIR_PATH, `${category}.json`), 'utf8'));
   } catch {
     throw new Error(`Failed to read data for category: ${category}`);
   }
 }
 
 function writeData(category, data) {
-  fs.writeFileSync(path.join(dataDir(), `${category}.json`), JSON.stringify(data, null, 2));
+  fs.writeFileSync(path.join(DATA_DIR_PATH, `${category}.json`), JSON.stringify(data, null, 2));
 }
 
 function pickFields(body, category) {
-  const allowed = ALLOWED_FIELDS[category] || [];
+  const allowed = ALLOWED_FIELDS[category];
   return Object.fromEntries(allowed.map(k => [k, k === 'tags' ? (Array.isArray(body[k]) ? body[k] : []) : (body[k] ?? '')]));
 }
 
@@ -240,7 +236,7 @@ router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), 
   const tasting = (drink.tastings || []).find(t => t.id === tastingId);
   if (!tasting) return res.status(404).json({ error: 'Tasting not found' });
   if (tasting.imageUrl) {
-    try { fs.unlinkSync(path.join(imagesDir(), path.basename(tasting.imageUrl))); } catch {}
+    try { fs.unlinkSync(path.join(IMAGES_DIR_PATH, path.basename(tasting.imageUrl))); } catch {}
   }
   tasting.imageUrl = `/images/drinks/${req.file.filename}`;
   writeData(category, data);
@@ -314,4 +310,5 @@ router.delete('/:category/:id/collection/:lotId', async (req, res) => {
   }
 });
 
+router._withLock = withLock; // exported for concurrency unit tests only
 module.exports = router;
