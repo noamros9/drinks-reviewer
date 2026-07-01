@@ -19,6 +19,12 @@ export default defineConfig({
       reporter: ['text', 'html'],
       include: ['src/**/*.{js,jsx}'],
       exclude: ['src/main.jsx', 'src/setupTests.js', 'src/__tests__/**'],
+      thresholds: {
+        statements: 90,
+        branches: 90,
+        functions: 90,
+        lines: 90,
+      },
     },
   },
 });

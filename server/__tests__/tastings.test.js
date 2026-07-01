@@ -98,6 +98,18 @@ describe('POST /api/:category/:id/tastings', () => {
 });
 
 describe('DELETE /api/:category/:id/tastings/:tastingId', () => {
+  it('returns 404 for unknown category', async () => {
+    const res = await request(app).delete('/api/nope/abc/tastings/xyz');
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 when drink has no tastings property (covers tastings || [] branches)', async () => {
+    const drink = await createDrink('wine');
+    const res = await request(app).delete(`/api/wine/${drink.id}/tastings/nonexistent-id`);
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('Tasting not found');
+  });
+
   it('removes tasting and recomputes derived fields', async () => {
     const drink = await createDrink('wine');
     const add1 = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7 });
@@ -240,6 +252,36 @@ describe('PUT /api/:category/:id/tastings/:tastingId', () => {
     expect(res.body.tastings[0].vintage).toBe('2021');
     expect(res.body.lastRating).toBe(9);
     expect(res.body.avgRating).toBe(9);
+  });
+
+  it('clears vintage when updated wine tasting has no vintage (covers vintage || undefined branch)', async () => {
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7, vintage: '2020' });
+    const tastingId = addRes.body.tastings[0].id;
+    const res = await request(app)
+      .put(`/api/wine/${drink.id}/tastings/${tastingId}`)
+      .send({ date: '01/01/2024', rating: 7 });
+    expect(res.status).toBe(200);
+    expect(res.body.tastings[0].vintage).toBeUndefined();
+  });
+
+  it('works for non-wine category (covers if category===wine false branch)', async () => {
+    const drink = await createDrink('beer', { brewery: 'BrewCo', name: 'Lager' });
+    const addRes = await request(app).post(`/api/beer/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7 });
+    const tastingId = addRes.body.tastings[0].id;
+    const res = await request(app)
+      .put(`/api/beer/${drink.id}/tastings/${tastingId}`)
+      .send({ date: '15/03/2025', rating: 8 });
+    expect(res.status).toBe(200);
+    expect(res.body.tastings[0].vintage).toBeUndefined();
+  });
+
+  it('returns 400 when date is missing', async () => {
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7 });
+    const tastingId = addRes.body.tastings[0].id;
+    const res = await request(app).put(`/api/wine/${drink.id}/tastings/${tastingId}`).send({ rating: 7 });
+    expect(res.status).toBe(400);
   });
 
   it('returns 404 for unknown category', async () => {
