@@ -1360,5 +1360,26 @@
     "imagePath": "/images/drinks/3f760d77-70ca-49b3-b969-caa94dc7d5b3.png",
     "lastRating": 5,
     "avgRating": 5
+  },
+  {
+    "id": "320de3eb-d5b9-4189-9e22-bd1197fa7e49",
+    "brewery": "אלכסנדר",
+    "name": "Ambree",
+    "style": "Ale",
+    "country": "Israel",
+    "abv": "5.7",
+    "tags": [],
+    "tastings": [
+      {
+        "id": "9b318c17-982f-42ba-aee0-bc7f54ed4226",
+        "date": "27/04/2026",
+        "rating": 7.5,
+        "imageUrl": "/images/drinks/0c72e1de-d63b-44ea-bc2a-de9b789402ae.avif"
+      }
+    ],
+    "avgRating": 7.5,
+    "lastRating": 7.5,
+    "lastTasted": "27/04/2026",
+    "tastingCount": 1
   }
 ]
