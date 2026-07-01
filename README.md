@@ -21,37 +21,12 @@ Client → `http://localhost:5173` · Server → `http://localhost:3001`
 
 ## Features
 
-**Browsing & filtering**
-- Category pages (Wine, Beer, Whiskey, Others) and an All Drinks view
-- Global search across all fields from the nav bar
-- Multi-select filter bar — type, country, variety, ABV range, sweetness, tags; live option counts
-- Click any cell value to instantly filter by it; dismiss individual filters via chips
-- Sort presets (Top Rated, Recently Tasted) or click any column header to sort manually
-- Color-coded chips on key columns (wine type, country Old/New World, beer style, sweetness, etc.)
-- Hide and reorder columns per category; mobile responsive throughout
-
-**My Collection**
-- `/collection` page for in-stock bottles with quantity badges and +/− controls
-- Lots model — multiple lots per drink for different prices or vintages
-- "Pick for me" randomly selects from in-stock bottles
-- "Drank it" opens the drink in Admin pre-filled and decrements the oldest lot on save
-
-**Tasting history**
-- Full tasting log per drink — date, rating, and vintage (wine) stored in `tastings[]`
-- Derived fields (`avgRating`, `lastRating`, `lastTasted`, `tastingCount`, `vintage`) are recomputed from tastings on every change; they are read-only on the review form
-- All category tables show a Tastings count column (after Avg Rating)
-- Wine table has a per-row vintage switcher (styled custom dropdown, positioned after ABV); selecting a vintage filters all derived cells live
-- Vintage filter in the wine filter bar — matches across all tasting vintages; selecting one vintage automatically syncs all per-row dropdowns
-- Tags column appears before Last Tasted in all table views by default
-
-**Admin**
-- Add, edit, and delete entries across all categories
-- Three tabs when editing: **Review**, **Collection**, and **Tastings**
-- Tastings tab: add tastings (date, rating, optional vintage); edit existing tastings inline; tastings are displayed newest-first
-- Each tasting row supports a per-tasting photo upload; the most recent tasting's image is shown as a large preview to the right of the list
-- Derived fields (Last Tasted, Last Rating, Avg Rating) are read-only on the Review tab — edit them via the Tastings tab
-- Create collection-only entries without a review from the Collection tab
-- All dropdowns use a styled custom select matching the app design
+- Category pages (Wine, Beer, Whiskey, Others), All Drinks, and Collection views
+- Filter bar, global search, column sorting, hide/reorder columns
+- Full tasting log per drink — date, rating, vintage; derived stats recomputed automatically
+- Per-row vintage switcher on the wine table; vintage filter bar syncs all rows
+- Collection management — multiple lots, quantity controls, "Pick for me", "Drank it"
+- Admin: add/edit/delete entries, manage tastings and collection lots, photo uploads per tasting
 
 ## Testing
 
