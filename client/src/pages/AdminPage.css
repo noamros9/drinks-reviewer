@@ -171,7 +171,7 @@
   border-color: var(--danger);
 }
 
-.btn-edit {
+.btn-tasting-edit {
   background: transparent;
   color: var(--accent);
   border: 1px solid var(--border);
@@ -182,7 +182,7 @@
   transition: background 0.15s, border-color 0.15s;
 }
 
-.btn-edit:hover {
+.btn-tasting-edit:hover {
   background: rgba(0, 113, 227, 0.08);
   border-color: var(--accent);
 }

@@ -468,7 +468,7 @@ export default function AdminPage() {
                       {t.imageUrl ? 'Change photo' : 'Add photo'}
                       <input type="file" accept="image/*" data-testid={`img-upload-${t.id}`} onChange={e => handleTastingImage(t.id, e.target.files[0])} />
                     </label>
-                    <button type="button" className="btn-edit btn-sm" onClick={() => startEditTasting(t)}>Edit</button>
+                    <button type="button" className="btn-tasting-edit btn-sm" onClick={() => startEditTasting(t)}>Edit</button>
                     <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteTasting(t.id)}>Remove</button>
                   </>
                 )}
