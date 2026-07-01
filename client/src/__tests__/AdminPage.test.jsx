@@ -13,7 +13,14 @@ vi.mock('react-datepicker', () => ({
   ),
 }));
 
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return { ...actual, useNavigate: () => mockNavigate };
+});
+
 beforeEach(() => {
+  mockNavigate.mockClear();
   global.fetch = vi.fn(() =>
     Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-id' }) })
   );
@@ -54,10 +61,14 @@ test('calls POST /api/wine on submit', async () => {
   });
 });
 
-test('shows success message after adding', async () => {
+test('navigates to tastings tab after adding new entry', async () => {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
   fireEvent.submit(screen.getByRole('button', { name: /^add$/i }).closest('form'));
-  expect(await screen.findByText('Entry added!')).toBeInTheDocument();
+  await waitFor(() => {
+    expect(mockNavigate).toHaveBeenCalledWith('/admin', {
+      state: { drink: { id: 'new-id' }, category: 'wine', tab: 'tastings' },
+    });
+  });
 });
 
 // ── Edit mode ────────────────────────────────────────────────────

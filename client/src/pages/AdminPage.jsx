@@ -70,7 +70,7 @@ export default function AdminPage() {
   const [newLotQty, setNewLotQty] = useState('1');
   const [newLotPrice, setNewLotPrice] = useState('');
   const [collectionMessage, setCollectionMessage] = useState('');
-  const [activeTab, setActiveTab] = useState('review');
+  const [activeTab, setActiveTab] = useState(editState?.tab || 'review');
   const drankIt = editState?.drankIt ?? false;
   const [tagInput, setTagInput] = useState('');
   const [tastings, setTastings] = useState(editState?.drink?.tastings ?? []);
@@ -79,6 +79,8 @@ export default function AdminPage() {
   const [newTastingVintage, setNewTastingVintage] = useState('');
   const [tastingsMessage, setTastingsMessage] = useState('');
   const [editingTastingId, setEditingTastingId] = useState(null);
+  const [newTastingImage, setNewTastingImage] = useState(null);
+  const newTastingImageRef = useRef(null);
   const [editTastingForm, setEditTastingForm] = useState({});
   const [allTags, setAllTags] = useState([]);
   const [colCat, setColCat] = useState('wine');
@@ -132,9 +134,11 @@ export default function AdminPage() {
       return;
     }
     if (!isEditing) {
-      setForm(emptyForm(category));
+      const newDrink = await res.json();
+      navigate('/admin', { state: { drink: newDrink, category, tab: 'tastings' } });
+      return;
     }
-    setMessage(isEditing ? 'Entry updated!' : 'Entry added!');
+    setMessage('Entry updated!');
   };
 
   const handleAddLot = async () => {
@@ -182,7 +186,7 @@ export default function AdminPage() {
         body: JSON.stringify(lotBody),
       });
     }
-    navigate('/collection');
+    navigate('/admin', { state: { drink, category: colCat, tab: 'tastings' } });
   };
 
   const handleAddTasting = async () => {
@@ -196,11 +200,28 @@ export default function AdminPage() {
     });
     if (!res.ok) { setTastingsMessage('Failed to add tasting.'); return; }
     const updated = await res.json();
-    setTastings(updated.tastings);
+
+    const imageFile = newTastingImageRef.current;
+    newTastingImageRef.current = null;
+    setNewTastingImage(null);
     setNewTastingDate(null);
     setNewTastingRating('');
     setNewTastingVintage('');
+    setTastings(updated.tastings);
     setTastingsMessage('Tasting added!');
+
+    if (imageFile) {
+      const newTastingId = updated.tastings.at(-1).id;
+      const fd = new FormData();
+      fd.append('image', imageFile);
+      const imgRes = await fetch(`/api/${category}/${form.id}/tastings/${newTastingId}/image`, { method: 'POST', body: fd });
+      if (!imgRes.ok) { setTastingsMessage('Failed to upload image.'); return; }
+      const imgUpdated = await imgRes.json();
+      const imageUrl = imgUpdated.tastings?.find(t => t.id === newTastingId)?.imageUrl;
+      if (imageUrl) {
+        setTastings(prev => prev.map(t => t.id === newTastingId ? { ...t, imageUrl } : t));
+      }
+    }
   };
 
   const handleTastingImage = async (tastingId, file) => {
@@ -496,6 +517,13 @@ export default function AdminPage() {
                 <input type="text" placeholder="e.g. 2021" value={newTastingVintage} onChange={e => setNewTastingVintage(e.target.value)} />
               </div>
             )}
+            <label
+              className={`btn-photo-add${newTastingImage ? ' has-photo' : ''}`}
+              title={newTastingImage ? newTastingImage.name : 'Add photo'}
+            >
+              {newTastingImage ? '📷 ✓' : '📷 +'}
+              <input type="file" accept="image/*" data-testid="new-tasting-img" onChange={e => { const f = e.target.files[0] || null; newTastingImageRef.current = f; setNewTastingImage(f); }} />
+            </label>
             <button type="button" className="btn-primary" onClick={handleAddTasting}>Add Tasting</button>
           </div>
           {tastingsMessage && <p className="success-message">{tastingsMessage}</p>}

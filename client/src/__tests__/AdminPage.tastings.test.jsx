@@ -163,7 +163,7 @@ test('does not show preview when most recent tasting has no image', () => {
 
 test('shows Add photo button when tasting has no image', () => {
   renderTastingsTab();
-  expect(screen.getByText(/add photo/i)).toBeInTheDocument();
+  expect(screen.getAllByText(/add photo/i).length).toBeGreaterThan(0);
 });
 
 test('shows thumbnail and Change photo when tasting has imageUrl', () => {
@@ -200,6 +200,33 @@ test('shows error when image upload fails', async () => {
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
   fireEvent.change(fileInput, { target: { files: [file] } });
   await waitFor(() => expect(screen.getByText(/failed to upload/i)).toBeInTheDocument());
+});
+
+test('add-tasting form has a photo file input', () => {
+  renderTastingsTab();
+  expect(screen.getByTestId('new-tasting-img')).toBeInTheDocument();
+});
+
+test('adding a tasting with an image uploads image to new tasting id', async () => {
+  const newTasting = { id: 't2', date: '15/03/2025', rating: 9 };
+  const updatedDrink = { ...EDIT_DRINK, tastings: [TASTING, newTasting] };
+  const updatedWithImg = { ...EDIT_DRINK, tastings: [TASTING, { ...newTasting, imageUrl: '/images/drinks/new.jpg' }] };
+  global.fetch
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })              // /api/tags on mount
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedDrink) })   // POST tasting
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedWithImg) }); // POST image
+  renderTastingsTab();
+
+  fireEvent.click(screen.getByTestId('mock-datepicker'));
+  fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '9' } });
+  const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.change(screen.getByTestId('new-tasting-img'), { target: { files: [file] } });
+  fireEvent.click(screen.getByRole('button', { name: /add tasting/i }));
+
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+    '/api/wine/1/tastings/t2/image',
+    expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
+  ));
 });
 
 // ── Inline tasting edit ───────────────────────────────────────────

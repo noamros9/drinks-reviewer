@@ -1381,5 +1381,26 @@
     "lastRating": 7.5,
     "lastTasted": "27/04/2026",
     "tastingCount": 1
+  },
+  {
+    "id": "d0b27160-d575-4262-9640-f3e3121b233c",
+    "brewery": "Franziskaner",
+    "name": "Dunkel",
+    "style": "Weissbier",
+    "country": "Germany",
+    "abv": "5",
+    "tags": [],
+    "tastings": [
+      {
+        "id": "9bf0ceb5-c489-4be8-8f64-226b4a16b627",
+        "date": "19/05/2026",
+        "rating": 8,
+        "imageUrl": "/images/drinks/9c97577c-3f2b-451f-a2c1-b8bfcf46bed6.jpg"
+      }
+    ],
+    "avgRating": 8,
+    "lastRating": 8,
+    "lastTasted": "19/05/2026",
+    "tastingCount": 1
   }
 ]

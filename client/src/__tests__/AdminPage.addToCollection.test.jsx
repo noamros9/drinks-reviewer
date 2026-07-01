@@ -65,11 +65,13 @@ test('submit then POSTs a lot to the new drink id', async () => {
   });
 });
 
-test('navigates to /collection after submit', async () => {
+test('navigates to tastings tab after submit', async () => {
   renderCollectionTab();
   fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
   await waitFor(() => {
-    expect(mockNavigate).toHaveBeenCalledWith('/collection');
+    expect(mockNavigate).toHaveBeenCalledWith('/admin', {
+      state: { drink: { id: 'new-drink' }, category: 'wine', tab: 'tastings' },
+    });
   });
 });
 
