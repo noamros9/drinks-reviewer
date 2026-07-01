@@ -12,7 +12,8 @@
     "test:client": "vitest run",
     "test": "npm run test:server && npm run test:client",
     "test:coverage": "vitest run --coverage",
-    "test:coverage:server": "jest --coverage"
+    "test:coverage:server": "jest --coverage",
+    "prepare": "node scripts/install-hooks.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
