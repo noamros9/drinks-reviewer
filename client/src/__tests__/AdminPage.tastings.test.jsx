@@ -284,6 +284,20 @@ test('vintage input appears in edit mode for wine and is editable', () => {
   expect(vintageInput).toHaveValue('2022');
 });
 
+test('photo/edit/remove buttons share one right-aligned action group regardless of category', () => {
+  const beerDrink = {
+    id: 'b1', brewery: 'BrewCo', name: 'Lager', style: 'Lager',
+    country: 'Germany', abv: '5', tags: [],
+    tastings: [{ id: 't1', date: '01/01/2024', rating: 7 }],
+  };
+  renderTastingsTab(beerDrink, 'beer');
+  const actions = document.querySelector('.tasting-row-actions');
+  expect(actions).toBeInTheDocument();
+  expect(actions.querySelector('.btn-upload-img')).toBeInTheDocument();
+  expect(actions.querySelector('.btn-tasting-edit')).toBeInTheDocument();
+  expect(actions.querySelector('.btn-danger')).toBeInTheDocument();
+});
+
 test('vintage input absent in edit mode for non-wine', () => {
   const beerDrink = {
     id: 'b1', brewery: 'BrewCo', name: 'Lager', style: 'Lager',
@@ -306,4 +320,48 @@ test('derived fields render as read-only on review tab when editing', () => {
   expect(screen.getByDisplayValue('15/03/2025')).toHaveAttribute('readonly');
   const readonlyInputs = screen.getAllByDisplayValue('8');
   readonlyInputs.forEach(el => expect(el).toHaveAttribute('readonly'));
+});
+
+test('adding a tasting updates the review tab derived fields without a reload', async () => {
+  const newTasting = { id: 't2', date: '20/04/2025', rating: 10 };
+  const updatedDrink = { ...EDIT_DRINK, tastings: [TASTING, newTasting], lastTasted: '20/04/2025', lastRating: 10, avgRating: 9 };
+  global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve(updatedDrink) });
+  renderTastingsTab();
+
+  fireEvent.click(screen.getByTestId('mock-datepicker'));
+  fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '10' } });
+  fireEvent.click(screen.getByRole('button', { name: /add tasting/i }));
+  await waitFor(() => expect(screen.getByText(/tasting added/i)).toBeInTheDocument());
+
+  fireEvent.click(screen.getByRole('button', { name: /^review$/i }));
+  expect(screen.getByDisplayValue('20/04/2025')).toBeInTheDocument();
+  expect(screen.getByDisplayValue('10')).toBeInTheDocument();
+  expect(screen.getByDisplayValue('9')).toBeInTheDocument();
+});
+
+test('removing the last tasting clears the review tab derived fields', async () => {
+  const updatedDrink = { id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '13', notionLink: '', tags: [], tastings: [] };
+  global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve(updatedDrink) });
+  renderTastingsTab();
+  fireEvent.click(screen.getByRole('button', { name: /remove/i }));
+  await waitFor(() => expect(screen.queryByText('15/03/2025')).not.toBeInTheDocument());
+
+  fireEvent.click(screen.getByRole('button', { name: /^review$/i }));
+  expect(screen.queryByText('Last Tasted')).not.toBeInTheDocument();
+  expect(screen.queryByText('Avg Rating')).not.toBeInTheDocument();
+});
+
+test('saving an edited tasting updates the review tab derived fields', async () => {
+  const updated = { ...EDIT_DRINK, tastings: [{ ...TASTING, date: '20/04/2025', rating: 9 }], lastTasted: '20/04/2025', lastRating: 9, avgRating: 9 };
+  global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve(updated) });
+  renderTastingsTab();
+  fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+  fireEvent.change(screen.getByTestId('edit-tasting-date'), { target: { value: '20/04/2025' } });
+  fireEvent.change(screen.getByTestId('edit-tasting-rating'), { target: { value: '9' } });
+  fireEvent.click(screen.getByRole('button', { name: /save/i }));
+  await waitFor(() => expect(screen.getByText('20/04/2025')).toBeInTheDocument());
+
+  fireEvent.click(screen.getByRole('button', { name: /^review$/i }));
+  expect(screen.getByDisplayValue('20/04/2025')).toBeInTheDocument();
+  expect(screen.getAllByDisplayValue('9').length).toBeGreaterThan(0);
 });

@@ -169,6 +169,8 @@ router.post('/:category/:id/tastings', async (req, res) => {
       if (!d) return null;
       const tasting = { id: randomUUID(), date, rating: Number(rating) };
       if (vintage) tasting.vintage = vintage;
+      const prevImageUrl = (d.tastings || []).at(-1)?.imageUrl;
+      if (prevImageUrl) tasting.imageUrl = prevImageUrl;
       d.tastings = [...(d.tastings || []), tasting];
       Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
       writeData(category, data);

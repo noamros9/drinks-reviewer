@@ -305,6 +305,14 @@
 
 .lot-qty { font-weight: 600; }
 .lot-date { color: var(--text-secondary); font-size: 0.8rem; margin-left: auto; }
+.tasting-vintage { color: var(--text-secondary); font-size: 0.8rem; }
+
+.tasting-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
 
 .no-lots {
   color: var(--text-secondary);
