@@ -52,6 +52,10 @@ const FIELDS = {
 
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
+// Deleting the last tasting clears these server-side rather than setting them to null,
+// so a plain spread wouldn't remove stale values already in form.
+const DERIVED_TASTING_FIELDS = ['avgRating', 'lastRating', 'lastTasted', 'tastingCount', 'vintage'];
+
 function emptyForm(category) {
   return Object.fromEntries(FIELDS[category].map(f => [f.key, f.default ?? '']));
 }
@@ -231,6 +235,14 @@ export default function AdminPage() {
     navigate('/admin', { state: { drink, category: colCat, tab: 'tastings' } });
   };
 
+  const syncFormFromDrink = (updated) => {
+    setForm(prev => ({
+      ...prev,
+      ...Object.fromEntries(DERIVED_TASTING_FIELDS.map(k => [k, undefined])),
+      ...updated,
+    }));
+  };
+
   const handleAddTasting = async () => {
     if (!newTastingDate || !newTastingRating) return;
     const body = { date: format(newTastingDate, 'dd/MM/yyyy'), rating: Number(newTastingRating) };
@@ -250,6 +262,7 @@ export default function AdminPage() {
     setNewTastingRating('');
     setNewTastingVintage('');
     setTastings(updated.tastings);
+    syncFormFromDrink(updated);
     setTastingsMessage('Tasting added!');
 
     if (imageFile) {
@@ -281,6 +294,7 @@ export default function AdminPage() {
     if (!res.ok) { setTastingsMessage('Failed to remove tasting.'); return; }
     const updated = await res.json();
     setTastings(updated.tastings);
+    syncFormFromDrink(updated);
     setTastingsMessage('Tasting removed.');
   };
 
@@ -300,6 +314,7 @@ export default function AdminPage() {
     if (!res.ok) { setTastingsMessage('Failed to update tasting.'); return; }
     const updated = await res.json();
     setTastings(updated.tastings);
+    syncFormFromDrink(updated);
     setEditingTastingId(null);
     setTastingsMessage('Tasting updated!');
   };
@@ -538,13 +553,15 @@ export default function AdminPage() {
                   <>
                     <span>{t.date}</span>
                     <span className="lot-qty">{t.rating}</span>
-                    {category === 'wine' && <span className="lot-date">{t.vintage || '—'}</span>}
-                    <label className="btn-upload-img">
-                      {t.imageUrl ? 'Change photo' : 'Add photo'}
-                      <input type="file" accept="image/*" data-testid={`img-upload-${t.id}`} onChange={e => handleTastingImage(t.id, e.target.files[0])} />
-                    </label>
-                    <button type="button" className="btn-tasting-edit btn-sm" onClick={() => startEditTasting(t)}>Edit</button>
-                    <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteTasting(t.id)}>Remove</button>
+                    {category === 'wine' && <span className="tasting-vintage">{t.vintage || '—'}</span>}
+                    <div className="tasting-row-actions">
+                      <label className="btn-upload-img">
+                        {t.imageUrl ? 'Change photo' : 'Add photo'}
+                        <input type="file" accept="image/*" data-testid={`img-upload-${t.id}`} onChange={e => handleTastingImage(t.id, e.target.files[0])} />
+                      </label>
+                      <button type="button" className="btn-tasting-edit btn-sm" onClick={() => startEditTasting(t)}>Edit</button>
+                      <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteTasting(t.id)}>Remove</button>
+                    </div>
                   </>
                 )}
               </div>

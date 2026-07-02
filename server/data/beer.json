@@ -6,20 +6,26 @@
     "style": "IPA",
     "country": "Israel",
     "abv": 7.8,
-    "lastTasted": "26/06/2025",
+    "lastTasted": "12/05/2026",
     "notionLink": "https://www.notion.so/Tropical-IPA-2236f7bc4a3380fda31bfb6989310eb4?source=copy_link",
     "tastings": [
       {
         "id": "ca35be92-062d-4b4b-bff9-9ffd42624cff",
         "date": "26/06/2025",
         "rating": 9.5,
-        "imageUrl": "/images/drinks/a4138ccf-179f-4bd5-9845-faff3e330c02.webp"
+        "imageUrl": "/images/drinks/492c3975-3155-4d23-9269-fd1219221546.jpg"
+      },
+      {
+        "id": "4bdcf698-739d-43ff-a074-7137e4afe407",
+        "date": "12/05/2026",
+        "rating": 8.5,
+        "imageUrl": "/images/drinks/e39bc70d-bb61-46a9-8ad9-f84d516aba7e.jpg"
       }
     ],
-    "tastingCount": 1,
+    "tastingCount": 2,
     "imagePath": "/images/drinks/a4138ccf-179f-4bd5-9845-faff3e330c02.webp",
-    "lastRating": 9.5,
-    "avgRating": 9.5
+    "lastRating": 8.5,
+    "avgRating": 9
   },
   {
     "id": "7fc42fcd-d042-4a34-affe-e7bcee89092f",
@@ -178,7 +184,7 @@
     "style": "Stout",
     "country": "Israel",
     "abv": 5,
-    "lastTasted": "09/08/2025",
+    "lastTasted": "05/05/2026",
     "notionLink": "https://www.notion.so/24c6f7bc4a3380489277e8cd0234890f",
     "tastings": [
       {
@@ -186,12 +192,18 @@
         "date": "09/08/2025",
         "rating": 8.5,
         "imageUrl": "/images/drinks/3d1188d1-d4be-436c-8dfd-0ddd5f319dc4.jpg"
+      },
+      {
+        "id": "eeee70c4-f354-4876-aa27-7a895ebac0e7",
+        "date": "05/05/2026",
+        "rating": 9,
+        "imageUrl": "/images/drinks/3d1188d1-d4be-436c-8dfd-0ddd5f319dc4.jpg"
       }
     ],
-    "tastingCount": 1,
+    "tastingCount": 2,
     "imagePath": "/images/drinks/3d1188d1-d4be-436c-8dfd-0ddd5f319dc4.jpg",
-    "lastRating": 8.5,
-    "avgRating": 8.5
+    "lastRating": 9,
+    "avgRating": 8.75
   },
   {
     "id": "d9b4f6ad-afd6-4f25-8914-ed6aa6371956",

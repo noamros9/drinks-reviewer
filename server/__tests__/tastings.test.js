@@ -95,6 +95,27 @@ describe('POST /api/:category/:id/tastings', () => {
     expect(res.status).toBe(201);
     expect(res.body.tastings[0].vintage).toBeUndefined();
   });
+
+  it('first tasting has no imageUrl (nothing to carry over)', async () => {
+    const drink = await createDrink('wine');
+    const res = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
+    expect(res.body.tastings[0].imageUrl).toBeUndefined();
+  });
+
+  it('carries the previous tasting\'s photo over to a new tasting added without one', async () => {
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
+    const tastingId = addRes.body.tastings[0].id;
+    const imgRes = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/${tastingId}/image`)
+      .attach('image', Buffer.from('fakepng'), { filename: 'bottle.png', contentType: 'image/png' });
+    const imageUrl = imgRes.body.tastings[0].imageUrl;
+
+    const res = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '02/02/2025', rating: 9 });
+    expect(res.body.tastings).toHaveLength(2);
+    expect(res.body.tastings[0].imageUrl).toBe(imageUrl);
+    expect(res.body.tastings[1].imageUrl).toBe(imageUrl);
+  });
 });
 
 describe('DELETE /api/:category/:id/tastings/:tastingId', () => {
