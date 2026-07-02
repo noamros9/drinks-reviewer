@@ -26,6 +26,14 @@ const ALLOWED_FIELDS = {
   others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags'],
 };
 
+// Fields a shared "bulk edit" action may overwrite across many entries at once
+const BULK_EDITABLE_FIELDS = {
+  wine:    ['wineCategory', 'sweetness', 'country', 'variety', 'region', 'tags'],
+  beer:    ['style', 'country', 'tags'],
+  whiskey: ['style', 'country', 'region', 'tags'],
+  others:  ['drinkCategory', 'style', 'country', 'tags'],
+};
+
 const DATA_DIR_PATH = process.env.DATA_DIR || path.join(__dirname, '../data');
 
 function readData(category) {
@@ -134,6 +142,43 @@ router.put('/:category/:id', async (req, res) => {
     });
     if (!updated) return res.status(404).json({ error: 'Entry not found' });
     res.json(updated);
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.patch('/:category/bulk', async (req, res) => {
+  const { category } = req.params;
+  if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  const { ids, field, value, tagAction } = req.body;
+  if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: 'ids must be a non-empty array' });
+  if (!BULK_EDITABLE_FIELDS[category]?.includes(field)) return res.status(400).json({ error: 'Field not editable in bulk' });
+  if (field === 'tags') {
+    if (tagAction !== 'add' && tagAction !== 'remove') return res.status(400).json({ error: 'tagAction must be "add" or "remove"' });
+  } else if (tagAction) {
+    return res.status(400).json({ error: 'tagAction only applies to tags' });
+  }
+  if (typeof value !== 'string' || !value) return res.status(400).json({ error: 'value is required' });
+  try {
+    const updated = await withLock(category, () => {
+      const data = readData(category);
+      const idSet = new Set(ids);
+      const affected = [];
+      for (const d of data) {
+        if (!idSet.has(d.id)) continue;
+        if (field === 'tags') {
+          const tags = new Set(d.tags || []);
+          if (tagAction === 'add') tags.add(value); else tags.delete(value);
+          d.tags = [...tags];
+        } else {
+          d[field] = value;
+        }
+        affected.push(d);
+      }
+      writeData(category, data);
+      return affected;
+    });
+    res.json({ updated });
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
   }

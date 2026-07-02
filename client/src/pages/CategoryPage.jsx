@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
+import BulkEditBar from '../components/BulkEditBar';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
 
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
@@ -33,6 +34,7 @@ export default function CategoryPage({ category }) {
   const [columnLayout, setColumnLayout] = useState(() => loadLayout(category));
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
+  const [selectedIds, setSelectedIds] = useState(new Set());
   const navigate = useNavigate();
 
   const handleSort = (key) => {
@@ -43,11 +45,34 @@ export default function CategoryPage({ category }) {
   useEffect(() => {
     setActiveFilters(buildInitialFilters(category));
     setColumnLayout(loadLayout(category));
+    setSelectedIds(new Set());
     fetch(`/api/${category}`)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(data => { if (Array.isArray(data)) setDrinks(data); })
       .catch(() => {});
   }, [category]);
+
+  const handleToggleRow = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const handleToggleAll = (ids, checked) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      ids.forEach(id => checked ? next.add(id) : next.delete(id));
+      return next;
+    });
+  };
+
+  const handleBulkApplied = (updated) => {
+    const byId = new Map(updated.map(d => [d.id, d]));
+    setDrinks(prev => prev.map(d => byId.get(d.id) ?? d));
+    setSelectedIds(new Set());
+  };
 
   const handleColumnLayoutChange = (next) => {
     setColumnLayout(next);
@@ -100,6 +125,15 @@ export default function CategoryPage({ category }) {
         columnLayout={columnLayout}
         onColumnLayoutChange={handleColumnLayoutChange}
       />
+      {selectedIds.size > 0 && (
+        <BulkEditBar
+          category={category}
+          drinks={filtered}
+          selectedIds={selectedIds}
+          onApplied={handleBulkApplied}
+          onCancel={() => setSelectedIds(new Set())}
+        />
+      )}
       <DrinkTable
         category={category}
         drinks={filtered}
@@ -112,6 +146,9 @@ export default function CategoryPage({ category }) {
         sortDir={sortDir}
         onSort={handleSort}
         activeVintage={activeFilters.vintage?.size === 1 ? [...activeFilters.vintage][0] : null}
+        selectedIds={selectedIds}
+        onToggleRow={handleToggleRow}
+        onToggleAll={handleToggleAll}
       />
     </div>
   );
