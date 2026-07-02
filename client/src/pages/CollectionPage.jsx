@@ -1,21 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DrinkTable, { COLUMNS } from '../components/DrinkTable';
+import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import ColumnPanel from '../components/ColumnPanel';
 import FilterDropdown from '../components/FilterDropdown';
-import AbvFilter from '../components/AbvFilter';
-import { buildDropdownOptions, countOptions, matchesFilters } from '../utils/filterHelpers';
+import RangeFilter from '../components/RangeFilter';
+import RangeFilterChips from '../components/RangeFilterChips';
+import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilters, RANGE_FILTER_CONFIGS } from '../utils/filterHelpers';
 import './CollectionPage.css';
 
 const STORAGE_KEY = 'drinks_columns_collection';
 const FILTERABLE = new Set(['country', '_producer']);
+const RANGE_CONFIGS = RANGE_FILTER_CONFIGS.all;
 
 function loadLayout() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const { order, hidden } = JSON.parse(raw);
-    return { order, hidden: new Set(hidden) };
+    return { order: resolveColumnOrder(order, COLUMNS['collection']), hidden: new Set(hidden) };
   } catch { return null; }
 }
 
@@ -61,8 +63,7 @@ export default function CollectionPage() {
   const [pick, setPick] = useState(null);
   const navigate = useNavigate();
   const [countryFilter, setCountryFilter] = useState(new Set());
-  const [abvMin, setAbvMin] = useState('');
-  const [abvMax, setAbvMax] = useState('');
+  const [rangeFilters, setRangeFilters] = useState(() => buildEmptyRangeFilters('all'));
   const [producerSearch, setProducerSearch] = useState('');
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
 
@@ -105,8 +106,9 @@ export default function CollectionPage() {
     saveLayout(next);
   };
 
-  const activeFilters = { producerSearch, country: countryFilter, abvMin, abvMax };
-  const hasFilter = countryFilter.size > 0 || abvMin !== '' || abvMax !== '' || producerSearch !== '';
+  const activeFilters = { producerSearch, country: countryFilter, ...rangeFilters };
+  const hasRangeFilter = Object.values(rangeFilters).some(v => v !== '');
+  const hasFilter = countryFilter.size > 0 || hasRangeFilter || producerSearch !== '';
   const visible = hasFilter ? drinks.filter(d => matchesFilters(d, activeFilters, 'all')) : drinks;
 
   const { options: countryOptions } = buildDropdownOptions(drinks, { key: 'country' });
@@ -138,11 +140,15 @@ export default function CollectionPage() {
           counts={countryCounts}
           onChange={setCountryFilter}
         />
-        <AbvFilter
-          abvMin={abvMin}
-          abvMax={abvMax}
-          onChange={({ abvMin: mn, abvMax: mx }) => { setAbvMin(mn); setAbvMax(mx); }}
-        />
+        {RANGE_CONFIGS.map(conf => (
+          <RangeFilter
+            key={conf.key}
+            config={conf}
+            min={rangeFilters[`${conf.key}Min`]}
+            max={rangeFilters[`${conf.key}Max`]}
+            onChange={(min, max) => setRangeFilters(prev => ({ ...prev, [`${conf.key}Min`]: min, [`${conf.key}Max`]: max }))}
+          />
+        ))}
         <div className="filter-bar-spacer" />
         <ColumnPanel
           allColumns={COLUMNS['collection']}
@@ -165,12 +171,11 @@ export default function CollectionPage() {
               <button onClick={() => setProducerSearch('')} aria-label="Remove producer filter">×</button>
             </span>
           )}
-          {(abvMin !== '' || abvMax !== '') && (
-            <span className="filter-chip">
-              ABV: {abvMin !== '' ? abvMin : '0'}–{abvMax !== '' ? abvMax : '∞'}
-              <button onClick={() => { setAbvMin(''); setAbvMax(''); }} aria-label="Remove ABV filter">×</button>
-            </span>
-          )}
+          <RangeFilterChips
+            configs={RANGE_CONFIGS}
+            values={rangeFilters}
+            onClear={key => setRangeFilters(prev => ({ ...prev, [`${key}Min`]: '', [`${key}Max`]: '' }))}
+          />
         </div>
       )}
 

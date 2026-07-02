@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import DrinkTable, { COLUMNS } from '../components/DrinkTable';
+import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import ColumnPanel from '../components/ColumnPanel';
 import FilterDropdown from '../components/FilterDropdown';
-import AbvFilter from '../components/AbvFilter';
-import { buildDropdownOptions, countOptions, matchesFilters } from '../utils/filterHelpers';
+import RangeFilter from '../components/RangeFilter';
+import RangeFilterChips from '../components/RangeFilterChips';
+import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilters, RANGE_FILTER_CONFIGS } from '../utils/filterHelpers';
 import './AllDrinksPage.css';
 
 const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 const STORAGE_KEY = 'drinks_columns_all';
 const FILTERABLE_ALL = new Set(['country', '_producer']);
+const RANGE_CONFIGS = RANGE_FILTER_CONFIGS.all;
 
 const PRESETS = [
   { label: 'Top rated', key: 'avgRating', dir: 'desc' },
@@ -21,7 +23,7 @@ function loadLayout() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const { order, hidden } = JSON.parse(raw);
-    return { order, hidden: new Set(hidden) };
+    return { order: resolveColumnOrder(order, COLUMNS['all']), hidden: new Set(hidden) };
   } catch { return null; }
 }
 
@@ -44,8 +46,7 @@ export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState(new Set());
-  const [abvMin, setAbvMin] = useState('');
-  const [abvMax, setAbvMax] = useState('');
+  const [rangeFilters, setRangeFilters] = useState(() => buildEmptyRangeFilters('all'));
   const [producerSearch, setProducerSearch] = useState('');
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
   const [sortKey, setSortKey] = useState(null);
@@ -62,8 +63,7 @@ export default function AllDrinksPage() {
     if (searchQuery) {
       setCountryFilter(new Set());
       setProducerSearch('');
-      setAbvMin('');
-      setAbvMax('');
+      setRangeFilters(buildEmptyRangeFilters('all'));
     }
   }, [searchQuery]);
 
@@ -87,8 +87,9 @@ export default function AllDrinksPage() {
     ? drinks
     : drinks.filter(d => d._category.toLowerCase() === filter);
 
-  const activeFilters = { producerSearch, country: countryFilter, abvMin, abvMax };
-  const hasFilter = countryFilter.size > 0 || abvMin !== '' || abvMax !== '' || producerSearch !== '';
+  const activeFilters = { producerSearch, country: countryFilter, ...rangeFilters };
+  const hasRangeFilter = Object.values(rangeFilters).some(v => v !== '');
+  const hasFilter = countryFilter.size > 0 || hasRangeFilter || producerSearch !== '';
   const filterMatched = hasFilter
     ? categoryFiltered.filter(d => matchesFilters(d, activeFilters, 'all'))
     : categoryFiltered;
@@ -135,11 +136,15 @@ export default function AllDrinksPage() {
           counts={countryCounts}
           onChange={setCountryFilter}
         />
-        <AbvFilter
-          abvMin={abvMin}
-          abvMax={abvMax}
-          onChange={({ abvMin: mn, abvMax: mx }) => { setAbvMin(mn); setAbvMax(mx); }}
-        />
+        {RANGE_CONFIGS.map(conf => (
+          <RangeFilter
+            key={conf.key}
+            config={conf}
+            min={rangeFilters[`${conf.key}Min`]}
+            max={rangeFilters[`${conf.key}Max`]}
+            onChange={(min, max) => setRangeFilters(prev => ({ ...prev, [`${conf.key}Min`]: min, [`${conf.key}Max`]: max }))}
+          />
+        ))}
         <div className="filter-bar-spacer" />
         <ColumnPanel
           allColumns={COLUMNS['all']}
@@ -147,7 +152,7 @@ export default function AllDrinksPage() {
           onChange={handleColumnLayoutChange}
         />
       </div>
-      {(countryFilter.size > 0 || abvMin !== '' || abvMax !== '' || producerSearch || searchQuery) && (
+      {(countryFilter.size > 0 || hasRangeFilter || producerSearch || searchQuery) && (
         <div className="filter-chips">
           {searchQuery && (
             <span className="filter-chip">
@@ -167,12 +172,11 @@ export default function AllDrinksPage() {
               <button onClick={() => setProducerSearch('')} aria-label="Remove producer filter">×</button>
             </span>
           )}
-          {(abvMin !== '' || abvMax !== '') && (
-            <span className="filter-chip">
-              ABV: {abvMin !== '' ? abvMin : '0'}–{abvMax !== '' ? abvMax : '∞'}
-              <button onClick={() => { setAbvMin(''); setAbvMax(''); }} aria-label="Remove ABV filter">×</button>
-            </span>
-          )}
+          <RangeFilterChips
+            configs={RANGE_CONFIGS}
+            values={rangeFilters}
+            onClear={key => setRangeFilters(prev => ({ ...prev, [`${key}Min`]: '', [`${key}Max`]: '' }))}
+          />
         </div>
       )}
       <DrinkTable

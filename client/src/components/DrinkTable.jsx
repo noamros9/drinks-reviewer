@@ -3,6 +3,14 @@ import { OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
 import CustomSelect from './CustomSelect';
 import './DrinkTable.css';
 
+// Saved layouts predate columns added later; append any column missing from a saved order
+// instead of silently dropping it.
+export function resolveColumnOrder(savedOrder, allCols) {
+  const keys = allCols.map(c => c.key);
+  if (!savedOrder) return keys;
+  return [...savedOrder, ...keys.filter(k => !savedOrder.includes(k))];
+}
+
 export function deriveFromFiltered(tastings, vintage) {
   const filtered = vintage ? tastings.filter(t => t.vintage === vintage) : tastings;
   if (!filtered.length) return {};
@@ -31,6 +39,7 @@ export const COLUMNS = {
     { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'lastRating',    label: 'Last Rating' },
     { key: 'avgRating',     label: 'Avg Rating' },
+    { key: 'vivinoScore',   label: 'Vivino' },
     { key: 'tastingCount',  label: 'Tastings' },
   ],
   beer: [
@@ -198,7 +207,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     return '';
   };
 
-  const NUMERIC_KEYS = new Set(['abv', 'lastRating', 'avgRating', 'age']);
+  const NUMERIC_KEYS = new Set(['abv', 'lastRating', 'avgRating', 'age', 'vivinoScore']);
 
   const sorted = [...drinks].sort((a, b) => {
     if (!sortKey) return 0;

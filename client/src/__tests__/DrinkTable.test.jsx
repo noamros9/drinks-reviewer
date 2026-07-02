@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import DrinkTable, { COLUMNS } from '../components/DrinkTable';
+import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 
 const WINE_ROWS = [
   { id: '1', producer: 'Citra', seriesAndName: 'Bisanzio', wineCategory: 'White', variety: 'Pinot Grigio',
@@ -7,6 +7,15 @@ const WINE_ROWS = [
   { id: '2', producer: 'Latroun', seriesAndName: 'Reserve', wineCategory: 'Red', variety: 'Merlot',
     country: 'Israel', region: 'Judean Hills', abv: '13', lastTasted: '31/05/2025', lastRating: '8.5', avgRating: '8', notionLink: '' },
 ];
+
+test('resolveColumnOrder: no saved order falls back to all column keys', () => {
+  expect(resolveColumnOrder(null, COLUMNS.wine)).toEqual(COLUMNS.wine.map(c => c.key));
+});
+
+test('resolveColumnOrder: appends columns missing from a saved (stale) order', () => {
+  const stale = COLUMNS.wine.map(c => c.key).filter(k => k !== 'vivinoScore');
+  expect(resolveColumnOrder(stale, COLUMNS.wine)).toEqual([...stale, 'vivinoScore']);
+});
 
 test('renders all default columns for wine', () => {
   render(<DrinkTable category="wine" drinks={WINE_ROWS} />);
@@ -212,6 +221,26 @@ test('sorting by abv uses numeric comparison: NaN→0 and valid→numeric, both 
   const rows = screen.getAllByRole('row');
   // Ascending: 0 (Zara), 0 (Beta), 12 (Alpha) — Alpha is last
   expect(rows[rows.length - 1]).toHaveTextContent('Alpha');
+});
+
+test('vivinoScore column renders for wine, sorts numerically, and missing values show —', () => {
+  const rows = [
+    { ...SORT_ROWS[1], vivinoScore: 3.5, id: '2' },
+    { ...SORT_ROWS[0], vivinoScore: undefined, id: '1' },
+  ];
+  render(<DrinkTable category="wine" drinks={rows} />);
+  expect(screen.getByRole('columnheader', { name: /vivino/i })).toBeInTheDocument();
+  expect(screen.getAllByText('—').length).toBeGreaterThan(0);
+  fireEvent.click(screen.getByRole('columnheader', { name: /vivino/i }));
+  const sortedRows = screen.getAllByRole('row');
+  // Ascending: missing (0) first, 3.5 (Alpha) last
+  expect(sortedRows[sortedRows.length - 1]).toHaveTextContent('Alpha');
+});
+
+test('vivinoScore is not a column for non-wine categories', () => {
+  expect(COLUMNS.beer.find(c => c.key === 'vivinoScore')).toBeUndefined();
+  expect(COLUMNS.whiskey.find(c => c.key === 'vivinoScore')).toBeUndefined();
+  expect(COLUMNS.others.find(c => c.key === 'vivinoScore')).toBeUndefined();
 });
 
 test('columnLayout.hidden as undefined (not Set, not Array) falls back to empty Set', () => {

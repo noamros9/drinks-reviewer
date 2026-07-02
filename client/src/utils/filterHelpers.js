@@ -20,6 +20,18 @@ export const PRODUCER_FIELD = {
   all:     '_producer',
 };
 
+const ABV_RANGE = { key: 'abv', label: 'ABV', unit: '%', min: 0, max: 100, step: 0.1, unbounded: true };
+const AVG_RATING_RANGE = { key: 'avgRating', label: 'Avg Rating', unit: '', min: 1, max: 10, step: 0.5 };
+const VIVINO_RANGE = { key: 'vivinoScore', label: 'Vivino', unit: '', min: 1, max: 5, step: 0.1 };
+
+export const RANGE_FILTER_CONFIGS = {
+  wine:    [ABV_RANGE, AVG_RATING_RANGE, VIVINO_RANGE],
+  beer:    [ABV_RANGE, AVG_RATING_RANGE],
+  whiskey: [ABV_RANGE, AVG_RATING_RANGE],
+  others:  [ABV_RANGE, AVG_RATING_RANGE],
+  all:     [ABV_RANGE, AVG_RATING_RANGE],
+};
+
 export const DROPDOWN_CONFIGS = {
   wine: [
     { key: 'wineCategory', label: 'Type' },
@@ -88,12 +100,14 @@ export function matchesFilters(drink, activeFilters, category) {
     if (!val.toLowerCase().includes(activeFilters.producerSearch.toLowerCase())) return false;
   }
 
-  if (activeFilters.abvMin !== '' || activeFilters.abvMax !== '') {
-    const abv = parseFloat(drink.abv);
-    if (!isNaN(abv)) {
-      if (activeFilters.abvMin !== '' && abv < parseFloat(activeFilters.abvMin)) return false;
-      if (activeFilters.abvMax !== '' && abv > parseFloat(activeFilters.abvMax)) return false;
-    }
+  for (const conf of (RANGE_FILTER_CONFIGS[category] || [])) {
+    const rangeMin = activeFilters[`${conf.key}Min`] ?? '';
+    const rangeMax = activeFilters[`${conf.key}Max`] ?? '';
+    if (rangeMin === '' && rangeMax === '') continue;
+    const val = parseFloat(drink[conf.key]);
+    if (isNaN(val)) return false;
+    if (rangeMin !== '' && val < parseFloat(rangeMin)) return false;
+    if (rangeMax !== '' && val > parseFloat(rangeMax)) return false;
   }
 
   for (const conf of (DROPDOWN_CONFIGS[category] || [])) {
@@ -182,8 +196,12 @@ export function countOptions(drinks, conf, activeFilters, category) {
   return counts;
 }
 
+export function buildEmptyRangeFilters(category) {
+  return Object.fromEntries((RANGE_FILTER_CONFIGS[category] || []).flatMap(c => [[`${c.key}Min`, ''], [`${c.key}Max`, '']]));
+}
+
 export function buildInitialFilters(category) {
-  const filters = { producerSearch: '', abvMin: '', abvMax: '' };
+  const filters = { producerSearch: '', ...buildEmptyRangeFilters(category) };
   for (const conf of (DROPDOWN_CONFIGS[category] || [])) {
     filters[conf.key] = new Set();
   }

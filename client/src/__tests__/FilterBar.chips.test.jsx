@@ -75,6 +75,32 @@ test('ABV chip appears when abvMin is "0"', () => {
   expect(screen.getByText('ABV: 0–∞')).toBeInTheDocument();
 });
 
+test('Avg Rating chip appears when avgRatingMin set, with bounded max fallback', () => {
+  renderBar({ avgRatingMin: '7' });
+  expect(screen.getByText('Avg Rating: 7–10')).toBeInTheDocument();
+});
+
+test('clicking × on Avg Rating chip clears both avgRatingMin and avgRatingMax', () => {
+  const { onChange } = renderBar({ avgRatingMin: '7', avgRatingMax: '9' });
+  fireEvent.click(screen.getByLabelText('Remove Avg Rating filter'));
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ avgRatingMin: '', avgRatingMax: '' }));
+});
+
+test('Vivino filter is available on wine', () => {
+  renderBar({}, 'wine');
+  expect(screen.getByTestId('filter-vivinoScore')).toBeInTheDocument();
+});
+
+test('Vivino filter is not available on beer', () => {
+  renderBar({}, 'beer');
+  expect(screen.queryByTestId('filter-vivinoScore')).not.toBeInTheDocument();
+});
+
+test('Vivino chip appears when vivinoScoreMin set on wine, with bounded max fallback', () => {
+  renderBar({ vivinoScoreMin: '4' }, 'wine');
+  expect(screen.getByText('Vivino: 4–5')).toBeInTheDocument();
+});
+
 test('chips from multiple filter types all render together', () => {
   renderBar({ producerSearch: 'Citra', wineCategory: new Set(['Red']), abvMin: '12' });
   expect(screen.getByText(/producer: citra/i)).toBeInTheDocument();

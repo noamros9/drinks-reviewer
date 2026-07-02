@@ -20,7 +20,7 @@ const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
 const ALLOWED_FIELDS = {
-  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'tags'],
+  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'vivinoScore', 'tags'],
   beer:    ['brewery', 'name', 'style', 'country', 'abv', 'tags'],
   whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'tags'],
   others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags'],
