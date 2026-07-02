@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import './AutocompleteInput.css';
 
-export default function AutocompleteInput({ id, name, value, onChange, suggestions = [], placeholder = '' }) {
+export default function AutocompleteInput({ id, name, value, onChange, suggestions = [], placeholder = '', className = '', onKeyDown: onKeyDownProp, inputTestId }) {
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const wrapRef = useRef(null);
@@ -21,11 +21,13 @@ export default function AutocompleteInput({ id, name, value, onChange, suggestio
   const pick = val => { onChange({ target: { name, value: val } }); setOpen(false); };
 
   const onKeyDown = e => {
-    if (!open || !filtered.length) return;
-    if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIdx(i => Math.min(i + 1, filtered.length - 1)); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIdx(i => Math.max(i - 1, -1)); }
-    else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); pick(filtered[activeIdx]); }
-    else if (e.key === 'Escape') setOpen(false);
+    if (open && filtered.length) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIdx(i => Math.min(i + 1, filtered.length - 1)); return; }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIdx(i => Math.max(i - 1, -1)); return; }
+      if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); pick(filtered[activeIdx]); return; }
+      if (e.key === 'Escape') { setOpen(false); return; }
+    }
+    onKeyDownProp?.(e);
   };
 
   return (
@@ -34,6 +36,8 @@ export default function AutocompleteInput({ id, name, value, onChange, suggestio
         id={id}
         name={name}
         type="text"
+        className={className}
+        data-testid={inputTestId}
         value={value}
         onChange={e => { onChange(e); setOpen(true); }}
         onFocus={() => setOpen(true)}
