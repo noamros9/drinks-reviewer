@@ -87,3 +87,50 @@ test('shows empty state when there are no rated drinks', () => {
   expect(screen.getByText('No rated drinks yet.')).toBeInTheDocument();
   expect(screen.queryByTestId(/^bar-/)).not.toBeInTheDocument();
 });
+
+test('percentile tiles re-render when the scope changes', () => {
+  renderSection('all');
+  // 2/5 drinks >= 7 (w1: 7.5, b1: 9, k1: 9.2 -> 3/5 = 60%)
+  expect(screen.getByText('60%')).toBeInTheDocument();
+  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  // wine only: w1 7.5 (>=7), w2 4 (not) -> 1/2 = 50%
+  expect(screen.getByText('50%')).toBeInTheDocument();
+});
+
+test('category comparison chart always shows all 4 categories regardless of scope', () => {
+  renderSection('all');
+  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
+    expect(screen.getByTestId(`bar-${cat}`)).toBeInTheDocument();
+  });
+});
+
+test('clicking a category comparison bar navigates to that category with no query string', () => {
+  renderSection('all');
+  fireEvent.click(screen.getByTestId('bar-beer'));
+  expect(mockNavigate).toHaveBeenCalledWith('/beer');
+});
+
+test('clicking a percentile tile navigates to the scoped category with only avgRatingMin set', () => {
+  renderSection('all');
+  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  fireEvent.click(screen.getByRole('button', { name: /≥ 7/ }));
+  expect(mockNavigate).toHaveBeenCalledWith('/wine?avgRatingMin=7');
+});
+
+test('clicking a consistency leaderboard drink navigates to its Admin tastings tab', () => {
+  const drinksWithTastings = [
+    ...DRINKS,
+    { id: 'w3', _category: 'wine', avgRating: 6, producer: 'X', seriesAndName: 'Steady', tastings: [{ rating: 6 }, { rating: 6 }] },
+  ];
+  render(
+    <MemoryRouter>
+      <RatingSection drinks={drinksWithTastings} globalCategory="all" />
+    </MemoryRouter>
+  );
+  // the single multi-tasting drink appears in both the Most/Least Consistent lists
+  fireEvent.click(screen.getAllByText('X Steady')[0]);
+  expect(mockNavigate).toHaveBeenCalledWith('/admin', {
+    state: { drink: drinksWithTastings[5], category: 'wine', tab: 'tastings' },
+  });
+});

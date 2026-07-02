@@ -27,7 +27,7 @@ Client → `http://localhost:5173` · Server → `http://localhost:3001`
 - Per-row vintage switcher on the wine table; vintage filter bar syncs all rows
 - Collection management — multiple lots, quantity controls, "Pick for me", "Drank it"
 - Admin: add/edit/delete entries, manage tastings and collection lots, photo uploads per tasting
-- Analytics page — rating distribution histogram, scoped by a global category filter with per-chart overrides; click a bar to jump to the filtered drink list
+- Analytics page — rating distribution histogram, percentile bands, rating trend over time, per-category comparison, and a consistency leaderboard; scoped by a global category filter with per-chart overrides; click a bar/tile to jump to the filtered drink list, or a leaderboard entry to that drink's tasting history
 
 ## Testing
 
