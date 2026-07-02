@@ -94,6 +94,32 @@ test('tags are included in POST body', async () => {
   });
 });
 
+test('vivino score input renders for wine with 1-5 range', () => {
+  renderAdmin();
+  const input = screen.getByLabelText(/vivino score/i);
+  expect(input).toBeInTheDocument();
+  expect(input).toHaveAttribute('min', '1');
+  expect(input).toHaveAttribute('max', '5');
+  expect(input).toHaveAttribute('step', '0.1');
+});
+
+test('vivino score input does not render for beer', () => {
+  renderAdmin();
+  fireEvent.click(screen.getByRole('button', { name: /^beer$/i }));
+  expect(screen.queryByLabelText(/vivino score/i)).not.toBeInTheDocument();
+});
+
+test('vivino score is included in POST body', async () => {
+  renderAdmin();
+  fireEvent.change(screen.getByLabelText(/vivino score/i), { target: { value: '4.2' } });
+  fireEvent.submit(screen.getByRole('button', { name: /^add$/i }).closest('form'));
+  await waitFor(() => {
+    const call = global.fetch.mock.calls.find(([url, opts]) => url === '/api/wine' && opts?.body);
+    const body = JSON.parse(call[1].body);
+    expect(body.vivinoScore).toBe('4.2');
+  });
+});
+
 test('edit mode shows existing tags', () => {
   renderAdmin({ category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', tags: ['organic', 'cellar'] } });
   expect(screen.getByText('organic')).toBeInTheDocument();

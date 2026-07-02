@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DrinkTable, { COLUMNS } from '../components/DrinkTable';
+import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
 
@@ -18,7 +18,7 @@ function loadLayout(category) {
     const raw = localStorage.getItem(storageKey(category));
     if (!raw) return null;
     const { order, hidden } = JSON.parse(raw);
-    return { order, hidden: new Set(hidden) };
+    return { order: resolveColumnOrder(order, COLUMNS[category] || []), hidden: new Set(hidden) };
   } catch { return null; }
 }
 

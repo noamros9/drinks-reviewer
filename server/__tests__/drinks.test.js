@@ -326,6 +326,16 @@ describe('tags field', () => {
     const res = await request(app).post('/api/beer').send({ brewery: 'B', sweetness: 'Dry' });
     expect(res.body.sweetness).toBeUndefined();
   });
+
+  it('vivinoScore is saved on wine', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X', vivinoScore: 4.2 });
+    expect(res.body.vivinoScore).toBe(4.2);
+  });
+
+  it('vivinoScore is not allowed on beer', async () => {
+    const res = await request(app).post('/api/beer').send({ brewery: 'B', vivinoScore: 4.2 });
+    expect(res.body.vivinoScore).toBeUndefined();
+  });
 });
 
 describe('GET /api/tags', () => {

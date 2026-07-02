@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import FilterDropdown from './FilterDropdown';
-import AbvFilter from './AbvFilter';
+import RangeFilter from './RangeFilter';
+import RangeFilterChips from './RangeFilterChips';
 import ColumnPanel from './ColumnPanel';
 import { COLUMNS } from './DrinkTable';
-import { DROPDOWN_CONFIGS, PRODUCER_FIELD, buildDropdownOptions, countOptions, buildInitialFilters } from '../utils/filterHelpers';
+import { DROPDOWN_CONFIGS, RANGE_FILTER_CONFIGS, PRODUCER_FIELD, buildDropdownOptions, countOptions, buildInitialFilters } from '../utils/filterHelpers';
 import './FilterBar.css';
 
 export default function FilterBar({ category, drinks, activeFilters, onChange, columnLayout, onColumnLayoutChange }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const configs = DROPDOWN_CONFIGS[category] || [];
+  const rangeConfigs = RANGE_FILTER_CONFIGS[category] || [];
   const producerLabel = { wine: 'Producer', beer: 'Brewery', whiskey: 'Distillery', others: 'Distillery' }[category] ?? 'Producer';
 
   const activeCount =
     (activeFilters.producerSearch ? 1 : 0) +
     configs.reduce((n, c) => n + (activeFilters[c.key]?.size || 0), 0) +
-    ((activeFilters.abvMin !== '' || activeFilters.abvMax !== '') ? 1 : 0);
+    rangeConfigs.reduce((n, c) => n + ((activeFilters[`${c.key}Min`] !== '' || activeFilters[`${c.key}Max`] !== '') ? 1 : 0), 0);
 
   const clearAll = () => onChange(buildInitialFilters(category));
 
@@ -54,11 +56,15 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
             />
           );
         })}
-        <AbvFilter
-          abvMin={activeFilters.abvMin ?? ''}
-          abvMax={activeFilters.abvMax ?? ''}
-          onChange={({ abvMin, abvMax }) => onChange({ ...activeFilters, abvMin, abvMax })}
-        />
+        {rangeConfigs.map(conf => (
+          <RangeFilter
+            key={conf.key}
+            config={conf}
+            min={activeFilters[`${conf.key}Min`] ?? ''}
+            max={activeFilters[`${conf.key}Max`] ?? ''}
+            onChange={(min, max) => onChange({ ...activeFilters, [`${conf.key}Min`]: min, [`${conf.key}Max`]: max })}
+          />
+        ))}
         {activeCount > 0 && (
           <button className="filter-clear-all" onClick={clearAll}>Clear all</button>
         )}
@@ -87,12 +93,11 @@ export default function FilterBar({ category, drinks, activeFilters, onChange, c
               </span>
             ))
           )}
-          {(activeFilters.abvMin !== '' || activeFilters.abvMax !== '') && (
-            <span className="filter-chip">
-              ABV: {activeFilters.abvMin !== '' ? activeFilters.abvMin : '0'}–{activeFilters.abvMax !== '' ? activeFilters.abvMax : '∞'}
-              <button onClick={() => onChange({ ...activeFilters, abvMin: '', abvMax: '' })} aria-label="Remove ABV filter">×</button>
-            </span>
-          )}
+          <RangeFilterChips
+            configs={rangeConfigs}
+            values={activeFilters}
+            onClear={key => onChange({ ...activeFilters, [`${key}Min`]: '', [`${key}Max`]: '' })}
+          />
         </div>
       )}
     </div>

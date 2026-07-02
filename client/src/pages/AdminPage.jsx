@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -17,6 +17,7 @@ const FIELDS = {
     { key: 'country',       label: 'Country of Origin',      type: 'text', autocomplete: true },
     { key: 'region',        label: 'Region / Appellation',   type: 'text', autocomplete: true },
     { key: 'abv',           label: 'ABV (%)',                type: 'number' },
+    { key: 'vivinoScore',   label: 'Vivino Score',           type: 'number', min: 1, max: 5, step: 0.1, placeholder: 'e.g. 4.2' },
     { key: 'tags',          label: 'Tags',                   type: 'tags', default: [] },
   ],
   beer: [
@@ -59,13 +60,17 @@ function emptyForm(category) {
 export default function AdminPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const editState = location.state;
 
-  const [category, setCategory] = useState(editState?.category || 'wine');
+  const initialCategory = editState?.category || searchParams.get('category');
+  const [category, setCategory] = useState(CATEGORIES.includes(initialCategory) ? initialCategory : 'wine');
   const [form, setForm] = useState(
     editState?.drink ? { ...editState.drink } : emptyForm(editState?.category || 'wine')
   );
-  const isEditing = !!editState?.drink;
+  const isEditing = !!form.id;
+  const deepLinkId = searchParams.get('id');
+  const [loadingDrink, setLoadingDrink] = useState(!!deepLinkId && !editState?.drink);
   const [message, setMessage] = useState('');
   const [lots, setLots] = useState(editState?.drink?.collection ?? []);
   const [newLotQty, setNewLotQty] = useState('1');
@@ -88,20 +93,44 @@ export default function AdminPage() {
   const [colCat, setColCat] = useState('wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
   const [colMessage, setColMessage] = useState('');
+  const [focusVivino, setFocusVivino] = useState(false);
+  const vivinoInputRef = useRef(null);
 
   useEffect(() => {
     fetch('/api/tags').then(r => r.json()).then(data => { if (Array.isArray(data)) setAllTags(data); }).catch(() => {});
   }, []);
 
   useEffect(() => {
+    if (!focusVivino || !vivinoInputRef.current) return;
+    vivinoInputRef.current.focus();
+    vivinoInputRef.current.select();
+    setFocusVivino(false);
+  }, [focusVivino]);
+
+  const idLookupDone = useRef(!deepLinkId || !!editState?.drink);
+
+  useEffect(() => {
     const keys = FIELDS[category].filter(f => f.autocomplete).map(f => f.key);
     fetch(`/api/${category}`).then(r => r.json()).then(drinks => {
+      if (!Array.isArray(drinks)) return;
       const map = {};
       keys.forEach(k => {
         map[k] = [...new Set(drinks.map(d => d[k]).filter(Boolean))].sort();
       });
       setSuggestions(map);
-    }).catch(() => {});
+
+      if (!idLookupDone.current) {
+        idLookupDone.current = true;
+        const drink = drinks.find(d => d.id === deepLinkId);
+        if (drink) {
+          setForm({ ...drink });
+          setLots(drink.collection ?? []);
+          setTastings(drink.tastings ?? []);
+          if (category === 'wine') setFocusVivino(true);
+        }
+        setLoadingDrink(false);
+      }
+    }).catch(() => { if (!idLookupDone.current) { idLookupDone.current = true; setLoadingDrink(false); } });
   }, [category]);
 
   const addTag = (key, tag) => {
@@ -365,8 +394,10 @@ export default function AdminPage() {
                 value={form[field.key] ?? ''}
                 onChange={handleChange}
                 placeholder={field.placeholder || ''}
-                min={field.type === 'number' ? 0 : undefined}
-                step={field.type === 'number' ? '0.1' : undefined}
+                min={field.type === 'number' ? (field.min ?? 0) : undefined}
+                max={field.type === 'number' ? field.max : undefined}
+                step={field.type === 'number' ? (field.step ?? 0.1) : undefined}
+                ref={field.key === 'vivinoScore' ? vivinoInputRef : undefined}
               />
             )}
           </div>
@@ -381,7 +412,7 @@ export default function AdminPage() {
         )}
 
         <div className="form-actions">
-          <button type="submit" className="btn-primary">
+          <button type="submit" className="btn-primary" disabled={loadingDrink}>
             {isEditing ? 'Update' : 'Add'}
           </button>
           {isEditing && (
@@ -391,6 +422,7 @@ export default function AdminPage() {
           )}
         </div>
 
+        {loadingDrink && <p className="success-message">Loading entry…</p>}
         {message && <p className="success-message">{message}</p>}
       </form>
       )}

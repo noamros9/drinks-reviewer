@@ -4,7 +4,7 @@ import CollectionPage from '../pages/CollectionPage';
 
 const LOT = { id: 'lot1', quantity: 2, price: 45, addedAt: '2026-01-01' };
 const WINE = { id: 'w1', _category: 'wine', producer: 'Château X', seriesAndName: 'Grand Cru', country: 'France', abv: '13', avgRating: '9', collection: [LOT] };
-const BEER = { id: 'b1', _category: 'beer', brewery: 'Brew Co', name: 'Pale Ale', country: 'UK', abv: '5', collection: [LOT] };
+const BEER = { id: 'b1', _category: 'beer', brewery: 'Brew Co', name: 'Pale Ale', country: 'UK', abv: '5', avgRating: '3', collection: [LOT] };
 
 function mockFetch(data = [WINE, BEER]) {
   global.fetch = vi.fn((url, opts) => {
@@ -109,6 +109,25 @@ test('ABV chip shows max value when only max is set', async () => {
   fireEvent.click(screen.getByTestId('filter-abv'));
   fireEvent.change(screen.getByPlaceholderText('∞'), { target: { value: '10' } });
   expect(screen.getByText(/ABV:.*10/)).toBeInTheDocument();
+});
+
+test('Avg Rating filter hides entries outside range', async () => {
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-avgRating'));
+  fireEvent.change(screen.getByTestId('avgRating-min'), { target: { value: '8' } });
+  expect(screen.getByText('Grand Cru')).toBeInTheDocument();
+  expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument();
+});
+
+test('Avg Rating chip shows bounded max when only min is set, and can be removed', async () => {
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-avgRating'));
+  fireEvent.change(screen.getByTestId('avgRating-min'), { target: { value: '8' } });
+  expect(screen.getByText('Avg Rating: 8–10')).toBeInTheDocument();
+  fireEvent.click(screen.getByLabelText('Remove Avg Rating filter'));
+  await waitFor(() => expect(screen.getByText('Pale Ale')).toBeInTheDocument());
 });
 
 test('no chips when no filters active', async () => {

@@ -61,6 +61,14 @@ test('selecting a vintage filters avgRating and tastingCount', () => {
   expect(screen.getAllByText('7').length).toBeGreaterThanOrEqual(1);
 });
 
+test('vivinoScore does not change when a vintage is selected', () => {
+  render(<DrinkTable category="wine" drinks={[{ ...WINE_WITH_TASTINGS, vivinoScore: 4.2 }]} />);
+  expect(screen.getByText('4.2')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'All' }));
+  fireEvent.mouseDown(screen.getByText('2019'));
+  expect(screen.getByText('4.2')).toBeInTheDocument();
+});
+
 test('selecting All restores full-set values', () => {
   render(<DrinkTable category="wine" drinks={[WINE_WITH_TASTINGS]} />);
   fireEvent.click(screen.getByRole('button', { name: 'All' }));

@@ -22,7 +22,8 @@
     "imagePath": "/images/drinks/5a0447ce-b8eb-45de-a3c6-28ccbc3bf46f.png",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Sweet"
+    "sweetness": "Sweet",
+    "vivinoScore": "4.0"
   },
   {
     "id": "9dee5ea6-3de4-40d1-8ba1-731e7de7c797",
@@ -47,7 +48,8 @@
     "imagePath": "/images/drinks/9dee5ea6-3de4-40d1-8ba1-731e7de7c797.jpg",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Sweet"
+    "sweetness": "Sweet",
+    "vivinoScore": "4.0"
   },
   {
     "id": "7f78e5c6-fb90-47fd-b1d0-eee7610a85b2",
@@ -81,7 +83,8 @@
     "imagePath": "/images/drinks/7f78e5c6-fb90-47fd-b1d0-eee7610a85b2.jpg",
     "lastRating": 6.5,
     "avgRating": 5.75,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.2"
   },
   {
     "id": "b4856eb4-a2c1-42a7-a414-bca6e4b08a5e",
@@ -108,7 +111,8 @@
     "imagePath": "/images/drinks/b4856eb4-a2c1-42a7-a414-bca6e4b08a5e.jpg",
     "lastRating": 6.5,
     "avgRating": 6.5,
-    "sweetness": "Off-Dry"
+    "sweetness": "Off-Dry",
+    "vivinoScore": "4.0"
   },
   {
     "id": "b473910a-d4f3-44cc-951a-a67ce711673e",
@@ -135,7 +139,8 @@
     "imagePath": "/images/drinks/b473910a-d4f3-44cc-951a-a67ce711673e.jpg",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.7"
   },
   {
     "id": "c72b1046-d670-42c2-a373-0051c7b3c4c5",
@@ -162,7 +167,8 @@
     "imagePath": "/images/drinks/c72b1046-d670-42c2-a373-0051c7b3c4c5.jpg",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.6"
   },
   {
     "id": "8369cbe6-ae29-495a-8ffb-6d5291f83a30",
@@ -189,7 +195,8 @@
     "imagePath": "/images/drinks/8369cbe6-ae29-495a-8ffb-6d5291f83a30.jpg",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.6"
   },
   {
     "id": "25d272f2-6d02-4a91-8aaa-b610f1b17782",
@@ -216,7 +223,8 @@
     "imagePath": "/images/drinks/25d272f2-6d02-4a91-8aaa-b610f1b17782.jpg",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.0"
   },
   {
     "id": "69fdb3b4-1d77-4d53-97a8-629752ab2586",
@@ -243,7 +251,8 @@
     "imagePath": "/images/drinks/69fdb3b4-1d77-4d53-97a8-629752ab2586.jpg",
     "lastRating": 8.5,
     "avgRating": 8.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.6"
   },
   {
     "id": "347750e6-fb87-494f-ad7f-daa7b0810ce3",
@@ -270,7 +279,8 @@
     "imagePath": "/images/drinks/347750e6-fb87-494f-ad7f-daa7b0810ce3.png",
     "lastRating": 5,
     "avgRating": 5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.4"
   },
   {
     "id": "8a047548-5ade-4181-929f-3fb6e6c5ec0d",
@@ -297,7 +307,8 @@
     "imagePath": "/images/drinks/8a047548-5ade-4181-929f-3fb6e6c5ec0d.png",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "14cde6db-2c15-4333-929f-f6ee85cf4484",
@@ -324,7 +335,8 @@
     "imagePath": "/images/drinks/14cde6db-2c15-4333-929f-f6ee85cf4484.png",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "11e67a8a-f11f-46bc-8f8f-7e5a4b5b8677",
@@ -358,7 +370,8 @@
     "imagePath": "/images/drinks/11e67a8a-f11f-46bc-8f8f-7e5a4b5b8677.jpg",
     "lastRating": 8,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.2"
   },
   {
     "id": "d49d0556-9743-4a3c-9da1-5c59c6f0083e",
@@ -385,7 +398,8 @@
     "imagePath": "/images/drinks/d49d0556-9743-4a3c-9da1-5c59c6f0083e.jpg",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.4"
   },
   {
     "id": "e62cc2bb-7674-4ce5-be6c-e3a1d798656a",
@@ -439,7 +453,8 @@
     "imagePath": "/images/drinks/3db88c34-1986-4cef-8112-c3a452d6da5f.png",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Off-Dry"
+    "sweetness": "Off-Dry",
+    "vivinoScore": "4.3"
   },
   {
     "id": "0480a8fe-3dcb-4a0d-a64f-059742edb4ed",
@@ -464,7 +479,8 @@
     "imagePath": "/images/drinks/0480a8fe-3dcb-4a0d-a64f-059742edb4ed.png",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "0ec97149-cf5e-43f9-8987-0dd18bc83605",
@@ -516,7 +532,8 @@
     "imagePath": "/images/drinks/60cc8a68-9d77-43f8-9ea2-862b313e73c5.png",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "c15f65c3-ea9c-4fd6-93c6-a2d5820ffca9",
@@ -543,7 +560,8 @@
     "imagePath": "/images/drinks/c15f65c3-ea9c-4fd6-93c6-a2d5820ffca9.png",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Off-Dry"
+    "sweetness": "Off-Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "38581744-3995-4510-8b17-bd6ba9b29b78",
@@ -568,7 +586,8 @@
     "imagePath": "/images/drinks/38581744-3995-4510-8b17-bd6ba9b29b78.png",
     "lastRating": 8.5,
     "avgRating": 8.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.4"
   },
   {
     "id": "2190253c-6e44-4e20-9b80-7a45af9ff1f9",
@@ -595,7 +614,8 @@
     "imagePath": "/images/drinks/2190253c-6e44-4e20-9b80-7a45af9ff1f9.jpg",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.1"
   },
   {
     "id": "4dea302d-2dcb-445a-b2c3-d9f0ed4155e5",
@@ -622,7 +642,8 @@
     "imagePath": "/images/drinks/4dea302d-2dcb-445a-b2c3-d9f0ed4155e5.jpg",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "c52b4477-376b-475e-ad92-490aa58b4743",
@@ -649,7 +670,8 @@
     "imagePath": "/images/drinks/c52b4477-376b-475e-ad92-490aa58b4743.webp",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "89e6d064-fab1-42f2-bbf3-4ed7a7aa5a03",
@@ -676,7 +698,8 @@
     "imagePath": "/images/drinks/89e6d064-fab1-42f2-bbf3-4ed7a7aa5a03.png",
     "lastRating": 6,
     "avgRating": 6,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.9"
   },
   {
     "id": "2ad7f35d-97a3-4012-9dd9-e17469cd9bda",
@@ -703,7 +726,8 @@
     "imagePath": "/images/drinks/2ad7f35d-97a3-4012-9dd9-e17469cd9bda.png",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Sweet"
+    "sweetness": "Sweet",
+    "vivinoScore": "3.5"
   },
   {
     "id": "872405f5-4565-4c0f-be29-e2a9281b0c13",
@@ -730,7 +754,8 @@
     "imagePath": "/images/drinks/872405f5-4565-4c0f-be29-e2a9281b0c13.png",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "6fa546c6-6916-49b6-813d-196d2df421c0",
@@ -757,7 +782,8 @@
     "imagePath": "/images/drinks/6fa546c6-6916-49b6-813d-196d2df421c0.png",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.5"
   },
   {
     "id": "4d8c5982-fc1c-4870-aea9-8c1560c14cd0",
@@ -784,7 +810,8 @@
     "imagePath": "/images/drinks/4d8c5982-fc1c-4870-aea9-8c1560c14cd0.png",
     "lastRating": 6.5,
     "avgRating": 6.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.3"
   },
   {
     "id": "afc1a07f-286a-4381-ac1c-26296b8c5d7d",
@@ -811,7 +838,8 @@
     "imagePath": "/images/drinks/afc1a07f-286a-4381-ac1c-26296b8c5d7d.jpg",
     "lastRating": 4.5,
     "avgRating": 4.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.4"
   },
   {
     "id": "deef07ca-3fa6-4dae-a041-d741b415935a",
@@ -838,7 +866,8 @@
     "imagePath": "/images/drinks/deef07ca-3fa6-4dae-a041-d741b415935a.png",
     "lastRating": 9,
     "avgRating": 9,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.0"
   },
   {
     "id": "3c85c15d-1e0e-46c5-8f4e-0d7d41ab606f",
@@ -865,7 +894,8 @@
     "imagePath": "/images/drinks/3c85c15d-1e0e-46c5-8f4e-0d7d41ab606f.png",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.1"
   },
   {
     "id": "3f23fd9a-92bb-4bb7-8f9d-5578271bbc71",
@@ -892,7 +922,8 @@
     "imagePath": "/images/drinks/3f23fd9a-92bb-4bb7-8f9d-5578271bbc71.jpg",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.0"
   },
   {
     "id": "1323e71e-fb9f-43a3-8c55-17cb6c697020",
@@ -919,7 +950,8 @@
     "imagePath": "/images/drinks/1323e71e-fb9f-43a3-8c55-17cb6c697020.png",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.1"
   },
   {
     "id": "ac80c0bf-4d12-4247-b587-25f04cd6f643",
@@ -946,7 +978,8 @@
     "imagePath": "/images/drinks/ac80c0bf-4d12-4247-b587-25f04cd6f643.png",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "8ca38a6b-2b71-49f8-9f57-e2d89c4ba894",
@@ -1062,7 +1095,8 @@
     "imagePath": "/images/drinks/ffbb55ed-5a8b-42d0-bd4a-20ff9015480e.png",
     "lastRating": 6,
     "avgRating": 7.1,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.9"
   },
   {
     "id": "82914159-50b2-4ab2-a16b-873da932dc63",
@@ -1096,7 +1130,8 @@
     "imagePath": "/images/drinks/82914159-50b2-4ab2-a16b-873da932dc63.jpg",
     "lastRating": 8.5,
     "avgRating": 8.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "af3e75c3-7deb-4707-8a56-8095e833ef74",
@@ -1144,7 +1179,8 @@
     "imagePath": "/images/drinks/af3e75c3-7deb-4707-8a56-8095e833ef74.jpg",
     "lastRating": 8.5,
     "avgRating": 8.38,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.6"
   },
   {
     "id": "772d68cb-fa15-4e4a-bd6e-c0c9868f65b9",
@@ -1198,7 +1234,8 @@
     "imagePath": "/images/drinks/e8fe0ef8-c1cb-4f46-b22d-755ad604aa27.webp",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.6"
   },
   {
     "id": "a1e837d1-898c-4a03-9e75-8f92d97d566a",
@@ -1225,7 +1262,8 @@
     "imagePath": "/images/drinks/a1e837d1-898c-4a03-9e75-8f92d97d566a.png",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.7"
   },
   {
     "id": "ca81b1d8-dcb8-4bc4-b120-f03ffd79a17d",
@@ -1252,7 +1290,8 @@
     "imagePath": "/images/drinks/ca81b1d8-dcb8-4bc4-b120-f03ffd79a17d.png",
     "lastRating": 9,
     "avgRating": 9,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "9efa55ff-5473-4fbd-8b86-5da278b1b6de",
@@ -1306,7 +1345,8 @@
     "imagePath": "/images/drinks/856c5be1-56f9-4495-8221-97657aecac44.jpg",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.9"
   },
   {
     "id": "95cc0755-d0f4-4757-9d3a-591fa7a39d0c",
@@ -1334,7 +1374,8 @@
     "imagePath": "/images/drinks/95cc0755-d0f4-4757-9d3a-591fa7a39d0c.png",
     "lastRating": 9,
     "avgRating": 9,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.3"
   },
   {
     "id": "5eb36f97-d9bf-4145-bf69-d36584ec9e3d",
@@ -1361,7 +1402,8 @@
     "imagePath": "/images/drinks/5eb36f97-d9bf-4145-bf69-d36584ec9e3d.jpg",
     "lastRating": 8.5,
     "avgRating": 8.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.9"
   },
   {
     "id": "7acde5eb-abc0-49a8-b25b-dbd2e2b3087a",
@@ -1388,7 +1430,8 @@
     "imagePath": "/images/drinks/7acde5eb-abc0-49a8-b25b-dbd2e2b3087a.jpg",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.2"
   },
   {
     "id": "1db34620-6cb7-4fde-8ca8-ad3c4b3c89e4",
@@ -1442,7 +1485,8 @@
     "imagePath": "/images/drinks/872d423b-f46d-4280-9b99-65b0bcc964af.jpg",
     "lastRating": 4.5,
     "avgRating": 4.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "5f1f2462-1cb4-4c34-89f7-24b0610eaae1",
@@ -1469,7 +1513,8 @@
     "imagePath": "/images/drinks/5f1f2462-1cb4-4c34-89f7-24b0610eaae1.jpg",
     "lastRating": 8.5,
     "avgRating": 8.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "ada238c4-5c72-4e86-a1d5-bc877aab50fb",
@@ -1496,7 +1541,8 @@
     "imagePath": "/images/drinks/ada238c4-5c72-4e86-a1d5-bc877aab50fb.png",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "a3bef6ef-c7e6-4d01-8e25-1d799ea87ab0",
@@ -1523,7 +1569,8 @@
     "imagePath": "/images/drinks/a3bef6ef-c7e6-4d01-8e25-1d799ea87ab0.png",
     "lastRating": 4.5,
     "avgRating": 4.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.7"
   },
   {
     "id": "122e560d-c7f3-4325-90c4-fa52abaa69a9",
@@ -1550,7 +1597,8 @@
     "imagePath": "/images/drinks/122e560d-c7f3-4325-90c4-fa52abaa69a9.jpg",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.7"
   },
   {
     "id": "a7674f43-f48e-4782-a510-240313f32dad",
@@ -1577,7 +1625,8 @@
     "imagePath": "/images/drinks/a7674f43-f48e-4782-a510-240313f32dad.jpg",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.2"
   },
   {
     "id": "1e73e24b-6170-4f4a-ac58-03bd9b686eff",
@@ -1611,7 +1660,8 @@
     "imagePath": "/images/drinks/1e73e24b-6170-4f4a-ac58-03bd9b686eff.jpg",
     "lastRating": 6,
     "avgRating": 6.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.7"
   },
   {
     "id": "d7706340-274a-49ec-aa7b-47243aced4f2",
@@ -1638,7 +1688,8 @@
     "imagePath": "/images/drinks/d7706340-274a-49ec-aa7b-47243aced4f2.jpg",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.9"
   },
   {
     "id": "27ef6c03-be29-43ad-ade1-b4bbe794c664",
@@ -1665,7 +1716,8 @@
     "imagePath": "/images/drinks/27ef6c03-be29-43ad-ade1-b4bbe794c664.png",
     "lastRating": 6,
     "avgRating": 6,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.4"
   },
   {
     "id": "3a00fb18-e9e9-4fbc-8976-557353266db4",
@@ -1692,7 +1744,8 @@
     "imagePath": "/images/drinks/3a00fb18-e9e9-4fbc-8976-557353266db4.jpg",
     "lastRating": 5.5,
     "avgRating": 5.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.3"
   },
   {
     "id": "1f72dfcb-8266-4a41-b346-4109c8a83db8",
@@ -1719,7 +1772,8 @@
     "imagePath": "/images/drinks/1f72dfcb-8266-4a41-b346-4109c8a83db8.png",
     "lastRating": 5,
     "avgRating": 5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.1"
   },
   {
     "id": "08432a8b-36ed-46dd-b72f-c9f6a626dcb8",
@@ -1773,7 +1827,8 @@
     "imagePath": "/images/drinks/258bee59-9461-4e82-b3f6-375a37cb85fc.jpg",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "e0ed3382-e5f1-4df6-9166-001ccf389c4d",
@@ -1800,7 +1855,8 @@
     "imagePath": "/images/drinks/e0ed3382-e5f1-4df6-9166-001ccf389c4d.png",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.9"
   },
   {
     "id": "d07ce06e-47a3-4804-9761-2948de3c7257",
@@ -1833,7 +1889,8 @@
     "imagePath": "/images/drinks/d07ce06e-47a3-4804-9761-2948de3c7257.jpg",
     "lastRating": 8.5,
     "avgRating": 8.75,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.9"
   },
   {
     "id": "fc4c458f-cd61-46d6-ba6b-6e0f6d1ecdf9",
@@ -1860,7 +1917,8 @@
     "imagePath": "/images/drinks/fc4c458f-cd61-46d6-ba6b-6e0f6d1ecdf9.jpg",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Sweet"
+    "sweetness": "Sweet",
+    "vivinoScore": "3.5"
   },
   {
     "id": "6608a0ef-e626-4a29-a6f8-cf2287c484db",
@@ -1887,7 +1945,8 @@
     "imagePath": "/images/drinks/6608a0ef-e626-4a29-a6f8-cf2287c484db.png",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.8"
   },
   {
     "id": "50da9214-9432-4d2a-a32b-13a218c0d121",
@@ -1941,7 +2000,8 @@
     "imagePath": "/images/drinks/3e332e54-8bb8-4193-9311-edf746477026.png",
     "lastRating": 6,
     "avgRating": 6,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "4.0"
   },
   {
     "id": "a00bf859-6ce0-4756-ba98-813a67b2bc91",
@@ -1968,7 +2028,8 @@
     "imagePath": "/images/drinks/a00bf859-6ce0-4756-ba98-813a67b2bc91.png",
     "lastRating": 3.5,
     "avgRating": 3.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.6"
   },
   {
     "id": "b542592c-d08f-46c6-98da-2854f8e22435",
@@ -1995,7 +2056,8 @@
     "imagePath": "/images/drinks/b542592c-d08f-46c6-98da-2854f8e22435.png",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.5"
   },
   {
     "id": "cafddcfe-191e-4f6e-b7cb-144ec5be3f2b",
@@ -2022,7 +2084,8 @@
     "imagePath": "/images/drinks/cafddcfe-191e-4f6e-b7cb-144ec5be3f2b.png",
     "lastRating": 8,
     "avgRating": 8,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.7"
   },
   {
     "id": "24238a6a-a298-4be1-a546-afea30e94fff",
@@ -2049,7 +2112,8 @@
     "imagePath": "/images/drinks/24238a6a-a298-4be1-a546-afea30e94fff.png",
     "lastRating": 8.5,
     "avgRating": 8.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "vivinoScore": "3.9"
   },
   {
     "id": "1193afe5-0b37-4a3a-aa4e-0b9ec39ca67a",
@@ -2127,6 +2191,7 @@
     "lastRating": 8.5,
     "lastTasted": "20/05/2026",
     "tastingCount": 1,
-    "vintage": "2023"
+    "vintage": "2023",
+    "vivinoScore": "4.2"
   }
 ]

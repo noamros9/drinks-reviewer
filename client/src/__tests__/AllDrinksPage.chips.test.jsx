@@ -84,6 +84,23 @@ test('ABV chip shows 0 fallback when only abvMax set', async () => {
   expect(screen.getByText('ABV: 0–15')).toBeInTheDocument();
 });
 
+test('Avg Rating chip appears when Avg Rating filter active, with bounded max fallback', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-avgRating'));
+  fireEvent.change(screen.getByTestId('avgRating-min'), { target: { value: '7' } });
+  expect(screen.getByText('Avg Rating: 7–10')).toBeInTheDocument();
+});
+
+test('clicking × on Avg Rating chip clears the filter', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-avgRating'));
+  fireEvent.change(screen.getByTestId('avgRating-min'), { target: { value: '7' } });
+  fireEvent.click(screen.getByLabelText('Remove Avg Rating filter'));
+  await waitFor(() => expect(document.querySelector('.filter-chips')).not.toBeInTheDocument());
+});
+
 test('search chip appears when ?q param set', async () => {
   render(
     <MemoryRouter initialEntries={['/all?q=france']}>
