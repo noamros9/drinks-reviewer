@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import CustomSelect from './CustomSelect';
+import AutocompleteInput from './AutocompleteInput';
 import { DROPDOWN_CONFIGS, buildDropdownOptions } from '../utils/filterHelpers';
 import './BulkEditBar.css';
 
@@ -40,17 +41,14 @@ export default function BulkEditBar({ category, drinks, selectedIds, onApplied, 
         onChange={label => { setFieldLabel(label); setValue(''); }}
         options={bulkConfigs.map(c => c.label)}
       />
-      <input
-        list="bulk-edit-datalist"
+      <AutocompleteInput
         value={value}
         onChange={e => setValue(e.target.value)}
         placeholder={isTags ? 'Tag' : activeConfig?.label}
         className="bulk-edit-value-input"
-        data-testid="bulk-edit-value"
+        suggestions={suggestions}
+        inputTestId="bulk-edit-value"
       />
-      <datalist id="bulk-edit-datalist">
-        {suggestions.map(s => <option key={s} value={s} />)}
-      </datalist>
       {isTags ? (
         <>
           <button type="button" className="bulk-edit-btn" disabled={!value} onClick={() => apply('add')}>Add to {count}</button>

@@ -17,8 +17,12 @@
   white-space: nowrap;
 }
 
-.bulk-edit-value-input {
+.bulk-edit-bar .autocomplete-wrap {
   width: 10rem;
+}
+
+.bulk-edit-value-input {
+  width: 100%;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);

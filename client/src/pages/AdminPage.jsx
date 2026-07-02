@@ -368,8 +368,8 @@ export default function AdminPage() {
                     </span>
                   ))}
                 </div>
-                <input
-                  list="tags-datalist"
+                <AutocompleteInput
+                  name="tagInput"
                   value={tagInput}
                   onChange={e => setTagInput(e.target.value)}
                   onKeyDown={e => {
@@ -379,11 +379,9 @@ export default function AdminPage() {
                       setTagInput('');
                     }
                   }}
+                  suggestions={allTags}
                   placeholder="Type a tag and press Enter"
                 />
-                <datalist id="tags-datalist">
-                  {allTags.map(t => <option key={t} value={t} />)}
-                </datalist>
               </div>
             ) : field.type === 'select' ? (
               <CustomSelect
