@@ -24,3 +24,16 @@
   color: var(--text-secondary);
   margin-right: 0.15rem;
 }
+
+.analytics-subsection-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 2rem 0 0.75rem;
+}
+
+.scope-note {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+}

@@ -1,0 +1,13 @@
+.trend-line-tooltip {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.trend-line-tooltip strong {
+  font-size: 0.95rem;
+}
