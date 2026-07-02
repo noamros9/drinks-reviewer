@@ -5,7 +5,7 @@ import ColumnPanel from '../components/ColumnPanel';
 import FilterDropdown from '../components/FilterDropdown';
 import RangeFilter from '../components/RangeFilter';
 import RangeFilterChips from '../components/RangeFilterChips';
-import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilters, RANGE_FILTER_CONFIGS } from '../utils/filterHelpers';
+import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilters, RANGE_FILTER_CONFIGS, applyUrlRangeOverrides } from '../utils/filterHelpers';
 import './AllDrinksPage.css';
 
 const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
@@ -46,12 +46,12 @@ export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState(new Set());
-  const [rangeFilters, setRangeFilters] = useState(() => buildEmptyRangeFilters('all'));
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [rangeFilters, setRangeFilters] = useState(() => applyUrlRangeOverrides(buildEmptyRangeFilters('all'), searchParams, 'all'));
   const [producerSearch, setProducerSearch] = useState('');
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
-  const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = (searchParams.get('q') || '').toLowerCase().trim();
 
   const handleSort = (key) => {

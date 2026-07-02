@@ -186,3 +186,14 @@ test('selecting exactly one vintage filter syncs all per-row vintage dropdowns',
     expect(screen.getByRole('button', { name: '2021' })).toBeInTheDocument();
   });
 });
+
+test('avgRatingMin/Max query params pre-populate the Avg Rating range filter', async () => {
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([]) }));
+  render(
+    <MemoryRouter initialEntries={['/wine?avgRatingMin=7&avgRatingMax=8']}>
+      <CategoryPage category="wine" />
+    </MemoryRouter>
+  );
+  await screen.findByText(/no entries yet/i);
+  expect(screen.getByTestId('filter-avgRating')).toHaveTextContent('Avg Rating 7–8');
+});

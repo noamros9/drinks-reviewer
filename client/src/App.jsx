@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
 import AllDrinksPage from './pages/AllDrinksPage';
 import CollectionPage from './pages/CollectionPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 import AdminPage from './pages/AdminPage';
 
 function AdminRoute() {
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/beer" element={<CategoryPage category="beer" />} />
           <Route path="/whiskey" element={<CategoryPage category="whiskey" />} />
           <Route path="/others" element={<CategoryPage category="others" />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/admin" element={<AdminRoute />} />
         </Routes>
       </main>

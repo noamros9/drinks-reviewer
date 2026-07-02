@@ -9,6 +9,7 @@ const NAV = [
   { path: '/beer', label: 'Beer' },
   { path: '/whiskey', label: 'Whiskey' },
   { path: '/others', label: 'Others' },
+  { path: '/analytics', label: 'Analytics' },
   { path: '/admin', label: 'Admin' },
 ];
 

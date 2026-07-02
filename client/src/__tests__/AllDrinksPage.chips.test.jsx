@@ -139,3 +139,12 @@ test('ABV chip × clears when abvMin is "0"', async () => {
   fireEvent.click(screen.getByLabelText('Remove ABV filter'));
   await waitFor(() => expect(document.querySelector('.filter-chips')).not.toBeInTheDocument());
 });
+
+test('avgRatingMin/Max query params pre-populate the Avg Rating range filter', async () => {
+  render(
+    <MemoryRouter initialEntries={['/all?avgRatingMin=7&avgRatingMax=8']}>
+      <AllDrinksPage />
+    </MemoryRouter>
+  );
+  expect(await screen.findByTestId('filter-avgRating')).toHaveTextContent('Avg Rating 7–8');
+});

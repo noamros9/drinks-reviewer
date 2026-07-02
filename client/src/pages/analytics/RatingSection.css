@@ -1,0 +1,26 @@
+.analytics-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.analytics-section-header .category-tabs {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+  gap: 0.4rem;
+}
+
+.analytics-section-header .category-tabs button {
+  padding: 0.2rem 0.65rem;
+  font-size: 0.75rem;
+}
+
+.scope-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-right: 0.15rem;
+}

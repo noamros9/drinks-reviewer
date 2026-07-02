@@ -207,3 +207,14 @@ export function buildInitialFilters(category) {
   }
   return filters;
 }
+
+export function applyUrlRangeOverrides(filters, searchParams, category) {
+  const result = { ...filters };
+  for (const conf of (RANGE_FILTER_CONFIGS[category] || [])) {
+    const min = searchParams.get(`${conf.key}Min`);
+    const max = searchParams.get(`${conf.key}Max`);
+    if (min != null) result[`${conf.key}Min`] = min;
+    if (max != null) result[`${conf.key}Max`] = max;
+  }
+  return result;
+}

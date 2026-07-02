@@ -19,6 +19,7 @@ test('renders all nav links', () => {
   expect(screen.getByText('Beer')).toBeInTheDocument();
   expect(screen.getByText('Whiskey')).toBeInTheDocument();
   expect(screen.getByText('Others')).toBeInTheDocument();
+  expect(screen.getByText('Analytics')).toBeInTheDocument();
   expect(screen.getByText('Admin')).toBeInTheDocument();
 });
 
