@@ -23,7 +23,10 @@
     "lastRating": 7.5,
     "avgRating": 7.5,
     "sweetness": "Sweet",
-    "vivinoScore": "4.0"
+    "vivinoScore": "4.0",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "9dee5ea6-3de4-40d1-8ba1-731e7de7c797",
@@ -49,7 +52,10 @@
     "lastRating": 7,
     "avgRating": 7,
     "sweetness": "Sweet",
-    "vivinoScore": "4.0"
+    "vivinoScore": "4.0",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "7f78e5c6-fb90-47fd-b1d0-eee7610a85b2",
@@ -84,7 +90,10 @@
     "lastRating": 6.5,
     "avgRating": 5.75,
     "sweetness": "Dry",
-    "vivinoScore": "3.2"
+    "vivinoScore": "3.2",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "b4856eb4-a2c1-42a7-a414-bca6e4b08a5e",
@@ -112,7 +121,10 @@
     "lastRating": 6.5,
     "avgRating": 6.5,
     "sweetness": "Off-Dry",
-    "vivinoScore": "4.0"
+    "vivinoScore": "4.0",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "b473910a-d4f3-44cc-951a-a67ce711673e",
@@ -371,7 +383,10 @@
     "lastRating": 8,
     "avgRating": 7.5,
     "sweetness": "Dry",
-    "vivinoScore": "3.2"
+    "vivinoScore": "3.2",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "d49d0556-9743-4a3c-9da1-5c59c6f0083e",
@@ -399,7 +414,10 @@
     "lastRating": 7.5,
     "avgRating": 7.5,
     "sweetness": "Dry",
-    "vivinoScore": "3.4"
+    "vivinoScore": "3.4",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "e62cc2bb-7674-4ce5-be6c-e3a1d798656a",
@@ -426,7 +444,10 @@
     "imagePath": "/images/drinks/e62cc2bb-7674-4ce5-be6c-e3a1d798656a.jpg",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "3db88c34-1986-4cef-8112-c3a452d6da5f",
@@ -454,7 +475,10 @@
     "lastRating": 7.5,
     "avgRating": 7.5,
     "sweetness": "Off-Dry",
-    "vivinoScore": "4.3"
+    "vivinoScore": "4.3",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "0480a8fe-3dcb-4a0d-a64f-059742edb4ed",
@@ -507,7 +531,10 @@
     "imagePath": "/images/drinks/0ec97149-cf5e-43f9-8987-0dd18bc83605.jpg",
     "lastRating": 7.5,
     "avgRating": 7.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "60cc8a68-9d77-43f8-9ea2-862b313e73c5",
@@ -533,7 +560,10 @@
     "lastRating": 8,
     "avgRating": 8,
     "sweetness": "Dry",
-    "vivinoScore": "3.8"
+    "vivinoScore": "3.8",
+    "tags": [
+      "restaurant"
+    ]
   },
   {
     "id": "c15f65c3-ea9c-4fd6-93c6-a2d5820ffca9",
@@ -587,7 +617,10 @@
     "lastRating": 8.5,
     "avgRating": 8.5,
     "sweetness": "Dry",
-    "vivinoScore": "3.4"
+    "vivinoScore": "3.4",
+    "tags": [
+      "restaurant"
+    ]
   },
   {
     "id": "2190253c-6e44-4e20-9b80-7a45af9ff1f9",
@@ -727,7 +760,10 @@
     "lastRating": 7.5,
     "avgRating": 7.5,
     "sweetness": "Sweet",
-    "vivinoScore": "3.5"
+    "vivinoScore": "3.5",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "872405f5-4565-4c0f-be29-e2a9281b0c13",
@@ -811,7 +847,10 @@
     "lastRating": 6.5,
     "avgRating": 6.5,
     "sweetness": "Dry",
-    "vivinoScore": "3.3"
+    "vivinoScore": "3.3",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "afc1a07f-286a-4381-ac1c-26296b8c5d7d",
@@ -1013,7 +1052,10 @@
     "imagePath": "/images/drinks/8ca38a6b-2b71-49f8-9f57-e2d89c4ba894.jpg",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "f38a08aa-ba6d-4145-9182-e6753e3beda4",
@@ -1040,7 +1082,10 @@
     "imagePath": "/images/drinks/f38a08aa-ba6d-4145-9182-e6753e3beda4.jpg",
     "lastRating": 7,
     "avgRating": 7,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "ffbb55ed-5a8b-42d0-bd4a-20ff9015480e",
@@ -1096,7 +1141,10 @@
     "lastRating": 6,
     "avgRating": 7.1,
     "sweetness": "Dry",
-    "vivinoScore": "3.9"
+    "vivinoScore": "3.9",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "82914159-50b2-4ab2-a16b-873da932dc63",
@@ -1131,7 +1179,10 @@
     "lastRating": 8.5,
     "avgRating": 8.5,
     "sweetness": "Dry",
-    "vivinoScore": "3.8"
+    "vivinoScore": "3.8",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "af3e75c3-7deb-4707-8a56-8095e833ef74",
@@ -1458,7 +1509,10 @@
     "imagePath": "/images/drinks/1db34620-6cb7-4fde-8ca8-ad3c4b3c89e4.jpg",
     "lastRating": 6.5,
     "avgRating": 6.5,
-    "sweetness": "Dry"
+    "sweetness": "Dry",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "872d423b-f46d-4280-9b99-65b0bcc964af",
@@ -1486,7 +1540,10 @@
     "lastRating": 4.5,
     "avgRating": 4.5,
     "sweetness": "Dry",
-    "vivinoScore": "3.8"
+    "vivinoScore": "3.8",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "5f1f2462-1cb4-4c34-89f7-24b0610eaae1",
@@ -1570,7 +1627,10 @@
     "lastRating": 4.5,
     "avgRating": 4.5,
     "sweetness": "Dry",
-    "vivinoScore": "3.7"
+    "vivinoScore": "3.7",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "122e560d-c7f3-4325-90c4-fa52abaa69a9",
@@ -1598,7 +1658,10 @@
     "lastRating": 8,
     "avgRating": 8,
     "sweetness": "Dry",
-    "vivinoScore": "3.7"
+    "vivinoScore": "3.7",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "a7674f43-f48e-4782-a510-240313f32dad",
@@ -1626,7 +1689,10 @@
     "lastRating": 7.5,
     "avgRating": 7.5,
     "sweetness": "Dry",
-    "vivinoScore": "4.2"
+    "vivinoScore": "4.2",
+    "tags": [
+      "restaurant"
+    ]
   },
   {
     "id": "1e73e24b-6170-4f4a-ac58-03bd9b686eff",
@@ -1661,7 +1727,10 @@
     "lastRating": 6,
     "avgRating": 6.5,
     "sweetness": "Dry",
-    "vivinoScore": "3.7"
+    "vivinoScore": "3.7",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "d7706340-274a-49ec-aa7b-47243aced4f2",
@@ -1773,7 +1842,10 @@
     "lastRating": 5,
     "avgRating": 5,
     "sweetness": "Dry",
-    "vivinoScore": "4.1"
+    "vivinoScore": "4.1",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "08432a8b-36ed-46dd-b72f-c9f6a626dcb8",
@@ -1946,7 +2018,10 @@
     "lastRating": 7,
     "avgRating": 7,
     "sweetness": "Dry",
-    "vivinoScore": "3.8"
+    "vivinoScore": "3.8",
+    "tags": [
+      "drank-as-guest"
+    ]
   },
   {
     "id": "50da9214-9432-4d2a-a32b-13a218c0d121",
@@ -2125,7 +2200,9 @@
     "country": "Israel",
     "region": "",
     "abv": "13",
-    "tags": [],
+    "tags": [
+      "event"
+    ],
     "tastings": [
       {
         "id": "1b82351b-0e4b-444f-9564-147e26234cef",
@@ -2151,7 +2228,9 @@
     "country": "Israel",
     "region": "",
     "abv": "12",
-    "tags": [],
+    "tags": [
+      "event"
+    ],
     "tastings": [
       {
         "id": "cfccab41-65b4-4630-b8d3-909b151e0d31",

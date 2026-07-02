@@ -387,6 +387,10 @@ describe('500 error handling when data file is corrupt', () => {
   it('DELETE /api/wine/:id returns 500', async () => {
     expect((await request(app).delete('/api/wine/any-id')).status).toBe(500);
   });
+  it('PATCH /api/wine/bulk returns 500', async () => {
+    const res = await request(app).patch('/api/wine/bulk').send({ ids: ['any-id'], field: 'region', value: 'X' });
+    expect(res.status).toBe(500);
+  });
   it('POST /api/wine/:id/tastings returns 500', async () => {
     expect((await request(app).post('/api/wine/any-id/tastings').send({ date: '01/01/2025', rating: 7 })).status).toBe(500);
   });

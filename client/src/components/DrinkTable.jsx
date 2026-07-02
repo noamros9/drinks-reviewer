@@ -102,7 +102,7 @@ export const COLUMNS = {
   ],
 };
 
-export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort, activeVintage }) {
+export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort, activeVintage, selectedIds, onToggleRow, onToggleAll }) {
   const [intKey, setIntKey] = useState(null);
   const [intDir, setIntDir] = useState('asc');
   const sortKey = onSort !== undefined ? propSortKey : intKey;
@@ -234,11 +234,23 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     return <p className="empty-state">No entries yet. Add one via Admin.</p>;
   }
 
+  const allSelected = selectedIds && sorted.length > 0 && sorted.every(d => selectedIds.has(d.id));
+
   return (
     <div className="table-wrapper">
       <table>
         <thead>
           <tr>
+            {selectedIds && (
+              <th>
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={() => onToggleAll(sorted.map(d => d.id), !allSelected)}
+                  aria-label="Select all rows"
+                />
+              </th>
+            )}
             {visibleCols.map(col => (
               <th
                 key={col.key}
@@ -276,6 +288,16 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
               : [];
             return (
             <tr key={drink.id}>
+              {selectedIds && (
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(drink.id)}
+                    onChange={() => onToggleRow(drink.id)}
+                    aria-label={`Select row ${drink.id}`}
+                  />
+                </td>
+              )}
               {visibleCols.map(col => {
                 const raw = (derived && ['avgRating','lastRating','lastTasted','tastingCount'].includes(col.key))
                   ? derived[col.key]
