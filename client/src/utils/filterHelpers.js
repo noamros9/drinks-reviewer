@@ -218,3 +218,12 @@ export function applyUrlRangeOverrides(filters, searchParams, category) {
   }
   return result;
 }
+
+export function applyUrlDropdownOverrides(filters, searchParams, category) {
+  const result = { ...filters };
+  for (const conf of (DROPDOWN_CONFIGS[category] || [])) {
+    const value = searchParams.get(conf.key);
+    if (value != null) result[conf.key] = new Set([...(result[conf.key] ?? []), value]);
+  }
+  return result;
+}

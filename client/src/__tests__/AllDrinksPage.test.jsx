@@ -76,6 +76,18 @@ test('country filter narrows visible entries', async () => {
   });
 });
 
+test('a ?country=X URL param pre-selects that country in the filter', async () => {
+  render(
+    <MemoryRouter initialEntries={['/all?country=France']}>
+      <AllDrinksPage />
+    </MemoryRouter>
+  );
+  await waitFor(() => {
+    expect(screen.getByText('Grand Cru')).toBeInTheDocument();
+    expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument();
+  });
+});
+
 test('loads column layout from localStorage', async () => {
   const { COLUMNS } = await import('../components/DrinkTable');
   localStorage.setItem('drinks_columns_all', JSON.stringify({

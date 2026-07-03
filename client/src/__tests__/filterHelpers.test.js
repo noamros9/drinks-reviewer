@@ -1,4 +1,4 @@
-import { matchesFilters, buildDropdownOptions, countOptions, splitVarieties, isBlend, buildInitialFilters, OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
+import { matchesFilters, buildDropdownOptions, countOptions, splitVarieties, isBlend, buildInitialFilters, OLD_WORLD, NEW_WORLD, applyUrlDropdownOverrides } from '../utils/filterHelpers';
 
 const wine = (overrides) => ({
   id: '1', producer: 'TestProd', wineCategory: 'Red', variety: 'Cabernet Sauvignon',
@@ -384,4 +384,30 @@ test('countOptions vintageFromTastings: counts wines per unique vintage', () => 
   expect(counts['2019']).toBe(1);
   expect(counts['2021']).toBe(2);
   expect(counts['2022']).toBeUndefined();
+});
+
+describe('applyUrlDropdownOverrides', () => {
+  test('adds a URL param value into the matching dropdown filter Set', () => {
+    const filters = buildInitialFilters('wine');
+    const result = applyUrlDropdownOverrides(filters, new URLSearchParams('country=Italy'), 'wine');
+    expect(result.country).toEqual(new Set(['Italy']));
+  });
+
+  test('merges with existing Set members rather than replacing them', () => {
+    const filters = { ...buildInitialFilters('wine'), country: new Set(['France']) };
+    const result = applyUrlDropdownOverrides(filters, new URLSearchParams('country=Italy'), 'wine');
+    expect(result.country).toEqual(new Set(['France', 'Italy']));
+  });
+
+  test('a param key not present in that category\'s DROPDOWN_CONFIGS is a no-op', () => {
+    const filters = buildInitialFilters('beer');
+    const result = applyUrlDropdownOverrides(filters, new URLSearchParams('region=Speyside'), 'beer');
+    expect(result).toEqual(filters);
+  });
+
+  test('absent query param leaves the filter untouched', () => {
+    const filters = buildInitialFilters('wine');
+    const result = applyUrlDropdownOverrides(filters, new URLSearchParams(''), 'wine');
+    expect(result).toEqual(filters);
+  });
 });

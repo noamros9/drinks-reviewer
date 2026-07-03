@@ -4,6 +4,7 @@ const path = require('path');
 const { randomUUID } = require('crypto');
 const multer = require('multer');
 const { computeFromTastings } = require('../tastingsHelper');
+const { ensureRegionCoordinates, readCoordinates } = require('../geocoding');
 
 const IMAGES_DIR_PATH = process.env.IMAGES_DIR || path.join(__dirname, '../../client/public/images/drinks');
 
@@ -57,6 +58,18 @@ function pickFields(body, category, partial = false) {
   );
 }
 
+const REGION_CATEGORIES = new Set(Object.keys(ALLOWED_FIELDS).filter(c => ALLOWED_FIELDS[c].includes('region')));
+
+// Best-effort: a geocoding failure must never turn a successful drink save into an error response.
+async function maybeGeocodeRegion(category, entry) {
+  if (!REGION_CATEGORIES.has(category) || !entry.country || !entry.region) return;
+  try {
+    await ensureRegionCoordinates(entry.country, entry.region);
+  } catch {
+    // ensureRegionCoordinates already swallows its own errors; this is defense in depth
+  }
+}
+
 // Per-category write locks to prevent concurrent read-modify-write races
 const writeLocks = {};
 async function withLock(category, fn) {
@@ -77,6 +90,10 @@ router.get('/tags', (_req, res) => {
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
   }
+});
+
+router.get('/region-coordinates', (_req, res) => {
+  res.json(readCoordinates());
 });
 
 router.get('/collection', (req, res) => {
@@ -118,6 +135,7 @@ router.post('/:category', async (req, res) => {
       writeData(category, data);
       return newEntry;
     });
+    await maybeGeocodeRegion(category, entry);
     res.status(201).json(entry);
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
@@ -141,6 +159,7 @@ router.put('/:category/:id', async (req, res) => {
       return data[index];
     });
     if (!updated) return res.status(404).json({ error: 'Entry not found' });
+    await maybeGeocodeRegion(category, updated);
     res.json(updated);
   } catch {
     res.status(500).json({ error: 'Data unavailable' });

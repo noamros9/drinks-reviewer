@@ -26,6 +26,7 @@ beforeEach(() => {
   ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
     fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
   });
+  fs.writeFileSync(path.join(tmpDir, 'region-coordinates.json'), '{}');
 });
 
 describe('GET /api/:category', () => {
@@ -358,6 +359,60 @@ describe('GET /api/tags', () => {
     await request(app).post('/api/beer').send({ brewery: 'B', tags: ['organic', 'cellar'] });
     const res = await request(app).get('/api/tags');
     expect(res.body).toEqual(['cellar', 'gift', 'organic']);
+  });
+});
+
+describe('GET /api/region-coordinates', () => {
+  it('returns {} when nothing has been geocoded yet', async () => {
+    const res = await request(app).get('/api/region-coordinates');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({});
+  });
+
+  it('returns the cached coordinates file contents', async () => {
+    fs.writeFileSync(path.join(tmpDir, 'region-coordinates.json'), JSON.stringify({ 'Spain||Rioja': { lat: 1, lon: 2 } }));
+    const res = await request(app).get('/api/region-coordinates');
+    expect(res.body).toEqual({ 'Spain||Rioja': { lat: 1, lon: 2 } });
+  });
+});
+
+describe('region geocoding hook on save', () => {
+  beforeEach(() => {
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([{ lat: '42.4', lon: '-2.4' }]) });
+  });
+
+  afterEach(() => {
+    delete global.fetch;
+  });
+
+  it('geocodes a new wine entry with both country and region set', async () => {
+    await request(app).post('/api/wine').send({ producer: 'X', country: 'Spain', region: 'Rioja' });
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    const coords = JSON.parse(fs.readFileSync(path.join(tmpDir, 'region-coordinates.json'), 'utf8'));
+    expect(coords['Spain||Rioja']).toEqual({ lat: 42.4, lon: -2.4 });
+  });
+
+  it('geocodes a whiskey entry updated to add both country and region', async () => {
+    const { body: drink } = await request(app).post('/api/whiskey').send({ distillery: 'X' });
+    await request(app).put(`/api/whiskey/${drink.id}`).send({ distillery: 'X', country: 'Scotland', region: 'Speyside' });
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not geocode when only one of country/region is set', async () => {
+    await request(app).post('/api/wine').send({ producer: 'X', country: 'Spain' });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('does not geocode categories with no region field (beer/others)', async () => {
+    await request(app).post('/api/beer').send({ brewery: 'X', country: 'Germany' });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+
+  it('a geocoding failure still returns a successful save response', async () => {
+    global.fetch = jest.fn().mockRejectedValue(new Error('network down'));
+    const res = await request(app).post('/api/wine').send({ producer: 'X', country: 'Spain', region: 'Rioja' });
+    expect(res.status).toBe(201);
+    expect(res.body.producer).toBe('X');
   });
 });
 

@@ -45,8 +45,11 @@ function normalize(entries, category) {
 export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
-  const [countryFilter, setCountryFilter] = useState(new Set());
   const [searchParams, setSearchParams] = useSearchParams();
+  const [countryFilter, setCountryFilter] = useState(() => {
+    const c = searchParams.get('country');
+    return c ? new Set([c]) : new Set();
+  });
   const [rangeFilters, setRangeFilters] = useState(() => applyUrlRangeOverrides(buildEmptyRangeFilters('all'), searchParams, 'all'));
   const [producerSearch, setProducerSearch] = useState('');
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
