@@ -21,3 +21,13 @@ test('uses singular "drink" for a count of 1', () => {
   render(<HistogramTooltip active payload={[{ payload: { min: 7, max: 8, count: 1 } }]} />);
   expect(screen.getByText(/drink rated 7–8/)).toBeInTheDocument();
 });
+
+test('custom describe prop overrides the default text', () => {
+  render(
+    <HistogramTooltip
+      active payload={[{ payload: { min: 4, max: 8, count: 2 } }]}
+      describe={(count, min, max) => `${count === 1 ? 'drink' : 'drinks'} with ABV ${min}–${max}%`}
+    />
+  );
+  expect(screen.getByText(/drinks with ABV 4–8%/)).toBeInTheDocument();
+});

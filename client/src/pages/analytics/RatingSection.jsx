@@ -75,7 +75,12 @@ export default function RatingSection({ drinks, globalCategory }) {
             <h3 className="analytics-subsection-title">
               By Category <span className="scope-note">(always all categories)</span>
             </h3>
-            <CategoryBarChart data={comparison} onBarClick={handleCategoryBarClick} />
+            <CategoryBarChart
+              data={comparison} onBarClick={handleCategoryBarClick}
+              dataKey="avgRating" domain={[0, 10]} emptyLabel="no rated drinks"
+              describeBar={(label, value) => `${label}: average rating ${value}`}
+              describeTooltip={(label, value, count) => <><strong>{value}</strong> avg — {label} ({count} rated)</>}
+            />
 
             <h3 className="analytics-subsection-title">Consistency</h3>
             <ConsistencyLeaderboard {...leaderboard} onSelectDrink={handleSelectDrink} />

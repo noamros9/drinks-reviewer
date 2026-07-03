@@ -54,14 +54,62 @@ export function buildRatingTrend(drinks) {
 
 const COMPARISON_CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
-export function buildCategoryComparison(drinks) {
+function categoryComparison(drinks, getValue, valueKey) {
   return COMPARISON_CATEGORIES.map(category => {
-    const rated = drinks.filter(d => d._category === category && typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating));
-    const avgRating = rated.length
-      ? Math.round((rated.reduce((s, d) => s + d.avgRating, 0) / rated.length) * 100) / 100
+    const values = drinks
+      .filter(d => d._category === category)
+      .map(getValue)
+      .filter(v => typeof v === 'number' && !Number.isNaN(v));
+    const avg = values.length
+      ? Math.round((values.reduce((s, v) => s + v, 0) / values.length) * 100) / 100
       : 0;
-    return { category, avgRating, count: rated.length };
+    return { category, [valueKey]: avg, count: values.length };
   });
+}
+
+export function buildCategoryComparison(drinks) {
+  return categoryComparison(drinks, d => d.avgRating, 'avgRating');
+}
+
+export function buildAbvCategoryComparison(drinks) {
+  return categoryComparison(drinks, numericAbv, 'avgAbv');
+}
+
+function numericAbv(drink) {
+  const n = Number(drink.abv);
+  return Number.isNaN(n) ? null : n;
+}
+
+export function buildAbvHistogram(drinks, bucketCount = 8) {
+  const values = drinks.map(numericAbv).filter(v => v !== null).sort((a, b) => a - b);
+  if (values.length === 0) return [];
+
+  const min = values[0];
+  const max = values[values.length - 1];
+  if (min === max) {
+    return [{ min, max, label: `${min}`, count: values.length }];
+  }
+
+  const width = (max - min) / bucketCount;
+  const buckets = Array.from({ length: bucketCount }, (_, i) => ({
+    min: Math.round((min + i * width) * 10) / 10,
+    max: Math.round((i === bucketCount - 1 ? max : min + (i + 1) * width) * 10) / 10,
+    count: 0,
+  }));
+  for (const v of values) {
+    const idx = Math.min(Math.floor((v - min) / width), bucketCount - 1);
+    buckets[idx].count++;
+  }
+  return buckets.map(b => ({ ...b, label: `${b.min}-${b.max}` }));
+}
+
+export function buildAbvVsRatingScatter(drinks) {
+  return drinks
+    .map(d => ({ abv: numericAbv(d), rating: d.avgRating, d }))
+    .filter(({ abv, rating }) => abv !== null && typeof rating === 'number' && !Number.isNaN(rating))
+    .map(({ abv, rating, d }) => ({
+      id: d.id, category: d._category, label: drinkLabel(d), abv, rating, drink: d,
+    }));
 }
 
 export function drinkLabel(drink) {

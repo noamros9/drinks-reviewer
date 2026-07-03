@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import RatingSection from './analytics/RatingSection';
+import AbvSection from './analytics/AbvSection';
 
 const SECTIONS = [
   { key: 'rating', label: 'Rating', Component: RatingSection },
+  { key: 'abv', label: 'ABV', Component: AbvSection },
 ];
 
 const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
