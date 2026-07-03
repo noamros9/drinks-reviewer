@@ -1,4 +1,5 @@
 import { parse, isValid, format } from 'date-fns';
+import { OLD_WORLD, NEW_WORLD } from './filterHelpers';
 
 export const RATING_BUCKETS = Array.from({ length: 9 }, (_, i) => ({ min: i + 1, max: i + 2 }));
 
@@ -135,4 +136,48 @@ export function buildConsistencyLeaderboard(drinks, n = 5) {
     mostConsistent: [...scored].sort((a, b) => a.stdDev - b.stdDev).slice(0, n),
     leastConsistent: [...scored].sort((a, b) => b.stdDev - a.stdDev).slice(0, n),
   };
+}
+
+function avgOf(values) {
+  return values.length ? Math.round((values.reduce((s, v) => s + v, 0) / values.length) * 100) / 100 : 0;
+}
+
+function validRatings(drinks) {
+  return drinks.map(d => d.avgRating).filter(v => typeof v === 'number' && !Number.isNaN(v));
+}
+
+export function buildCountryRanking(drinks) {
+  const countries = [...new Set(drinks.map(d => d.country).filter(Boolean))];
+  return countries.map(country => {
+    const values = validRatings(drinks.filter(d => d.country === country));
+    return { country, avgRating: avgOf(values), count: values.length };
+  });
+}
+
+const WORLD_BUCKETS = [
+  { label: 'Old World', test: c => OLD_WORLD.includes(c) },
+  { label: 'New World', test: c => NEW_WORLD.includes(c) },
+  { label: 'Other', test: c => !OLD_WORLD.includes(c) && !NEW_WORLD.includes(c) },
+];
+
+export function buildOldNewWorldBreakdown(wineDrinks) {
+  return WORLD_BUCKETS.map(({ label, test }) => {
+    const values = validRatings(wineDrinks.filter(d => d.country && test(d.country)));
+    return { label, avgRating: avgOf(values), count: values.length };
+  });
+}
+
+export function buildRegionLeaderboard(drinks, n = 10) {
+  const groups = new Map();
+  for (const d of drinks) {
+    if (!d.region) continue;
+    const key = `${d._category}||${d.country}||${d.region}`;
+    if (!groups.has(key)) groups.set(key, { category: d._category, country: d.country, region: d.region, values: [] });
+    if (typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating)) groups.get(key).values.push(d.avgRating);
+  }
+  return [...groups.values()]
+    .map(({ category, country, region, values }) => ({ category, country, region, avgRating: avgOf(values), count: values.length }))
+    .filter(r => r.count > 0)
+    .sort((a, b) => b.avgRating - a.avgRating)
+    .slice(0, n);
 }

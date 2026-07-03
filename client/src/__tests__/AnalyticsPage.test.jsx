@@ -39,3 +39,10 @@ test('empty fetch results pass through to the active section', async () => {
   render(<MemoryRouter><AnalyticsPage /></MemoryRouter>);
   expect(await screen.findByText('No rated drinks yet.')).toBeInTheDocument();
 });
+
+test('clicking the Geographic tab renders GeographicSection', async () => {
+  render(<MemoryRouter><AnalyticsPage /></MemoryRouter>);
+  await screen.findByText('5 rated drinks');
+  fireEvent.click(screen.getByRole('button', { name: 'Geographic' }));
+  expect(await screen.findByText(/drinks with country data/)).toBeInTheDocument();
+});

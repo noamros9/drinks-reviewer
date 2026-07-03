@@ -58,6 +58,18 @@ test('clicking Edit navigates to admin (handleEdit executes)', async () => {
   expect(editBtn).toBeDefined();
 });
 
+test('a ?country=X URL param pre-selects that country in the filter', async () => {
+  const WINE_ITALY = { ...WINE_DRINK, id: '2', country: 'Italy', seriesAndName: 'ItalianWine' };
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, WINE_ITALY]) }));
+  render(
+    <MemoryRouter initialEntries={['/wine?country=Italy']}>
+      <CategoryPage category="wine" />
+    </MemoryRouter>
+  );
+  await screen.findByText('ItalianWine');
+  expect(screen.getByText(/1 \/ 2 entries/)).toBeInTheDocument();
+});
+
 test('count badge shows total when no filter active', async () => {
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);

@@ -1,0 +1,106 @@
+{
+  "Israel||Galilee": {
+    "lat": 32.8008444,
+    "lon": 35.5889732
+  },
+  "Italy||Abruzzo": {
+    "lat": 42.227681,
+    "lon": 13.854983
+  },
+  "Israel||Judea": {
+    "lat": 31.5,
+    "lon": 35.1
+  },
+  "Spain||Rioja": {
+    "lat": 42.2814642,
+    "lon": -2.482805
+  },
+  "Israel||Shomron": {
+    "lat": 31.7819737,
+    "lon": 35.2144562
+  },
+  "Italy||Salento": {
+    "lat": 40.248604,
+    "lon": 15.190058
+  },
+  "Italy||Valpolicella": {
+    "lat": 45.5394575,
+    "lon": 10.9521505
+  },
+  "France||Alsace": {
+    "lat": 50.7006899,
+    "lon": 3.1610045
+  },
+  "Italy||Piemonte": {
+    "lat": 45.060735,
+    "lon": 7.923549
+  },
+  "Italy||Primitivo di Manduria": {
+    "lat": 40.4002788,
+    "lon": 17.6374622
+  },
+  "Portugal||Vinho Verde": {
+    "lat": 41.0674998,
+    "lon": -8.2372694
+  },
+  "Portugal||Lisboa": {
+    "lat": 38.7077507,
+    "lon": -9.1365919
+  },
+  "Italy||Puglia": {
+    "lat": 40.9842539,
+    "lon": 16.6210027
+  },
+  "Portugal||Porto": {
+    "lat": 41.1502195,
+    "lon": -8.6103497
+  },
+  "Italy||Toscana": {
+    "lat": 43.4586541,
+    "lon": 11.1389204
+  },
+  "Italy||Chianti": {
+    "lat": 43.6069451,
+    "lon": 11.3320081
+  },
+  "New Zealand||Malborough": {
+    "lat": -36.7884924,
+    "lon": 174.6698635
+  },
+  "Israel||Negev": {
+    "lat": 30.5,
+    "lon": 34.9166667
+  },
+  "Israel||Golan": {
+    "lat": 33.0105642,
+    "lon": 35.749532
+  },
+  "Italy||Chianti Classico": {
+    "lat": 43.3962664,
+    "lon": 11.3101229
+  },
+  "Spain||Rueda": {
+    "lat": 41.4129785,
+    "lon": -4.9597533
+  },
+  "New Zealand||Marlborough": {
+    "lat": -41.4744747,
+    "lon": 173.8330263
+  },
+  "Scotland||Highlands": {
+    "lat": 57.3333333,
+    "lon": -4.25
+  },
+  "Scotland||Island": {
+    "lat": 57.4970693,
+    "lon": -3.7345805
+  },
+  "Scotland||Islay": {
+    "lat": 55.7585802,
+    "lon": -6.1656723
+  },
+  "Scotland||Speyside": {
+    "lat": 57.1935592,
+    "lon": -3.8262262
+  }
+}

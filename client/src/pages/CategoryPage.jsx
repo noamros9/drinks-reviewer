@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
 import BulkEditBar from '../components/BulkEditBar';
-import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, applyUrlRangeOverrides } from '../utils/filterHelpers';
+import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, applyUrlRangeOverrides, applyUrlDropdownOverrides } from '../utils/filterHelpers';
 
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
 
@@ -31,7 +31,7 @@ function saveLayout(category, layout) {
 export default function CategoryPage({ category }) {
   const [drinks, setDrinks] = useState([]);
   const [searchParams] = useSearchParams();
-  const [activeFilters, setActiveFilters] = useState(() => applyUrlRangeOverrides(buildInitialFilters(category), searchParams, category));
+  const [activeFilters, setActiveFilters] = useState(() => applyUrlDropdownOverrides(applyUrlRangeOverrides(buildInitialFilters(category), searchParams, category), searchParams, category));
   const [columnLayout, setColumnLayout] = useState(() => loadLayout(category));
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
@@ -44,7 +44,7 @@ export default function CategoryPage({ category }) {
   };
 
   useEffect(() => {
-    setActiveFilters(applyUrlRangeOverrides(buildInitialFilters(category), searchParams, category));
+    setActiveFilters(applyUrlDropdownOverrides(applyUrlRangeOverrides(buildInitialFilters(category), searchParams, category), searchParams, category));
     setColumnLayout(loadLayout(category));
     setSelectedIds(new Set());
     fetch(`/api/${category}`)
