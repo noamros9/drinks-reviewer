@@ -46,3 +46,10 @@ test('clicking the Geographic tab renders GeographicSection', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Geographic' }));
   expect(await screen.findByText(/drinks with country data/)).toBeInTheDocument();
 });
+
+test('clicking the Time & Pace tab renders TimePaceSection', async () => {
+  render(<MemoryRouter><AnalyticsPage /></MemoryRouter>);
+  await screen.findByText('5 rated drinks');
+  fireEvent.click(screen.getByRole('button', { name: 'Time & Pace' }));
+  expect(await screen.findByText(/tasted drinks?/)).toBeInTheDocument();
+});

@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import RatingSection from './analytics/RatingSection';
 import AbvSection from './analytics/AbvSection';
 import GeographicSection from './analytics/GeographicSection';
+import TimePaceSection from './analytics/TimePaceSection';
 
 const SECTIONS = [
   { key: 'rating', label: 'Rating', Component: RatingSection },
   { key: 'abv', label: 'ABV', Component: AbvSection },
   { key: 'geographic', label: 'Geographic', Component: GeographicSection },
+  { key: 'timepace', label: 'Time & Pace', Component: TimePaceSection },
 ];
 
 const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
