@@ -181,3 +181,48 @@ export function buildRegionLeaderboard(drinks, n = 10) {
     .sort((a, b) => b.avgRating - a.avgRating)
     .slice(0, n);
 }
+
+export function buildDiscoveryPace(drinks) {
+  const buckets = new Map();
+  for (const d of drinks) {
+    const dates = (d.tastings || []).map(t => parseDrinkDate(t.date)).filter(Boolean);
+    if (dates.length === 0) continue;
+    const earliest = new Date(Math.min(...dates));
+    const key = format(earliest, 'yyyy-MM');
+    buckets.set(key, (buckets.get(key) ?? 0) + 1);
+  }
+  return [...buckets.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, count]) => ({ month, count }));
+}
+
+const MONTH_LABELS = Array.from({ length: 12 }, (_, i) => format(new Date(2000, i, 1), 'MMM'));
+
+export function buildSeasonalPattern(drinks) {
+  const counts = new Array(12).fill(0);
+  for (const d of drinks) {
+    for (const t of d.tastings || []) {
+      const date = parseDrinkDate(t.date);
+      if (!date) continue;
+      counts[date.getMonth()]++;
+    }
+  }
+  return MONTH_LABELS.map((month, i) => ({ month, count: counts[i] }));
+}
+
+export function buildCategoryTrend(drinks) {
+  const buckets = new Map();
+  for (const d of drinks) {
+    if (!COMPARISON_CATEGORIES.includes(d._category)) continue;
+    for (const t of d.tastings || []) {
+      const date = parseDrinkDate(t.date);
+      if (!date) continue;
+      const key = format(date, 'yyyy-MM');
+      if (!buckets.has(key)) buckets.set(key, Object.fromEntries(COMPARISON_CATEGORIES.map(c => [c, 0])));
+      buckets.get(key)[d._category]++;
+    }
+  }
+  return [...buckets.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, counts]) => ({ month, ...counts }));
+}
