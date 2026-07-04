@@ -30,6 +30,11 @@ function scopeFilter() {
 
 beforeEach(() => {
   mockNavigate.mockClear();
+  vi.spyOn(window, 'open').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  window.open.mockRestore();
 });
 
 test('defaults to following the global category (All) and shows the total count', () => {
@@ -65,17 +70,17 @@ test('once overridden, the section stops following changes to the global categor
   expect(screen.getByText('1 rated drink')).toBeInTheDocument();
 });
 
-test('clicking a bar navigates to the scoped category with the bucket range', () => {
+test('clicking a bar opens a new tab to the scoped category with the bucket range', () => {
   renderSection('all');
   fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
   fireEvent.click(screen.getByTestId('bar-7-8'));
-  expect(mockNavigate).toHaveBeenCalledWith('/wine?avgRatingMin=7&avgRatingMax=8');
+  expect(window.open).toHaveBeenCalledWith('/wine?avgRatingMin=7&avgRatingMax=8', '_blank');
 });
 
-test('clicking a bar while scoped to All navigates to /all', () => {
+test('clicking a bar while scoped to All opens a new tab to /all', () => {
   renderSection('all');
   fireEvent.click(screen.getByTestId('bar-9-10'));
-  expect(mockNavigate).toHaveBeenCalledWith('/all?avgRatingMin=9&avgRatingMax=10');
+  expect(window.open).toHaveBeenCalledWith('/all?avgRatingMin=9&avgRatingMax=10', '_blank');
 });
 
 test('shows empty state when there are no rated drinks', () => {
@@ -105,17 +110,17 @@ test('category comparison chart always shows all 4 categories regardless of scop
   });
 });
 
-test('clicking a category comparison bar navigates to that category with no query string', () => {
+test('clicking a category comparison bar opens a new tab to that category with no query string', () => {
   renderSection('all');
   fireEvent.click(screen.getByTestId('bar-beer'));
-  expect(mockNavigate).toHaveBeenCalledWith('/beer');
+  expect(window.open).toHaveBeenCalledWith('/beer', '_blank');
 });
 
-test('clicking a percentile tile navigates to the scoped category with only avgRatingMin set', () => {
+test('clicking a percentile tile opens a new tab to the scoped category with only avgRatingMin set', () => {
   renderSection('all');
   fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
   fireEvent.click(screen.getByRole('button', { name: /≥ 7/ }));
-  expect(mockNavigate).toHaveBeenCalledWith('/wine?avgRatingMin=7');
+  expect(window.open).toHaveBeenCalledWith('/wine?avgRatingMin=7', '_blank');
 });
 
 test('clicking a consistency leaderboard drink navigates to its Admin tastings tab', () => {

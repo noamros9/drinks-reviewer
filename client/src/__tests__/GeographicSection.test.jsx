@@ -2,12 +2,6 @@ import { render, screen, fireEvent, within, waitFor } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom';
 import GeographicSection from '../pages/analytics/GeographicSection';
 
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return { ...actual, useNavigate: () => mockNavigate };
-});
-
 const DRINKS = [
   { id: 'w1', _category: 'wine', country: 'Italy', region: 'Chianti', avgRating: 7.5 },
   { id: 'w2', _category: 'wine', country: 'France', avgRating: 8 },
@@ -17,8 +11,12 @@ const DRINKS = [
 ];
 
 beforeEach(() => {
-  mockNavigate.mockClear();
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }));
+  vi.spyOn(window, 'open').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  window.open.mockRestore();
 });
 
 function renderSection(globalCategory = 'all') {
@@ -50,12 +48,12 @@ test('clicking the local scope filter overrides the global category', async () =
   expect(await screen.findByText('1 drink with country data')).toBeInTheDocument();
 });
 
-test('clicking a country ranking table row navigates to the scoped category with a country filter', async () => {
+test('clicking a country ranking table row opens a new tab to the scoped category with a country filter', async () => {
   renderSection('all');
   fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
   const rankingTable = within(await screen.findByTestId('country-ranking-table'));
   fireEvent.click(rankingTable.getByText('Italy'));
-  expect(mockNavigate).toHaveBeenCalledWith('/wine?country=Italy');
+  expect(window.open).toHaveBeenCalledWith('/wine?country=Italy', '_blank');
 });
 
 test('Old World vs New World breakdown always shows all 3 buckets regardless of scope', async () => {
@@ -96,7 +94,7 @@ test('clicking a region-country pivot filters the leaderboard without navigating
   fireEvent.click(within(screen.getByTestId('geo-region-country-filter')).getByRole('button', { name: 'Italy' }));
   expect(screen.getByText('Chianti')).toBeInTheDocument();
   expect(screen.queryByText('Rioja')).not.toBeInTheDocument();
-  expect(mockNavigate).not.toHaveBeenCalled();
+  expect(window.open).not.toHaveBeenCalled();
 });
 
 test('a failed region-coordinates fetch does not break the section', async () => {

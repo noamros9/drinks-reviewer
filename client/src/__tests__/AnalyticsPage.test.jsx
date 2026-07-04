@@ -1,6 +1,11 @@
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useSearchParams } from 'react-router-dom';
 import AnalyticsPage from '../pages/AnalyticsPage';
+
+function LocationProbe() {
+  const [searchParams] = useSearchParams();
+  return <div data-testid="location-probe">{searchParams.toString()}</div>;
+}
 
 const WINE_ENTRIES    = [{ id: 'w1', avgRating: 7.5 }, { id: 'w2', avgRating: 4 }];
 const BEER_ENTRIES    = [{ id: 'b1', avgRating: 9 }];
@@ -52,4 +57,36 @@ test('clicking the Time & Pace tab renders TimePaceSection', async () => {
   await screen.findByText('5 rated drinks');
   fireEvent.click(screen.getByRole('button', { name: 'Time & Pace' }));
   expect(await screen.findByText(/tasted drinks?/)).toBeInTheDocument();
+});
+
+test('a ?tab= URL param lands directly on that section', async () => {
+  render(
+    <MemoryRouter initialEntries={['/analytics?tab=geographic']}>
+      <AnalyticsPage />
+    </MemoryRouter>
+  );
+  expect(await screen.findByText(/drinks with country data/)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Geographic' })).toHaveClass('active');
+});
+
+test('an unrecognized ?tab= value falls back to the first section', async () => {
+  render(
+    <MemoryRouter initialEntries={['/analytics?tab=nonsense']}>
+      <AnalyticsPage />
+    </MemoryRouter>
+  );
+  expect(await screen.findByText('5 rated drinks')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Rating' })).toHaveClass('active');
+});
+
+test('clicking a tab updates the URL\'s tab param', async () => {
+  render(
+    <MemoryRouter>
+      <AnalyticsPage />
+      <LocationProbe />
+    </MemoryRouter>
+  );
+  await screen.findByText('5 rated drinks');
+  fireEvent.click(screen.getByRole('button', { name: 'ABV' }));
+  expect(screen.getByTestId('location-probe')).toHaveTextContent('tab=abv');
 });

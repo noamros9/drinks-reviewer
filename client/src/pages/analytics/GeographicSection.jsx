@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import CountryRankingTable from './CountryRankingTable';
 import WorldMap from './WorldMap';
 import RegionLeaderboard from './RegionLeaderboard';
@@ -15,7 +14,6 @@ export default function GeographicSection({ drinks, globalCategory }) {
   const [override, setOverride] = useState(null);
   const [regionCountry, setRegionCountry] = useState('all');
   const [regionCoordinates, setRegionCoordinates] = useState({});
-  const navigate = useNavigate();
   const category = override ?? globalCategory;
 
   useEffect(() => {
@@ -38,8 +36,8 @@ export default function GeographicSection({ drinks, globalCategory }) {
   const regionRows = buildRegionLeaderboard(regionFilteredDrinks, 10);
   const mapRegions = buildRegionLeaderboard(regionSourceDrinks, Infinity);
 
-  const handleSelectCountry = (country) => navigate(`/${category}?country=${encodeURIComponent(country)}`);
-  const handleSelectRegion = (r) => navigate(`/${r.category}?region=${encodeURIComponent(r.region)}`);
+  const handleSelectCountry = (country) => window.open(`/${category}?country=${encodeURIComponent(country)}`, '_blank');
+  const handleSelectRegion = (r) => window.open(`/${r.category}?region=${encodeURIComponent(r.region)}`, '_blank');
   const handleOldNewWorldClick = () => {};
 
   return (
