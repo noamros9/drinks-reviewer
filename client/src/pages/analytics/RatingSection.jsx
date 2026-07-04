@@ -28,15 +28,15 @@ export default function RatingSection({ drinks, globalCategory }) {
   const leaderboard = buildConsistencyLeaderboard(scoped, 5);
 
   const handleBarClick = ({ min, max }) => {
-    navigate(`/${category}?avgRatingMin=${min}&avgRatingMax=${max}`);
+    window.open(`/${category}?avgRatingMin=${min}&avgRatingMax=${max}`, '_blank');
   };
 
   const handleCategoryBarClick = (cat) => {
-    navigate(`/${cat}`);
+    window.open(`/${cat}`, '_blank');
   };
 
   const handlePercentileClick = (threshold) => {
-    navigate(`/${category}?avgRatingMin=${threshold}`);
+    window.open(`/${category}?avgRatingMin=${threshold}`, '_blank');
   };
 
   const handleSelectDrink = (entry) => {

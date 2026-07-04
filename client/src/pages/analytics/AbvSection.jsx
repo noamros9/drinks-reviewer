@@ -21,11 +21,11 @@ export default function AbvSection({ drinks, globalCategory }) {
   const abvComparison = buildAbvCategoryComparison(drinks);
 
   const handleBarClick = ({ min, max }) => {
-    navigate(`/${category}?abvMin=${min}&abvMax=${max}`);
+    window.open(`/${category}?abvMin=${min}&abvMax=${max}`, '_blank');
   };
 
   const handleCategoryBarClick = (cat) => {
-    navigate(`/${cat}`);
+    window.open(`/${cat}`, '_blank');
   };
 
   const handleSelectDrink = (entry) => {

@@ -30,6 +30,11 @@ function scopeFilter() {
 
 beforeEach(() => {
   mockNavigate.mockClear();
+  vi.spyOn(window, 'open').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  window.open.mockRestore();
 });
 
 test('defaults to following the global category (All) and shows the total count', () => {
@@ -71,18 +76,18 @@ test('a string-typed abv value still counts toward the total', () => {
   expect(screen.getByText('2 drinks with ABV data')).toBeInTheDocument();
 });
 
-test('clicking a histogram bar navigates to the scoped category with the abv range', () => {
+test('clicking a histogram bar opens a new tab to the scoped category with the abv range', () => {
   renderSection('all');
   fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
   // beer scope has a single entry (abv 5) -> one degenerate bucket {min:5, max:5}
   fireEvent.click(screen.getByTestId('bar-5-5'));
-  expect(mockNavigate).toHaveBeenCalledWith('/beer?abvMin=5&abvMax=5');
+  expect(window.open).toHaveBeenCalledWith('/beer?abvMin=5&abvMax=5', '_blank');
 });
 
-test('clicking a category comparison bar navigates to that category with no query string', () => {
+test('clicking a category comparison bar opens a new tab to that category with no query string', () => {
   renderSection('all');
   fireEvent.click(screen.getByTestId('bar-beer'));
-  expect(mockNavigate).toHaveBeenCalledWith('/beer');
+  expect(window.open).toHaveBeenCalledWith('/beer', '_blank');
 });
 
 test('category comparison chart always shows all 4 categories regardless of scope', () => {

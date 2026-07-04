@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import RatingSection from './analytics/RatingSection';
 import AbvSection from './analytics/AbvSection';
 import GeographicSection from './analytics/GeographicSection';
@@ -15,7 +16,8 @@ const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 
 export default function AnalyticsPage() {
   const [drinks, setDrinks] = useState([]);
-  const [tab, setTab] = useState(SECTIONS[0].key);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = SECTIONS.some(s => s.key === searchParams.get('tab')) ? searchParams.get('tab') : SECTIONS[0].key;
   const [globalCategory, setGlobalCategory] = useState('all');
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function AnalyticsPage() {
       </div>
       <div className="category-tabs">
         {SECTIONS.map(s => (
-          <button key={s.key} className={tab === s.key ? 'active' : ''} onClick={() => setTab(s.key)}>
+          <button key={s.key} className={tab === s.key ? 'active' : ''} onClick={() => setSearchParams({ tab: s.key })}>
             {s.label}
           </button>
         ))}
