@@ -1,5 +1,4 @@
 import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
 import GeographicSection from '../pages/analytics/GeographicSection';
 
 const DRINKS = [
@@ -20,11 +19,7 @@ afterEach(() => {
 });
 
 function renderSection(globalCategory = 'all') {
-  return render(
-    <MemoryRouter>
-      <GeographicSection drinks={DRINKS} globalCategory={globalCategory} />
-    </MemoryRouter>
-  );
+  return render(<GeographicSection drinks={DRINKS} globalCategory={globalCategory} />);
 }
 
 function scopeFilter() {
@@ -83,11 +78,7 @@ test('clicking a region-country pivot filters the leaderboard without navigating
     ...DRINKS,
     { id: 'w3', _category: 'wine', country: 'Spain', region: 'Rioja', avgRating: 8.5 },
   ];
-  render(
-    <MemoryRouter>
-      <GeographicSection drinks={drinksWithTwoWineRegions} globalCategory="wine" />
-    </MemoryRouter>
-  );
+  render(<GeographicSection drinks={drinksWithTwoWineRegions} globalCategory="wine" />);
   await screen.findByText('Chianti');
   expect(screen.getByText('Rioja')).toBeInTheDocument();
 
@@ -105,10 +96,6 @@ test('a failed region-coordinates fetch does not break the section', async () =>
 
 test('shows empty state when no drink has a country', async () => {
   const noCountry = DRINKS.map(({ country, ...rest }) => rest);
-  render(
-    <MemoryRouter>
-      <GeographicSection drinks={noCountry} globalCategory="all" />
-    </MemoryRouter>
-  );
+  render(<GeographicSection drinks={noCountry} globalCategory="all" />);
   expect(await screen.findByText('No country data yet.')).toBeInTheDocument();
 });
