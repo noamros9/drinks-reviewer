@@ -1,0 +1,33 @@
+.style-block {
+  margin-bottom: 2rem;
+}
+
+.style-undiscovered-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0.25rem 0 0.5rem;
+}
+
+.style-undiscovered-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.style-undiscovered-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.3rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.style-undiscovered-name {
+  color: var(--text-primary);
+}
+
+.style-undiscovered-meta {
+  color: var(--text-secondary);
+}
