@@ -227,3 +227,8 @@ export function applyUrlDropdownOverrides(filters, searchParams, category) {
   }
   return result;
 }
+
+export function applyUrlProducerOverride(filters, searchParams) {
+  const value = searchParams.get('producer');
+  return value != null ? { ...filters, producerSearch: value } : filters;
+}

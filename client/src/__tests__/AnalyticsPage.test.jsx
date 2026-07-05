@@ -66,6 +66,13 @@ test('clicking the Style & Variety tab renders StyleSection', async () => {
   expect(await screen.findByText('Wine — varieties')).toBeInTheDocument();
 });
 
+test('clicking the Producer tab renders ProducerSection', async () => {
+  render(<MemoryRouter><AnalyticsPage /></MemoryRouter>);
+  await screen.findByText('5 rated drinks');
+  fireEvent.click(screen.getByRole('button', { name: 'Producer' }));
+  expect(await screen.findByText('Wine — producers')).toBeInTheDocument();
+});
+
 test('clicking the Exploration tab renders ExplorationSection', async () => {
   render(<MemoryRouter><AnalyticsPage /></MemoryRouter>);
   await screen.findByText('5 rated drinks');

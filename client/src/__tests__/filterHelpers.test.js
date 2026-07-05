@@ -1,4 +1,4 @@
-import { matchesFilters, buildDropdownOptions, countOptions, splitVarieties, isBlend, buildInitialFilters, OLD_WORLD, NEW_WORLD, applyUrlDropdownOverrides } from '../utils/filterHelpers';
+import { matchesFilters, buildDropdownOptions, countOptions, splitVarieties, isBlend, buildInitialFilters, OLD_WORLD, NEW_WORLD, applyUrlDropdownOverrides, applyUrlProducerOverride } from '../utils/filterHelpers';
 
 const wine = (overrides) => ({
   id: '1', producer: 'TestProd', wineCategory: 'Red', variety: 'Cabernet Sauvignon',
@@ -408,6 +408,20 @@ describe('applyUrlDropdownOverrides', () => {
   test('absent query param leaves the filter untouched', () => {
     const filters = buildInitialFilters('wine');
     const result = applyUrlDropdownOverrides(filters, new URLSearchParams(''), 'wine');
+    expect(result).toEqual(filters);
+  });
+});
+
+describe('applyUrlProducerOverride', () => {
+  test('sets producerSearch from a ?producer= param', () => {
+    const filters = buildInitialFilters('wine');
+    const result = applyUrlProducerOverride(filters, new URLSearchParams('producer=Chateau'));
+    expect(result.producerSearch).toBe('Chateau');
+  });
+
+  test('absent query param leaves the filters untouched', () => {
+    const filters = buildInitialFilters('wine');
+    const result = applyUrlProducerOverride(filters, new URLSearchParams(''));
     expect(result).toEqual(filters);
   });
 });
