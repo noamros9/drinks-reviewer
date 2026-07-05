@@ -12,7 +12,9 @@
     "test:client": "vitest run",
     "test": "npm run test:server && npm run test:client",
     "test:coverage": "vitest run --coverage",
+    "posttest:coverage": "node scripts/mark-tests-passed.js client",
     "test:coverage:server": "jest --coverage",
+    "posttest:coverage:server": "node scripts/mark-tests-passed.js server",
     "prepare": "node scripts/install-hooks.js"
   },
   "dependencies": {
