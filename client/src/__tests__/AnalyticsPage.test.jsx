@@ -59,6 +59,13 @@ test('clicking the Time & Pace tab renders TimePaceSection', async () => {
   expect(await screen.findByText(/tasted drinks?/)).toBeInTheDocument();
 });
 
+test('clicking the Style & Variety tab renders StyleSection', async () => {
+  render(<MemoryRouter><AnalyticsPage /></MemoryRouter>);
+  await screen.findByText('5 rated drinks');
+  fireEvent.click(screen.getByRole('button', { name: 'Style & Variety' }));
+  expect(await screen.findByText('Wine — varieties')).toBeInTheDocument();
+});
+
 test('a ?tab= URL param lands directly on that section', async () => {
   render(
     <MemoryRouter initialEntries={['/analytics?tab=geographic']}>

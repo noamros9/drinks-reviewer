@@ -1,5 +1,5 @@
 import { parse, isValid, format } from 'date-fns';
-import { OLD_WORLD, NEW_WORLD } from './filterHelpers';
+import { OLD_WORLD, NEW_WORLD, splitVarieties } from './filterHelpers';
 
 export const RATING_BUCKETS = Array.from({ length: 9 }, (_, i) => ({ min: i + 1, max: i + 2 }));
 
@@ -225,4 +225,34 @@ export function buildCategoryTrend(drinks) {
   return [...buckets.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, counts]) => ({ month, ...counts }));
+}
+
+const STYLE_FIELD = { wine: 'variety', beer: 'style', whiskey: 'style', others: 'style' };
+
+// group by a per-drink key extractor (array of keys → a drink can count toward several, e.g. blend grapes)
+function buildKeyLeaderboard(drinks, keysOf) {
+  const groups = new Map();
+  for (const d of drinks) {
+    if (typeof d.avgRating !== 'number' || Number.isNaN(d.avgRating)) continue;
+    for (const key of keysOf(d)) {
+      if (!key || key === '-') continue;            // drop empty + others' "-" placeholder
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(d.avgRating);
+    }
+  }
+  return [...groups.entries()]
+    .map(([style, v]) => ({ style, avgRating: avgOf(v), count: v.length }))
+    .sort((a, b) => b.count - a.count || b.avgRating - a.avgRating);
+}
+
+export function buildStyleLeaderboard(drinks, category, { splitBlends = true } = {}) {
+  const keysOf = (category === 'wine' && splitBlends)
+    ? d => splitVarieties(d.variety)
+    : d => [d[STYLE_FIELD[category] || 'style']];
+  return buildKeyLeaderboard(drinks, keysOf);
+}
+
+export function buildUndiscovered(rows, { minAvg = 8, maxCount = 3 } = {}) {
+  return rows.filter(r => r.avgRating >= minAvg && r.count <= maxCount)
+             .sort((a, b) => b.avgRating - a.avgRating);
 }
