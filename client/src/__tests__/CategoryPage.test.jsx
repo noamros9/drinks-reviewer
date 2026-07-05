@@ -70,6 +70,16 @@ test('a ?country=X URL param pre-selects that country in the filter', async () =
   expect(screen.getByText(/1 \/ 2 entries/)).toBeInTheDocument();
 });
 
+test('a ?producer=X URL param pre-fills the producer search filter', async () => {
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK]) }));
+  render(
+    <MemoryRouter initialEntries={['/wine?producer=Foo']}>
+      <CategoryPage category="wine" />
+    </MemoryRouter>
+  );
+  expect(await screen.findByTestId('producer-search')).toHaveValue('Foo');
+});
+
 test('count badge shows total when no filter active', async () => {
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);

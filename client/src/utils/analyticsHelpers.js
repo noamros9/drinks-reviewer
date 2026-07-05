@@ -1,5 +1,5 @@
 import { parse, isValid, format } from 'date-fns';
-import { OLD_WORLD, NEW_WORLD, splitVarieties } from './filterHelpers';
+import { OLD_WORLD, NEW_WORLD, splitVarieties, PRODUCER_FIELD } from './filterHelpers';
 
 export const RATING_BUCKETS = Array.from({ length: 9 }, (_, i) => ({ min: i + 1, max: i + 2 }));
 
@@ -292,6 +292,30 @@ export function buildStyleLeaderboard(drinks, category, { splitBlends = true } =
     ? d => splitVarieties(d.variety)
     : d => [d[STYLE_FIELD[category] || 'style']];
   return buildKeyLeaderboard(drinks, keysOf);
+}
+
+export function buildProducerLeaderboard(drinks, category) {
+  return buildKeyLeaderboard(drinks, d => [d[PRODUCER_FIELD[category]]]);
+}
+
+// Variance of a producer's own drinks' avgRatings (not per-drink tasting variance) — needs ≥2 drinks
+export function buildProducerConsistency(drinks, category, n = 5) {
+  const field = PRODUCER_FIELD[category];
+  const groups = new Map();
+  for (const d of drinks) {
+    const key = d[field];
+    if (!key || key === '-') continue;
+    if (typeof d.avgRating !== 'number' || Number.isNaN(d.avgRating)) continue;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(d.avgRating);
+  }
+  const scored = [...groups.entries()]
+    .filter(([, ratings]) => ratings.length >= 2)
+    .map(([producer, ratings]) => ({ producer, stdDev: populationStdDev(ratings), count: ratings.length }));
+  return {
+    mostConsistent:  [...scored].sort((a, b) => a.stdDev - b.stdDev).slice(0, n),
+    leastConsistent: [...scored].sort((a, b) => b.stdDev - a.stdDev).slice(0, n),
+  };
 }
 
 export function buildUndiscovered(rows, { minAvg = 8, maxCount = 3 } = {}) {
