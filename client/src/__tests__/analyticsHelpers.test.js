@@ -7,6 +7,7 @@ import {
   buildCountryRanking, buildOldNewWorldBreakdown, buildRegionLeaderboard,
   buildDiscoveryPace, buildSeasonalPattern, buildCategoryTrend,
   buildStyleLeaderboard, buildUndiscovered,
+  weightedRating, buildWeightedRatings, buildBestOf,
 } from '../utils/analyticsHelpers';
 
 describe('bucketIndexForRating', () => {
@@ -291,13 +292,13 @@ describe('buildCountryRanking', () => {
     const result = buildCountryRanking(drinks);
     const byCountry = Object.fromEntries(result.map(r => [r.country, r]));
     expect(Object.keys(byCountry).sort()).toEqual(['France', 'Italy']);
-    expect(byCountry.Italy).toEqual({ country: 'Italy', avgRating: 7, count: 2 });
-    expect(byCountry.France).toEqual({ country: 'France', avgRating: 9, count: 1 });
+    expect(byCountry.Italy).toMatchObject({ country: 'Italy', avgRating: 7, count: 2 });
+    expect(byCountry.France).toMatchObject({ country: 'France', avgRating: 9, count: 1 });
   });
 
   test('a country with no valid-rating drinks still appears with avgRating 0, count 0', () => {
     const result = buildCountryRanking([{ country: 'Spain', avgRating: undefined }]);
-    expect(result).toEqual([{ country: 'Spain', avgRating: 0, count: 0 }]);
+    expect(result).toEqual([{ country: 'Spain', avgRating: 0, count: 0, weightedRating: 0 }]);
   });
 
   test('empty array -> []', () => {
@@ -344,8 +345,8 @@ describe('buildRegionLeaderboard', () => {
     const result = buildRegionLeaderboard(drinks);
     expect(result).toHaveLength(2);
     const byRegion = Object.fromEntries(result.map(r => [r.region, r]));
-    expect(byRegion.Galilee).toEqual({ category: 'wine', country: 'Israel', region: 'Galilee', avgRating: 7, count: 2 });
-    expect(byRegion.Chianti).toEqual({ category: 'wine', country: 'Italy', region: 'Chianti', avgRating: 9, count: 1 });
+    expect(byRegion.Galilee).toMatchObject({ category: 'wine', country: 'Israel', region: 'Galilee', avgRating: 7, count: 2 });
+    expect(byRegion.Chianti).toMatchObject({ category: 'wine', country: 'Italy', region: 'Chianti', avgRating: 9, count: 1 });
   });
 
   test('the same country+region name in two different categories is kept as two separate rows', () => {
@@ -461,9 +462,25 @@ describe('buildStyleLeaderboard', () => {
     ];
     const rows = buildStyleLeaderboard(wine, 'wine', { splitBlends: true });
     // Merlot appears in both drinks; Cab only in the blend
-    expect(rows).toEqual([
+    expect(rows).toMatchObject([
       { style: 'Merlot', avgRating: 7, count: 2 },
       { style: 'Cabernet Sauvignon', avgRating: 6, count: 1 },
+    ]);
+  });
+
+  test('adds a weightedRating field shrinking each row toward the leaderboard mean', () => {
+    const wine = [
+      { variety: 'Merlot', avgRating: 7, },
+      { variety: 'Merlot', avgRating: 7 },
+      { variety: 'Cabernet Sauvignon', avgRating: 6 },
+    ];
+    const rows = buildStyleLeaderboard(wine, 'wine');
+    // C = avgOf([7,6]) = 6.5, m = median([2,1]) = 1.5
+    // Merlot: v=2 -> (2/3.5)*7 + (1.5/3.5)*6.5 = 6.79
+    // Cabernet: v=1 -> (1/2.5)*6 + (1.5/2.5)*6.5 = 6.3
+    expect(rows).toEqual([
+      { style: 'Merlot', avgRating: 7, count: 2, weightedRating: 6.79 },
+      { style: 'Cabernet Sauvignon', avgRating: 6, count: 1, weightedRating: 6.3 },
     ]);
   });
 
@@ -473,7 +490,7 @@ describe('buildStyleLeaderboard', () => {
       { variety: 'Cabernet Sauvignon, Merlot', avgRating: 6 },
     ];
     const rows = buildStyleLeaderboard(wine, 'wine', { splitBlends: false });
-    expect(rows).toEqual([
+    expect(rows).toMatchObject([
       { style: 'Merlot', avgRating: 8, count: 1 },
       { style: 'Cabernet Sauvignon, Merlot', avgRating: 6, count: 1 },
     ]);
@@ -485,7 +502,7 @@ describe('buildStyleLeaderboard', () => {
       { style: 'IPA', avgRating: 8 },
       { style: 'Stout', avgRating: 7 },
     ];
-    expect(buildStyleLeaderboard(beer, 'beer')).toEqual([
+    expect(buildStyleLeaderboard(beer, 'beer')).toMatchObject([
       { style: 'IPA', avgRating: 8.5, count: 2 },
       { style: 'Stout', avgRating: 7, count: 1 },
     ]);
@@ -498,7 +515,7 @@ describe('buildStyleLeaderboard', () => {
       { style: '', avgRating: 9 },
       { style: undefined, avgRating: 9 },
     ];
-    expect(buildStyleLeaderboard(others, 'others')).toEqual([
+    expect(buildStyleLeaderboard(others, 'others')).toMatchObject([
       { style: 'Rum', avgRating: 6, count: 1 },
     ]);
   });
@@ -509,7 +526,7 @@ describe('buildStyleLeaderboard', () => {
       { style: 'IPA', avgRating: null },
       { style: 'IPA', avgRating: NaN },
     ];
-    expect(buildStyleLeaderboard(beer, 'beer')).toEqual([
+    expect(buildStyleLeaderboard(beer, 'beer')).toMatchObject([
       { style: 'IPA', avgRating: 8, count: 1 },
     ]);
   });
@@ -542,5 +559,84 @@ describe('buildUndiscovered', () => {
     expect(buildUndiscovered(rows, { minAvg: 9, maxCount: 2 })).toEqual([
       { style: 'Riesling', avgRating: 9, count: 2 },
     ]);
+  });
+});
+
+describe('weightedRating', () => {
+  test('v=0 converges fully to the prior C', () => {
+    expect(weightedRating(9, 0, 7, 5)).toBe(7);
+  });
+
+  test('large v converges close to the item\'s own R', () => {
+    expect(weightedRating(9, 1000, 7, 5)).toBeCloseTo(9, 1);
+  });
+
+  test('v+m<=0 guards against division by zero and returns C', () => {
+    expect(weightedRating(5, 0, 3, 0)).toBe(3);
+  });
+
+  test('a low-sample high rating can be overtaken by a well-tasted slightly-lower rating', () => {
+    const oneOff = weightedRating(9.5, 1, 7, 5);
+    const wellTasted = weightedRating(8.8, 9, 7, 5);
+    expect(oneOff).toBe(7.42);
+    expect(wellTasted).toBe(8.16);
+    expect(wellTasted).toBeGreaterThan(oneOff);
+  });
+});
+
+describe('buildWeightedRatings', () => {
+  test('maps each drink id to its weighted rating using scope-derived C and m', () => {
+    const drinks = [
+      { id: 'a', avgRating: 7, tastingCount: 2 },
+      { id: 'b', avgRating: 6, tastingCount: 1 },
+    ];
+    // C = avgOf([7,6]) = 6.5, m = median([2,1]) = 1.5
+    const map = buildWeightedRatings(drinks);
+    expect(map.get('a')).toBe(6.79);
+    expect(map.get('b')).toBe(6.3);
+  });
+
+  test('drinks with no numeric avgRating are excluded from the map', () => {
+    const map = buildWeightedRatings([{ id: 'a', avgRating: undefined }, { id: 'b', avgRating: NaN }]);
+    expect(map.size).toBe(0);
+  });
+
+  test('empty input -> empty map', () => {
+    expect(buildWeightedRatings([]).size).toBe(0);
+  });
+});
+
+describe('buildBestOf', () => {
+  const drinks = [
+    { id: 'w1', producer: 'Chateau', seriesAndName: 'Reserve', _category: 'wine', avgRating: 9.5, tastingCount: 1 },
+    { id: 'w2', producer: 'Winery', seriesAndName: 'Blend', _category: 'wine', avgRating: 8.8, tastingCount: 9 },
+    { id: 'b1', brewery: 'Brewery', name: 'Ale', _category: 'beer', avgRating: 6.0, tastingCount: 1 },
+  ];
+  // C = avgOf([9.5,8.8,6.0]) = 8.1, m = median([1,9,1]) = 1
+  // w1: 8.8, w2: 8.73, b1: 7.05
+
+  test('ranks by weighted rating, not raw avgRating, so a well-tasted drink can rank above a one-off', () => {
+    const result = buildBestOf(drinks, 10);
+    expect(result.map(r => r.id)).toEqual(['w1', 'w2', 'b1']);
+    expect(result.map(r => r.weightedRating)).toEqual([8.8, 8.73, 7.05]);
+  });
+
+  test('entries carry label, category, raw stats and the source drink', () => {
+    const [top] = buildBestOf(drinks, 1);
+    expect(top).toMatchObject({ id: 'w1', label: 'Chateau Reserve', category: 'wine', avgRating: 9.5, tastingCount: 1 });
+    expect(top.drink).toBe(drinks[0]);
+  });
+
+  test('respects n', () => {
+    expect(buildBestOf(drinks, 2).map(r => r.id)).toEqual(['w1', 'w2']);
+  });
+
+  test('drinks with no numeric avgRating are excluded', () => {
+    const withUnrated = [...drinks, { id: 'x', producer: 'P', seriesAndName: 'Unrated', _category: 'wine', avgRating: undefined }];
+    expect(buildBestOf(withUnrated, 10).some(r => r.id === 'x')).toBe(false);
+  });
+
+  test('empty input -> []', () => {
+    expect(buildBestOf([], 10)).toEqual([]);
   });
 });

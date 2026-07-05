@@ -223,6 +223,19 @@ test('sorting by abv uses numeric comparison: NaN→0 and valid→numeric, both 
   expect(rows[rows.length - 1]).toHaveTextContent('Alpha');
 });
 
+test('weightedRating column renders for wine and sorts numerically', () => {
+  const rows = [
+    { ...SORT_ROWS[1], weightedRating: 8.16, id: '2' },
+    { ...SORT_ROWS[0], weightedRating: 7.42, id: '1' },
+  ];
+  render(<DrinkTable category="wine" drinks={rows} />);
+  expect(screen.getByRole('columnheader', { name: /weighted rating/i })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('columnheader', { name: /weighted rating/i }));
+  const sortedRows = screen.getAllByRole('row');
+  // Ascending: 7.42 (Zara) first, 8.16 (Alpha) last
+  expect(sortedRows[sortedRows.length - 1]).toHaveTextContent('Alpha');
+});
+
 test('vivinoScore column renders for wine, sorts numerically, and missing values show —', () => {
   const rows = [
     { ...SORT_ROWS[1], vivinoScore: 3.5, id: '2' },

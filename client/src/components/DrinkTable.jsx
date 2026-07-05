@@ -39,6 +39,7 @@ export const COLUMNS = {
     { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'lastRating',    label: 'Last Rating' },
     { key: 'avgRating',     label: 'Avg Rating' },
+    { key: 'weightedRating', label: 'Weighted Rating' },
     { key: 'vivinoScore',   label: 'Vivino' },
     { key: 'tastingCount',  label: 'Tastings' },
   ],
@@ -52,6 +53,7 @@ export const COLUMNS = {
     { key: 'lastTasted',   label: 'Last Tasted' },
     { key: 'lastRating',   label: 'Last Rating' },
     { key: 'avgRating',    label: 'Avg Rating' },
+    { key: 'weightedRating', label: 'Weighted Rating' },
     { key: 'tastingCount', label: 'Tastings' },
   ],
   whiskey: [
@@ -66,6 +68,7 @@ export const COLUMNS = {
     { key: 'lastTasted',   label: 'Last Tasted' },
     { key: 'lastRating',   label: 'Last Rating' },
     { key: 'avgRating',    label: 'Avg Rating' },
+    { key: 'weightedRating', label: 'Weighted Rating' },
     { key: 'tastingCount', label: 'Tastings' },
   ],
   others: [
@@ -80,6 +83,7 @@ export const COLUMNS = {
     { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'lastRating',    label: 'Last Rating' },
     { key: 'avgRating',     label: 'Avg Rating' },
+    { key: 'weightedRating', label: 'Weighted Rating' },
     { key: 'tastingCount',  label: 'Tastings' },
   ],
   all: [
@@ -92,6 +96,7 @@ export const COLUMNS = {
     { key: 'lastTasted',  label: 'Last Tasted' },
     { key: 'lastRating',  label: 'Last Rating' },
     { key: 'avgRating',   label: 'Avg Rating' },
+    { key: 'weightedRating', label: 'Weighted Rating' },
   ],
   collection: [
     { key: '_category',   label: 'Category' },
@@ -207,7 +212,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     return '';
   };
 
-  const NUMERIC_KEYS = new Set(['abv', 'lastRating', 'avgRating', 'age', 'vivinoScore']);
+  const NUMERIC_KEYS = new Set(['abv', 'lastRating', 'avgRating', 'weightedRating', 'age', 'vivinoScore']);
 
   const sorted = [...drinks].sort((a, b) => {
     if (!sortKey) return 0;

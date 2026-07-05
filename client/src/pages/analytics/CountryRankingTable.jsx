@@ -3,6 +3,7 @@ import { useState } from 'react';
 const COLUMNS = [
   { key: 'country', label: 'Country' },
   { key: 'avgRating', label: 'Avg Rating' },
+  { key: 'weightedRating', label: 'Weighted Rating' },
   { key: 'count', label: 'Count' },
 ];
 
@@ -40,6 +41,7 @@ export default function CountryRankingTable({ rows, onSelectCountry }) {
           <tr key={row.country} className="country-ranking-row" onClick={() => onSelectCountry(row.country)}>
             <td>{row.country}</td>
             <td>{row.avgRating}</td>
+            <td>{row.weightedRating}</td>
             <td>{row.count}</td>
           </tr>
         ))}
