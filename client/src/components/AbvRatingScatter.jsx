@@ -1,7 +1,7 @@
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import './AbvRatingScatter.css';
 
-function Point({ cx, cy, payload, onPointClick }) {
+function Point({ cx, cy, payload, onPointClick, xKey, xLabel, xUnit }) {
   const activate = () => onPointClick(payload);
   return (
     <circle
@@ -12,7 +12,7 @@ function Point({ cx, cy, payload, onPointClick }) {
       data-testid={`point-${payload.id}`}
       role="button"
       tabIndex={0}
-      aria-label={`${payload.label}: ABV ${payload.abv}%, rating ${payload.rating}`}
+      aria-label={`${payload.label}: ${xLabel} ${payload[xKey]}${xUnit}, rating ${payload.rating}`}
       onClick={activate}
       onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
@@ -21,26 +21,27 @@ function Point({ cx, cy, payload, onPointClick }) {
   );
 }
 
-export function ScatterTooltip({ active, payload }) {
+export function ScatterTooltip({ active, payload, xKey = 'abv', xLabel = 'ABV', xUnit = '%' }) {
   if (!active || !payload?.length) return null;
-  const { label, abv, rating } = payload[0].payload;
+  const { label, rating } = payload[0].payload;
+  const xValue = payload[0].payload[xKey];
   return (
     <div className="abv-rating-scatter-tooltip">
-      <strong>{label}</strong> — ABV {abv}%, rating {rating}
+      <strong>{label}</strong> — {xLabel} {xValue}{xUnit}, rating {rating}
     </div>
   );
 }
 
-export default function AbvRatingScatter({ points, onPointClick }) {
+export default function AbvRatingScatter({ points, onPointClick, xKey = 'abv', xLabel = 'ABV', xUnit = '%' }) {
   return (
     <ResponsiveContainer width="100%" height={320}>
       <ScatterChart margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
         <CartesianGrid stroke="var(--border)" />
         <XAxis
           type="number"
-          dataKey="abv"
-          name="ABV"
-          unit="%"
+          dataKey={xKey}
+          name={xLabel}
+          unit={xUnit}
           tick={{ fill: 'var(--text-secondary)', fontSize: 12 }}
           axisLine={{ stroke: 'var(--border)' }}
           tickLine={false}
@@ -54,8 +55,8 @@ export default function AbvRatingScatter({ points, onPointClick }) {
           axisLine={{ stroke: 'var(--border)' }}
           tickLine={false}
         />
-        <Tooltip content={<ScatterTooltip />} cursor={{ strokeDasharray: '3 3' }} />
-        <Scatter data={points} isAnimationActive={false} shape={<Point onPointClick={onPointClick} />} />
+        <Tooltip content={<ScatterTooltip xKey={xKey} xLabel={xLabel} xUnit={xUnit} />} cursor={{ strokeDasharray: '3 3' }} />
+        <Scatter data={points} isAnimationActive={false} shape={<Point onPointClick={onPointClick} xKey={xKey} xLabel={xLabel} xUnit={xUnit} />} />
       </ScatterChart>
     </ResponsiveContainer>
   );

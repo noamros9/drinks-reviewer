@@ -318,6 +318,40 @@ export function buildProducerConsistency(drinks, category, n = 5) {
   };
 }
 
+// Groups by t.vintage/t.rating (per-TASTING), never d.avgRating/d.vintage — a drink's tastings can
+// span multiple vintages, and drink.vintage is just a denormalized mirror of the last one.
+export function buildVintageLeaderboard(wineDrinks) {
+  const groups = new Map();
+  for (const d of wineDrinks) {
+    for (const t of d.tastings || []) {
+      if (!t.vintage) continue;
+      if (typeof t.rating !== 'number' || Number.isNaN(t.rating)) continue;
+      if (!groups.has(t.vintage)) groups.set(t.vintage, []);
+      groups.get(t.vintage).push(t.rating);
+    }
+  }
+  const rows = [...groups.entries()].map(([style, ratings]) => ({ style, avgRating: avgOf(ratings), count: ratings.length }));
+  return addWeightedRatingToRows(rows).sort((a, b) => b.weightedRating - a.weightedRating || b.count - a.count);
+}
+
+export function buildAgeVsRatingScatter(wineDrinks) {
+  const points = [];
+  for (const d of wineDrinks) {
+    for (const t of d.tastings || []) {
+      if (!t.vintage) continue;
+      if (typeof t.rating !== 'number' || Number.isNaN(t.rating)) continue;
+      const date = parseDrinkDate(t.date);
+      if (!date) continue;
+      const vintageYear = Number(t.vintage);
+      if (Number.isNaN(vintageYear)) continue;
+      const age = date.getFullYear() - vintageYear;
+      if (age < 0) continue; // data-entry error: tasting predates its own vintage
+      points.push({ id: t.id, category: d._category, label: drinkLabel(d), age, rating: t.rating, drink: d });
+    }
+  }
+  return points;
+}
+
 export function buildUndiscovered(rows, { minAvg = 8, maxCount = 3 } = {}) {
   return rows.filter(r => r.avgRating >= minAvg && r.count <= maxCount)
              .sort((a, b) => b.avgRating - a.avgRating);
