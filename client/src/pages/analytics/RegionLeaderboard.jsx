@@ -8,6 +8,7 @@ export default function RegionLeaderboard({ rows }) {
           <th>Country</th>
           <th>Region</th>
           <th>Avg Rating</th>
+          <th>Weighted Rating</th>
           <th>Count</th>
         </tr>
       </thead>
@@ -17,6 +18,7 @@ export default function RegionLeaderboard({ rows }) {
             <td>{row.country}</td>
             <td>{row.region}</td>
             <td>{row.avgRating}</td>
+            <td>{row.weightedRating}</td>
             <td>{row.count}</td>
           </tr>
         ))}

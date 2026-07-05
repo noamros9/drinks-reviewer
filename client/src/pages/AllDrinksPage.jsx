@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import ColumnPanel from '../components/ColumnPanel';
@@ -6,6 +6,7 @@ import FilterDropdown from '../components/FilterDropdown';
 import RangeFilter from '../components/RangeFilter';
 import RangeFilterChips from '../components/RangeFilterChips';
 import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilters, RANGE_FILTER_CONFIGS, applyUrlRangeOverrides } from '../utils/filterHelpers';
+import { buildWeightedRatings } from '../utils/analyticsHelpers';
 import './AllDrinksPage.css';
 
 const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
@@ -14,7 +15,7 @@ const FILTERABLE_ALL = new Set(['country', '_producer']);
 const RANGE_CONFIGS = RANGE_FILTER_CONFIGS.all;
 
 const PRESETS = [
-  { label: 'Top rated', key: 'avgRating', dir: 'desc' },
+  { label: 'Top rated', key: 'weightedRating', dir: 'desc' },
   { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
 ];
 
@@ -86,9 +87,11 @@ export default function AllDrinksPage() {
     saveLayout(next);
   };
 
-  const categoryFiltered = filter === 'all'
-    ? drinks
-    : drinks.filter(d => d._category.toLowerCase() === filter);
+  const categoryFiltered = useMemo(() => {
+    const scoped = filter === 'all' ? drinks : drinks.filter(d => d._category.toLowerCase() === filter);
+    const weights = buildWeightedRatings(scoped);
+    return scoped.map(d => ({ ...d, weightedRating: weights.get(d.id) ?? null }));
+  }, [drinks, filter]);
 
   const activeFilters = { producerSearch, country: countryFilter, ...rangeFilters };
   const hasRangeFilter = Object.values(rangeFilters).some(v => v !== '');

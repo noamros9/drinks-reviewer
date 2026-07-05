@@ -9,6 +9,7 @@ export default function StyleLeaderboardTable({ rows, label, onSelectStyle }) {
   const columns = [
     { key: 'style', label },
     { key: 'avgRating', label: 'Avg Rating' },
+    { key: 'weightedRating', label: 'Weighted Rating' },
     { key: 'count', label: 'Count' },
   ];
 
@@ -46,6 +47,7 @@ export default function StyleLeaderboardTable({ rows, label, onSelectStyle }) {
           >
             <td>{row.style}</td>
             <td>{row.avgRating}</td>
+            <td>{row.weightedRating}</td>
             <td>{row.count}</td>
           </tr>
         ))}

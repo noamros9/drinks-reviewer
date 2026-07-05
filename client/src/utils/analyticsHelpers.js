@@ -146,12 +146,54 @@ function validRatings(drinks) {
   return drinks.map(d => d.avgRating).filter(v => typeof v === 'number' && !Number.isNaN(v));
 }
 
+// Bayesian/IMDB weighted rating: shrinks R toward prior C by an amount that shrinks as
+// sample size v grows; m is the "how many tastings to fully trust R" confidence constant.
+export function weightedRating(R, v, C, m) {
+  if (v + m <= 0) return C;
+  return Math.round(((v / (v + m)) * R + (m / (v + m)) * C) * 100) / 100;
+}
+
+function median(nums) {
+  if (!nums.length) return 0;
+  const sorted = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+// Map of drink id -> weightedRating; C/m are derived from `drinks` itself (the caller's scope)
+export function buildWeightedRatings(drinks) {
+  const valid = drinks.filter(d => typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating));
+  const C = avgOf(valid.map(d => d.avgRating));
+  const m = median(valid.map(d => d.tastingCount || 0));
+  return new Map(valid.map(d => [d.id, weightedRating(d.avgRating, d.tastingCount || 0, C, m)]));
+}
+
+// For leaderboard rows shaped { avgRating, count } -> same rows + weightedRating
+function addWeightedRatingToRows(rows) {
+  if (!rows.length) return rows;
+  const C = avgOf(rows.map(r => r.avgRating));
+  const m = median(rows.map(r => r.count));
+  return rows.map(r => ({ ...r, weightedRating: weightedRating(r.avgRating, r.count, C, m) }));
+}
+
+export function buildBestOf(drinks, n = 10) {
+  const scored = drinks
+    .filter(d => typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating))
+    .map(d => ({ id: d.id, label: drinkLabel(d), category: d._category, avgRating: d.avgRating, tastingCount: d.tastingCount, drink: d }));
+  const weights = buildWeightedRatings(drinks);
+  return scored
+    .map(e => ({ ...e, weightedRating: weights.get(e.id) }))
+    .sort((a, b) => b.weightedRating - a.weightedRating)
+    .slice(0, n);
+}
+
 export function buildCountryRanking(drinks) {
   const countries = [...new Set(drinks.map(d => d.country).filter(Boolean))];
-  return countries.map(country => {
+  const rows = countries.map(country => {
     const values = validRatings(drinks.filter(d => d.country === country));
     return { country, avgRating: avgOf(values), count: values.length };
   });
+  return addWeightedRatingToRows(rows);
 }
 
 const WORLD_BUCKETS = [
@@ -175,10 +217,11 @@ export function buildRegionLeaderboard(drinks, n = 10) {
     if (!groups.has(key)) groups.set(key, { category: d._category, country: d.country, region: d.region, values: [] });
     if (typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating)) groups.get(key).values.push(d.avgRating);
   }
-  return [...groups.values()]
+  const rows = [...groups.values()]
     .map(({ category, country, region, values }) => ({ category, country, region, avgRating: avgOf(values), count: values.length }))
-    .filter(r => r.count > 0)
-    .sort((a, b) => b.avgRating - a.avgRating)
+    .filter(r => r.count > 0);
+  return addWeightedRatingToRows(rows)
+    .sort((a, b) => b.weightedRating - a.weightedRating)
     .slice(0, n);
 }
 
@@ -240,9 +283,8 @@ function buildKeyLeaderboard(drinks, keysOf) {
       groups.get(key).push(d.avgRating);
     }
   }
-  return [...groups.entries()]
-    .map(([style, v]) => ({ style, avgRating: avgOf(v), count: v.length }))
-    .sort((a, b) => b.count - a.count || b.avgRating - a.avgRating);
+  const rows = [...groups.entries()].map(([style, v]) => ({ style, avgRating: avgOf(v), count: v.length }));
+  return addWeightedRatingToRows(rows).sort((a, b) => b.count - a.count || b.avgRating - a.avgRating);
 }
 
 export function buildStyleLeaderboard(drinks, category, { splitBlends = true } = {}) {

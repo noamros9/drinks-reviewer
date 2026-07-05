@@ -2,8 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import StyleLeaderboardTable from '../pages/analytics/StyleLeaderboardTable';
 
 const ROWS = [
-  { style: 'IPA', avgRating: 8.5, count: 9 },
-  { style: 'Stout', avgRating: 7.2, count: 4 },
+  { style: 'IPA', avgRating: 8.5, weightedRating: 8.3, count: 9 },
+  { style: 'Stout', avgRating: 7.2, weightedRating: 7.5, count: 4 },
 ];
 
 test('renders one row per style with the given first-column label', () => {
@@ -30,6 +30,13 @@ test('clicking a header cycles ascending, descending, then back to ascending', (
 
   fireEvent.click(screen.getByText(/^Count/));
   expect(rowsText()[0]).toMatch(/^Stout/);
+});
+
+test('sorts by the weighted rating column', () => {
+  render(<StyleLeaderboardTable rows={ROWS} label="Style" onSelectStyle={() => {}} />);
+  fireEvent.click(screen.getByText(/^Weighted Rating/));
+  const rowsText = screen.getAllByRole('row').slice(1).map(r => r.textContent);
+  expect(rowsText[0]).toMatch(/^Stout/); // ascending: 7.5 (Stout) before 8.3 (IPA)
 });
 
 test('clicking a row fires onSelectStyle with that row\'s style', () => {

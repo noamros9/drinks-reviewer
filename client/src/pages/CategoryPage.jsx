@@ -4,11 +4,12 @@ import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTabl
 import FilterBar from '../components/FilterBar';
 import BulkEditBar from '../components/BulkEditBar';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, applyUrlRangeOverrides, applyUrlDropdownOverrides } from '../utils/filterHelpers';
+import { buildWeightedRatings } from '../utils/analyticsHelpers';
 
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
 
 const PRESETS = [
-  { label: 'Top rated', key: 'avgRating', dir: 'desc' },
+  { label: 'Top rated', key: 'weightedRating', dir: 'desc' },
   { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
 ];
 
@@ -80,7 +81,12 @@ export default function CategoryPage({ category }) {
     saveLayout(category, next);
   };
 
-  const filtered = drinks.filter(d => matchesFilters(d, activeFilters, category));
+  const drinksWithScore = useMemo(() => {
+    const weights = buildWeightedRatings(drinks);
+    return drinks.map(d => ({ ...d, weightedRating: weights.get(d.id) ?? null }));
+  }, [drinks]);
+
+  const filtered = drinksWithScore.filter(d => matchesFilters(d, activeFilters, category));
 
   const filterableCols = useMemo(() => new Set([
     PRODUCER_FIELD[category],

@@ -2,8 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import CountryRankingTable from '../pages/analytics/CountryRankingTable';
 
 const ROWS = [
-  { country: 'Italy', avgRating: 7.2, count: 76 },
-  { country: 'France', avgRating: 8.1, count: 10 },
+  { country: 'Italy', avgRating: 7.2, weightedRating: 7.3, count: 76 },
+  { country: 'France', avgRating: 8.1, weightedRating: 7.9, count: 10 },
 ];
 
 test('renders one row per country', () => {
@@ -41,6 +41,13 @@ test('rows with equal values on the sorted column keep their relative order', ()
   const rowsText = screen.getAllByRole('row').slice(1).map(r => r.textContent);
   expect(rowsText[0]).toMatch(/^Italy/);
   expect(rowsText[1]).toMatch(/^France/);
+});
+
+test('sorts by the weighted rating column', () => {
+  render(<CountryRankingTable rows={ROWS} onSelectCountry={() => {}} />);
+  fireEvent.click(screen.getByText(/^Weighted Rating/));
+  const rowsText = screen.getAllByRole('row').slice(1).map(r => r.textContent);
+  expect(rowsText[0]).toMatch(/^Italy/); // ascending: 7.3 (Italy) before 7.9 (France)
 });
 
 test('clicking a row fires onSelectCountry with that row\'s country', () => {

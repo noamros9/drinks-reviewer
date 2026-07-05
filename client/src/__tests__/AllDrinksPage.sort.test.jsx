@@ -2,8 +2,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AllDrinksPage from '../pages/AllDrinksPage';
 
-const WINE = { id: 'w1', producer: 'Alpha', seriesAndName: 'Low', country: 'France', abv: '12', lastTasted: '01/01/2020', lastRating: '6', avgRating: '6', notionLink: '' };
-const BEER = { id: 'b1', brewery: 'Beta', name: 'High', country: 'UK', abv: '5', lastTasted: '31/12/2025', lastRating: '9', avgRating: '9', notionLink: '' };
+const WINE = { id: 'w1', producer: 'Alpha', seriesAndName: 'Low', country: 'France', abv: '12', lastTasted: '01/01/2020', lastRating: '6', avgRating: 6, tastingCount: 1, notionLink: '' };
+const BEER = { id: 'b1', brewery: 'Beta', name: 'High', country: 'UK', abv: '5', lastTasted: '31/12/2025', lastRating: '9', avgRating: 9, tastingCount: 1, notionLink: '' };
 
 beforeEach(() => {
   global.fetch = vi.fn((url) => {

@@ -3,8 +3,8 @@ import { MemoryRouter } from 'react-router-dom';
 import CategoryPage from '../pages/CategoryPage';
 
 const DRINKS = [
-  { id: '1', producer: 'Alpha', seriesAndName: 'Low', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '12', lastTasted: '01/01/2020', lastRating: '6', avgRating: '6', notionLink: '' },
-  { id: '2', producer: 'Beta',  seriesAndName: 'High', wineCategory: 'White', variety: 'Chardonnay', country: 'Italy', region: '', abv: '13', lastTasted: '31/12/2025', lastRating: '9', avgRating: '9', notionLink: '' },
+  { id: '1', producer: 'Alpha', seriesAndName: 'Low', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '12', lastTasted: '01/01/2020', lastRating: '6', avgRating: 6, tastingCount: 1, notionLink: '' },
+  { id: '2', producer: 'Beta',  seriesAndName: 'High', wineCategory: 'White', variety: 'Chardonnay', country: 'Italy', region: '', abv: '13', lastTasted: '31/12/2025', lastRating: '9', avgRating: 9, tastingCount: 1, notionLink: '' },
 ];
 
 beforeEach(() => {

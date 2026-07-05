@@ -5,6 +5,7 @@ import AbvSection from './analytics/AbvSection';
 import GeographicSection from './analytics/GeographicSection';
 import TimePaceSection from './analytics/TimePaceSection';
 import StyleSection from './analytics/StyleSection';
+import ExplorationSection from './analytics/ExplorationSection';
 
 const SECTIONS = [
   { key: 'rating', label: 'Rating', Component: RatingSection },
@@ -12,6 +13,7 @@ const SECTIONS = [
   { key: 'geographic', label: 'Geographic', Component: GeographicSection },
   { key: 'timepace', label: 'Time & Pace', Component: TimePaceSection },
   { key: 'style', label: 'Style & Variety', Component: StyleSection },
+  { key: 'exploration', label: 'Exploration', Component: ExplorationSection },
 ];
 
 const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
