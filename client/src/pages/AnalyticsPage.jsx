@@ -6,6 +6,7 @@ import GeographicSection from './analytics/GeographicSection';
 import TimePaceSection from './analytics/TimePaceSection';
 import StyleSection from './analytics/StyleSection';
 import ProducerSection from './analytics/ProducerSection';
+import VintageSection from './analytics/VintageSection';
 import ExplorationSection from './analytics/ExplorationSection';
 
 const SECTIONS = [
@@ -15,6 +16,7 @@ const SECTIONS = [
   { key: 'timepace', label: 'Time & Pace', Component: TimePaceSection },
   { key: 'style', label: 'Style & Variety', Component: StyleSection },
   { key: 'producer', label: 'Producer', Component: ProducerSection },
+  { key: 'vintage', label: 'Vintage', Component: VintageSection },
   { key: 'exploration', label: 'Exploration', Component: ExplorationSection },
 ];
 

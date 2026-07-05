@@ -38,3 +38,14 @@ test('tooltip renders nothing when inactive or payload is empty', () => {
   const { container: c2 } = render(<ScatterTooltip active payload={[]} />);
   expect(c2).toBeEmptyDOMElement();
 });
+
+test('xKey/xLabel/xUnit generalize the axis and tooltip to a different metric (e.g. age)', () => {
+  const AGE_POINTS = [{ id: '1', label: 'A X', age: 5, rating: 8 }];
+  render(<AbvRatingScatter points={AGE_POINTS} onPointClick={() => {}} xKey="age" xLabel="Age at tasting" xUnit=" yrs" />);
+  expect(screen.getByTestId('point-1')).toHaveAttribute('aria-label', 'A X: Age at tasting 5 yrs, rating 8');
+});
+
+test('tooltip renders the generalized xKey/xLabel/xUnit when provided', () => {
+  render(<ScatterTooltip active payload={[{ payload: { label: 'A X', age: 5, rating: 8 } }]} xKey="age" xLabel="Age at tasting" xUnit=" yrs" />);
+  expect(screen.getByText(/Age at tasting 5 yrs, rating 8/)).toBeInTheDocument();
+});
