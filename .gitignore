@@ -144,3 +144,6 @@ vite.config.ts.timestamp-*
 
 # Vivino batch-entry progress
 .vivino-progress.json
+
+# Tool-savings pre-commit report (temporary instrumentation)
+.tool-savings-log.json

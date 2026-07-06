@@ -34,6 +34,7 @@ else
 fi
 
 echo "Coverage OK — proceeding with commit."
+node scripts/report-tool-savings.js
 exit 0
 `;
 
