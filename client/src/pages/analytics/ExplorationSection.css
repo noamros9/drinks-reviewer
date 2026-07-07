@@ -1,0 +1,11 @@
+.exploration-unlocked-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .exploration-unlocked-columns {
+    grid-template-columns: 1fr;
+  }
+}

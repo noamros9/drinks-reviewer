@@ -356,3 +356,59 @@ export function buildUndiscovered(rows, { minAvg = 8, maxCount = 3 } = {}) {
   return rows.filter(r => r.avgRating >= minAvg && r.count <= maxCount)
              .sort((a, b) => b.avgRating - a.avgRating);
 }
+
+export function buildExplorerScore(drinks) {
+  const countries = [...new Set(drinks.map(d => d.country).filter(Boolean))].sort();
+  const total = drinks.length;
+  return {
+    countries, uniqueCount: countries.length, total,
+    pct: total === 0 ? 0 : Math.round((countries.length / total) * 1000) / 10,
+  };
+}
+
+// key -> earliest tasting date across `drinks`, skipping drinks with no parseable tasting date
+function earliestTastingByKey(drinks, keyOf) {
+  const earliest = new Map();
+  for (const d of drinks) {
+    const key = keyOf(d);
+    if (!key || key === '-') continue;
+    const dates = (d.tastings || []).map(t => parseDrinkDate(t.date)).filter(Boolean);
+    if (dates.length === 0) continue;
+    const min = new Date(Math.min(...dates));
+    if (!earliest.has(key) || min < earliest.get(key)) earliest.set(key, min);
+  }
+  return earliest;
+}
+
+export function buildNewCountriesThisYear(drinks, year = new Date().getFullYear()) {
+  const earliest = earliestTastingByKey(drinks, d => d.country);
+  return [...earliest.entries()]
+    .filter(([, date]) => date.getFullYear() === year)
+    .map(([country, date]) => ({ country, firstTasted: format(date, 'MMM yyyy') }))
+    .sort((a, b) => a.country.localeCompare(b.country));
+}
+
+export function buildNewStylesThisYear(drinks, year = new Date().getFullYear()) {
+  const earliest = earliestTastingByKey(drinks, (d) => {
+    const style = d[STYLE_FIELD[d._category] || 'style'];
+    return style && style !== '-' ? `${d._category}||${style}` : null;
+  });
+  return [...earliest.entries()]
+    .filter(([, date]) => date.getFullYear() === year)
+    .map(([key, date]) => {
+      const [category, style] = key.split('||');
+      return { category, style, firstTasted: format(date, 'MMM yyyy') };
+    })
+    .sort((a, b) => a.style.localeCompare(b.style));
+}
+
+// avgRating >= minAvg and drink.lastTasted (own field, not tastings[]) older than `years` ago
+export function buildDrinksToRevisit(drinks, { minAvg = 8, years = 1, now = new Date() } = {}) {
+  const cutoff = new Date(now);
+  cutoff.setFullYear(cutoff.getFullYear() - years);
+  return drinks
+    .filter(d => typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating) && d.avgRating >= minAvg)
+    .map(d => ({ id: d.id, label: drinkLabel(d), category: d._category, avgRating: d.avgRating, lastTasted: d.lastTasted, lastTastedDate: parseDrinkDate(d.lastTasted), drink: d }))
+    .filter(r => r.lastTastedDate && r.lastTastedDate < cutoff)
+    .sort((a, b) => a.lastTastedDate - b.lastTastedDate || b.avgRating - a.avgRating);
+}
