@@ -196,6 +196,50 @@ export function buildCountryRanking(drinks) {
   return addWeightedRatingToRows(rows);
 }
 
+function avgLotPrice(drink) {
+  const prices = (drink.collection || []).map(l => l.price).filter(p => typeof p === 'number' && !Number.isNaN(p));
+  return prices.length ? avgOf(prices) : null;
+}
+
+export function buildPriceRatingScatter(drinks) {
+  return drinks
+    .map(d => ({ price: avgLotPrice(d), rating: d.avgRating, d }))
+    .filter(({ price, rating }) => price !== null && typeof rating === 'number' && !Number.isNaN(rating))
+    .map(({ price, rating, d }) => ({
+      id: d.id, category: d._category, label: drinkLabel(d), price, rating, drink: d,
+    }));
+}
+
+export function buildAvgPriceCategoryComparison(drinks) {
+  return categoryComparison(drinks, avgLotPrice, 'avgPrice');
+}
+
+export function buildAvgPriceByCountry(drinks) {
+  const countries = [...new Set(drinks.map(d => d.country).filter(Boolean))];
+  return countries
+    .map(country => {
+      const prices = drinks.filter(d => d.country === country).map(avgLotPrice).filter(p => p !== null);
+      return { country, avgPrice: avgOf(prices), count: prices.length };
+    })
+    .filter(r => r.count > 0);
+}
+
+export function buildBestValue(drinks, n = 10) {
+  const weights = buildWeightedRatings(drinks);
+  const scored = drinks
+    .map(d => {
+      const price = avgLotPrice(d);
+      const weightedRating = weights.get(d.id);
+      if (price === null || price <= 0 || typeof weightedRating !== 'number') return null;
+      return {
+        id: d.id, label: drinkLabel(d), category: d._category, avgRating: d.avgRating, price, weightedRating,
+        valueScore: Math.round((weightedRating / price) * 100) / 100, drink: d,
+      };
+    })
+    .filter(Boolean);
+  return scored.sort((a, b) => b.valueScore - a.valueScore).slice(0, n);
+}
+
 const WORLD_BUCKETS = [
   { label: 'Old World', test: c => OLD_WORLD.includes(c) },
   { label: 'New World', test: c => NEW_WORLD.includes(c) },

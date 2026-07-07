@@ -87,6 +87,13 @@ test('clicking the Exploration tab renders ExplorationSection', async () => {
   expect(await screen.findByText('Best Of (weighted rating)')).toBeInTheDocument();
 });
 
+test('clicking the Value tab renders ValueSection', async () => {
+  render(<MemoryRouter><AnalyticsPage /></MemoryRouter>);
+  await screen.findByText('5 rated drinks');
+  fireEvent.click(screen.getByRole('button', { name: 'Value' }));
+  expect(await screen.findByText('Price vs Rating')).toBeInTheDocument();
+});
+
 test('a ?tab= URL param lands directly on that section', async () => {
   render(
     <MemoryRouter initialEntries={['/analytics?tab=geographic']}>
