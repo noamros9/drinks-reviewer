@@ -1,18 +1,17 @@
 import './ConsistencyLeaderboard.css';
 
-export default function BestOfLeaderboard({ rows, onSelectDrink }) {
-  if (rows.length === 0) return <p className="empty-state">No rated drinks yet.</p>;
+export default function RevisitLeaderboard({ rows, onSelectDrink }) {
+  if (rows.length === 0) return <p className="empty-state">Nothing to revisit.</p>;
 
   return (
-    <div className="consistency-leaderboard-table" data-testid="best-of-table">
+    <div className="consistency-leaderboard-table" data-testid="revisit-table">
       <table>
         <thead>
           <tr>
             <th>Drink</th>
             <th>Category</th>
             <th>Avg Rating</th>
-            <th>Weighted Rating</th>
-            <th>Tastings</th>
+            <th>Last Tasted</th>
           </tr>
         </thead>
         <tbody>
@@ -25,8 +24,7 @@ export default function BestOfLeaderboard({ rows, onSelectDrink }) {
               </td>
               <td>{r.category.charAt(0).toUpperCase() + r.category.slice(1)}</td>
               <td>{r.avgRating}</td>
-              <td>{r.weightedRating}</td>
-              <td>{r.tastingCount}</td>
+              <td>{r.lastTasted}</td>
             </tr>
           ))}
         </tbody>
