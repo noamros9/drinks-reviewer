@@ -8,6 +8,7 @@ import StyleSection from './analytics/StyleSection';
 import ProducerSection from './analytics/ProducerSection';
 import VintageSection from './analytics/VintageSection';
 import ExplorationSection from './analytics/ExplorationSection';
+import ValueSection from './analytics/ValueSection';
 
 const SECTIONS = [
   { key: 'rating', label: 'Rating', Component: RatingSection },
@@ -18,6 +19,7 @@ const SECTIONS = [
   { key: 'producer', label: 'Producer', Component: ProducerSection },
   { key: 'vintage', label: 'Vintage', Component: VintageSection },
   { key: 'exploration', label: 'Exploration', Component: ExplorationSection },
+  { key: 'value', label: 'Value', Component: ValueSection },
 ];
 
 const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
