@@ -25,6 +25,12 @@ const DRINKS = [
     avgRating: 4.0, tastingCount: 1, collection: [{ price: 10 }],
     tastings: [{ date: '2024-01-15', rating: 4, vintage: '2018' }],
   },
+  {
+    id: '3', producer: 'Yatir', seriesAndName: 'Forest', wineCategory: 'Red', variety: 'Cabernet Sauvignon',
+    sweetness: 'Dry', country: 'Israel', region: 'Judean Hills', abv: 14.5, vivinoScore: 4.4, tags: [],
+    avgRating: 4.2, tastingCount: 2, collection: [{ price: 40 }],
+    tastings: [{ date: '2024-04-01', rating: 4 }, { date: '2024-05-01', rating: 4.4 }],
+  },
 ];
 
 function renderAt(path) {
@@ -37,7 +43,7 @@ beforeEach(() => {
 });
 
 test('renders both drinks\' field values side by side', async () => {
-  renderAt('/compare?category=wine&a=1&b=2');
+  renderAt('/compare?category=wine&ids=1,2');
   const fieldsTable = await screen.findByTestId('compare-fields-table');
   expect(within(fieldsTable).getByText('Citra Bisanzio')).toBeInTheDocument();
   expect(within(fieldsTable).getByText('Latroun Reserve')).toBeInTheDocument();
@@ -48,13 +54,24 @@ test('renders both drinks\' field values side by side', async () => {
   expect(within(varietyRow).getByText('—')).toBeInTheDocument();
 });
 
+test('supports comparing 3 drinks at once', async () => {
+  renderAt('/compare?category=wine&ids=1,2,3');
+  const fieldsTable = await screen.findByTestId('compare-fields-table');
+  expect(within(fieldsTable).getByText('Citra Bisanzio')).toBeInTheDocument();
+  expect(within(fieldsTable).getByText('Latroun Reserve')).toBeInTheDocument();
+  expect(within(fieldsTable).getByText('Yatir Forest')).toBeInTheDocument();
+
+  const headerRow = fieldsTable.querySelector('thead tr');
+  expect(within(headerRow).getAllByRole('columnheader')).toHaveLength(4); // blank + 3 drinks
+});
+
 test('shows weighted rating, avg lot price, and tasting count for each drink', async () => {
-  renderAt('/compare?category=wine&a=1&b=2');
+  renderAt('/compare?category=wine&ids=1,2');
   await screen.findByTestId('compare-fields-table');
 
   const weightedRow = screen.getByText('Weighted Rating').closest('tr');
-  expect(within(weightedRow).getByText('4.4')).toBeInTheDocument();
-  expect(within(weightedRow).getByText('4.17')).toBeInTheDocument();
+  expect(within(weightedRow).getByText('4.39')).toBeInTheDocument();
+  expect(within(weightedRow).getByText('4.15')).toBeInTheDocument();
 
   const priceRow = screen.getByText('Avg Lot Price').closest('tr');
   expect(within(priceRow).getByText('25')).toBeInTheDocument();
@@ -65,8 +82,8 @@ test('shows weighted rating, avg lot price, and tasting count for each drink', a
   expect(within(tastingsRow).getByText('1')).toBeInTheDocument();
 });
 
-test('shows tasting history rows for both drinks, blank where one has fewer', async () => {
-  renderAt('/compare?category=wine&a=1&b=2');
+test('shows tasting history rows for all drinks, blank where one has fewer', async () => {
+  renderAt('/compare?category=wine&ids=1,2');
   const historyTable = await screen.findByTestId('compare-history-table');
 
   expect(within(historyTable).getByText('2024-01-01 — 4 (2020)')).toBeInTheDocument();
@@ -78,24 +95,24 @@ test('shows tasting history rows for both drinks, blank where one has fewer', as
   expect(within(row2).getByText('—')).toBeInTheDocument();
 });
 
-test('shows a not-found state when a/b params are missing', async () => {
-  renderAt('/compare?category=wine');
+test('shows a not-found state when fewer than 2 ids are given', async () => {
+  renderAt('/compare?category=wine&ids=1');
   expect(await screen.findByText(/Couldn.t find both drinks/)).toBeInTheDocument();
 });
 
 test('shows a not-found state when an id is absent from the fetched list', async () => {
-  renderAt('/compare?category=wine&a=999&b=2');
+  renderAt('/compare?category=wine&ids=999,2');
   expect(await screen.findByText(/Couldn.t find both drinks/)).toBeInTheDocument();
 });
 
 test('shows an unknown-category state and skips fetching when category is invalid', () => {
-  renderAt('/compare?category=nope&a=1&b=2');
+  renderAt('/compare?category=nope&ids=1,2');
   expect(screen.getByText(/Unknown category/)).toBeInTheDocument();
   expect(global.fetch).not.toHaveBeenCalled();
 });
 
 test('Back button navigates to the category page', async () => {
-  renderAt('/compare?category=wine&a=1&b=2');
+  renderAt('/compare?category=wine&ids=1,2');
   await screen.findByTestId('compare-fields-table');
   fireEvent.click(screen.getByText('← Back to Wine'));
   expect(mockNavigate).toHaveBeenCalledWith('/wine');

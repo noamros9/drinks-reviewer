@@ -142,7 +142,7 @@ export default function CategoryPage({ category }) {
           onCancel={() => setSelectedIds(new Set())}
         />
       )}
-      {selectedIds.size === 2 && (
+      {selectedIds.size >= 2 && selectedIds.size <= 5 && (
         <CompareBar
           category={category}
           selectedIds={selectedIds}

@@ -12,12 +12,17 @@ function fieldValue(drink, field) {
   return value || value === 0 ? value : '—';
 }
 
+function tastingCell(tasting, category) {
+  if (!tasting) return '—';
+  const vintage = category === 'wine' && tasting.vintage ? ` (${tasting.vintage})` : '';
+  return `${tasting.date} — ${tasting.rating}${vintage}`;
+}
+
 export default function ComparePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const category = searchParams.get('category');
-  const aId = searchParams.get('a');
-  const bId = searchParams.get('b');
+  const ids = (searchParams.get('ids') || '').split(',').filter(Boolean);
   const validCategory = Boolean(category && FIELDS[category]);
   const [drinks, setDrinks] = useState([]);
   const [loaded, setLoaded] = useState(false);
@@ -41,10 +46,10 @@ export default function ComparePage() {
 
   if (!loaded) return null;
 
-  const a = drinks.find(d => d.id === aId);
-  const b = drinks.find(d => d.id === bId);
+  const compared = ids.length >= 2 ? ids.map(id => drinks.find(d => d.id === id)) : [];
+  const allFound = compared.length >= 2 && compared.every(Boolean);
 
-  if (!a || !b) {
+  if (!allFound) {
     return (
       <div className="compare-page">
         <p className="empty-state">
@@ -57,7 +62,7 @@ export default function ComparePage() {
 
   const weights = buildWeightedRatings(drinks);
   const fields = FIELDS[category];
-  const maxTastings = Math.max(a.tastings?.length ?? 0, b.tastings?.length ?? 0);
+  const maxTastings = Math.max(...compared.map(d => d.tastings?.length ?? 0));
 
   return (
     <div className="compare-page">
@@ -65,66 +70,57 @@ export default function ComparePage() {
         <h1>Compare</h1>
         <button type="button" className="compare-back" onClick={() => navigate(`/${category}`)}>← Back to {TITLES[category]}</button>
       </div>
-      <table className="compare-table" data-testid="compare-fields-table">
-        <thead>
-          <tr>
-            <th />
-            <th>{drinkLabel(a)}</th>
-            <th>{drinkLabel(b)}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {fields.map(field => (
-            <tr key={field.key}>
-              <th>{field.label}</th>
-              <td>{fieldValue(a, field)}</td>
-              <td>{fieldValue(b, field)}</td>
-            </tr>
-          ))}
-          <tr className="compare-stats-row">
-            <th>Weighted Rating</th>
-            <td>{weights.get(a.id) ?? '—'}</td>
-            <td>{weights.get(b.id) ?? '—'}</td>
-          </tr>
-          <tr>
-            <th>Avg Lot Price</th>
-            <td>{avgLotPrice(a) ?? '—'}</td>
-            <td>{avgLotPrice(b) ?? '—'}</td>
-          </tr>
-          <tr>
-            <th>Tastings</th>
-            <td>{a.tastingCount ?? 0}</td>
-            <td>{b.tastingCount ?? 0}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {maxTastings > 0 && (
-        <table className="compare-table compare-history-table" data-testid="compare-history-table">
+      <div className="compare-table-wrap">
+        <table className="compare-table" data-testid="compare-fields-table">
           <thead>
             <tr>
-              <th>Tasting</th>
-              <th>{drinkLabel(a)}</th>
-              <th>{drinkLabel(b)}</th>
+              <th />
+              {compared.map(d => <th key={d.id}>{drinkLabel(d)}</th>)}
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: maxTastings }, (_, i) => (
-              <tr key={i}>
-                <th>#{i + 1}</th>
-                <td>{tastingCell(a.tastings?.[i], category)}</td>
-                <td>{tastingCell(b.tastings?.[i], category)}</td>
+            {fields.map(field => (
+              <tr key={field.key}>
+                <th>{field.label}</th>
+                {compared.map(d => <td key={d.id}>{fieldValue(d, field)}</td>)}
               </tr>
             ))}
+            <tr className="compare-stats-row">
+              <th>Weighted Rating</th>
+              {compared.map(d => <td key={d.id}>{weights.get(d.id) ?? '—'}</td>)}
+            </tr>
+            <tr>
+              <th>Avg Lot Price</th>
+              {compared.map(d => <td key={d.id}>{avgLotPrice(d) ?? '—'}</td>)}
+            </tr>
+            <tr>
+              <th>Tastings</th>
+              {compared.map(d => <td key={d.id}>{d.tastingCount ?? 0}</td>)}
+            </tr>
           </tbody>
         </table>
+      </div>
+
+      {maxTastings > 0 && (
+        <div className="compare-table-wrap">
+          <table className="compare-table compare-history-table" data-testid="compare-history-table">
+            <thead>
+              <tr>
+                <th>Tasting</th>
+                {compared.map(d => <th key={d.id}>{drinkLabel(d)}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: maxTastings }, (_, i) => (
+                <tr key={i}>
+                  <th>#{i + 1}</th>
+                  {compared.map(d => <td key={d.id}>{tastingCell(d.tastings?.[i], category)}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
-}
-
-function tastingCell(tasting, category) {
-  if (!tasting) return '—';
-  const vintage = category === 'wine' && tasting.vintage ? ` (${tasting.vintage})` : '';
-  return `${tasting.date} — ${tasting.rating}${vintage}`;
 }
