@@ -196,7 +196,7 @@ export function buildCountryRanking(drinks) {
   return addWeightedRatingToRows(rows);
 }
 
-function avgLotPrice(drink) {
+export function avgLotPrice(drink) {
   const prices = (drink.collection || []).map(l => l.price).filter(p => typeof p === 'number' && !Number.isNaN(p));
   return prices.length ? avgOf(prices) : null;
 }

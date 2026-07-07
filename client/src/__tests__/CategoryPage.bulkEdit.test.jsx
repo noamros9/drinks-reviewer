@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import CategoryPage from '../pages/CategoryPage';
 
@@ -30,7 +30,7 @@ test('selecting all via the header checkbox selects every visible row', async ()
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Bisanzio');
   fireEvent.click(screen.getByLabelText('Select all rows'));
-  expect(screen.getByText('2 entries selected')).toBeInTheDocument();
+  expect(within(screen.getByTestId('bulk-edit-bar')).getByText('2 entries selected')).toBeInTheDocument();
 });
 
 test('clicking an already-selected row checkbox deselects it', async () => {

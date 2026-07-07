@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
 import BulkEditBar from '../components/BulkEditBar';
+import CompareBar from '../components/CompareBar';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, applyUrlRangeOverrides, applyUrlDropdownOverrides, applyUrlProducerOverride } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
 
@@ -138,6 +139,13 @@ export default function CategoryPage({ category }) {
           drinks={filtered}
           selectedIds={selectedIds}
           onApplied={handleBulkApplied}
+          onCancel={() => setSelectedIds(new Set())}
+        />
+      )}
+      {selectedIds.size === 2 && (
+        <CompareBar
+          category={category}
+          selectedIds={selectedIds}
           onCancel={() => setSelectedIds(new Set())}
         />
       )}

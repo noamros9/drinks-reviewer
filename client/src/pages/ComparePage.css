@@ -1,0 +1,44 @@
+.compare-back {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.compare-back:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.compare-table th,
+.compare-table td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.compare-table thead th {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.compare-table tbody th {
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.compare-stats-row th,
+.compare-stats-row td {
+  border-top: 2px solid var(--border);
+}

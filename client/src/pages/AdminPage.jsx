@@ -7,7 +7,7 @@ import CustomSelect from '../components/CustomSelect';
 import AutocompleteInput from '../components/AutocompleteInput';
 import './AdminPage.css';
 
-const FIELDS = {
+export const FIELDS = {
   wine: [
     { key: 'producer',      label: 'Producer',              type: 'text', autocomplete: true },
     { key: 'seriesAndName', label: 'Series & Name',          type: 'text' },

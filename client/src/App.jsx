@@ -6,6 +6,7 @@ import AllDrinksPage from './pages/AllDrinksPage';
 import CollectionPage from './pages/CollectionPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AdminPage from './pages/AdminPage';
+import ComparePage from './pages/ComparePage';
 
 function AdminRoute() {
   const { key } = useLocation();
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/whiskey" element={<CategoryPage category="whiskey" />} />
           <Route path="/others" element={<CategoryPage category="others" />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/compare" element={<ComparePage />} />
           <Route path="/admin" element={<AdminRoute />} />
         </Routes>
       </main>
