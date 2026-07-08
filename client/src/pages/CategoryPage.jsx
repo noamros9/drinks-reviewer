@@ -4,6 +4,7 @@ import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTabl
 import FilterBar from '../components/FilterBar';
 import BulkEditBar from '../components/BulkEditBar';
 import CompareBar from '../components/CompareBar';
+import RecommendBar from '../components/RecommendBar';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, applyUrlRangeOverrides, applyUrlDropdownOverrides, applyUrlProducerOverride } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
 
@@ -144,6 +145,13 @@ export default function CategoryPage({ category }) {
       )}
       {selectedIds.size >= 2 && selectedIds.size <= 5 && (
         <CompareBar
+          category={category}
+          selectedIds={selectedIds}
+          onCancel={() => setSelectedIds(new Set())}
+        />
+      )}
+      {selectedIds.size >= 1 && selectedIds.size <= 5 && (
+        <RecommendBar
           category={category}
           selectedIds={selectedIds}
           onCancel={() => setSelectedIds(new Set())}

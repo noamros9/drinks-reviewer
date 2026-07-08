@@ -22,8 +22,9 @@ test('selecting a row shows the bulk edit bar with the right count', async () =>
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Bisanzio');
   fireEvent.click(screen.getByLabelText('Select row 1'));
-  expect(screen.getByTestId('bulk-edit-bar')).toBeInTheDocument();
-  expect(screen.getByText('1 entry selected')).toBeInTheDocument();
+  const bar = screen.getByTestId('bulk-edit-bar');
+  expect(bar).toBeInTheDocument();
+  expect(within(bar).getByText('1 entry selected')).toBeInTheDocument();
 });
 
 test('selecting all via the header checkbox selects every visible row', async () => {
@@ -37,7 +38,7 @@ test('clicking an already-selected row checkbox deselects it', async () => {
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Bisanzio');
   fireEvent.click(screen.getByLabelText('Select row 1'));
-  expect(screen.getByText('1 entry selected')).toBeInTheDocument();
+  expect(within(screen.getByTestId('bulk-edit-bar')).getByText('1 entry selected')).toBeInTheDocument();
   fireEvent.click(screen.getByLabelText('Select row 1'));
   expect(screen.queryByTestId('bulk-edit-bar')).not.toBeInTheDocument();
 });
@@ -54,7 +55,7 @@ test('Cancel in the bulk edit bar hides it and clears selection', async () => {
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Bisanzio');
   fireEvent.click(screen.getByLabelText('Select row 1'));
-  fireEvent.click(screen.getByText('Cancel'));
+  fireEvent.click(within(screen.getByTestId('bulk-edit-bar')).getByText('Cancel'));
   expect(screen.queryByTestId('bulk-edit-bar')).not.toBeInTheDocument();
   expect(screen.getByLabelText('Select row 1')).not.toBeChecked();
 });
