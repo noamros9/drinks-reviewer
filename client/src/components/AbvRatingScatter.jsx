@@ -32,6 +32,9 @@ export function ScatterTooltip({ active, payload, xKey = 'abv', xLabel = 'ABV', 
   );
 }
 
+// Generalized via xKey/xLabel/xUnit so any numeric axis (not just ABV) can reuse this
+// chart — charts here generalize on their 2nd use, while leaderboard tables deliberately
+// don't (see RevisitLeaderboard/BestOfLeaderboard).
 export default function AbvRatingScatter({ points, onPointClick, xKey = 'abv', xLabel = 'ABV', xUnit = '%' }) {
   return (
     <ResponsiveContainer width="100%" height={320}>

@@ -17,6 +17,9 @@ export function TrendTooltip({ active, payload, describeTooltip }) {
   );
 }
 
+// Generalized for multi-series use via `series`/`describeTooltip` (single-series avg-rating
+// trend is just the default). `--cat-*` CSS vars used for series colors intentionally match
+// the category chip colors in DrinkTable.css, so a category reads the same across views.
 export default function TrendLineChart({
   data,
   series = DEFAULT_SERIES,

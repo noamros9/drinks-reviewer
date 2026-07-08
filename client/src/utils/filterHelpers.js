@@ -228,6 +228,8 @@ export function applyUrlDropdownOverrides(filters, searchParams, category) {
   return result;
 }
 
+// Sets a plain string filter (producerSearch), unlike the dropdown filters above
+// in this module which use Set-based multi-select shapes.
 export function applyUrlProducerOverride(filters, searchParams) {
   const value = searchParams.get('producer');
   return value != null ? { ...filters, producerSearch: value } : filters;

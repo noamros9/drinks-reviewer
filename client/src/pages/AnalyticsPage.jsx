@@ -10,6 +10,9 @@ import VintageSection from './analytics/VintageSection';
 import ExplorationSection from './analytics/ExplorationSection';
 import ValueSection from './analytics/ValueSection';
 
+// One component per analytics section; this page is just a thin tab-switcher over
+// them. Sub-analyses within a section stack vertically rather than nesting further
+// tabs. Data-shaping for each section lives in analyticsHelpers.js, not here.
 const SECTIONS = [
   { key: 'rating', label: 'Rating', Component: RatingSection },
   { key: 'abv', label: 'ABV', Component: AbvSection },

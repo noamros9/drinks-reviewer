@@ -1,5 +1,8 @@
 import './ConsistencyLeaderboard.css';
 
+// Deliberately not generalized with BestOfLeaderboard.jsx — leaderboard tables here
+// stay separate per-purpose rather than merging on a shared props shape (unlike the
+// chart components, which do generalize on their 2nd use).
 export default function RevisitLeaderboard({ rows, onSelectDrink }) {
   if (rows.length === 0) return <p className="empty-state">Nothing to revisit.</p>;
 

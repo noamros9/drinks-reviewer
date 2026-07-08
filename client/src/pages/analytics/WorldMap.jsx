@@ -1,6 +1,11 @@
 import { useMemo, useRef, useState } from 'react';
 import { ComposableMap, ZoomableGroup, Geographies, Geography, Marker, useZoomPanContext } from 'react-simple-maps';
 import worldCountries110m from 'world-atlas/countries-110m.json';
+// Built by dissolving Natural Earth's UK subdivisions into one feature via
+// `npx mapshaper -dissolve`, which produced invalid ring winding for this shape.
+// Fixed by running the dissolve through topojson-server instead. If this ever
+// needs regenerating, validate the output with d3-geo's geoPath().bounds() on
+// the projected feature before committing it.
 import ukConstituentCountries from '../../data/geo/uk-constituent-countries.json';
 import './GeographicSection.css';
 

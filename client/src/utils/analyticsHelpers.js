@@ -81,6 +81,8 @@ function numericAbv(drink) {
   return Number.isNaN(n) ? null : n;
 }
 
+// Dynamic buckets, not fixed ranges: ABV varies wildly per category (beer ~4-8%,
+// spirits ~35-50%), unlike rating's fixed 1-10 scale.
 export function buildAbvHistogram(drinks, bucketCount = 8) {
   const values = drinks.map(numericAbv).filter(v => v !== null).sort((a, b) => a - b);
   if (values.length === 0) return [];
@@ -160,7 +162,9 @@ function median(nums) {
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
-// Map of drink id -> weightedRating; C/m are derived from `drinks` itself (the caller's scope)
+// Map of drink id -> weightedRating; C/m are derived from `drinks` itself (the caller's scope).
+// Backs DrinkTable's "Top rated" sort. Known limitation: a wine's per-row vintage selector
+// does NOT recompute weightedRating per vintage — it stays pinned to the drink-level value.
 export function buildWeightedRatings(drinks) {
   const valid = drinks.filter(d => typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating));
   const C = avgOf(valid.map(d => d.avgRating));
@@ -275,6 +279,7 @@ export function buildRegionLeaderboard(drinks, n = 10) {
     .slice(0, n);
 }
 
+// No "date added" field exists on a drink, so earliest tasting date is used as a proxy.
 export function buildDiscoveryPace(drinks) {
   const buckets = new Map();
   for (const d of drinks) {
@@ -291,6 +296,8 @@ export function buildDiscoveryPace(drinks) {
 
 const MONTH_LABELS = Array.from({ length: 12 }, (_, i) => format(new Date(2000, i, 1), 'MMM'));
 
+// Tasting-date month histogram, all categories pooled — same earliest-tasting-as-proxy
+// caveat as buildDiscoveryPace applies to any date-derived analytics here.
 export function buildSeasonalPattern(drinks) {
   const counts = new Array(12).fill(0);
   for (const d of drinks) {
@@ -402,6 +409,8 @@ export function buildAgeVsRatingScatter(wineDrinks) {
   return points;
 }
 
+// Intentionally NOT weighted-rating-based (see weightedRating above) — the whole point
+// here is to surface raw high-avg/low-sample outliers, which weighting would suppress.
 export function buildUndiscovered(rows, { minAvg = 8, maxCount = 3 } = {}) {
   return rows.filter(r => r.avgRating >= minAvg && r.count <= maxCount)
              .sort((a, b) => b.avgRating - a.avgRating);
