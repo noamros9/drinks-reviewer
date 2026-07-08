@@ -1,3 +1,20 @@
+.recommend-top-ten-btn {
+  margin-left: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.recommend-top-ten-btn:hover {
+  border-color: var(--accent);
+}
+
 .exploration-unlocked-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;

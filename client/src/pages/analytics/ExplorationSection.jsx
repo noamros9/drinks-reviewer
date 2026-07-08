@@ -26,6 +26,13 @@ export default function ExplorationSection({ drinks, globalCategory }) {
     navigate('/admin', { state: { drink: entry.drink, category: entry.category, tab: 'tastings' } });
   };
 
+  const topTen = buildBestOf(scoped, Math.max(1, Math.ceil(scoped.length * 0.1)));
+
+  const handleRecommendTopTen = () => {
+    const seeds = topTen.map(e => `${e.id}:${e.category}`).join(',');
+    navigate(`/recommend?seeds=${seeds}`);
+  };
+
   return (
     <div className="analytics-section">
       <div className="analytics-section-header">
@@ -81,7 +88,14 @@ export default function ExplorationSection({ drinks, globalCategory }) {
       </h3>
       <RevisitLeaderboard rows={toRevisit} onSelectDrink={handleSelectDrink} />
 
-      <h3 className="analytics-subsection-title">Best Of (weighted rating)</h3>
+      <h3 className="analytics-subsection-title">
+        Best Of (weighted rating)
+        {topTen.length >= 1 && (
+          <button type="button" className="recommend-top-ten-btn" onClick={handleRecommendTopTen}>
+            Recommend based on my top 10%
+          </button>
+        )}
+      </h3>
       <BestOfLeaderboard rows={bestOf} onSelectDrink={handleSelectDrink} />
     </div>
   );

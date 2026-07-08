@@ -144,3 +144,18 @@ test('Drinks to Revisit shows an empty state when nothing qualifies', () => {
   );
   expect(screen.getByText('Nothing to revisit.')).toBeInTheDocument();
 });
+
+test('"Recommend based on my top 10%" navigates with the top-rated ids as seeds', () => {
+  renderSection('all');
+  fireEvent.click(screen.getByText('Recommend based on my top 10%'));
+  expect(mockNavigate).toHaveBeenCalledWith('/recommend?seeds=w1:wine');
+});
+
+test('hides the top-10% recommend button when nothing is rated', () => {
+  render(
+    <MemoryRouter>
+      <ExplorationSection drinks={[{ id: 'x', _category: 'wine', avgRating: undefined }]} globalCategory="all" />
+    </MemoryRouter>
+  );
+  expect(screen.queryByText('Recommend based on my top 10%')).not.toBeInTheDocument();
+});

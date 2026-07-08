@@ -5,6 +5,8 @@ const { randomUUID } = require('crypto');
 const multer = require('multer');
 const { computeFromTastings } = require('../tastingsHelper');
 const { ensureRegionCoordinates, readCoordinates } = require('../geocoding');
+const { readData, writeData } = require('../dataStore');
+const { getRecommendations } = require('../recommend');
 
 const IMAGES_DIR_PATH = process.env.IMAGES_DIR || path.join(__dirname, '../../client/public/images/drinks');
 
@@ -34,20 +36,6 @@ const BULK_EDITABLE_FIELDS = {
   whiskey: ['style', 'country', 'region', 'tags'],
   others:  ['drinkCategory', 'style', 'country', 'tags'],
 };
-
-const DATA_DIR_PATH = process.env.DATA_DIR || path.join(__dirname, '../data');
-
-function readData(category) {
-  try {
-    return JSON.parse(fs.readFileSync(path.join(DATA_DIR_PATH, `${category}.json`), 'utf8'));
-  } catch {
-    throw new Error(`Failed to read data for category: ${category}`);
-  }
-}
-
-function writeData(category, data) {
-  fs.writeFileSync(path.join(DATA_DIR_PATH, `${category}.json`), JSON.stringify(data, null, 2));
-}
 
 function pickFields(body, category, partial = false) {
   const allowed = ALLOWED_FIELDS[category];
@@ -110,6 +98,18 @@ router.get('/collection', (req, res) => {
     res.json(result);
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.post('/recommend', async (req, res) => {
+  const { seeds } = req.body;
+  if (!Array.isArray(seeds) || seeds.length < 1) {
+    return res.status(400).json({ error: 'seeds must be an array of at least 1 {id, category} pair' });
+  }
+  try {
+    res.json(await getRecommendations(seeds));
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
   }
 });
 

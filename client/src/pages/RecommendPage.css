@@ -1,0 +1,56 @@
+.recommend-back {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.recommend-back:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.recommend-section-title {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.recommend-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.recommend-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.recommend-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.recommend-link:hover {
+  text-decoration: underline;
+}
+
+.recommend-category {
+  color: var(--text-secondary);
+  font-size: 0.85em;
+}
+
+.recommend-reason {
+  color: var(--text-secondary);
+  font-size: 0.85em;
+}
