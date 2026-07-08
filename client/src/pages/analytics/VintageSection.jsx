@@ -4,6 +4,8 @@ import AbvRatingScatter from '../../components/AbvRatingScatter';
 import { buildVintageLeaderboard, buildAgeVsRatingScatter } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 
+// Wine-only, so deliberately has no Scope tabs like sibling sections — the
+// "(wine only)" note below is a static label, not an interactive filter row.
 export default function VintageSection({ drinks }) {
   const navigate = useNavigate();
   const wine = drinks.filter(d => d._category === 'wine');
