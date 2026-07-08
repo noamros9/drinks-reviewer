@@ -1,8 +1,9 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BestOfLeaderboard from './BestOfLeaderboard';
 import RevisitLeaderboard from './RevisitLeaderboard';
 import StatTileRow from '../../components/StatTileRow';
+import ScopeTabs from '../../components/ScopeTabs';
+import { useScopeCategory } from '../../hooks/useScopeCategory';
 import {
   buildBestOf, buildExplorerScore, buildNewCountriesThisYear, buildNewStylesThisYear, buildDrinksToRevisit,
 } from '../../utils/analyticsHelpers';
@@ -10,12 +11,9 @@ import './RatingSection.css';
 import './StyleSection.css';
 import './ExplorationSection.css';
 
-const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
-
 export default function ExplorationSection({ drinks, globalCategory }) {
-  const [override, setOverride] = useState(null);
+  const [category, setOverride] = useScopeCategory(globalCategory);
   const navigate = useNavigate();
-  const category = override ?? globalCategory;
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
   const bestOf = buildBestOf(scoped, 10);
@@ -31,14 +29,7 @@ export default function ExplorationSection({ drinks, globalCategory }) {
   return (
     <div className="analytics-section">
       <div className="analytics-section-header">
-        <div className="category-tabs" data-testid="exploration-category-filter">
-          <span className="scope-label">Scope</span>
-          {CATEGORY_FILTERS.map(c => (
-            <button key={c} className={category === c ? 'active' : ''} onClick={() => setOverride(c)}>
-              {c.charAt(0).toUpperCase() + c.slice(1)}
-            </button>
-          ))}
-        </div>
+        <ScopeTabs category={category} onChange={setOverride} testId="exploration-category-filter" />
       </div>
 
       <h3 className="analytics-subsection-title">Explorer Score</h3>

@@ -1,20 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import CountryRankingTable from './CountryRankingTable';
 import WorldMap from './WorldMap';
 import RegionLeaderboard from './RegionLeaderboard';
 import CategoryBarChart from '../../components/CategoryBarChart';
+import ScopeTabs from '../../components/ScopeTabs';
+import { useScopeCategory } from '../../hooks/useScopeCategory';
 import { buildCountryRanking, buildOldNewWorldBreakdown, buildRegionLeaderboard } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 import './GeographicSection.css';
 
-const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 const REGION_CATEGORIES = new Set(['wine', 'whiskey']);
 
 export default function GeographicSection({ drinks, globalCategory }) {
-  const [override, setOverride] = useState(null);
+  const [category, setOverride] = useScopeCategory(globalCategory);
   const [regionCountry, setRegionCountry] = useState('all');
   const [regionCoordinates, setRegionCoordinates] = useState({});
-  const category = override ?? globalCategory;
 
   useEffect(() => {
     fetch('/api/region-coordinates')
@@ -23,18 +23,32 @@ export default function GeographicSection({ drinks, globalCategory }) {
       .catch(() => {});
   }, []);
 
-  const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
-  const countryRanking = buildCountryRanking(scoped);
+  useEffect(() => { setRegionCountry('all'); }, [category]);
+
+  const scoped = useMemo(
+    () => category === 'all' ? drinks : drinks.filter(d => d._category === category),
+    [drinks, category]
+  );
+  const countryRanking = useMemo(() => buildCountryRanking(scoped), [scoped]);
   const total = countryRanking.reduce((s, r) => s + r.count, 0);
 
-  const wineDrinks = drinks.filter(d => d._category === 'wine');
-  const oldNewWorld = buildOldNewWorldBreakdown(wineDrinks);
+  const wineDrinks = useMemo(() => drinks.filter(d => d._category === 'wine'), [drinks]);
+  const oldNewWorld = useMemo(() => buildOldNewWorldBreakdown(wineDrinks), [wineDrinks]);
 
-  const regionSourceDrinks = scoped.filter(d => REGION_CATEGORIES.has(d._category));
-  const regionCountries = [...new Set(regionSourceDrinks.map(d => d.country).filter(Boolean))].sort();
-  const regionFilteredDrinks = regionCountry === 'all' ? regionSourceDrinks : regionSourceDrinks.filter(d => d.country === regionCountry);
-  const regionRows = buildRegionLeaderboard(regionFilteredDrinks, 10);
-  const mapRegions = buildRegionLeaderboard(regionSourceDrinks, Infinity);
+  const regionSourceDrinks = useMemo(
+    () => scoped.filter(d => REGION_CATEGORIES.has(d._category)),
+    [scoped]
+  );
+  const regionCountries = useMemo(
+    () => [...new Set(regionSourceDrinks.map(d => d.country).filter(Boolean))].sort(),
+    [regionSourceDrinks]
+  );
+  const regionFilteredDrinks = useMemo(
+    () => regionCountry === 'all' ? regionSourceDrinks : regionSourceDrinks.filter(d => d.country === regionCountry),
+    [regionSourceDrinks, regionCountry]
+  );
+  const regionRows = useMemo(() => buildRegionLeaderboard(regionFilteredDrinks, 10), [regionFilteredDrinks]);
+  const mapRegions = useMemo(() => buildRegionLeaderboard(regionSourceDrinks, Infinity), [regionSourceDrinks]);
 
   const handleSelectCountry = (country) => window.open(`/${category}?country=${encodeURIComponent(country)}`, '_blank');
   const handleSelectRegion = (r) => window.open(`/${r.category}?region=${encodeURIComponent(r.region)}`, '_blank');
@@ -44,14 +58,7 @@ export default function GeographicSection({ drinks, globalCategory }) {
     <div className="analytics-section">
       <div className="analytics-section-header">
         <span className="count-badge">{total} {total === 1 ? 'drink' : 'drinks'} with country data</span>
-        <div className="category-tabs" data-testid="geo-category-filter">
-          <span className="scope-label">Scope</span>
-          {CATEGORY_FILTERS.map(c => (
-            <button key={c} className={category === c ? 'active' : ''} onClick={() => setOverride(c)}>
-              {c.charAt(0).toUpperCase() + c.slice(1)}
-            </button>
-          ))}
-        </div>
+        <ScopeTabs category={category} onChange={setOverride} testId="geo-category-filter" />
       </div>
       {total === 0
         ? <p className="empty-state">No country data yet.</p>

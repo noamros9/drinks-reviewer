@@ -74,7 +74,7 @@ test('clicking a bar opens a new tab to the scoped category with the bucket rang
   renderSection('all');
   fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
   fireEvent.click(screen.getByTestId('bar-7-8'));
-  expect(window.open).toHaveBeenCalledWith('/wine?avgRatingMin=7&avgRatingMax=8', '_blank');
+  expect(window.open).toHaveBeenCalledWith('/wine?avgRatingMin=7&avgRatingMax=7.99', '_blank');
 });
 
 test('clicking a bar while scoped to All opens a new tab to /all', () => {

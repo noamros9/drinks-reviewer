@@ -1,20 +1,18 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AbvRatingScatter from '../../components/AbvRatingScatter';
 import CategoryBarChart from '../../components/CategoryBarChart';
+import ScopeTabs from '../../components/ScopeTabs';
 import BestValueLeaderboard from './BestValueLeaderboard';
 import AvgPriceByCountryTable from './AvgPriceByCountryTable';
+import { useScopeCategory } from '../../hooks/useScopeCategory';
 import {
   buildPriceRatingScatter, buildBestValue, buildAvgPriceCategoryComparison, buildAvgPriceByCountry,
 } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 
-const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
-
 export default function ValueSection({ drinks, globalCategory }) {
-  const [override, setOverride] = useState(null);
+  const [category, setOverride] = useScopeCategory(globalCategory);
   const navigate = useNavigate();
-  const category = override ?? globalCategory;
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
   const scatterPoints = buildPriceRatingScatter(scoped);
@@ -37,14 +35,7 @@ export default function ValueSection({ drinks, globalCategory }) {
   return (
     <div className="analytics-section">
       <div className="analytics-section-header">
-        <div className="category-tabs" data-testid="value-category-filter">
-          <span className="scope-label">Scope</span>
-          {CATEGORY_FILTERS.map(c => (
-            <button key={c} className={category === c ? 'active' : ''} onClick={() => setOverride(c)}>
-              {c.charAt(0).toUpperCase() + c.slice(1)}
-            </button>
-          ))}
-        </div>
+        <ScopeTabs category={category} onChange={setOverride} testId="value-category-filter" />
       </div>
 
       <h3 className="analytics-subsection-title">Price vs Rating</h3>

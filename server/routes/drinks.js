@@ -197,6 +197,9 @@ router.patch('/:category/bulk', async (req, res) => {
       writeData(category, data);
       return affected;
     });
+    if (field === 'country' || field === 'region') {
+      await Promise.all(updated.map(d => maybeGeocodeRegion(category, d)));
+    }
     res.json({ updated });
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
@@ -314,7 +317,10 @@ router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), 
       const tasting = (d.tastings || []).find(t => t.id === tastingId);
       if (!tasting) return false;
       if (tasting.imageUrl) {
-        try { fs.unlinkSync(path.join(IMAGES_DIR_PATH, path.basename(tasting.imageUrl))); } catch {}
+        const stillShared = d.tastings.some(t => t.id !== tastingId && t.imageUrl === tasting.imageUrl);
+        if (!stillShared) {
+          try { fs.unlinkSync(path.join(IMAGES_DIR_PATH, path.basename(tasting.imageUrl))); } catch {}
+        }
       }
       tasting.imageUrl = `/images/drinks/${req.file.filename}`;
       writeData(category, data);

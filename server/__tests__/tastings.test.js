@@ -241,6 +241,27 @@ describe('POST /api/:category/:id/tastings/:tastingId/image', () => {
     expect(second.body.tastings[0].imageUrl).not.toBe(first.body.tastings[0].imageUrl);
   });
 
+  it('keeps the image file when another tasting still references it (carry-forward)', async () => {
+    const drink = await createDrink('wine');
+    const addRes1 = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
+    const tastingId1 = addRes1.body.tastings[0].id;
+    const uploadRes = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/${tastingId1}/image`)
+      .attach('image', Buffer.from('shared'), { filename: 'shared.jpg', contentType: 'image/jpeg' });
+    const sharedImageUrl = uploadRes.body.tastings[0].imageUrl;
+    const sharedFile = path.join(imgDir, path.basename(sharedImageUrl));
+
+    const addRes2 = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '02/01/2025', rating: 7, imageUrl: sharedImageUrl });
+    const tastingId2 = addRes2.body.tastings.find(t => t.id !== tastingId1).id;
+
+    const res = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/${tastingId1}/image`)
+      .attach('image', Buffer.from('new'), { filename: 'new.jpg', contentType: 'image/jpeg' });
+    expect(res.status).toBe(200);
+    expect(fs.existsSync(sharedFile)).toBe(true);
+    expect(res.body.tastings.find(t => t.id === tastingId2).imageUrl).toBe(sharedImageUrl);
+  });
+
   it('returns 400 when no file is attached', async () => {
     const drink = await createDrink('wine');
     const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
