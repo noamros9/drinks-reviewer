@@ -188,11 +188,13 @@ export function buildBestOf(drinks, n = 10) {
 }
 
 export function buildCountryRanking(drinks) {
-  const countries = [...new Set(drinks.map(d => d.country).filter(Boolean))];
-  const rows = countries.map(country => {
-    const values = validRatings(drinks.filter(d => d.country === country));
-    return { country, avgRating: avgOf(values), count: values.length };
-  });
+  const groups = new Map();
+  for (const d of drinks) {
+    if (!d.country) continue;
+    if (!groups.has(d.country)) groups.set(d.country, []);
+    if (typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating)) groups.get(d.country).push(d.avgRating);
+  }
+  const rows = [...groups.entries()].map(([country, values]) => ({ country, avgRating: avgOf(values), count: values.length }));
   return addWeightedRatingToRows(rows);
 }
 
@@ -215,12 +217,16 @@ export function buildAvgPriceCategoryComparison(drinks) {
 }
 
 export function buildAvgPriceByCountry(drinks) {
-  const countries = [...new Set(drinks.map(d => d.country).filter(Boolean))];
-  return countries
-    .map(country => {
-      const prices = drinks.filter(d => d.country === country).map(avgLotPrice).filter(p => p !== null);
-      return { country, avgPrice: avgOf(prices), count: prices.length };
-    })
+  const groups = new Map();
+  for (const d of drinks) {
+    if (!d.country) continue;
+    const price = avgLotPrice(d);
+    if (price === null) continue;
+    if (!groups.has(d.country)) groups.set(d.country, []);
+    groups.get(d.country).push(price);
+  }
+  return [...groups.entries()]
+    .map(([country, prices]) => ({ country, avgPrice: avgOf(prices), count: prices.length }))
     .filter(r => r.count > 0);
 }
 

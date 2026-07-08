@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import TrendLineChart from '../../components/TrendLineChart';
+import ScopeTabs from '../../components/ScopeTabs';
+import { useScopeCategory } from '../../hooks/useScopeCategory';
 import { buildDiscoveryPace, buildSeasonalPattern, buildCategoryTrend } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 
-const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 const CATEGORY_TREND_SERIES = [
   { dataKey: 'wine', color: 'var(--cat-wine)', label: 'Wine' },
   { dataKey: 'beer', color: 'var(--cat-beer)', label: 'Beer' },
@@ -12,8 +12,7 @@ const CATEGORY_TREND_SERIES = [
 ];
 
 export default function TimePaceSection({ drinks, globalCategory }) {
-  const [override, setOverride] = useState(null);
-  const category = override ?? globalCategory;
+  const [category, setOverride] = useScopeCategory(globalCategory);
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
 
   const total = scoped.filter(d => (d.tastings || []).length > 0).length;
@@ -25,14 +24,7 @@ export default function TimePaceSection({ drinks, globalCategory }) {
     <div className="analytics-section">
       <div className="analytics-section-header">
         <span className="count-badge">{total} tasted {total === 1 ? 'drink' : 'drinks'}</span>
-        <div className="category-tabs" data-testid="timepace-category-filter">
-          <span className="scope-label">Scope</span>
-          {CATEGORY_FILTERS.map(c => (
-            <button key={c} className={category === c ? 'active' : ''} onClick={() => setOverride(c)}>
-              {c.charAt(0).toUpperCase() + c.slice(1)}
-            </button>
-          ))}
-        </div>
+        <ScopeTabs category={category} onChange={setOverride} testId="timepace-category-filter" />
       </div>
       {total === 0
         ? <p className="empty-state">No tastings logged yet.</p>

@@ -1,22 +1,20 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RatingHistogram from '../../components/RatingHistogram';
 import StatTileRow from '../../components/StatTileRow';
 import TrendLineChart from '../../components/TrendLineChart';
 import CategoryBarChart from '../../components/CategoryBarChart';
+import ScopeTabs from '../../components/ScopeTabs';
 import ConsistencyLeaderboard from './ConsistencyLeaderboard';
+import { useScopeCategory } from '../../hooks/useScopeCategory';
 import {
   buildRatingHistogram, computePercentiles, buildRatingTrend,
-  buildCategoryComparison, buildConsistencyLeaderboard,
+  buildCategoryComparison, buildConsistencyLeaderboard, RATING_BUCKETS,
 } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 
-const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
-
 export default function RatingSection({ drinks, globalCategory }) {
-  const [override, setOverride] = useState(null);
+  const [category, setOverride] = useScopeCategory(globalCategory);
   const navigate = useNavigate();
-  const category = override ?? globalCategory;
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
   const buckets = buildRatingHistogram(scoped);
@@ -28,7 +26,9 @@ export default function RatingSection({ drinks, globalCategory }) {
   const leaderboard = buildConsistencyLeaderboard(scoped, 5);
 
   const handleBarClick = ({ min, max }) => {
-    window.open(`/${category}?avgRatingMin=${min}&avgRatingMax=${max}`, '_blank');
+    const isLastBucket = max >= RATING_BUCKETS[RATING_BUCKETS.length - 1].max;
+    const avgRatingMax = isLastBucket ? max : max - 0.01;
+    window.open(`/${category}?avgRatingMin=${min}&avgRatingMax=${avgRatingMax}`, '_blank');
   };
 
   const handleCategoryBarClick = (cat) => {
@@ -47,14 +47,7 @@ export default function RatingSection({ drinks, globalCategory }) {
     <div className="analytics-section">
       <div className="analytics-section-header">
         <span className="count-badge">{total} rated {total === 1 ? 'drink' : 'drinks'}</span>
-        <div className="category-tabs" data-testid="rating-category-filter">
-          <span className="scope-label">Scope</span>
-          {CATEGORY_FILTERS.map(c => (
-            <button key={c} className={category === c ? 'active' : ''} onClick={() => setOverride(c)}>
-              {c.charAt(0).toUpperCase() + c.slice(1)}
-            </button>
-          ))}
-        </div>
+        <ScopeTabs category={category} onChange={setOverride} testId="rating-category-filter" />
       </div>
       {total === 0
         ? <p className="empty-state">No rated drinks yet.</p>

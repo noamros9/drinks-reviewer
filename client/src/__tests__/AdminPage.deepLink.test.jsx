@@ -36,6 +36,18 @@ test('category query param selects the right category before the drink loads', a
   expect(screen.getByLabelText(/sweetness/i)).toBeInTheDocument();
 });
 
+test('deep link shows Edit Entry immediately, not a flash of Add Entry', async () => {
+  render(
+    <MemoryRouter initialEntries={['/admin?id=w1&category=wine']}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+  expect(screen.getByText('Edit Entry')).toBeInTheDocument();
+  expect(screen.queryByText('Add Entry')).not.toBeInTheDocument();
+  await waitFor(() => expect(screen.getByDisplayValue('Château X')).toBeInTheDocument());
+  expect(screen.getByText('Edit Entry')).toBeInTheDocument();
+});
+
 test('unmatched id query param leaves the form in create mode', async () => {
   render(
     <MemoryRouter initialEntries={['/admin?id=missing&category=wine']}>

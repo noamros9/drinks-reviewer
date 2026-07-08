@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { FIELDS } from './AdminPage';
 import { buildWeightedRatings, avgLotPrice, drinkLabel } from '../utils/analyticsHelpers';
@@ -36,6 +36,8 @@ export default function ComparePage() {
       .catch(() => setLoaded(true));
   }, [category, validCategory]);
 
+  const weights = useMemo(() => buildWeightedRatings(drinks), [drinks]);
+
   if (!validCategory) {
     return (
       <div className="compare-page">
@@ -60,7 +62,6 @@ export default function ComparePage() {
     );
   }
 
-  const weights = buildWeightedRatings(drinks);
   const fields = FIELDS[category];
   const maxTastings = Math.max(...compared.map(d => d.tastings?.length ?? 0));
 

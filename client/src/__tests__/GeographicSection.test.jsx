@@ -88,6 +88,17 @@ test('clicking a region-country pivot filters the leaderboard without navigating
   expect(window.open).not.toHaveBeenCalled();
 });
 
+test('switching scope resets a stale region-country pivot instead of carrying it over', async () => {
+  renderSection('all');
+  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  await screen.findByText('Chianti');
+  fireEvent.click(within(screen.getByTestId('geo-region-country-filter')).getByRole('button', { name: 'Italy' }));
+  expect(screen.getByText('Chianti')).toBeInTheDocument();
+
+  fireEvent.click(scopeFilter().getByRole('button', { name: 'Whiskey' }));
+  expect(await screen.findByText('Speyside')).toBeInTheDocument();
+});
+
 test('a failed region-coordinates fetch does not break the section', async () => {
   global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
   renderSection('all');

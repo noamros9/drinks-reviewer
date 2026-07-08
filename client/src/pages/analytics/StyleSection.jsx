@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import StyleLeaderboardTable from './StyleLeaderboardTable';
+import ScopeTabs from '../../components/ScopeTabs';
+import { useScopeCategory } from '../../hooks/useScopeCategory';
 import { buildStyleLeaderboard, buildUndiscovered } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 import './GeographicSection.css';
 import './StyleSection.css';
 
-const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 const ALL_CATS = ['wine', 'beer', 'whiskey', 'others'];
 
 const BLOCK_CONFIG = {
@@ -58,21 +59,13 @@ function StyleBlock({ category, drinks }) {
 }
 
 export default function StyleSection({ drinks, globalCategory }) {
-  const [override, setOverride] = useState(null);
-  const category = override ?? globalCategory;
+  const [category, setOverride] = useScopeCategory(globalCategory);
   const cats = category === 'all' ? ALL_CATS : [category];
 
   return (
     <div className="analytics-section">
       <div className="analytics-section-header">
-        <div className="category-tabs" data-testid="style-category-filter">
-          <span className="scope-label">Scope</span>
-          {CATEGORY_FILTERS.map(c => (
-            <button key={c} className={category === c ? 'active' : ''} onClick={() => setOverride(c)}>
-              {c.charAt(0).toUpperCase() + c.slice(1)}
-            </button>
-          ))}
-        </div>
+        <ScopeTabs category={category} onChange={setOverride} testId="style-category-filter" />
       </div>
       {cats.map(c => (
         <StyleBlock key={c} category={c} drinks={drinks.filter(d => d._category === c)} />

@@ -72,9 +72,9 @@ export default function AdminPage() {
   const [form, setForm] = useState(
     editState?.drink ? { ...editState.drink } : emptyForm(editState?.category || 'wine')
   );
-  const isEditing = !!form.id;
   const deepLinkId = searchParams.get('id');
   const [loadingDrink, setLoadingDrink] = useState(!!deepLinkId && !editState?.drink);
+  const isEditing = !!form.id || (loadingDrink && !!deepLinkId);
   const [message, setMessage] = useState('');
   const [lots, setLots] = useState(editState?.drink?.collection ?? []);
   const [newLotQty, setNewLotQty] = useState('1');

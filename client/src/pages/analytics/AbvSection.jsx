@@ -1,17 +1,15 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RatingHistogram from '../../components/RatingHistogram';
 import CategoryBarChart from '../../components/CategoryBarChart';
 import AbvRatingScatter from '../../components/AbvRatingScatter';
+import ScopeTabs from '../../components/ScopeTabs';
+import { useScopeCategory } from '../../hooks/useScopeCategory';
 import { buildAbvHistogram, buildAbvVsRatingScatter, buildAbvCategoryComparison } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 
-const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
-
 export default function AbvSection({ drinks, globalCategory }) {
-  const [override, setOverride] = useState(null);
+  const [category, setOverride] = useScopeCategory(globalCategory);
   const navigate = useNavigate();
-  const category = override ?? globalCategory;
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
   const buckets = buildAbvHistogram(scoped);
@@ -36,14 +34,7 @@ export default function AbvSection({ drinks, globalCategory }) {
     <div className="analytics-section">
       <div className="analytics-section-header">
         <span className="count-badge">{total} {total === 1 ? 'drink' : 'drinks'} with ABV data</span>
-        <div className="category-tabs" data-testid="abv-category-filter">
-          <span className="scope-label">Scope</span>
-          {CATEGORY_FILTERS.map(c => (
-            <button key={c} className={category === c ? 'active' : ''} onClick={() => setOverride(c)}>
-              {c.charAt(0).toUpperCase() + c.slice(1)}
-            </button>
-          ))}
-        </div>
+        <ScopeTabs category={category} onChange={setOverride} testId="abv-category-filter" />
       </div>
       {total === 0
         ? <p className="empty-state">No ABV data yet.</p>
