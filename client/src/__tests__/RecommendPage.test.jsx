@@ -31,7 +31,7 @@ beforeEach(() => {
 
 test('shows a loading message while waiting for the recommendation', () => {
   renderAt('/recommend?seeds=1:wine,2:wine');
-  expect(screen.getByText(/Asking Claude for recommendations/)).toBeInTheDocument();
+  expect(screen.getByText(/Finding recommendations/)).toBeInTheDocument();
 });
 
 test('renders all three result groups once the call resolves', async () => {

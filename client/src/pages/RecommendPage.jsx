@@ -49,7 +49,7 @@ export default function RecommendPage() {
   if (status === 'loading') {
     return (
       <div className="recommend-page">
-        <p className="empty-state">Asking Claude for recommendations&hellip; this can take up to 30 seconds.</p>
+        <p className="empty-state">Finding recommendations&hellip; this can take up to 30 seconds.</p>
       </div>
     );
   }

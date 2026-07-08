@@ -28,25 +28,81 @@ function trim(drink, category) {
   return picked;
 }
 
-function buildPrompt(seedDrinks, candidatePool) {
+const NUMERIC_FIELDS = { abv: 1, age: 3 }; // ponytail: fixed tolerance per field, tune if scores feel off
+
+function fieldScore(field, seedVal, candVal) {
+  if (seedVal == null || candVal == null || seedVal === '' || candVal === '') return 0;
+  if (field === 'tags') {
+    const a = new Set(seedVal), b = new Set(candVal);
+    if (!a.size || !b.size) return 0;
+    const intersection = [...a].filter(x => b.has(x)).length;
+    const union = new Set([...a, ...b]).size;
+    return intersection / union;
+  }
+  if (field in NUMERIC_FIELDS) {
+    const diff = Math.abs(parseFloat(seedVal) - parseFloat(candVal));
+    if (Number.isNaN(diff)) return 0;
+    return Math.max(0, 1 - diff / NUMERIC_FIELDS[field]);
+  }
+  return seedVal === candVal ? 1 : 0;
+}
+
+const FIELD_LABELS = {
+  producer: 'producer', brewery: 'brewery', distillery: 'distillery',
+  seriesAndName: 'name', name: 'name', variety: 'variety', wineCategory: 'category',
+  drinkCategory: 'category', sweetness: 'sweetness', style: 'style',
+  country: 'country', region: 'region', abv: 'ABV', age: 'age', tags: 'tags',
+};
+
+// ponytail: only scores candidates against seeds of the same category (cross-category
+// field sets barely overlap) — add cross-category scoring if that's ever wanted.
+function scoreAndReason(sameCategorySeeds, candidate) {
+  const fields = SIMILARITY_FIELDS[candidate.category];
+  let best = { score: 0, matchedFields: [] };
+  for (const seed of sameCategorySeeds) {
+    const perField = fields.map(f => ({ f, s: fieldScore(f, seed[f], candidate[f]) }));
+    const score = perField.reduce((sum, x) => sum + x.s, 0);
+    if (score > best.score) best = { score, matchedFields: perField.filter(x => x.s > 0).map(x => x.f) };
+  }
+  return best;
+}
+
+function scoreSimilarity(seedDrinks, candidate) {
+  const sameCategorySeeds = seedDrinks.filter(s => s.category === candidate.category);
+  return scoreAndReason(sameCategorySeeds, candidate).score;
+}
+
+function buildOwnCatalogue(seedDrinks, candidatePool) {
+  const seedsByCategory = {};
+  for (const seed of seedDrinks) (seedsByCategory[seed.category] ||= []).push(seed);
+
+  return candidatePool
+    .map(candidate => ({ candidate, ...scoreAndReason(seedsByCategory[candidate.category] || [], candidate) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map(({ candidate, matchedFields }) => ({
+      id: candidate.id,
+      category: candidate.category,
+      label: candidate.label,
+      reason: `Similar ${matchedFields.map(f => FIELD_LABELS[f]).join(', ')}`, // matchedFields is always non-empty here: filter(score > 0) guarantees at least one field scored > 0; every SIMILARITY_FIELDS entry has a FIELD_LABELS mapping
+    }));
+}
+
+function buildPrompt(seedDrinks) {
   return `You are a drinks recommendation assistant for a personal wine/beer/whiskey/spirits journal app.
 
 The user picked these drinks as the basis for a recommendation:
 ${JSON.stringify(seedDrinks, null, 2)}
 
-Here is the user's full catalogue, to check for "already own" matches (do not recommend the seed drinks themselves):
-${JSON.stringify(candidatePool, null, 2)}
-
-Recommend similar drinks in three groups:
-1. "ownCatalogue": up to 3 drinks from the catalogue above (excluding the seeds) that are genuinely similar. Reference each by its exact "id" and "category" from the list above.
-2. "availableInIsrael": real-world drinks NOT in the catalogue, similar to the seeds, that can be purchased in Israel. Use web search to find one real, working purchase link per entry — omit an entry if you cannot find an actual link, never invent one.
-3. "notAvailable": real-world drinks NOT in the catalogue, similar to the seeds, that are not readily available for purchase in Israel.
-Groups 2 and 3 combined should have roughly 3-6 entries, as many as make sense.
+Find real-world drinks similar to the seeds above, in two groups:
+1. "availableInIsrael": real-world drinks similar to the seeds that can be purchased in Israel. Use search to find one real, working purchase link per entry — omit an entry if you cannot find an actual link, never invent one.
+2. "notAvailable": real-world drinks similar to the seeds that are not readily available for purchase in Israel.
+Groups combined should have roughly 3-6 entries, as many as make sense.
 
 Respond with ONLY a single fenced JSON code block at the very end of your reply, matching exactly this shape:
 \`\`\`json
 {
-  "ownCatalogue": [{"id": "...", "category": "...", "reason": "..."}],
   "availableInIsrael": [{"name": "...", "description": "...", "url": "...", "reason": "..."}],
   "notAvailable": [{"name": "...", "description": "...", "reason": "..."}]
 }
@@ -54,38 +110,61 @@ Respond with ONLY a single fenced JSON code block at the very end of your reply,
 }
 
 function parseResponse(body) {
-  const text = (body.content || [])
-    .filter(block => block.type === 'text')
-    .map(block => block.text)
+  const text = (body.candidates || [])
+    .flatMap(c => (c.content?.parts || []))
+    .map(part => part.text)
+    .filter(Boolean)
     .join('\n');
   const match = text.match(/```json\s*([\s\S]*?)```/) || text.match(/(\{[\s\S]*\})/);
-  if (!match) throw new RecommendError('No JSON found in Claude response', 502);
+  if (!match) throw new RecommendError('No JSON found in Gemini response', 502);
   try {
     return JSON.parse(match[1]);
   } catch {
-    throw new RecommendError('Failed to parse JSON from Claude response', 502);
+    throw new RecommendError('Failed to parse JSON from Gemini response', 502);
   }
 }
 
-function validate(parsed, catalogueByCategory) {
-  const ownCatalogue = (parsed.ownCatalogue || [])
-    .filter(e => (catalogueByCategory[e.category] || []).some(d => d.id === e.id))
-    .slice(0, 3)
-    .map(e => ({ id: e.id, category: e.category, label: label(catalogueByCategory[e.category].find(d => d.id === e.id)), reason: e.reason || '' }));
-
-  const availableInIsrael = (parsed.availableInIsrael || [])
-    .filter(e => typeof e.url === 'string' && e.url.trim())
-    .slice(0, 8);
-  const notAvailable = (parsed.notAvailable || []).slice(0, Math.max(0, 8 - availableInIsrael.length));
-
-  return { ownCatalogue, availableInIsrael, notAvailable };
+// ponytail: fuzzy substring match against known labels rather than a real dedupe/fuzzy-match
+// library — good enough to catch "already own this" overlaps, revisit if false positives show up.
+function alreadyInCatalogue(name, catalogueLabels) {
+  const n = (name || '').trim().toLowerCase();
+  if (!n) return false;
+  return catalogueLabels.some(label => {
+    const l = label.trim().toLowerCase();
+    return n.includes(l) || l.includes(n);
+  });
 }
 
-// ponytail: single-turn web_search with a low max_uses avoids the pause_turn
-// multi-turn continuation case (long-running searches) rather than handling it;
-// add continuation handling if pause_turn is observed in practice.
+function validate(parsed, catalogueLabels) {
+  const availableInIsrael = (parsed.availableInIsrael || [])
+    .filter(e => typeof e.url === 'string' && e.url.trim())
+    .filter(e => !alreadyInCatalogue(e.name, catalogueLabels))
+    .slice(0, 8);
+  const notAvailable = (parsed.notAvailable || [])
+    .filter(e => !alreadyInCatalogue(e.name, catalogueLabels))
+    .slice(0, Math.max(0, 8 - availableInIsrael.length));
+
+  return { availableInIsrael, notAvailable };
+}
+
+async function callGemini(seedDrinks) {
+  const res = await fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: buildPrompt(seedDrinks) }] }],
+        tools: [{ google_search: {} }],
+      }),
+    }
+  );
+  if (!res.ok) throw new RecommendError(`Gemini API error: ${res.status}`, 502);
+  return res.json();
+}
+
 async function getRecommendations(seeds) {
-  if (!process.env.ANTHROPIC_API_KEY) throw new RecommendError('ANTHROPIC_API_KEY is not set', 500);
+  if (!process.env.GEMINI_API_KEY) throw new RecommendError('GEMINI_API_KEY is not set', 500);
 
   const catalogueByCategory = {};
   try {
@@ -105,24 +184,11 @@ async function getRecommendations(seeds) {
     catalogueByCategory[category].filter(d => !seedIds.has(d.id)).map(d => trim(d, category))
   );
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': process.env.ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-5',
-      max_tokens: 2048,
-      messages: [{ role: 'user', content: buildPrompt(seedDrinks, candidatePool) }],
-      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5, user_location: { type: 'approximate', country: 'IL' } }],
-    }),
-  });
-
-  if (!res.ok) throw new RecommendError(`Anthropic API error: ${res.status}`, 502);
-  const body = await res.json();
-  return validate(parseResponse(body), catalogueByCategory);
+  const ownCatalogue = buildOwnCatalogue(seedDrinks, candidatePool);
+  const catalogueLabels = [...seedDrinks, ...candidatePool].map(d => d.label);
+  const body = await callGemini(seedDrinks);
+  const { availableInIsrael, notAvailable } = validate(parseResponse(body), catalogueLabels);
+  return { ownCatalogue, availableInIsrael, notAvailable };
 }
 
-module.exports = { getRecommendations };
+module.exports = { getRecommendations, scoreSimilarity };
