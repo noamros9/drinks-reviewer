@@ -150,6 +150,26 @@ describe('POST /api/recommend', () => {
     expect(res.status).toBe(502);
   });
 
+  it('returns 502 immediately on a non-503 failure, without retrying', async () => {
+    global.fetch.mockResolvedValue({ ok: false, status: 400 });
+    const res = await request(app).post('/api/recommend').send({
+      seeds: [{ id: 'w1', category: 'wine' }, { id: 'w2', category: 'wine' }],
+    });
+    expect(res.status).toBe(502);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries once on a transient 503 and succeeds', async () => {
+    global.fetch
+      .mockResolvedValueOnce({ ok: false, status: 503 })
+      .mockResolvedValueOnce(jsonResponse({ availableInIsrael: [], notAvailable: [] }));
+    const res = await request(app).post('/api/recommend').send({
+      seeds: [{ id: 'w1', category: 'wine' }, { id: 'w2', category: 'wine' }],
+    });
+    expect(res.status).toBe(200);
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
   it('returns 502 when no JSON block is found in the response', async () => {
     global.fetch.mockResolvedValue({
       ok: true,

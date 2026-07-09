@@ -147,20 +147,29 @@ function validate(parsed, catalogueLabels) {
   return { availableInIsrael, notAvailable };
 }
 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// ponytail: one retry on a transient 503 ("model overloaded") is Google's own recommended
+// handling for this status; raise RETRIES if it's still flaky in practice.
+const RETRIES = 1;
+
 async function callGemini(seedDrinks) {
-  const res = await fetch(
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
-    {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: buildPrompt(seedDrinks) }] }],
-        tools: [{ google_search: {} }],
-      }),
-    }
-  );
-  if (!res.ok) throw new RecommendError(`Gemini API error: ${res.status}`, 502);
-  return res.json();
+  for (let attempt = 0; attempt <= RETRIES; attempt++) {
+    const res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: buildPrompt(seedDrinks) }] }],
+          tools: [{ google_search: {} }],
+        }),
+      }
+    );
+    if (res.ok) return res.json();
+    if (res.status !== 503 || attempt === RETRIES) throw new RecommendError(`Gemini API error: ${res.status}`, 502);
+    await sleep(1000);
+  }
 }
 
 async function getRecommendations(seeds) {
