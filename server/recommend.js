@@ -271,7 +271,11 @@ async function callGemini(promptText) {
       }
     );
     if (res.ok) return res.json();
-    if (res.status !== 503 || attempt === RETRIES) throw new RecommendError(`Gemini API error: ${res.status}`, 502);
+    if (res.status !== 503 || attempt === RETRIES) {
+      let detail;
+      try { detail = (await res.json())?.error?.message; } catch { /* body not JSON */ }
+      throw new RecommendError(detail ? `Gemini API error: ${detail}` : `Gemini API error: ${res.status}`, 502);
+    }
     await sleep(1000);
   }
 }

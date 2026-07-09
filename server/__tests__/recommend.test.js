@@ -159,6 +159,19 @@ describe('POST /api/recommend', () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
   });
 
+  it('includes Gemini\'s error detail message when the failure body has one', async () => {
+    global.fetch.mockResolvedValue({
+      ok: false,
+      status: 429,
+      json: () => Promise.resolve({ error: { message: 'Quota exceeded for metric: generate_content_free_tier_requests' } }),
+    });
+    const res = await request(app).post('/api/recommend').send({
+      seeds: [{ id: 'w1', category: 'wine' }, { id: 'w2', category: 'wine' }],
+    });
+    expect(res.status).toBe(502);
+    expect(res.body.error).toBe('Gemini API error: Quota exceeded for metric: generate_content_free_tier_requests');
+  });
+
   it('retries once on a transient 503 and succeeds', async () => {
     global.fetch
       .mockResolvedValueOnce({ ok: false, status: 503 })
