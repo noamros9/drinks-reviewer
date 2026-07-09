@@ -8,6 +8,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import AdminPage from './pages/AdminPage';
 import ComparePage from './pages/ComparePage';
 import RecommendPage from './pages/RecommendPage';
+import TasteCardPage from './pages/TasteCardPage';
 
 function AdminRoute() {
   const { key } = useLocation();
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/compare" element={<ComparePage />} />
           <Route path="/recommend" element={<RecommendPage />} />
+          <Route path="/taste-card" element={<TasteCardPage />} />
           <Route path="/admin" element={<AdminRoute />} />
         </Routes>
       </main>

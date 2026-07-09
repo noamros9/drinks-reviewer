@@ -125,6 +125,9 @@ export default function CategoryPage({ category }) {
             >{p.label}</button>
           ))}
         </div>
+        <button type="button" className="taste-card-btn" onClick={() => navigate(`/taste-card?category=${category}`)}>
+          Generate taste card
+        </button>
       </div>
       <FilterBar
         category={category}

@@ -53,3 +53,10 @@ test('clicking Recommend similar navigates to the recommend route', async () => 
   fireEvent.click(screen.getByText('Recommend similar'));
   expect(mockNavigate).toHaveBeenCalledWith('/recommend?seeds=1:wine');
 });
+
+test('clicking Generate taste card navigates to the taste-card route with no selection required', async () => {
+  render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
+  await screen.findByText('Bisanzio');
+  fireEvent.click(screen.getByText('Generate taste card'));
+  expect(mockNavigate).toHaveBeenCalledWith('/taste-card?category=wine');
+});
