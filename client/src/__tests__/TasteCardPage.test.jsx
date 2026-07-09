@@ -14,9 +14,10 @@ const RESULT = {
     abv: { avg: 13, min: 12.5, max: 13.5 }, topTags: ['light', 'earthy'],
   },
   disliked: { category: 'wine', entryCount: 1, variety: 'Merlot', country: 'Spain', topTags: [] },
-  summary: 'You lean toward light, earthy Pinot Noir from France.',
+  analysis: 'You lean toward light, earthy Pinot Noir from France.',
   availableInIsrael: [{ name: 'Some Wine', description: 'crisp red', url: 'https://example.com/wine' }],
   notAvailable: [{ name: 'Rare Wine', description: 'hard to find' }],
+  styleExplorations: [],
 };
 
 function renderAt(path) {
@@ -41,7 +42,7 @@ test('renders the profile card and both result groups once the call resolves', a
   expect(card).toHaveTextContent('13 (12.5–13.5)');
   expect(card).toHaveTextContent('light');
   expect(card).toHaveTextContent('earthy');
-  expect(screen.getByText(RESULT.summary)).toBeInTheDocument();
+  expect(screen.getByText(RESULT.analysis)).toBeInTheDocument();
   expect(screen.getByText('What you tend to avoid')).toBeInTheDocument();
   expect(screen.getByTestId('taste-profile-disliked')).toHaveTextContent('Merlot');
   expect(screen.getByTestId('taste-card-available')).toHaveTextContent('Some Wine');
@@ -112,6 +113,68 @@ test('shows empty-state copy for groups with no results', async () => {
   await screen.findByTestId('taste-profile');
   expect(screen.getByText('No purchasable matches found.')).toBeInTheDocument();
   expect(screen.getByText('Nothing else to show.')).toBeInTheDocument();
+});
+
+test('renders a style exploration with both available and unavailable examples', async () => {
+  global.fetch = vi.fn(() => Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({
+      ...RESULT,
+      styleExplorations: [{
+        style: 'Amarone',
+        why: 'Ripe fruit and earthy tannins like your Pinot Noir picks.',
+        availableInIsrael: [{ name: 'Amarone A', description: 'rich red', url: 'https://example.com/amarone' }],
+        notAvailable: [{ name: 'Amarone B', description: 'hard to find' }],
+      }],
+    }),
+  }));
+  renderAt('/taste-card?category=wine');
+  const section = await screen.findByTestId('style-exploration-0');
+  expect(section).toHaveTextContent('Amarone');
+  expect(section).toHaveTextContent('Ripe fruit and earthy tannins like your Pinot Noir picks.');
+  expect(section).toHaveTextContent('Amarone A');
+  expect(section).toHaveTextContent('Amarone B');
+});
+
+test('renders a style exploration with no why', async () => {
+  global.fetch = vi.fn(() => Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({
+      ...RESULT,
+      styleExplorations: [{
+        style: 'Amarone',
+        availableInIsrael: [{ name: 'Amarone A', description: 'rich red', url: 'https://example.com/amarone' }],
+        notAvailable: [],
+      }],
+    }),
+  }));
+  renderAt('/taste-card?category=wine');
+  const section = await screen.findByTestId('style-exploration-0');
+  expect(section).toHaveTextContent('Amarone A');
+});
+
+test('renders a style exploration example with no description', async () => {
+  global.fetch = vi.fn(() => Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({
+      ...RESULT,
+      styleExplorations: [{
+        style: 'Amarone',
+        why: 'Ripe fruit and earthy tannins.',
+        availableInIsrael: [{ name: 'Amarone A', url: 'https://example.com/amarone' }],
+        notAvailable: [],
+      }],
+    }),
+  }));
+  renderAt('/taste-card?category=wine');
+  const section = await screen.findByTestId('style-exploration-0');
+  expect(section).toHaveTextContent('Amarone A');
+});
+
+test('renders no styles section when styleExplorations is empty', async () => {
+  renderAt('/taste-card?category=wine');
+  await screen.findByTestId('taste-profile');
+  expect(screen.queryByTestId('style-explorations')).not.toBeInTheDocument();
 });
 
 test('Back button navigates back', async () => {

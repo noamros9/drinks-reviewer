@@ -1,7 +1,12 @@
-.taste-profile-summary {
+.taste-profile-analysis {
   margin: 0 0 1rem;
   color: var(--text-secondary);
   line-height: 1.5;
+  white-space: pre-line; /* preserves Gemini's line breaks across the 5-10 line analysis */
+}
+
+.style-exploration {
+  margin: 0 0 1.25rem;
 }
 
 .taste-profile-card {

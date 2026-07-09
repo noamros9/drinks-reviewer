@@ -200,14 +200,23 @@ Find real-world drinks that match this taste profile, in two groups:
 2. "notAvailable": real-world drinks matching the profile that are not readily available for purchase in Israel.
 Groups combined should have roughly 20-30 entries, as many as make sense.
 
-Also write a short (2-4 sentence) "summary" string in plain conversational language describing what this user tends to like and, if a dislike pattern was given above, what they tend to avoid. If no dislike pattern was given, just describe what they like and say they don't have clear dislikes yet.
+Also write a profound 5-10 line "analysis" string in plain conversational language: what's genuinely common across the styles this user likes and *why* — the underlying quality or thread (texture, intensity, tradition, bitterness, sweetness, tannin, etc.), grounded in the specific profile data above, not generic wine-speak. If a dislike pattern was given above, use it as a contrast to sharpen the analysis. If no dislike pattern was given, just analyze what they like.
+
+Using that same analysis, suggest 3-5 "styleExplorations": styles or categories the user may not have tried yet, each tied back to the underlying quality you identified (e.g. a Pinot Noir lover might be pointed to Amarone for ripe fruit + earthy tannins). For each, give a "style" name, a one-sentence "why" connecting it to the analysis, and its own small "availableInIsrael"/"notAvailable" split (1-2 real examples each, same purchase-link rules as above).
 
 Respond with ONLY a single fenced JSON code block at the very end of your reply, matching exactly this shape:
 \`\`\`json
 {
-  "summary": "...",
+  "analysis": "...",
   "availableInIsrael": [{"name": "...", "description": "...", "url": "...", "reason": "..."}],
-  "notAvailable": [{"name": "...", "description": "...", "reason": "..."}]
+  "notAvailable": [{"name": "...", "description": "...", "reason": "..."}],
+  "styleExplorations": [
+    {
+      "style": "...", "why": "...",
+      "availableInIsrael": [{"name": "...", "description": "...", "url": "...", "reason": "..."}],
+      "notAvailable": [{"name": "...", "description": "...", "reason": "..."}]
+    }
+  ]
 }
 \`\`\``;
 }
@@ -238,17 +247,40 @@ function alreadyInCatalogue(name, catalogueLabels) {
   });
 }
 
-function validate(parsed, catalogueLabels, { availableCap = 8, totalCap = 8 } = {}) {
-  const summary = typeof parsed.summary === 'string' ? parsed.summary : '';
-  const availableInIsrael = (parsed.availableInIsrael || [])
-    .filter(e => typeof e.url === 'string' && e.url.trim())
+function filterEntries(entries, catalogueLabels, { requireUrl, cap }) {
+  return (entries || [])
+    .filter(e => !requireUrl || (typeof e.url === 'string' && e.url.trim()))
     .filter(e => !alreadyInCatalogue(e.name, catalogueLabels))
-    .slice(0, availableCap);
-  const notAvailable = (parsed.notAvailable || [])
-    .filter(e => !alreadyInCatalogue(e.name, catalogueLabels))
-    .slice(0, Math.max(0, totalCap - availableInIsrael.length));
+    .slice(0, cap);
+}
 
-  return { summary, availableInIsrael, notAvailable };
+function validate(parsed, catalogueLabels, { availableCap = 8, totalCap = 8 } = {}) {
+  const availableInIsrael = filterEntries(parsed.availableInIsrael, catalogueLabels, { requireUrl: true, cap: availableCap });
+  const notAvailable = filterEntries(parsed.notAvailable, catalogueLabels, { requireUrl: false, cap: Math.max(0, totalCap - availableInIsrael.length) });
+
+  return { availableInIsrael, notAvailable };
+}
+
+const STYLE_EXAMPLE_CAP = 2;
+const MAX_STYLE_EXPLORATIONS = 5;
+
+function validateStyleExploration(entry, catalogueLabels) {
+  if (!entry || typeof entry.style !== 'string' || !entry.style.trim()) return null;
+  const availableInIsrael = filterEntries(entry.availableInIsrael, catalogueLabels, { requireUrl: true, cap: STYLE_EXAMPLE_CAP });
+  const notAvailable = filterEntries(entry.notAvailable, catalogueLabels, { requireUrl: false, cap: Math.max(0, STYLE_EXAMPLE_CAP - availableInIsrael.length) });
+  if (!availableInIsrael.length && !notAvailable.length) return null;
+  return { style: entry.style, why: typeof entry.why === 'string' ? entry.why : '', availableInIsrael, notAvailable };
+}
+
+function validateTasteCard(parsed, catalogueLabels) {
+  const analysis = typeof parsed.analysis === 'string' ? parsed.analysis : '';
+  const availableInIsrael = filterEntries(parsed.availableInIsrael, catalogueLabels, { requireUrl: true, cap: 15 });
+  const notAvailable = filterEntries(parsed.notAvailable, catalogueLabels, { requireUrl: false, cap: Math.max(0, 30 - availableInIsrael.length) });
+  const styleExplorations = (Array.isArray(parsed.styleExplorations) ? parsed.styleExplorations : [])
+    .map(entry => validateStyleExploration(entry, catalogueLabels))
+    .filter(Boolean)
+    .slice(0, MAX_STYLE_EXPLORATIONS);
+  return { analysis, availableInIsrael, notAvailable, styleExplorations };
 }
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -335,8 +367,8 @@ async function getTasteCard(category) {
   const catalogueLabels = drinks.map(d => label(d));
 
   const body = await callGemini(buildTasteCardPrompt(profile, disliked));
-  const { summary, availableInIsrael, notAvailable } = validate(parseResponse(body), catalogueLabels, { availableCap: 15, totalCap: 30 });
-  return { profile, disliked, summary, availableInIsrael, notAvailable };
+  const { analysis, availableInIsrael, notAvailable, styleExplorations } = validateTasteCard(parseResponse(body), catalogueLabels);
+  return { profile, disliked, analysis, availableInIsrael, notAvailable, styleExplorations };
 }
 
 module.exports = { getRecommendations, scoreSimilarity, getTasteCard };
