@@ -142,7 +142,7 @@ main {
   color: #fff;
 }
 
-.taste-card-btn {
+.btn-outline {
   background: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border);
@@ -152,7 +152,7 @@ main {
   transition: border-color 0.15s, color 0.15s;
 }
 
-.taste-card-btn:hover {
+.btn-outline:hover {
   border-color: var(--accent);
   color: var(--accent);
 }

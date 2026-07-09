@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import DrinkList from '../components/DrinkList';
 import './RecommendPage.css';
 
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
@@ -71,7 +72,7 @@ export default function RecommendPage() {
     <div className="recommend-page">
       <div className="page-header">
         <h1>Recommended for you</h1>
-        <button type="button" className="recommend-back" onClick={() => navigate(-1)}>← Back</button>
+        <button type="button" className="btn-outline" onClick={() => navigate(-1)}>← Back</button>
       </div>
 
       <h3 className="recommend-section-title">Already in your catalogue</h3>
@@ -91,32 +92,10 @@ export default function RecommendPage() {
         )}
 
       <h3 className="recommend-section-title">Available in Israel</h3>
-      {availableInIsrael.length === 0
-        ? <p className="empty-state">No purchasable matches found.</p>
-        : (
-          <ul className="recommend-list" data-testid="recommend-available">
-            {availableInIsrael.map((entry, i) => (
-              <li key={i}>
-                <a href={entry.url} target="_blank" rel="noreferrer">{entry.name}</a>
-                {entry.description && <span className="recommend-reason">{entry.description}</span>}
-              </li>
-            ))}
-          </ul>
-        )}
+      <DrinkList entries={availableInIsrael} linked testId="recommend-available" emptyText="No purchasable matches found." />
 
       <h3 className="recommend-section-title">Not readily available</h3>
-      {notAvailable.length === 0
-        ? <p className="empty-state">Nothing else to show.</p>
-        : (
-          <ul className="recommend-list" data-testid="recommend-unavailable">
-            {notAvailable.map((entry, i) => (
-              <li key={i}>
-                {entry.name}
-                {entry.description && <span className="recommend-reason">{entry.description}</span>}
-              </li>
-            ))}
-          </ul>
-        )}
+      <DrinkList entries={notAvailable} testId="recommend-unavailable" emptyText="Nothing else to show." />
     </div>
   );
 }

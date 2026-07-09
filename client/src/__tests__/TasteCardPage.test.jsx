@@ -55,7 +55,6 @@ test('renders a multi-modal field as a joined list', async () => {
     json: () => Promise.resolve({
       profile: { category: 'wine', entryCount: 2, variety: ['Pinot Noir', 'Chardonnay'], topTags: [] },
       disliked: null,
-      summary: '',
       availableInIsrael: [],
       notAvailable: [],
     }),
@@ -71,7 +70,6 @@ test('shows no "What you tend to avoid" block when disliked is null', async () =
     json: () => Promise.resolve({
       profile: { category: 'wine', entryCount: 1, topTags: [] },
       disliked: null,
-      summary: '',
       availableInIsrael: [],
       notAvailable: [],
     }),

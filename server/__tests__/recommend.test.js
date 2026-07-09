@@ -134,12 +134,13 @@ describe('POST /api/recommend', () => {
     expect(res.status).toBe(500);
   });
 
-  it('returns 500 on an unexpected error with no status (e.g. a network failure)', async () => {
+  it('returns 500 with a generic message on an unexpected error with no status (e.g. a network failure)', async () => {
     global.fetch.mockRejectedValue(new Error('network down'));
     const res = await request(app).post('/api/recommend').send({
       seeds: [{ id: 'w1', category: 'wine' }, { id: 'w2', category: 'wine' }],
     });
     expect(res.status).toBe(500);
+    expect(res.body.error).toBe('Data unavailable');
   });
 
   it('returns 502 when the Gemini API call fails', async () => {
@@ -236,6 +237,40 @@ describe('POST /api/recommend', () => {
     });
     expect(res.status).toBe(200);
     expect(res.body.availableInIsrael).toHaveLength(1);
+  });
+
+  it('treats a non-string name as not already owned instead of crashing', async () => {
+    global.fetch.mockResolvedValue(jsonResponse({
+      availableInIsrael: [{ name: 12345, description: 'd', url: 'https://example.com/a', reason: 'r' }],
+      notAvailable: [],
+    }));
+    const res = await request(app).post('/api/recommend').send({
+      seeds: [{ id: 'w1', category: 'wine' }, { id: 'w2', category: 'wine' }],
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.availableInIsrael).toHaveLength(1);
+  });
+
+  it('returns an empty list instead of crashing when availableInIsrael/notAvailable is not an array', async () => {
+    global.fetch.mockResolvedValue(jsonResponse({ availableInIsrael: 'none', notAvailable: {} }));
+    const res = await request(app).post('/api/recommend').send({
+      seeds: [{ id: 'w1', category: 'wine' }, { id: 'w2', category: 'wine' }],
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.availableInIsrael).toEqual([]);
+    expect(res.body.notAvailable).toEqual([]);
+  });
+
+  it('filters out an availableInIsrael/notAvailable entry that is not an object', async () => {
+    global.fetch.mockResolvedValue(jsonResponse({
+      availableInIsrael: ['Just a string', { name: 'Genuinely New Wine', description: 'd', url: 'https://example.com/b', reason: 'r' }],
+      notAvailable: [],
+    }));
+    const res = await request(app).post('/api/recommend').send({
+      seeds: [{ id: 'w1', category: 'wine' }, { id: 'w2', category: 'wine' }],
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.availableInIsrael).toEqual([{ name: 'Genuinely New Wine', description: 'd', url: 'https://example.com/b', reason: 'r' }]);
   });
 
   it('populates ownCatalogue locally without calling fetch for it', async () => {

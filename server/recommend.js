@@ -239,7 +239,7 @@ function parseResponse(body) {
 // ponytail: fuzzy substring match against known labels rather than a real dedupe/fuzzy-match
 // library — good enough to catch "already own this" overlaps, revisit if false positives show up.
 function alreadyInCatalogue(name, catalogueLabels) {
-  const n = (name || '').trim().toLowerCase();
+  const n = (typeof name === 'string' ? name : '').trim().toLowerCase();
   if (!n) return false;
   return catalogueLabels.some(label => {
     const l = label.trim().toLowerCase();
@@ -248,7 +248,8 @@ function alreadyInCatalogue(name, catalogueLabels) {
 }
 
 function filterEntries(entries, catalogueLabels, { requireUrl, cap }) {
-  return (entries || [])
+  return (Array.isArray(entries) ? entries : [])
+    .filter(e => e && typeof e === 'object')
     .filter(e => !requireUrl || (typeof e.url === 'string' && e.url.trim()))
     .filter(e => !alreadyInCatalogue(e.name, catalogueLabels))
     .slice(0, cap);
@@ -266,16 +267,14 @@ const MAX_STYLE_EXPLORATIONS = 5;
 
 function validateStyleExploration(entry, catalogueLabels) {
   if (!entry || typeof entry.style !== 'string' || !entry.style.trim()) return null;
-  const availableInIsrael = filterEntries(entry.availableInIsrael, catalogueLabels, { requireUrl: true, cap: STYLE_EXAMPLE_CAP });
-  const notAvailable = filterEntries(entry.notAvailable, catalogueLabels, { requireUrl: false, cap: Math.max(0, STYLE_EXAMPLE_CAP - availableInIsrael.length) });
+  const { availableInIsrael, notAvailable } = validate(entry, catalogueLabels, { availableCap: STYLE_EXAMPLE_CAP, totalCap: STYLE_EXAMPLE_CAP });
   if (!availableInIsrael.length && !notAvailable.length) return null;
   return { style: entry.style, why: typeof entry.why === 'string' ? entry.why : '', availableInIsrael, notAvailable };
 }
 
 function validateTasteCard(parsed, catalogueLabels) {
   const analysis = typeof parsed.analysis === 'string' ? parsed.analysis : '';
-  const availableInIsrael = filterEntries(parsed.availableInIsrael, catalogueLabels, { requireUrl: true, cap: 15 });
-  const notAvailable = filterEntries(parsed.notAvailable, catalogueLabels, { requireUrl: false, cap: Math.max(0, 30 - availableInIsrael.length) });
+  const { availableInIsrael, notAvailable } = validate(parsed, catalogueLabels, { availableCap: 15, totalCap: 30 });
   const styleExplorations = (Array.isArray(parsed.styleExplorations) ? parsed.styleExplorations : [])
     .map(entry => validateStyleExploration(entry, catalogueLabels))
     .filter(Boolean)
