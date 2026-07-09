@@ -109,6 +109,109 @@ Respond with ONLY a single fenced JSON code block at the very end of your reply,
 \`\`\``;
 }
 
+// IDENTITY_FIELDS name the specific bottle (who made it / what it's called), not a taste dimension —
+// excluded so a taste profile describes preferences, not a specific producer roster.
+const IDENTITY_FIELDS = new Set(['producer', 'seriesAndName', 'brewery', 'distillery', 'name']);
+const TASTE_FIELDS = Object.fromEntries(
+  CATEGORIES.map(c => [c, SIMILARITY_FIELDS[c].filter(f => !IDENTITY_FIELDS.has(f))])
+);
+
+// ponytail: both always called with a non-empty array (call sites guard on rated.length), no empty-input branch needed
+function avgOf(nums) {
+  return nums.reduce((sum, n) => sum + n, 0) / nums.length;
+}
+
+function median(nums) {
+  const sorted = [...nums].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+// Same Bayesian formula as client/src/utils/analyticsHelpers.js — ported rather than shared because
+// that file is ESM and this one is CommonJS.
+function weightedRating(R, v, C, m) {
+  return (v / (v + m)) * R + (m / (v + m)) * C;
+}
+
+// ponytail: no v+m<=0 guard, no tastingCount/weights fallback — tastingsHelper.js always sets
+// tastingCount alongside avgRating (>=1), so every entry here has a real tastingCount and a real weight.
+function buildWeightedRatings(ratedDrinks) {
+  const C = avgOf(ratedDrinks.map(d => d.avgRating));
+  const m = median(ratedDrinks.map(d => d.tastingCount));
+  return new Map(ratedDrinks.map(d => [d.id, weightedRating(d.avgRating, d.tastingCount, C, m)]));
+}
+
+const MULTI_MODAL_RATIO = 0.8; // ponytail: within 80% of the top weight counts as "near-tied"
+const MULTI_MODAL_CAP = 3;     // ponytail: cap list length so the prompt/UI stay scannable
+
+function dominantValue(entries, field, weights) {
+  const totals = new Map();
+  for (const d of entries) {
+    const v = d[field];
+    if (v == null || v === '') continue;
+    totals.set(v, (totals.get(v) || 0) + weights.get(d.id));
+  }
+  if (!totals.size) return null;
+  const sorted = [...totals.entries()].sort((a, b) => b[1] - a[1]);
+  const top = sorted[0][1];
+  const close = sorted.filter(([, w]) => w >= top * MULTI_MODAL_RATIO).slice(0, MULTI_MODAL_CAP).map(([v]) => v);
+  return close.length === 1 ? close[0] : close;
+}
+
+function topTags(entries, weights, n = 3) {
+  const totals = new Map();
+  for (const d of entries) {
+    for (const tag of d.tags || []) totals.set(tag, (totals.get(tag) || 0) + weights.get(d.id));
+  }
+  return [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([tag]) => tag);
+}
+
+function numericRange(entries, field) {
+  const vals = entries.map(d => parseFloat(d[field])).filter(v => !Number.isNaN(v));
+  if (!vals.length) return null;
+  const avg = Math.round(avgOf(vals) * 100) / 100;
+  return { avg, min: Math.min(...vals), max: Math.max(...vals) };
+}
+
+function buildTasteProfile(category, ratedDrinks, weights) {
+  const profile = { category, entryCount: ratedDrinks.length };
+  for (const field of TASTE_FIELDS[category]) {
+    if (field === 'tags') profile.topTags = topTags(ratedDrinks, weights);
+    else if (field in NUMERIC_FIELDS) profile[field] = numericRange(ratedDrinks, field);
+    else profile[field] = dominantValue(ratedDrinks, field, weights);
+  }
+  return profile;
+}
+
+function buildTasteCardPrompt(profile, disliked) {
+  const dislikedSection = disliked
+    ? `They also tend to dislike drinks matching this profile — avoid recommending things too similar to it:\n${JSON.stringify(disliked, null, 2)}`
+    : `They haven't rated enough drinks poorly yet to show a clear dislike pattern — don't invent one.`;
+
+  return `You are a drinks recommendation assistant for a personal wine/beer/whiskey/spirits journal app.
+
+The user's taste profile for their ${profile.category} collection, distilled from everything they've rated:
+${JSON.stringify(profile, null, 2)}
+
+${dislikedSection}
+
+Find real-world drinks that match this taste profile, in two groups:
+1. "availableInIsrael": real-world drinks matching the profile that can be purchased in Israel. Use search to find one real, working purchase link per entry — omit an entry if you cannot find an actual link, never invent one.
+2. "notAvailable": real-world drinks matching the profile that are not readily available for purchase in Israel.
+Groups combined should have roughly 20-30 entries, as many as make sense.
+
+Also write a short (2-4 sentence) "summary" string in plain conversational language describing what this user tends to like and, if a dislike pattern was given above, what they tend to avoid. If no dislike pattern was given, just describe what they like and say they don't have clear dislikes yet.
+
+Respond with ONLY a single fenced JSON code block at the very end of your reply, matching exactly this shape:
+\`\`\`json
+{
+  "summary": "...",
+  "availableInIsrael": [{"name": "...", "description": "...", "url": "...", "reason": "..."}],
+  "notAvailable": [{"name": "...", "description": "...", "reason": "..."}]
+}
+\`\`\``;
+}
+
 function parseResponse(body) {
   const text = (body.candidates || [])
     .flatMap(c => (c.content?.parts || []))
@@ -135,16 +238,17 @@ function alreadyInCatalogue(name, catalogueLabels) {
   });
 }
 
-function validate(parsed, catalogueLabels) {
+function validate(parsed, catalogueLabels, { availableCap = 8, totalCap = 8 } = {}) {
+  const summary = typeof parsed.summary === 'string' ? parsed.summary : '';
   const availableInIsrael = (parsed.availableInIsrael || [])
     .filter(e => typeof e.url === 'string' && e.url.trim())
     .filter(e => !alreadyInCatalogue(e.name, catalogueLabels))
-    .slice(0, 8);
+    .slice(0, availableCap);
   const notAvailable = (parsed.notAvailable || [])
     .filter(e => !alreadyInCatalogue(e.name, catalogueLabels))
-    .slice(0, Math.max(0, 8 - availableInIsrael.length));
+    .slice(0, Math.max(0, totalCap - availableInIsrael.length));
 
-  return { availableInIsrael, notAvailable };
+  return { summary, availableInIsrael, notAvailable };
 }
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -153,7 +257,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 // handling for this status; raise RETRIES if it's still flaky in practice.
 const RETRIES = 1;
 
-async function callGemini(seedDrinks) {
+async function callGemini(promptText) {
   for (let attempt = 0; attempt <= RETRIES; attempt++) {
     const res = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
@@ -161,13 +265,17 @@ async function callGemini(seedDrinks) {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'x-goog-api-key': process.env.GEMINI_API_KEY },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: buildPrompt(seedDrinks) }] }],
+          contents: [{ parts: [{ text: promptText }] }],
           tools: [{ google_search: {} }],
         }),
       }
     );
     if (res.ok) return res.json();
-    if (res.status !== 503 || attempt === RETRIES) throw new RecommendError(`Gemini API error: ${res.status}`, 502);
+    if (res.status !== 503 || attempt === RETRIES) {
+      let detail;
+      try { detail = (await res.json())?.error?.message; } catch { /* body not JSON */ }
+      throw new RecommendError(detail ? `Gemini API error: ${detail}` : `Gemini API error: ${res.status}`, 502);
+    }
     await sleep(1000);
   }
 }
@@ -195,9 +303,40 @@ async function getRecommendations(seeds) {
 
   const ownCatalogue = buildOwnCatalogue(seedDrinks, candidatePool);
   const catalogueLabels = [...seedDrinks, ...candidatePool].map(d => d.label);
-  const body = await callGemini(seedDrinks);
+  const body = await callGemini(buildPrompt(seedDrinks));
   const { availableInIsrael, notAvailable } = validate(parseResponse(body), catalogueLabels);
   return { ownCatalogue, availableInIsrael, notAvailable };
 }
 
-module.exports = { getRecommendations, scoreSimilarity };
+const DISLIKE_THRESHOLD = 5; // ponytail: 1-10 scale — below 5 is a real miss, not just middling
+
+async function getTasteCard(category) {
+  if (!process.env.GEMINI_API_KEY) throw new RecommendError('GEMINI_API_KEY is not set', 500);
+  if (!CATEGORIES.includes(category)) throw new RecommendError(`Unknown category: ${category}`, 400);
+
+  let drinks;
+  try {
+    drinks = readData(category);
+  } catch (err) {
+    throw new RecommendError(err.message, 500);
+  }
+
+  const rated = drinks.filter(d => typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating));
+  if (!rated.length) throw new RecommendError('No rated drinks in this category yet', 400);
+
+  const weights = buildWeightedRatings(rated);
+  const profile = buildTasteProfile(category, rated, weights);
+
+  const lowRated = rated.filter(d => d.avgRating < DISLIKE_THRESHOLD);
+  const disliked = lowRated.length
+    ? buildTasteProfile(category, lowRated, buildWeightedRatings(lowRated))
+    : null; // ponytail: empty bucket is expected (a user who only rates things they like) — not an error
+
+  const catalogueLabels = drinks.map(d => label(d));
+
+  const body = await callGemini(buildTasteCardPrompt(profile, disliked));
+  const { summary, availableInIsrael, notAvailable } = validate(parseResponse(body), catalogueLabels, { availableCap: 15, totalCap: 30 });
+  return { profile, disliked, summary, availableInIsrael, notAvailable };
+}
+
+module.exports = { getRecommendations, scoreSimilarity, getTasteCard };

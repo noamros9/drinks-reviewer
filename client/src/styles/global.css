@@ -142,6 +142,21 @@ main {
   color: #fff;
 }
 
+.taste-card-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.taste-card-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .count-badge {
   background: var(--bg-elevated);
   border: 1px solid var(--border);

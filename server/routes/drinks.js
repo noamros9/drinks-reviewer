@@ -6,7 +6,7 @@ const multer = require('multer');
 const { computeFromTastings } = require('../tastingsHelper');
 const { ensureRegionCoordinates, readCoordinates } = require('../geocoding');
 const { readData, writeData } = require('../dataStore');
-const { getRecommendations } = require('../recommend');
+const { getRecommendations, getTasteCard } = require('../recommend');
 
 const IMAGES_DIR_PATH = process.env.IMAGES_DIR || path.join(__dirname, '../../client/public/images/drinks');
 
@@ -108,6 +108,15 @@ router.post('/recommend', async (req, res) => {
   }
   try {
     res.json(await getRecommendations(seeds));
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+router.post('/taste-card', async (req, res) => {
+  const { category } = req.body;
+  try {
+    res.json(await getTasteCard(category));
   } catch (err) {
     res.status(err.status || 500).json({ error: err.message });
   }

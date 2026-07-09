@@ -34,6 +34,7 @@ Set `GEMINI_API_KEY` in a root `.env` file to enable "Recommend Similar Drinks" 
 - Wine/whiskey regions are auto-geocoded (via OpenStreetMap) the first time a drink with a new (country, region) pair is saved, so they appear as markers on the Geographic map
 - Weighted rating — a Bayesian rating that shrinks a low-sample average toward the category's mean, so a single high rating can't outrank a well-tasted drink with a slightly lower average. Drives the "Top rated" sort preset, the drink table's Weighted Rating column, and the Style/Country/Region analytics leaderboards
 - Recommend Similar Drinks — pick 1+ drinks and get matches already in your catalogue (scored locally, no API cost) plus real-world drinks available/not available in Israel (via Gemini + Google Search grounding)
+- Personal Taste Card — per-category page summarizing your palate from rated entries (what you tend to like/avoid) plus Gemini-sourced real-world matches available/not available in Israel
 
 ## Testing
 
