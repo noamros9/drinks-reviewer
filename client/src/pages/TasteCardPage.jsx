@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import DrinkList from '../components/DrinkList';
 import './RecommendPage.css';
 import './TasteCardPage.css';
 
@@ -58,18 +59,25 @@ export default function TasteCardPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    let cancelled = false;
     setStatus('loading');
+    setError('');
     fetch('/api/taste-card', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ category }),
     })
       .then(async r => {
-        if (!r.ok) { setError((await r.json().catch(() => ({}))).error || ''); throw new Error(); }
+        if (!r.ok) {
+          const body = await r.json().catch(() => ({}));
+          if (!cancelled) setError(body.error || '');
+          throw new Error();
+        }
         return r.json();
       })
-      .then(result => { setData(result); setStatus('done'); })
-      .catch(() => setStatus('error'));
+      .then(result => { if (!cancelled) { setData(result); setStatus('done'); } })
+      .catch(() => { if (!cancelled) setStatus('error'); });
+    return () => { cancelled = true; };
   }, [category]);
 
   if (status === 'loading') {
@@ -97,7 +105,7 @@ export default function TasteCardPage() {
     <div className="taste-card-page">
       <div className="page-header">
         <h1>Your {TITLES[category] || category} taste card</h1>
-        <button type="button" className="recommend-back" onClick={() => navigate(-1)}>← Back</button>
+        <button type="button" className="btn-outline" onClick={() => navigate(-1)}>← Back</button>
       </div>
 
       {analysis && <p className="taste-profile-analysis">{analysis}</p>}
@@ -116,32 +124,10 @@ export default function TasteCardPage() {
       )}
 
       <h3 className="recommend-section-title">Available in Israel</h3>
-      {availableInIsrael.length === 0
-        ? <p className="empty-state">No purchasable matches found.</p>
-        : (
-          <ul className="recommend-list" data-testid="taste-card-available">
-            {availableInIsrael.map((entry, i) => (
-              <li key={i}>
-                <a href={entry.url} target="_blank" rel="noreferrer">{entry.name}</a>
-                {entry.description && <span className="recommend-reason">{entry.description}</span>}
-              </li>
-            ))}
-          </ul>
-        )}
+      <DrinkList entries={availableInIsrael} linked testId="taste-card-available" emptyText="No purchasable matches found." />
 
       <h3 className="recommend-section-title">Not readily available</h3>
-      {notAvailable.length === 0
-        ? <p className="empty-state">Nothing else to show.</p>
-        : (
-          <ul className="recommend-list" data-testid="taste-card-unavailable">
-            {notAvailable.map((entry, i) => (
-              <li key={i}>
-                {entry.name}
-                {entry.description && <span className="recommend-reason">{entry.description}</span>}
-              </li>
-            ))}
-          </ul>
-        )}
+      <DrinkList entries={notAvailable} testId="taste-card-unavailable" emptyText="Nothing else to show." />
 
       {styleExplorations.length > 0 && (
         <section data-testid="style-explorations">
@@ -150,26 +136,8 @@ export default function TasteCardPage() {
             <div className="style-exploration" data-testid={`style-exploration-${i}`} key={i}>
               <h4>{se.style}</h4>
               {se.why && <p className="recommend-reason">{se.why}</p>}
-              {se.availableInIsrael.length > 0 && (
-                <ul className="recommend-list">
-                  {se.availableInIsrael.map((entry, j) => (
-                    <li key={j}>
-                      <a href={entry.url} target="_blank" rel="noreferrer">{entry.name}</a>
-                      {entry.description && <span className="recommend-reason">{entry.description}</span>}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {se.notAvailable.length > 0 && (
-                <ul className="recommend-list">
-                  {se.notAvailable.map((entry, j) => (
-                    <li key={j}>
-                      {entry.name}
-                      {entry.description && <span className="recommend-reason">{entry.description}</span>}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <DrinkList entries={se.availableInIsrael} linked />
+              <DrinkList entries={se.notAvailable} />
             </div>
           ))}
         </section>

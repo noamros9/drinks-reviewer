@@ -109,7 +109,7 @@ router.post('/recommend', async (req, res) => {
   try {
     res.json(await getRecommendations(seeds));
   } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: typeof err.status === 'number' ? err.message : 'Data unavailable' });
   }
 });
 
@@ -118,7 +118,7 @@ router.post('/taste-card', async (req, res) => {
   try {
     res.json(await getTasteCard(category));
   } catch (err) {
-    res.status(err.status || 500).json({ error: err.message });
+    res.status(err.status || 500).json({ error: typeof err.status === 'number' ? err.message : 'Data unavailable' });
   }
 });
 
