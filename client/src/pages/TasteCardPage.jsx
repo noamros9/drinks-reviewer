@@ -91,7 +91,7 @@ export default function TasteCardPage() {
     );
   }
 
-  const { profile, disliked, summary, availableInIsrael = [], notAvailable = [] } = data || {};
+  const { profile, disliked, analysis, availableInIsrael = [], notAvailable = [], styleExplorations = [] } = data || {};
 
   return (
     <div className="taste-card-page">
@@ -100,7 +100,7 @@ export default function TasteCardPage() {
         <button type="button" className="recommend-back" onClick={() => navigate(-1)}>← Back</button>
       </div>
 
-      {summary && <p className="taste-profile-summary">{summary}</p>}
+      {analysis && <p className="taste-profile-analysis">{analysis}</p>}
 
       <dl className="taste-profile-card" data-testid="taste-profile">
         <TasteProfileFields profile={profile} />
@@ -142,6 +142,38 @@ export default function TasteCardPage() {
             ))}
           </ul>
         )}
+
+      {styleExplorations.length > 0 && (
+        <section data-testid="style-explorations">
+          <h3 className="recommend-section-title">Styles worth exploring</h3>
+          {styleExplorations.map((se, i) => (
+            <div className="style-exploration" data-testid={`style-exploration-${i}`} key={i}>
+              <h4>{se.style}</h4>
+              {se.why && <p className="recommend-reason">{se.why}</p>}
+              {se.availableInIsrael.length > 0 && (
+                <ul className="recommend-list">
+                  {se.availableInIsrael.map((entry, j) => (
+                    <li key={j}>
+                      <a href={entry.url} target="_blank" rel="noreferrer">{entry.name}</a>
+                      {entry.description && <span className="recommend-reason">{entry.description}</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {se.notAvailable.length > 0 && (
+                <ul className="recommend-list">
+                  {se.notAvailable.map((entry, j) => (
+                    <li key={j}>
+                      {entry.name}
+                      {entry.description && <span className="recommend-reason">{entry.description}</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </section>
+      )}
     </div>
   );
 }

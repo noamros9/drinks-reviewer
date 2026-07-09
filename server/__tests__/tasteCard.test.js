@@ -108,13 +108,13 @@ describe('POST /api/taste-card', () => {
 
   it('sends the taste profile (not raw drinks) to Gemini and applies the raised caps', async () => {
     global.fetch.mockResolvedValue(jsonResponse({
-      summary: 'You lean toward light, earthy Pinot Noir from France, and tend to avoid Merlot.',
+      analysis: 'You lean toward light, earthy Pinot Noir from France, and tend to avoid Merlot.',
       availableInIsrael: Array.from({ length: 20 }, (_, i) => ({ name: `B${i}`, description: 'd', url: `https://x.com/${i}`, reason: 'r' })),
       notAvailable: Array.from({ length: 20 }, (_, i) => ({ name: `N${i}`, description: 'd', reason: 'r' })),
     }));
     const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
     expect(res.status).toBe(200);
-    expect(res.body.summary).toBe('You lean toward light, earthy Pinot Noir from France, and tend to avoid Merlot.');
+    expect(res.body.analysis).toBe('You lean toward light, earthy Pinot Noir from France, and tend to avoid Merlot.');
     expect(res.body.availableInIsrael.length).toBe(15);
     expect(res.body.availableInIsrael.length + res.body.notAvailable.length).toBeLessThanOrEqual(30);
     expect(res.body.notAvailable.length).toBe(15);
@@ -152,11 +152,11 @@ describe('POST /api/taste-card', () => {
   it('returns disliked: null and tells Gemini there is no clear dislike pattern when nothing is rated low', async () => {
     const highOnly = WINE.filter(d => typeof d.avgRating === 'number' && d.avgRating >= 5);
     fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(highOnly));
-    global.fetch.mockResolvedValue(jsonResponse({ summary: 'You like big reds.', availableInIsrael: [], notAvailable: [] }));
+    global.fetch.mockResolvedValue(jsonResponse({ analysis: 'You like big reds.', availableInIsrael: [], notAvailable: [] }));
     const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
     expect(res.status).toBe(200);
     expect(res.body.disliked).toBeNull();
-    expect(res.body.summary).toBe('You like big reds.');
+    expect(res.body.analysis).toBe('You like big reds.');
     const [, opts] = global.fetch.mock.calls[0];
     const promptText = JSON.parse(opts.body).contents[0].parts[0].text;
     expect(promptText).toContain("haven't rated enough drinks poorly yet");
@@ -184,5 +184,111 @@ describe('POST /api/taste-card', () => {
     global.fetch.mockResolvedValue({ ok: false, status: 500 });
     const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
     expect(res.status).toBe(502);
+  });
+
+  describe('styleExplorations', () => {
+    it('returns an empty array when Gemini omits the field', async () => {
+      global.fetch.mockResolvedValue(jsonResponse({ availableInIsrael: [], notAvailable: [] }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      expect(res.body.styleExplorations).toEqual([]);
+    });
+
+    it('returns an empty array when the field is not an array', async () => {
+      global.fetch.mockResolvedValue(jsonResponse({ availableInIsrael: [], notAvailable: [], styleExplorations: 'nope' }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      expect(res.body.styleExplorations).toEqual([]);
+    });
+
+    it('filters out an entry that is not an object', async () => {
+      global.fetch.mockResolvedValue(jsonResponse({
+        availableInIsrael: [], notAvailable: [],
+        styleExplorations: [null, { style: 'Amarone', availableInIsrael: [{ name: 'X', url: 'https://x.com' }], notAvailable: [] }],
+      }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      expect(res.body.styleExplorations).toHaveLength(1);
+      expect(res.body.styleExplorations[0].style).toBe('Amarone');
+    });
+
+    it('filters out an entry with a missing or empty style name', async () => {
+      global.fetch.mockResolvedValue(jsonResponse({
+        availableInIsrael: [], notAvailable: [],
+        styleExplorations: [
+          { availableInIsrael: [{ name: 'X', url: 'https://x.com' }], notAvailable: [] },
+          { style: '  ', availableInIsrael: [{ name: 'Y', url: 'https://y.com' }], notAvailable: [] },
+        ],
+      }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      expect(res.body.styleExplorations).toEqual([]);
+    });
+
+    it('keeps a style with only availableInIsrael examples', async () => {
+      global.fetch.mockResolvedValue(jsonResponse({
+        availableInIsrael: [], notAvailable: [],
+        styleExplorations: [{ style: 'Amarone', why: 'ripe fruit + tannin', availableInIsrael: [{ name: 'X', url: 'https://x.com' }], notAvailable: [] }],
+      }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      expect(res.body.styleExplorations).toHaveLength(1);
+      expect(res.body.styleExplorations[0].availableInIsrael).toHaveLength(1);
+      expect(res.body.styleExplorations[0].notAvailable).toEqual([]);
+    });
+
+    it('keeps a style with only notAvailable examples', async () => {
+      global.fetch.mockResolvedValue(jsonResponse({
+        availableInIsrael: [], notAvailable: [],
+        styleExplorations: [{ style: 'Amarone', availableInIsrael: [], notAvailable: [{ name: 'X' }] }],
+      }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      expect(res.body.styleExplorations).toHaveLength(1);
+      expect(res.body.styleExplorations[0].availableInIsrael).toEqual([]);
+      expect(res.body.styleExplorations[0].notAvailable).toHaveLength(1);
+    });
+
+    it("drops a style's example already in the catalogue", async () => {
+      global.fetch.mockResolvedValue(jsonResponse({
+        availableInIsrael: [], notAvailable: [],
+        styleExplorations: [{
+          style: 'Amarone',
+          availableInIsrael: [{ name: 'Domaine C Chardonnay', url: 'https://x.com' }],
+          notAvailable: [],
+        }],
+      }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      expect(res.body.styleExplorations).toEqual([]);
+    });
+
+    it('drops a style entirely when nothing survives filtering (missing url)', async () => {
+      global.fetch.mockResolvedValue(jsonResponse({
+        availableInIsrael: [], notAvailable: [],
+        styleExplorations: [{ style: 'Amarone', availableInIsrael: [{ name: 'X' }], notAvailable: [] }],
+      }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      expect(res.body.styleExplorations).toEqual([]);
+    });
+
+    it('caps to 5 style explorations when 7 are supplied', async () => {
+      global.fetch.mockResolvedValue(jsonResponse({
+        availableInIsrael: [], notAvailable: [],
+        styleExplorations: Array.from({ length: 7 }, (_, i) => ({
+          style: `Style${i}`, availableInIsrael: [{ name: `X${i}`, url: `https://x.com/${i}` }], notAvailable: [],
+        })),
+      }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      expect(res.body.styleExplorations).toHaveLength(5);
+    });
+
+    it("caps a single style's combined examples to 2", async () => {
+      global.fetch.mockResolvedValue(jsonResponse({
+        availableInIsrael: [], notAvailable: [],
+        styleExplorations: [{
+          style: 'Amarone',
+          availableInIsrael: [{ name: 'A1', url: 'https://x.com/1' }, { name: 'A2', url: 'https://x.com/2' }],
+          notAvailable: [{ name: 'N1' }, { name: 'N2' }],
+        }],
+      }));
+      const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
+      const se = res.body.styleExplorations[0];
+      expect(se.availableInIsrael).toHaveLength(2);
+      expect(se.notAvailable).toHaveLength(0);
+    });
   });
 });
