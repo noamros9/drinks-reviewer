@@ -9,6 +9,7 @@ import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilt
 import './CollectionPage.css';
 
 const STORAGE_KEY = 'drinks_columns_collection';
+const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 const FILTERABLE = new Set(['country', '_producer']);
 const RANGE_CONFIGS = RANGE_FILTER_CONFIGS.all;
 
@@ -32,6 +33,8 @@ function normalize(entry) {
     _category: entry._category.charAt(0).toUpperCase() + entry._category.slice(1),
     _producer: entry.producer ?? entry.brewery ?? entry.distillery ?? '—',
     name: entry.seriesAndName || entry.name || '',
+    photo: entry.collectionImageUrl,
+    price: newestInStockLot(entry)?.price ?? null,
   };
 }
 
@@ -62,6 +65,7 @@ export default function CollectionPage() {
   const [drinks, setDrinks] = useState([]);
   const [pick, setPick] = useState(null);
   const navigate = useNavigate();
+  const [filter, setFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState(new Set());
   const [rangeFilters, setRangeFilters] = useState(() => buildEmptyRangeFilters('all'));
   const [producerSearch, setProducerSearch] = useState('');
@@ -101,18 +105,23 @@ export default function CollectionPage() {
     navigate('/admin', { state: { drink, category: drink._category.toLowerCase(), drankIt: true, lot } });
   };
 
+  const handleEdit = (drink) => {
+    navigate('/admin', { state: { category: drink._category.toLowerCase(), drink } });
+  };
+
   const handleColumnLayoutChange = (next) => {
     setColumnLayout(next);
     saveLayout(next);
   };
 
+  const categoryFiltered = filter === 'all' ? drinks : drinks.filter(d => d._category.toLowerCase() === filter);
   const activeFilters = { producerSearch, country: countryFilter, ...rangeFilters };
   const hasRangeFilter = Object.values(rangeFilters).some(v => v !== '');
   const hasFilter = countryFilter.size > 0 || hasRangeFilter || producerSearch !== '';
-  const visible = hasFilter ? drinks.filter(d => matchesFilters(d, activeFilters, 'all')) : drinks;
+  const visible = hasFilter ? categoryFiltered.filter(d => matchesFilters(d, activeFilters, 'all')) : categoryFiltered;
 
-  const { options: countryOptions } = buildDropdownOptions(drinks, { key: 'country' });
-  const countryCounts = countOptions(drinks, { key: 'country' }, activeFilters, 'all');
+  const { options: countryOptions } = buildDropdownOptions(categoryFiltered, { key: 'country' });
+  const countryCounts = countOptions(categoryFiltered, { key: 'country' }, activeFilters, 'all');
 
   const renderRowExtra = (drink) => (
     <div className="stock-controls">
@@ -132,6 +141,18 @@ export default function CollectionPage() {
       </div>
 
       <div className="all-page-toolbar">
+        <div className="category-tabs">
+          {FILTERS.map(f => (
+            <button
+              key={f}
+              className={filter === f ? 'active' : ''}
+              onClick={() => setFilter(f)}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
+        </div>
+        <span className="toolbar-divider">|</span>
         <FilterDropdown
           label="Country"
           options={countryOptions}
@@ -197,6 +218,7 @@ export default function CollectionPage() {
         category="collection"
         drinks={visible}
         renderRowExtra={renderRowExtra}
+        onEdit={handleEdit}
         columnLayout={columnLayout}
         onColumnLayoutChange={handleColumnLayoutChange}
         filterableCols={FILTERABLE}

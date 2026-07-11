@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomSelect from '../components/CustomSelect';
 import AutocompleteInput from '../components/AutocompleteInput';
+import { PRODUCER_FIELD } from '../utils/filterHelpers';
 import './AdminPage.css';
 
 export const FIELDS = {
@@ -60,6 +61,10 @@ function emptyForm(category) {
   return Object.fromEntries(FIELDS[category].map(f => [f.key, f.default ?? '']));
 }
 
+function parsePositiveInt(value) {
+  return /^[1-9]\d*$/.test(String(value).trim()) ? parseInt(value, 10) : null;
+}
+
 
 export default function AdminPage() {
   const location = useLocation();
@@ -97,6 +102,9 @@ export default function AdminPage() {
   const [colCat, setColCat] = useState('wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
   const [colMessage, setColMessage] = useState('');
+  const [colSuggestions, setColSuggestions] = useState({});
+  const [newColImage, setNewColImage] = useState(null);
+  const newColImageRef = useRef(null);
   const [focusVivino, setFocusVivino] = useState(false);
   const vivinoInputRef = useRef(null);
 
@@ -136,6 +144,18 @@ export default function AdminPage() {
       }
     }).catch(() => { if (!idLookupDone.current) { idLookupDone.current = true; setLoadingDrink(false); } });
   }, [category]);
+
+  useEffect(() => {
+    if (isEditing) return;
+    const producerKey = PRODUCER_FIELD[colCat];
+    fetch(`/api/${colCat}`).then(r => r.json()).then(drinks => {
+      if (!Array.isArray(drinks)) return;
+      setColSuggestions({
+        producer: [...new Set(drinks.map(d => d[producerKey]).filter(Boolean))].sort(),
+        country: [...new Set(drinks.map(d => d.country).filter(Boolean))].sort(),
+      });
+    }).catch(() => {});
+  }, [colCat, isEditing]);
 
   const addTag = (key, tag) => {
     if (!tag || (form[key] || []).includes(tag)) return;
@@ -188,8 +208,8 @@ export default function AdminPage() {
   };
 
   const handleAddLot = async () => {
-    const qty = parseInt(newLotQty, 10);
-    if (!qty || qty < 1) return;
+    const qty = parsePositiveInt(newLotQty);
+    if (qty === null) { setCollectionMessage('Quantity must be a positive whole number.'); return; }
     const body = { quantity: qty };
     if (newLotPrice !== '') body.price = parseFloat(newLotPrice);
     const res = await fetch(`/api/${category}/${form.id}/collection`, {
@@ -213,7 +233,9 @@ export default function AdminPage() {
   };
 
   const handleAddToCollection = async () => {
-    const producerKey = { wine: 'producer', beer: 'brewery', whiskey: 'distillery', others: 'distillery' }[colCat];
+    const qty = parsePositiveInt(colForm.qty);
+    if (qty === null) { setColMessage('Quantity must be a positive whole number.'); return; }
+    const producerKey = PRODUCER_FIELD[colCat];
     const nameKey = colCat === 'wine' ? 'seriesAndName' : 'name';
     const drinkRes = await fetch(`/api/${colCat}`, {
       method: 'POST',
@@ -222,17 +244,22 @@ export default function AdminPage() {
     });
     if (!drinkRes.ok) { setColMessage('Failed to add drink.'); return; }
     const drink = await drinkRes.json();
-    const qty = parseInt(colForm.qty, 10);
-    if (qty >= 1) {
-      const lotBody = { quantity: qty };
-      if (colForm.price !== '') lotBody.price = parseFloat(colForm.price);
-      await fetch(`/api/${colCat}/${drink.id}/collection`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(lotBody),
-      });
+    const lotBody = { quantity: qty };
+    if (colForm.price !== '') lotBody.price = parseFloat(colForm.price);
+    await fetch(`/api/${colCat}/${drink.id}/collection`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lotBody),
+    });
+    const imageFile = newColImageRef.current;
+    newColImageRef.current = null;
+    setNewColImage(null);
+    if (imageFile) {
+      const fd = new FormData();
+      fd.append('image', imageFile);
+      await fetch(`/api/${colCat}/${drink.id}/collection/image`, { method: 'POST', body: fd }).catch(() => {});
     }
-    navigate('/admin', { state: { drink, category: colCat, tab: 'tastings' } });
+    navigate('/collection');
   };
 
   const syncFormFromDrink = (updated) => {
@@ -287,6 +314,17 @@ export default function AdminPage() {
     if (!res.ok) { setTastingsMessage('Failed to upload image.'); return; }
     const updated = await res.json();
     setTastings(updated.tastings);
+  };
+
+  const handleCollectionImage = async (file) => {
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch(`/api/${category}/${form.id}/collection/image`, { method: 'POST', body: fd });
+    if (!res.ok) { setCollectionMessage('Failed to upload photo.'); return; }
+    const updated = await res.json();
+    setForm(prev => ({ ...prev, collectionImageUrl: updated.collectionImageUrl }));
+    setCollectionMessage('Photo updated!');
   };
 
   const handleDeleteTasting = async (tastingId) => {
@@ -450,27 +488,44 @@ export default function AdminPage() {
             ))}
           </div>
           {[
-            { key: 'producer', label: 'Producer', type: 'text' },
+            { key: 'producer', label: 'Producer', type: 'text', autocomplete: true },
             { key: 'name',     label: 'Name',     type: 'text' },
-            { key: 'country',  label: 'Country',  type: 'text' },
+            { key: 'country',  label: 'Country',  type: 'text', autocomplete: true },
             { key: 'abv',      label: 'ABV (%)',  type: 'number' },
             { key: 'qty',      label: 'Quantity', type: 'number' },
             { key: 'price',    label: 'Price',    type: 'number', placeholder: 'Optional' },
           ].map(f => (
             <div key={f.key} className="form-group">
               <label htmlFor={`col-${f.key}`}>{f.label}</label>
-              <input
-                id={`col-${f.key}`}
-                type={f.type}
-                min={f.type === 'number' ? (f.key === 'qty' ? 1 : 0) : undefined}
-                step={f.type === 'number' ? '0.1' : undefined}
-                placeholder={f.placeholder || ''}
-                value={colForm[f.key]}
-                onChange={e => setColForm(p => ({ ...p, [f.key]: e.target.value }))}
-              />
+              {f.autocomplete ? (
+                <AutocompleteInput
+                  id={`col-${f.key}`}
+                  name={f.key}
+                  value={colForm[f.key]}
+                  onChange={e => setColForm(p => ({ ...p, [f.key]: e.target.value }))}
+                  suggestions={colSuggestions[f.key] || []}
+                />
+              ) : (
+                <input
+                  id={`col-${f.key}`}
+                  type={f.type}
+                  min={f.type === 'number' ? (f.key === 'qty' ? 1 : 0) : undefined}
+                  step={f.type === 'number' ? (f.key === 'qty' ? '1' : '0.1') : undefined}
+                  placeholder={f.placeholder || ''}
+                  value={colForm[f.key]}
+                  onChange={e => setColForm(p => ({ ...p, [f.key]: e.target.value }))}
+                />
+              )}
             </div>
           ))}
           <div className="form-actions">
+            <label
+              className={`btn-photo-add${newColImage ? ' has-photo' : ''}`}
+              title={newColImage ? newColImage.name : 'Add photo'}
+            >
+              {newColImage ? '📷 ✓' : '📷 +'}
+              <input type="file" accept="image/*" data-testid="new-col-img" onChange={e => { const f = e.target.files[0] || null; newColImageRef.current = f; setNewColImage(f); }} />
+            </label>
             <button type="button" className="btn-primary" onClick={handleAddToCollection}>Add to Collection</button>
           </div>
           {colMessage && <p className="success-message">{colMessage}</p>}
@@ -480,6 +535,15 @@ export default function AdminPage() {
       {isEditing && activeTab === 'collection' && (
         <section className="collection-section">
           <h2>My Collection</h2>
+          <div className="lot-row collection-photo-row">
+            {form.collectionImageUrl
+              ? <img src={form.collectionImageUrl} alt="" className="tasting-thumb" data-testid="collection-img" />
+              : <div className="tasting-thumb-placeholder" data-testid="collection-placeholder" />}
+            <label className="btn-upload-img">
+              {form.collectionImageUrl ? 'Change photo' : 'Add photo'}
+              <input type="file" accept="image/*" data-testid="collection-img-upload" onChange={e => handleCollectionImage(e.target.files[0])} />
+            </label>
+          </div>
           <div className="lot-list">
             {lots.length === 0 && <p className="no-lots">No bottles in collection.</p>}
             {lots.map(lot => (
@@ -494,7 +558,7 @@ export default function AdminPage() {
           <div className="add-lot-form">
             <div className="form-group">
               <label htmlFor="new-lot-qty">Quantity</label>
-              <input id="new-lot-qty" type="number" min="1" value={newLotQty} onChange={e => setNewLotQty(e.target.value)} />
+              <input id="new-lot-qty" type="number" min="1" step="1" value={newLotQty} onChange={e => setNewLotQty(e.target.value)} />
             </div>
             <div className="form-group">
               <label htmlFor="new-lot-price">Price</label>

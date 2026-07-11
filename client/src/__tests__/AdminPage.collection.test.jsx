@@ -172,3 +172,58 @@ test('add lot with price sends price in request body', async () => {
     );
   });
 });
+
+// ── Quantity validation ────────────────────────────────────────────
+
+test('add lot with decimal quantity shows error and does not call the endpoint', () => {
+  renderEditPage({ ...EDIT_DRINK, collection: [] });
+  fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '2.5' } });
+  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/1/collection', expect.objectContaining({ method: 'POST' }));
+});
+
+test('add lot with blank quantity shows error and does not call the endpoint', () => {
+  renderEditPage({ ...EDIT_DRINK, collection: [] });
+  fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '' } });
+  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/1/collection', expect.objectContaining({ method: 'POST' }));
+});
+
+// ── Collection photo upload ────────────────────────────────────────
+
+test('shows placeholder when no collection photo is set', () => {
+  renderEditPage();
+  expect(screen.getByTestId('collection-placeholder')).toBeInTheDocument();
+});
+
+test('shows collection photo thumbnail when collectionImageUrl is set', () => {
+  renderEditPage({ ...EDIT_DRINK, collectionImageUrl: '/images/drinks/col.jpg' });
+  expect(screen.getByTestId('collection-img')).toHaveAttribute('src', '/images/drinks/col.jpg');
+});
+
+test('uploading a collection photo updates the thumbnail', async () => {
+  global.fetch = vi.fn(() =>
+    Promise.resolve({ ok: true, json: () => Promise.resolve({ collectionImageUrl: '/images/drinks/new-col.jpg' }) })
+  );
+  renderEditPage();
+  const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.change(screen.getByTestId('collection-img-upload'), { target: { files: [file] } });
+  await waitFor(() => {
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/wine/1/collection/image',
+      expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
+    );
+  });
+  expect(await screen.findByTestId('collection-img')).toHaveAttribute('src', '/images/drinks/new-col.jpg');
+  expect(await screen.findByText('Photo updated!')).toBeInTheDocument();
+});
+
+test('collection photo upload failure shows error message', async () => {
+  global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
+  renderEditPage();
+  const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.change(screen.getByTestId('collection-img-upload'), { target: { files: [file] } });
+  expect(await screen.findByText('Failed to upload photo.')).toBeInTheDocument();
+});

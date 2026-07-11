@@ -245,8 +245,10 @@ router.post('/:category/:id/tastings', async (req, res) => {
       if (!d) return null;
       const tasting = { id: randomUUID(), date, rating: Number(rating) };
       if (vintage) tasting.vintage = vintage;
+      const hadPriorTastings = (d.tastings || []).length > 0;
       const prevImageUrl = (d.tastings || []).at(-1)?.imageUrl;
       if (prevImageUrl) tasting.imageUrl = prevImageUrl;
+      else if (!hadPriorTastings && d.collectionImageUrl) tasting.imageUrl = d.collectionImageUrl;
       d.tastings = [...(d.tastings || []), tasting];
       Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
       writeData(category, data);
@@ -327,7 +329,8 @@ router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), 
       if (!tasting) return false;
       if (tasting.imageUrl) {
         const stillShared = d.tastings.some(t => t.id !== tastingId && t.imageUrl === tasting.imageUrl);
-        if (!stillShared) {
+        const isCollectionPhoto = tasting.imageUrl === d.collectionImageUrl;
+        if (!stillShared && !isCollectionPhoto) {
           try { fs.unlinkSync(path.join(IMAGES_DIR_PATH, path.basename(tasting.imageUrl))); } catch {}
         }
       }
@@ -363,6 +366,34 @@ router.post('/:category/:id/collection', async (req, res) => {
     if (!lot) return res.status(404).json({ error: 'Entry not found' });
     res.status(201).json(lot);
   } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.post('/:category/:id/collection/image', upload.single('image'), async (req, res) => {
+  const { category, id } = req.params;
+  if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  const cleanupUpload = () => { try { fs.unlinkSync(req.file.path); } catch {} };
+  try {
+    const drink = await withLock(category, () => {
+      const data = readData(category);
+      const d = data.find(x => x.id === id);
+      if (!d) return null;
+      if (d.collectionImageUrl) {
+        const stillUsedByTasting = (d.tastings || []).some(t => t.imageUrl === d.collectionImageUrl);
+        if (!stillUsedByTasting) {
+          try { fs.unlinkSync(path.join(IMAGES_DIR_PATH, path.basename(d.collectionImageUrl))); } catch {}
+        }
+      }
+      d.collectionImageUrl = `/images/drinks/${req.file.filename}`;
+      writeData(category, data);
+      return d;
+    });
+    if (!drink) { cleanupUpload(); return res.status(404).json({ error: 'Entry not found' }); }
+    res.json(drink);
+  } catch {
+    cleanupUpload();
     res.status(500).json({ error: 'Data unavailable' });
   }
 });
