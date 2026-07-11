@@ -1414,5 +1414,77 @@
     "lastRating": 8,
     "lastTasted": "19/05/2026",
     "tastingCount": 1
+  },
+  {
+    "id": "60575eb0-f695-428a-9c2c-03d79555c0d0",
+    "brewery": "San Miguel",
+    "name": "Gluten Free",
+    "style": "",
+    "country": "Philippines",
+    "abv": "5.4",
+    "tags": [],
+    "collectionOnly": true,
+    "collection": [
+      {
+        "id": "68298e28-44c7-4e6a-bdae-372e796cb688",
+        "quantity": 1,
+        "price": 11,
+        "addedAt": "2026-07-11"
+      }
+    ]
+  },
+  {
+    "id": "19b288d1-ed89-44d8-b51b-d2077e95d097",
+    "brewery": "Guinness",
+    "name": "Guinness",
+    "style": "",
+    "country": "Ireland",
+    "abv": "4.2",
+    "tags": [],
+    "collectionOnly": true,
+    "collection": [
+      {
+        "id": "2bd33ccc-bc89-4852-9fa9-4898d0546093",
+        "quantity": 2,
+        "price": 19,
+        "addedAt": "2026-07-11"
+      }
+    ]
+  },
+  {
+    "id": "bce2c48e-835e-4722-ae2d-e00e370f329e",
+    "brewery": "נגב",
+    "name": "פורטר אלון",
+    "style": "",
+    "country": "Israel",
+    "abv": "5",
+    "tags": [],
+    "collectionOnly": true,
+    "collection": [
+      {
+        "id": "516bb3bf-8b2b-4fa8-ba3c-e40e738bee58",
+        "quantity": 1,
+        "price": 16,
+        "addedAt": "2026-07-11"
+      }
+    ]
+  },
+  {
+    "id": "094f1f09-b71c-46f5-a5a3-61d25631781f",
+    "brewery": "נגב",
+    "name": "פורטר אלון",
+    "style": "",
+    "country": "Israel",
+    "abv": "5",
+    "tags": [],
+    "collectionOnly": true,
+    "collection": [
+      {
+        "id": "1eb4a032-886c-46b8-9e94-a9fc77e8a8f9",
+        "quantity": 1,
+        "price": 16,
+        "addedAt": "2026-07-11"
+      }
+    ]
   }
 ]
