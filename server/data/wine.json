@@ -2272,5 +2272,20 @@
     "tastingCount": 1,
     "vintage": "2023",
     "vivinoScore": "4.2"
+  },
+  {
+    "id": "e1afd496-4126-4503-b3f8-612286d62c42",
+    "producer": "Guinness",
+    "seriesAndName": "Guinness",
+    "wineCategory": "",
+    "variety": "",
+    "sweetness": "",
+    "country": "Ireland",
+    "region": "",
+    "abv": "4.2",
+    "vivinoScore": "",
+    "tags": [],
+    "collectionOnly": true,
+    "collection": []
   }
 ]
