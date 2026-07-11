@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import AdminPage from '../pages/AdminPage';
 
 vi.mock('react-datepicker', () => ({
-  default: ({ onChange }) => <input data-testid="mock-datepicker" type="text" onChange={() => onChange(null)} />,
+  default: ({ onChange }) => <input data-testid="mock-datepicker" type="text" readOnly onClick={() => onChange(new Date('2026-01-05'))} />,
 }));
 
 const mockNavigate = vi.fn();
@@ -66,4 +66,38 @@ test('saving in drankIt mode navigates to /collection', async () => {
   await waitFor(() => {
     expect(mockNavigate).toHaveBeenCalledWith('/collection');
   });
+});
+
+// ── Drank it → Tastings tab (already-reviewed drinks) ─────────────
+
+const REVIEWED_DRINK = { ...DRINK, tastings: [{ id: 't1', date: '01/01/2025', rating: 8 }] };
+
+function renderDrankItTastings(drink = REVIEWED_DRINK) {
+  return render(
+    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink, drankIt: true, lot: LOT, tab: 'tastings' } }]}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+}
+
+test('lands on Tastings tab in drankIt mode when tab is "tastings"', () => {
+  renderDrankItTastings();
+  expect(screen.getByRole('button', { name: /^tastings$/i })).toHaveClass('active');
+});
+
+test('adding a tasting in drankIt mode PATCHes the lot and navigates to /collection', async () => {
+  const updatedDrink = { ...REVIEWED_DRINK, tastings: [...REVIEWED_DRINK.tastings, { id: 't2', date: '05/01/2026', rating: 9 }] };
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(updatedDrink) }));
+  renderDrankItTastings();
+  fireEvent.click(screen.getByTestId('mock-datepicker'));
+  fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '9' } });
+  fireEvent.click(screen.getByRole('button', { name: /add tasting/i }));
+
+  await waitFor(() => {
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/wine/1/collection/lot1',
+      expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ quantity: 1 }) })
+    );
+  });
+  await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/collection'));
 });

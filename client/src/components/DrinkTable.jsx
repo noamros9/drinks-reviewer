@@ -282,8 +282,8 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                 )}
               </th>
             ))}
-            {onEdit && <th>Actions</th>}
             {renderRowExtra && <th>Stock</th>}
+            {onEdit && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -354,12 +354,12 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                 }
                 return <td key={col.key}>{content}</td>;
               })}
+              {renderRowExtra && <td className="stock-cell">{renderRowExtra(drink)}</td>}
               {onEdit && (
                 <td>
                   <button className="btn-edit" onClick={() => onEdit(drink)}>Edit</button>
                 </td>
               )}
-              {renderRowExtra && <td className="stock-cell">{renderRowExtra(drink)}</td>}
             </tr>
             );
           })}

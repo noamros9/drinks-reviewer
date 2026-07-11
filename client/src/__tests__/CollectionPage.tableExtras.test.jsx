@@ -78,11 +78,19 @@ test('Edit button is rendered per row', async () => {
   expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
 });
 
-test('Edit navigates to admin with lowercased category and drink state', async () => {
+test('Edit navigates to admin with lowercased category, drink state, and Collection tab', async () => {
   render(<MemoryRouter><CollectionPage /></MemoryRouter>);
   await screen.findByText('Grand Cru');
   fireEvent.click(screen.getByRole('button', { name: /edit/i }));
   expect(mockNavigate).toHaveBeenCalledWith('/admin', {
-    state: { category: 'wine', drink: expect.objectContaining({ id: 'w1' }) },
+    state: { category: 'wine', drink: expect.objectContaining({ id: 'w1' }), tab: 'collection' },
   });
+});
+
+test('Actions column renders rightmost, after the Stock column', async () => {
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  const headers = screen.getAllByRole('columnheader').map(h => h.textContent);
+  expect(headers[headers.length - 1]).toBe('Actions');
+  expect(headers.indexOf('Actions')).toBeGreaterThan(headers.indexOf('Stock'));
 });

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import ColumnPanel from '../components/ColumnPanel';
 import FilterDropdown from '../components/FilterDropdown';
@@ -57,6 +57,7 @@ export default function AllDrinksPage() {
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
   const searchQuery = (searchParams.get('q') || '').toLowerCase().trim();
+  const navigate = useNavigate();
 
   const handleSort = (key) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -120,6 +121,12 @@ export default function AllDrinksPage() {
             >{p.label}</button>
           ))}
         </div>
+        <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: filter === 'all' ? { tab: 'review' } : { category: filter, tab: 'review' } })}>
+          Add Review
+        </button>
+        <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: filter === 'all' ? { tab: 'collection' } : { category: filter, tab: 'collection' } })}>
+          Add to Collection
+        </button>
       </div>
       <div className="all-page-toolbar">
         <div className="category-tabs">

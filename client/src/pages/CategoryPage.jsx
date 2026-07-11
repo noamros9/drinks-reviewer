@@ -105,7 +105,7 @@ export default function CategoryPage({ category }) {
   };
 
   const handleEdit = (drink) => {
-    navigate('/admin', { state: { category, drink } });
+    navigate('/admin', { state: { category, drink, tab: 'review' } });
   };
 
   return (
@@ -127,6 +127,12 @@ export default function CategoryPage({ category }) {
         </div>
         <button type="button" className="btn-outline" onClick={() => navigate(`/taste-card?category=${category}`)}>
           Generate taste card
+        </button>
+        <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: { category, tab: 'review' } })}>
+          Add Review
+        </button>
+        <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: { category, tab: 'collection' } })}>
+          Add to Collection
         </button>
       </div>
       <FilterBar

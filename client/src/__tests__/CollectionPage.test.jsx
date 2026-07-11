@@ -192,6 +192,25 @@ test('"Drank it" navigates to admin with drink state and drankIt flag', async ()
   }));
 });
 
+test('"Drank it" routes to the Review tab for a never-reviewed drink', async () => {
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByRole('button', { name: /drank it/i }));
+  expect(mockNavigate).toHaveBeenCalledWith('/admin', expect.objectContaining({
+    state: expect.objectContaining({ tab: 'review' }),
+  }));
+});
+
+test('"Drank it" routes to the Tastings tab for an already-reviewed drink', async () => {
+  mockFetch([{ ...DRINK, tastingCount: 3 }]);
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByRole('button', { name: /drank it/i }));
+  expect(mockNavigate).toHaveBeenCalledWith('/admin', expect.objectContaining({
+    state: expect.objectContaining({ tab: 'tastings' }),
+  }));
+});
+
 test('decrement picks oldest lot when drink has multiple in-stock lots', async () => {
   const TWO_LOT_DRINK = {
     ...DRINK,
