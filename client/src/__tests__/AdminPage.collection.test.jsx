@@ -80,6 +80,16 @@ test('collection tab in create mode shows the add-to-collection form', () => {
   expect(screen.getByRole('button', { name: /add to collection/i })).toBeInTheDocument();
 });
 
+test('deep link with category and tab: collection lands on Collection tab with that category preselected', () => {
+  render(
+    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'beer', tab: 'collection' } }]}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+  expect(screen.getByRole('button', { name: /^collection$/i })).toHaveClass('active');
+  expect(screen.getByRole('button', { name: /^beer$/i })).toHaveClass('active');
+});
+
 test('add lot calls POST to collection endpoint', async () => {
   renderEditPage();
   fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));

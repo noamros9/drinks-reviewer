@@ -99,7 +99,7 @@ export default function AdminPage() {
   const [editTastingForm, setEditTastingForm] = useState({});
   const [allTags, setAllTags] = useState([]);
   const [suggestions, setSuggestions] = useState({});
-  const [colCat, setColCat] = useState('wine');
+  const [colCat, setColCat] = useState(CATEGORIES.includes(initialCategory) ? initialCategory : 'wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
   const [colMessage, setColMessage] = useState('');
   const [colSuggestions, setColSuggestions] = useState({});
@@ -303,6 +303,15 @@ export default function AdminPage() {
       if (imageUrl) {
         setTastings(prev => prev.map(t => t.id === newTastingId ? { ...t, imageUrl } : t));
       }
+    }
+
+    if (drankIt && editState.lot) {
+      await fetch(`/api/${category}/${form.id}/collection/${editState.lot.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity: editState.lot.quantity - 1 }),
+      });
+      navigate('/collection');
     }
   };
 

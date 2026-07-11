@@ -102,11 +102,12 @@ export default function CollectionPage() {
 
   const handleDrankIt = (drink) => {
     const lot = oldestInStockLot(drink);
-    navigate('/admin', { state: { drink, category: drink._category.toLowerCase(), drankIt: true, lot } });
+    const tab = drink.tastingCount > 0 ? 'tastings' : 'review';
+    navigate('/admin', { state: { drink, category: drink._category.toLowerCase(), drankIt: true, lot, tab } });
   };
 
   const handleEdit = (drink) => {
-    navigate('/admin', { state: { category: drink._category.toLowerCase(), drink } });
+    navigate('/admin', { state: { category: drink._category.toLowerCase(), drink, tab: 'collection' } });
   };
 
   const handleColumnLayoutChange = (next) => {
@@ -138,6 +139,12 @@ export default function CollectionPage() {
         <h1>My Collection</h1>
         <span className="count-badge">{visible.length} {visible.length === 1 ? 'drink' : 'drinks'}</span>
         <button className="sort-preset" onClick={handlePick}>Pick for me</button>
+        <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: filter === 'all' ? { tab: 'review' } : { category: filter, tab: 'review' } })}>
+          Add Review
+        </button>
+        <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: filter === 'all' ? { tab: 'collection' } : { category: filter, tab: 'collection' } })}>
+          Add to Collection
+        </button>
       </div>
 
       <div className="all-page-toolbar">
