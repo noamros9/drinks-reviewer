@@ -21,7 +21,8 @@ beforeEach(() => {
   mockNavigate.mockClear();
   global.fetch = vi.fn()
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })             // /api/tags
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })             // /api/wine suggestions
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })             // /api/wine suggestions (review tab)
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })             // /api/wine suggestions (collection tab autocomplete)
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'new-drink' }) })
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'lot1' }) });
 });
@@ -66,13 +67,11 @@ test('submit then POSTs a lot to the new drink id', async () => {
   });
 });
 
-test('navigates to tastings tab after submit', async () => {
+test('navigates to collection after submit', async () => {
   renderCollectionTab();
   fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
   await waitFor(() => {
-    expect(mockNavigate).toHaveBeenCalledWith('/admin', {
-      state: { drink: { id: 'new-drink' }, category: 'wine', tab: 'tastings' },
-    });
+    expect(mockNavigate).toHaveBeenCalledWith('/collection');
   });
 });
 
@@ -103,9 +102,70 @@ test('includes price in lot body when price is filled', async () => {
 test('shows error message when drink POST fails', async () => {
   global.fetch = vi.fn()
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/tags
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/wine suggestions
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/wine suggestions (review tab)
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/wine suggestions (collection tab autocomplete)
     .mockResolvedValueOnce({ ok: false });
   renderCollectionTab();
   fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
   expect(await screen.findByText(/failed to add drink/i)).toBeInTheDocument();
+});
+
+// ── Quantity validation blocks entire submit ──────────────────────
+
+test('decimal quantity blocks the entire submit', () => {
+  renderCollectionTab();
+  fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '2.5' } });
+  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
+});
+
+test('zero quantity blocks the entire submit', () => {
+  renderCollectionTab();
+  fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '0' } });
+  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
+});
+
+test('blank quantity blocks the entire submit', () => {
+  renderCollectionTab();
+  fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '' } });
+  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
+});
+
+// ── Producer/country autocomplete ─────────────────────────────────
+
+test('autocomplete suggestions populate from /api/{colCat} and appear in producer/country fields', async () => {
+  global.fetch = vi.fn()
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/tags
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/wine suggestions (review tab)
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([{ producer: 'Domaine Test', country: 'France' }]) }); // /api/wine (collection autocomplete)
+  renderCollectionTab();
+  fireEvent.change(screen.getByLabelText(/^producer$/i), { target: { value: 'Dom' } });
+  await waitFor(() => expect(screen.getByText('Domaine Test')).toBeInTheDocument());
+  fireEvent.change(screen.getByLabelText(/^country$/i), { target: { value: 'Fra' } });
+  await waitFor(() => expect(screen.getByText('France')).toBeInTheDocument());
+});
+
+// ── Quick-add photo upload ─────────────────────────────────────────
+
+test('quick-add photo upload fires to the collection image endpoint after drink+lot are created', async () => {
+  global.fetch = vi.fn()
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })                   // /api/tags
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })                   // /api/wine suggestions (review tab)
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })                   // /api/wine suggestions (collection tab autocomplete)
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'new-drink' }) })  // POST drink
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'lot1' }) })       // POST lot
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) });                  // POST collection image
+  renderCollectionTab();
+  const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.change(screen.getByTestId('new-col-img'), { target: { files: [file] } });
+  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+    '/api/wine/new-drink/collection/image',
+    expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
+  ));
 });

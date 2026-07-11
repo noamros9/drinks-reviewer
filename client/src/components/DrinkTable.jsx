@@ -104,6 +104,8 @@ export const COLUMNS = {
     { key: 'name',        label: 'Name' },
     { key: 'country',     label: 'Country' },
     { key: 'abv',         label: 'ABV' },
+    { key: 'price',       label: 'Price' },
+    { key: 'photo',       label: 'Photo' },
   ],
 };
 
@@ -212,7 +214,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     return '';
   };
 
-  const NUMERIC_KEYS = new Set(['abv', 'lastRating', 'avgRating', 'weightedRating', 'age', 'vivinoScore']);
+  const NUMERIC_KEYS = new Set(['abv', 'lastRating', 'avgRating', 'weightedRating', 'age', 'vivinoScore', 'price']);
 
   const sorted = [...drinks].sort((a, b) => {
     if (!sortKey) return 0;
@@ -336,6 +338,8 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                       </div>
                     )
                     : '—';
+                } else if (col.key === 'photo') {
+                  content = raw ? <img src={raw} alt="" className="table-thumb" /> : '—';
                 } else if (chipClass) {
                   content = (
                     <span
