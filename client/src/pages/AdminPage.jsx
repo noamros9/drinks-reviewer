@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomSelect from '../components/CustomSelect';
 import AutocompleteInput from '../components/AutocompleteInput';
-import { PRODUCER_FIELD } from '../utils/filterHelpers';
+import { PRODUCER_FIELD, NAME_FIELD, findDuplicate } from '../utils/filterHelpers';
 import './AdminPage.css';
 
 export const FIELDS = {
@@ -99,6 +99,8 @@ export default function AdminPage() {
   const [editTastingForm, setEditTastingForm] = useState({});
   const [allTags, setAllTags] = useState([]);
   const [suggestions, setSuggestions] = useState({});
+  const [categoryDrinks, setCategoryDrinks] = useState([]);
+  const duplicate = findDuplicate(categoryDrinks, category, form[PRODUCER_FIELD[category]], form[NAME_FIELD[category]], form.id);
   const [colCat, setColCat] = useState(CATEGORIES.includes(initialCategory) ? initialCategory : 'wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
   const [colMessage, setColMessage] = useState('');
@@ -130,6 +132,7 @@ export default function AdminPage() {
         map[k] = [...new Set(drinks.map(d => d[k]).filter(Boolean))].sort();
       });
       setSuggestions(map);
+      setCategoryDrinks(drinks);
 
       if (!idLookupDone.current) {
         idLookupDone.current = true;
@@ -178,6 +181,9 @@ export default function AdminPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (duplicate && !window.confirm(
+      `This looks like a duplicate of an existing entry: "${duplicate[PRODUCER_FIELD[category]]} — ${duplicate[NAME_FIELD[category]]}". Save anyway?`
+    )) return;
     const url = isEditing ? `/api/${category}/${form.id}` : `/api/${category}`;
     const method = isEditing ? 'PUT' : 'POST';
     const body = drankIt ? { ...form, collectionOnly: false } : form;
@@ -462,6 +468,12 @@ export default function AdminPage() {
             )}
           </div>
         ))}
+
+        {duplicate && (
+          <p className="success-message" data-testid="duplicate-warning">
+            Possible duplicate: "{duplicate[PRODUCER_FIELD[category]]} — {duplicate[NAME_FIELD[category]]}" already exists.
+          </p>
+        )}
 
         {isEditing && (form.lastTasted || form.lastRating != null || form.avgRating != null) && (
           <div className="derived-fields">
