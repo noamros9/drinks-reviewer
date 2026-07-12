@@ -370,4 +370,100 @@ async function getTasteCard(category) {
   return { profile, disliked, analysis, availableInIsrael, notAvailable, styleExplorations };
 }
 
-module.exports = { getRecommendations, scoreSimilarity, getTasteCard };
+// Same as avgLotPrice in client/src/utils/analyticsHelpers.js — ported rather than shared because
+// that file is ESM and this one is CommonJS.
+function avgLotPrice(drink) {
+  const prices = (drink.collection || []).map(l => l.price).filter(p => typeof p === 'number' && !Number.isNaN(p));
+  return prices.length ? avgOf(prices) : null;
+}
+
+// price isn't in SIMILARITY_FIELDS/trim() — keeping it out of the shared trim() so it doesn't
+// silently become a similarity-scoring field for recommend/taste-card.
+function trimForList(drink, category) {
+  return {
+    ...trim(drink, category),
+    price: avgLotPrice(drink),
+    inCollection: (drink.collection || []).some(l => l.quantity > 0),
+  };
+}
+
+const GENERATE_LIST_CAP = 15;
+const TO_BUY_CAP = 6;
+
+function buildGenerateListPrompt(userPrompt, catalogue) {
+  return `You are a drinks recommendation assistant for a personal wine/beer/whiskey/spirits journal app.
+
+Here is the user's full drink catalogue:
+${JSON.stringify(catalogue, null, 2)}
+
+The user wants: "${userPrompt}"
+
+Respond with two things:
+1. "results": rank the ${GENERATE_LIST_CAP} best-matching drinks from the catalogue above for this request (fewer if fewer than ${GENERATE_LIST_CAP} genuinely fit). Use ONLY the "id" and "category" values given above — never invent a drink or an id.
+2. "toBuy": search the web for real drinks matching this request that are available for purchase in Israel, so the user has purchasable options alongside whatever their catalogue offers. Use search to find one real, working purchase link per entry — omit an entry if you cannot find an actual link, never invent one. Do not suggest anything already in the catalogue above.
+
+Respond with ONLY a single fenced JSON code block at the very end of your reply, matching exactly this shape:
+\`\`\`json
+{
+  "results": [{"id": "...", "category": "...", "reason": "..."}],
+  "toBuy": [{"name": "...", "description": "...", "url": "...", "reason": "..."}]
+}
+\`\`\``;
+}
+
+function validateGeneratedList(parsed, candidatePool) {
+  const byKey = new Map(candidatePool.map(c => [`${c.category}:${c.id}`, c]));
+  const seen = new Set();
+  const matched = [];
+  for (const entry of Array.isArray(parsed.results) ? parsed.results : []) {
+    if (!entry || typeof entry.id !== 'string' || typeof entry.category !== 'string') continue;
+    const key = `${entry.category}:${entry.id}`;
+    const candidate = byKey.get(key);
+    if (!candidate || seen.has(key)) continue;
+    seen.add(key);
+    matched.push({
+      id: candidate.id,
+      category: candidate.category,
+      label: candidate.label,
+      avgRating: candidate.avgRating,
+      inCollection: candidate.inCollection,
+      reason: typeof entry.reason === 'string' ? entry.reason : '',
+    });
+    if (matched.length >= GENERATE_LIST_CAP) break;
+  }
+  const strip = ({ inCollection, ...rest }) => rest;
+  return {
+    inCollection: matched.filter(m => m.inCollection).map(strip),
+    elsewhereInCatalogue: matched.filter(m => !m.inCollection).map(strip),
+  };
+}
+
+function validateToBuy(parsed, catalogueLabels) {
+  return filterEntries(parsed.toBuy, catalogueLabels, { requireUrl: true, cap: TO_BUY_CAP });
+}
+
+async function getGeneratedList(prompt) {
+  if (!process.env.GEMINI_API_KEY) throw new RecommendError('GEMINI_API_KEY is not set', 500);
+  if (typeof prompt !== 'string' || !prompt.trim()) throw new RecommendError('prompt is required', 400);
+
+  let catalogueByCategory;
+  try {
+    catalogueByCategory = Object.fromEntries(CATEGORIES.map(c => [c, readData(c)]));
+  } catch (err) {
+    throw new RecommendError(err.message, 500);
+  }
+
+  const candidatePool = CATEGORIES.flatMap(category =>
+    catalogueByCategory[category].map(d => trimForList(d, category))
+  );
+  if (!candidatePool.length) throw new RecommendError('Add some drinks to your catalogue first', 400);
+
+  const catalogueLabels = candidatePool.map(d => d.label);
+  const body = await callGemini(buildGenerateListPrompt(prompt, candidatePool));
+  const parsed = parseResponse(body);
+  const { inCollection, elsewhereInCatalogue } = validateGeneratedList(parsed, candidatePool);
+  const toBuy = validateToBuy(parsed, catalogueLabels);
+  return { prompt, inCollection, elsewhereInCatalogue, toBuy };
+}
+
+module.exports = { getRecommendations, scoreSimilarity, getTasteCard, getGeneratedList };

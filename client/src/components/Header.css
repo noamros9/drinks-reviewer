@@ -45,6 +45,7 @@ header nav a {
   color: var(--text-secondary);
   padding: 6px 14px;
   border-radius: var(--radius-sm);
+  white-space: nowrap;
   transition: color 0.15s, background 0.15s;
 }
 

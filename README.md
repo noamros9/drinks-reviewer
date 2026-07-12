@@ -35,6 +35,7 @@ Set `GEMINI_API_KEY` in a root `.env` file to enable "Recommend Similar Drinks" 
 - Weighted rating — a Bayesian rating that shrinks a low-sample average toward the category's mean, so a single high rating can't outrank a well-tasted drink with a slightly lower average. Drives the "Top rated" sort preset, the drink table's Weighted Rating column, and the Style/Country/Region analytics leaderboards
 - Recommend Similar Drinks — pick 1+ drinks and get matches already in your catalogue (scored locally, no API cost) plus real-world drinks available/not available in Israel (via Gemini + Google Search grounding)
 - Personal Taste Card — per-category page summarizing your palate from rated entries (what you tend to like/avoid) plus Gemini-sourced real-world matches available/not available in Israel
+- Generate a List — type a freetext prompt (e.g. "something bold for a barbecue") and get a ranked list split into what's in your collection, what's elsewhere in your catalogue, and real purchasable options to buy (via Gemini + Google Search grounding)
 
 ## Testing
 
