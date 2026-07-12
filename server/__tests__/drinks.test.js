@@ -72,6 +72,26 @@ describe('POST /api/:category', () => {
     const res = await request(app).post('/api/wine').send({ producer: 'X' });
     expect(res.body.collectionOnly).toBeUndefined();
   });
+
+  it('returns 400 for abv below 0', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X', abv: -1 });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 for abv above 100', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X', abv: 101 });
+    expect(res.status).toBe(400);
+  });
+
+  it('accepts a non-numeric abv value (free-text tolerated)', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X', abv: '14%' });
+    expect(res.status).toBe(201);
+  });
+
+  it('accepts a numeric abv within the valid range', async () => {
+    const res = await request(app).post('/api/wine').send({ producer: 'X', abv: 13.5 });
+    expect(res.status).toBe(201);
+  });
 });
 
 describe('PUT /api/:category/:id', () => {
@@ -92,6 +112,12 @@ describe('PUT /api/:category/:id', () => {
   it('returns 404 for unknown category', async () => {
     const res = await request(app).put('/api/spirits/abc').send({ name: 'X' });
     expect(res.status).toBe(404);
+  });
+
+  it('returns 400 for out-of-range abv on update', async () => {
+    const createRes = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).put(`/api/wine/${createRes.body.id}`).send({ producer: 'X', abv: 150 });
+    expect(res.status).toBe(400);
   });
 
   it('clears collectionOnly when PUT sends collectionOnly: false', async () => {

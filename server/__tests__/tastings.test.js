@@ -77,6 +77,18 @@ describe('POST /api/:category/:id/tastings', () => {
     expect(res.status).toBe(400);
   });
 
+  it('returns 400 when rating is below 1', async () => {
+    const drink = await createDrink('wine');
+    const res = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 0 });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when rating is above 10', async () => {
+    const drink = await createDrink('wine');
+    const res = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 11 });
+    expect(res.status).toBe(400);
+  });
+
   it('returns 404 for unknown category', async () => {
     const res = await request(app).post('/api/nope/abc/tastings').send({ date: '01/01/2025', rating: 7 });
     expect(res.status).toBe(404);
@@ -376,6 +388,14 @@ describe('PUT /api/:category/:id/tastings/:tastingId', () => {
     const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7 });
     const tastingId = addRes.body.tastings[0].id;
     const res = await request(app).put(`/api/wine/${drink.id}/tastings/${tastingId}`).send({ rating: 7 });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when updated rating is out of range', async () => {
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2024', rating: 7 });
+    const tastingId = addRes.body.tastings[0].id;
+    const res = await request(app).put(`/api/wine/${drink.id}/tastings/${tastingId}`).send({ date: '01/01/2024', rating: 11 });
     expect(res.status).toBe(400);
   });
 

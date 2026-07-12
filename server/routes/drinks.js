@@ -48,6 +48,16 @@ function pickFields(body, category, partial = false) {
 
 const REGION_CATEGORIES = new Set(Object.keys(ALLOWED_FIELDS).filter(c => ALLOWED_FIELDS[c].includes('region')));
 
+// abv is a free-text field in practice (analytics already tolerates non-numeric values via Number()+NaN filtering),
+// so only reject values that parse as a number outside the valid range — don't reject non-numeric text.
+function abvError(value) {
+  if (value === undefined || value === '') return null;
+  const n = Number(value);
+  if (Number.isNaN(n)) return null;
+  if (n < 0 || n > 100) return 'abv must be between 0 and 100';
+  return null;
+}
+
 // Best-effort: a geocoding failure must never turn a successful drink save into an error response.
 async function maybeGeocodeRegion(category, entry) {
   if (!REGION_CATEGORIES.has(category) || !entry.country || !entry.region) return;
@@ -144,6 +154,8 @@ router.get('/:category', (req, res) => {
 router.post('/:category', async (req, res) => {
   const { category } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  const abvErr = abvError(req.body.abv);
+  if (abvErr) return res.status(400).json({ error: abvErr });
   try {
     const entry = await withLock(category, () => {
       const data = readData(category);
@@ -163,6 +175,8 @@ router.post('/:category', async (req, res) => {
 router.put('/:category/:id', async (req, res) => {
   const { category, id } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  const abvErr = abvError(req.body.abv);
+  if (abvErr) return res.status(400).json({ error: abvErr });
   try {
     const updated = await withLock(category, () => {
       const data = readData(category);
@@ -246,7 +260,9 @@ router.post('/:category/:id/tastings', async (req, res) => {
   const { category, id } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   const { date, rating, vintage } = req.body;
-  if (!date || rating == null || isNaN(Number(rating))) return res.status(400).json({ error: 'date and rating are required' });
+  if (!date || rating == null || isNaN(Number(rating)) || Number(rating) < 1 || Number(rating) > 10) {
+    return res.status(400).json({ error: 'date is required and rating must be between 1 and 10' });
+  }
   try {
     const drink = await withLock(category, () => {
       const data = readData(category);
@@ -301,7 +317,9 @@ router.put('/:category/:id/tastings/:tastingId', async (req, res) => {
   const { category, id, tastingId } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   const { date, rating, vintage } = req.body;
-  if (!date || rating == null || isNaN(Number(rating))) return res.status(400).json({ error: 'date and rating are required' });
+  if (!date || rating == null || isNaN(Number(rating)) || Number(rating) < 1 || Number(rating) > 10) {
+    return res.status(400).json({ error: 'date is required and rating must be between 1 and 10' });
+  }
   try {
     const drink = await withLock(category, () => {
       const data = readData(category);
