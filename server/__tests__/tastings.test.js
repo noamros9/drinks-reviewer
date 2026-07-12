@@ -4,31 +4,37 @@ const path = require('path');
 const os = require('os');
 const { computeFromTastings } = require('../tastingsHelper');
 
+jest.mock('../cloudinary', () => ({
+  uploadImage: jest.fn(),
+  deleteImage: jest.fn().mockResolvedValue(undefined),
+}));
+
 let app;
 let db;
+let cloudinary;
 let tmpDir;
-let imgDir;
+let uploadCount;
 
 beforeAll(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'drinks-tasting-test-'));
-  imgDir = fs.mkdtempSync(path.join(os.tmpdir(), 'drinks-img-test-'));
   process.env.DATA_DIR = tmpDir;
-  process.env.IMAGES_DIR = imgDir;
   jest.resetModules();
   app = require('../index');
   db = require('../db');
+  cloudinary = require('../cloudinary');
 });
 
 afterAll(() => {
   fs.rmSync(tmpDir, { recursive: true });
-  fs.rmSync(imgDir, { recursive: true });
   delete process.env.DATA_DIR;
-  delete process.env.IMAGES_DIR;
   jest.resetModules();
 });
 
 beforeEach(() => {
   db.resetFake();
+  uploadCount = 0;
+  cloudinary.uploadImage.mockImplementation(() => Promise.resolve(`https://res.cloudinary.com/demo/image/upload/v1/drinks/img${++uploadCount}.png`));
+  cloudinary.deleteImage.mockClear();
 });
 
 async function createDrink(category = 'wine', body = { producer: 'Test' }) {
@@ -230,27 +236,25 @@ describe('POST /api/:category/:id/tastings/:tastingId/image', () => {
       .post(`/api/wine/${drink.id}/tastings/${tastingId}/image`)
       .attach('image', Buffer.from('fakepng'), { filename: 'bottle.png', contentType: 'image/png' });
     expect(res.status).toBe(200);
-    expect(res.body.tastings[0].imageUrl).toMatch(/^\/images\/drinks\/.+\.png$/);
-    expect(fs.existsSync(path.join(imgDir, path.basename(res.body.tastings[0].imageUrl)))).toBe(true);
+    expect(res.body.tastings[0].imageUrl).toMatch(/^https:\/\/res\.cloudinary\.com\//);
   });
 
-  it('replaces old image file when uploading a new one', async () => {
+  it('deletes the old image when uploading a new one', async () => {
     const drink = await createDrink('wine');
     const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
     const tastingId = addRes.body.tastings[0].id;
     const first = await request(app)
       .post(`/api/wine/${drink.id}/tastings/${tastingId}/image`)
       .attach('image', Buffer.from('img1'), { filename: 'a.jpg', contentType: 'image/jpeg' });
-    const firstFile = path.join(imgDir, path.basename(first.body.tastings[0].imageUrl));
     const second = await request(app)
       .post(`/api/wine/${drink.id}/tastings/${tastingId}/image`)
       .attach('image', Buffer.from('img2'), { filename: 'b.jpg', contentType: 'image/jpeg' });
     expect(second.status).toBe(200);
-    expect(fs.existsSync(firstFile)).toBe(false);
+    expect(cloudinary.deleteImage).toHaveBeenCalledWith(first.body.tastings[0].imageUrl);
     expect(second.body.tastings[0].imageUrl).not.toBe(first.body.tastings[0].imageUrl);
   });
 
-  it('keeps the image file when another tasting still references it (carry-forward)', async () => {
+  it('keeps the image when another tasting still references it (carry-forward)', async () => {
     const drink = await createDrink('wine');
     const addRes1 = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
     const tastingId1 = addRes1.body.tastings[0].id;
@@ -258,7 +262,6 @@ describe('POST /api/:category/:id/tastings/:tastingId/image', () => {
       .post(`/api/wine/${drink.id}/tastings/${tastingId1}/image`)
       .attach('image', Buffer.from('shared'), { filename: 'shared.jpg', contentType: 'image/jpeg' });
     const sharedImageUrl = uploadRes.body.tastings[0].imageUrl;
-    const sharedFile = path.join(imgDir, path.basename(sharedImageUrl));
 
     const addRes2 = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '02/01/2025', rating: 7, imageUrl: sharedImageUrl });
     const tastingId2 = addRes2.body.tastings.find(t => t.id !== tastingId1).id;
@@ -267,7 +270,7 @@ describe('POST /api/:category/:id/tastings/:tastingId/image', () => {
       .post(`/api/wine/${drink.id}/tastings/${tastingId1}/image`)
       .attach('image', Buffer.from('new'), { filename: 'new.jpg', contentType: 'image/jpeg' });
     expect(res.status).toBe(200);
-    expect(fs.existsSync(sharedFile)).toBe(true);
+    expect(cloudinary.deleteImage).not.toHaveBeenCalledWith(sharedImageUrl);
     expect(res.body.tastings.find(t => t.id === tastingId2).imageUrl).toBe(sharedImageUrl);
   });
 
@@ -311,33 +314,40 @@ describe('POST /api/:category/:id/tastings/:tastingId/image', () => {
     expect(res.status).toBe(400);
   });
 
-  it('cleans up uploaded file when drink is not found', async () => {
-    const filesBefore = fs.readdirSync(imgDir).length;
+  it('cleans up the uploaded image when drink is not found', async () => {
     const res = await request(app)
       .post('/api/wine/nonexistent/tastings/xyz/image')
       .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
     expect(res.status).toBe(404);
-    expect(fs.readdirSync(imgDir).length).toBe(filesBefore);
+    expect(cloudinary.deleteImage).toHaveBeenCalledWith('https://res.cloudinary.com/demo/image/upload/v1/drinks/img1.png');
   });
 
-  it('cleans up uploaded file when tasting is not found', async () => {
+  it('cleans up the uploaded image when tasting is not found', async () => {
     const drink = await createDrink('wine');
-    const filesBefore = fs.readdirSync(imgDir).length;
     const res = await request(app)
       .post(`/api/wine/${drink.id}/tastings/nonexistent/image`)
       .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
     expect(res.status).toBe(404);
-    expect(fs.readdirSync(imgDir).length).toBe(filesBefore);
+    expect(cloudinary.deleteImage).toHaveBeenCalledWith('https://res.cloudinary.com/demo/image/upload/v1/drinks/img1.png');
   });
 
-  it('returns 500 and cleans up uploaded file when data is corrupt', async () => {
-    const filesBefore = fs.readdirSync(imgDir).length;
+  it('returns 500 when the Cloudinary upload itself fails', async () => {
+    cloudinary.uploadImage.mockRejectedValueOnce(new Error('upload boom'));
+    const drink = await createDrink('wine');
+    const addRes = await request(app).post(`/api/wine/${drink.id}/tastings`).send({ date: '01/01/2025', rating: 8 });
+    const res = await request(app)
+      .post(`/api/wine/${drink.id}/tastings/${addRes.body.tastings[0].id}/image`)
+      .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
+    expect(res.status).toBe(500);
+  });
+
+  it('returns 500 and cleans up the uploaded image when data is corrupt', async () => {
     const getCollectionSpy = jest.spyOn(db, 'getCollection').mockRejectedValue(new Error('boom'));
     const res = await request(app)
       .post('/api/wine/any/tastings/any/image')
       .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
     expect(res.status).toBe(500);
-    expect(fs.readdirSync(imgDir).length).toBe(filesBefore);
+    expect(cloudinary.deleteImage).toHaveBeenCalledWith('https://res.cloudinary.com/demo/image/upload/v1/drinks/img1.png');
     getCollectionSpy.mockRestore();
   });
 });

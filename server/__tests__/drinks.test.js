@@ -3,6 +3,11 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
+jest.mock('../cloudinary', () => ({
+  uploadImage: jest.fn().mockResolvedValue('https://res.cloudinary.com/demo/image/upload/v1/drinks/fake.png'),
+  deleteImage: jest.fn().mockResolvedValue(undefined),
+}));
+
 let app;
 let db;
 let tmpDir;

@@ -8,7 +8,8 @@ Personal drinks journal for wine, beer, whiskey, and spirits.
 |---|---|
 | Frontend | React + Vite, React Router, CSS custom properties |
 | Backend | Node.js + Express |
-| Data | JSON files (no database) |
+| Data | MongoDB Atlas |
+| Images | Cloudinary |
 
 ## Getting Started
 
@@ -19,7 +20,7 @@ npm run dev
 
 Client → `http://localhost:5173` · Server → `http://localhost:3001`
 
-Set `GEMINI_API_KEY` in a root `.env` file to enable "Recommend Similar Drinks" (real-world matches use Gemini's free tier with Google Search grounding).
+Set `MONGODB_URI` (and optionally `MONGODB_DB`) in a root `.env` file to read/write through Atlas — without it, the server falls back to an in-memory store for local/test use. Set `CLOUDINARY_URL` to enable photo uploads. Set `GEMINI_API_KEY` to enable "Recommend Similar Drinks" (real-world matches use Gemini's free tier with Google Search grounding).
 
 ## Features
 

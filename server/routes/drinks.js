@@ -1,23 +1,21 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const { randomUUID } = require('crypto');
 const multer = require('multer');
 const { computeFromTastings } = require('../tastingsHelper');
 const { ensureRegionCoordinates, readCoordinates } = require('../geocoding');
 const { readData, writeData } = require('../dataStore');
 const { getRecommendations, getTasteCard, getGeneratedList } = require('../recommend');
-
-const IMAGES_DIR_PATH = process.env.IMAGES_DIR || path.join(__dirname, '../../client/public/images/drinks');
+const { uploadImage, deleteImage } = require('../cloudinary');
 
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: (_req, _file, cb) => { fs.mkdirSync(IMAGES_DIR_PATH, { recursive: true }); cb(null, IMAGES_DIR_PATH); },
-    filename: (_req, file, cb) => cb(null, `${randomUUID()}${path.extname(file.originalname)}`),
-  }),
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => cb(null, file.mimetype.startsWith('image/')),
 });
+
+function toDataUri(file) {
+  return `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+}
 
 const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
@@ -346,7 +344,12 @@ router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), 
   const { category, id, tastingId } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const cleanupUpload = () => { try { fs.unlinkSync(req.file.path); } catch {} };
+  let imageUrl;
+  try {
+    imageUrl = await uploadImage(toDataUri(req.file), `drinks/${randomUUID()}`);
+  } catch {
+    return res.status(500).json({ error: 'Image upload failed' });
+  }
   try {
     const drink = await withLock(category, async () => {
       const data = await readData(category);
@@ -357,19 +360,17 @@ router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), 
       if (tasting.imageUrl) {
         const stillShared = d.tastings.some(t => t.id !== tastingId && t.imageUrl === tasting.imageUrl);
         const isCollectionPhoto = tasting.imageUrl === d.collectionImageUrl;
-        if (!stillShared && !isCollectionPhoto) {
-          try { fs.unlinkSync(path.join(IMAGES_DIR_PATH, path.basename(tasting.imageUrl))); } catch {}
-        }
+        if (!stillShared && !isCollectionPhoto) await deleteImage(tasting.imageUrl);
       }
-      tasting.imageUrl = `/images/drinks/${req.file.filename}`;
+      tasting.imageUrl = imageUrl;
       await writeData(category, data);
       return d;
     });
-    if (drink === null) { cleanupUpload(); return res.status(404).json({ error: 'Entry not found' }); }
-    if (drink === false) { cleanupUpload(); return res.status(404).json({ error: 'Tasting not found' }); }
+    if (drink === null) { await deleteImage(imageUrl); return res.status(404).json({ error: 'Entry not found' }); }
+    if (drink === false) { await deleteImage(imageUrl); return res.status(404).json({ error: 'Tasting not found' }); }
     res.json(drink);
   } catch {
-    cleanupUpload();
+    await deleteImage(imageUrl);
     res.status(500).json({ error: 'Data unavailable' });
   }
 });
@@ -401,7 +402,12 @@ router.post('/:category/:id/collection/image', upload.single('image'), async (re
   const { category, id } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  const cleanupUpload = () => { try { fs.unlinkSync(req.file.path); } catch {} };
+  let imageUrl;
+  try {
+    imageUrl = await uploadImage(toDataUri(req.file), `drinks/${randomUUID()}`);
+  } catch {
+    return res.status(500).json({ error: 'Image upload failed' });
+  }
   try {
     const drink = await withLock(category, async () => {
       const data = await readData(category);
@@ -409,18 +415,16 @@ router.post('/:category/:id/collection/image', upload.single('image'), async (re
       if (!d) return null;
       if (d.collectionImageUrl) {
         const stillUsedByTasting = (d.tastings || []).some(t => t.imageUrl === d.collectionImageUrl);
-        if (!stillUsedByTasting) {
-          try { fs.unlinkSync(path.join(IMAGES_DIR_PATH, path.basename(d.collectionImageUrl))); } catch {}
-        }
+        if (!stillUsedByTasting) await deleteImage(d.collectionImageUrl);
       }
-      d.collectionImageUrl = `/images/drinks/${req.file.filename}`;
+      d.collectionImageUrl = imageUrl;
       await writeData(category, data);
       return d;
     });
-    if (!drink) { cleanupUpload(); return res.status(404).json({ error: 'Entry not found' }); }
+    if (!drink) { await deleteImage(imageUrl); return res.status(404).json({ error: 'Entry not found' }); }
     res.json(drink);
   } catch {
-    cleanupUpload();
+    await deleteImage(imageUrl);
     res.status(500).json({ error: 'Data unavailable' });
   }
 });
