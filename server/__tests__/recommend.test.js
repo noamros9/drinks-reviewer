@@ -1,10 +1,7 @@
 const request = require('supertest');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
 
 let app;
-let tmpDir;
+let db;
 
 const WINE = [
   { id: 'w1', producer: 'Domaine A', seriesAndName: 'Pinot Noir', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'] },
@@ -17,11 +14,12 @@ const WHISKEY = [{ id: 'wh1', distillery: 'Glen X', name: '12yo', country: 'Scot
 // no producer/brewery/distillery/name/seriesAndName -> exercises label()'s 'Unknown' fallback
 const OTHERS = [{ id: 'o1', drinkCategory: 'Sake', country: 'Japan', style: 'Junmai', age: '', abv: '15', tags: [] }];
 
-function writeFixture() {
-  fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(WINE));
-  fs.writeFileSync(path.join(tmpDir, 'beer.json'), JSON.stringify(BEER));
-  fs.writeFileSync(path.join(tmpDir, 'whiskey.json'), JSON.stringify(WHISKEY));
-  fs.writeFileSync(path.join(tmpDir, 'others.json'), JSON.stringify(OTHERS));
+async function writeFixture() {
+  db.resetFake();
+  await (await db.getCollection('wine')).insertMany(WINE);
+  await (await db.getCollection('beer')).insertMany(BEER);
+  await (await db.getCollection('whiskey')).insertMany(WHISKEY);
+  await (await db.getCollection('others')).insertMany(OTHERS);
 }
 
 function jsonResponse(payload) {
@@ -34,21 +32,12 @@ function jsonResponse(payload) {
   };
 }
 
-beforeAll(() => {
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'recommend-test-'));
-  process.env.DATA_DIR = tmpDir;
-});
-
-afterAll(() => {
-  fs.rmSync(tmpDir, { recursive: true });
-  delete process.env.DATA_DIR;
-});
-
-beforeEach(() => {
-  writeFixture();
+beforeEach(async () => {
   process.env.GEMINI_API_KEY = 'test-key';
   jest.resetModules();
   app = require('../index');
+  db = require('../db');
+  await writeFixture();
   global.fetch = jest.fn();
 });
 
@@ -126,12 +115,13 @@ describe('POST /api/recommend', () => {
     expect(res.body.error).toMatch(/GEMINI_API_KEY/);
   });
 
-  it('returns 500 when a catalogue file cannot be read', async () => {
-    fs.rmSync(path.join(tmpDir, 'wine.json'));
+  it('returns 500 when a catalogue collection cannot be read', async () => {
+    const getCollectionSpy = jest.spyOn(db, 'getCollection').mockRejectedValue(new Error('boom'));
     const res = await request(app).post('/api/recommend').send({
       seeds: [{ id: 'w1', category: 'wine' }, { id: 'w2', category: 'wine' }],
     });
     expect(res.status).toBe(500);
+    getCollectionSpy.mockRestore();
   });
 
   it('returns 500 with a generic message on an unexpected error with no status (e.g. a network failure)', async () => {

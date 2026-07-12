@@ -4,16 +4,15 @@ const path = require('path');
 const os = require('os');
 
 let app;
+let db;
 let tmpDir;
 
 beforeAll(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'drinks-test-'));
-  ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
-    fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
-  });
   process.env.DATA_DIR = tmpDir;
   jest.resetModules();
   app = require('../index');
+  db = require('../db');
 });
 
 afterAll(() => {
@@ -23,9 +22,7 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
-    fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
-  });
+  db.resetFake();
   fs.writeFileSync(path.join(tmpDir, 'region-coordinates.json'), '{}');
 });
 
@@ -373,8 +370,8 @@ describe('GET /api/tags', () => {
   });
 
   it('handles drinks with no tags field (covers d.tags || [] branch)', async () => {
-    const data = [{ id: 'x', producer: 'Y' }]; // no tags property
-    fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(data));
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 'x', producer: 'Y' }]); // no tags property
     const res = await request(app).get('/api/tags');
     expect(res.status).toBe(200);
     expect(res.body).toEqual([]);
@@ -442,12 +439,13 @@ describe('region geocoding hook on save', () => {
   });
 });
 
-describe('500 error handling when data file is corrupt', () => {
+describe('500 error handling when the data backend fails', () => {
+  let getCollectionSpy;
   beforeEach(() => {
-    fs.writeFileSync(path.join(tmpDir, 'wine.json'), 'INVALID JSON');
+    getCollectionSpy = jest.spyOn(db, 'getCollection').mockRejectedValue(new Error('boom'));
   });
   afterEach(() => {
-    fs.writeFileSync(path.join(tmpDir, 'wine.json'), '[]');
+    getCollectionSpy.mockRestore();
   });
 
   it('GET /api/tags returns 500', async () => {

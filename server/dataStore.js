@@ -1,18 +1,18 @@
-const fs = require('fs');
-const path = require('path');
+const db = require('./db');
 
-const DATA_DIR_PATH = process.env.DATA_DIR || path.join(__dirname, 'data');
-
-function readData(category) {
+async function readData(category) {
   try {
-    return JSON.parse(fs.readFileSync(path.join(DATA_DIR_PATH, `${category}.json`), 'utf8'));
+    const col = await db.getCollection(category);
+    return await col.find({}, { projection: { _id: 0 } }).toArray();
   } catch {
     throw new Error(`Failed to read data for category: ${category}`);
   }
 }
 
-function writeData(category, data) {
-  fs.writeFileSync(path.join(DATA_DIR_PATH, `${category}.json`), JSON.stringify(data, null, 2));
+async function writeData(category, data) {
+  const col = await db.getCollection(category);
+  await col.deleteMany({});
+  if (data.length) await col.insertMany(data);
 }
 
-module.exports = { readData, writeData, DATA_DIR_PATH };
+module.exports = { readData, writeData };

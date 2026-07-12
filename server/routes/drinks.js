@@ -78,11 +78,11 @@ async function withLock(category, fn) {
 }
 
 // Must be before /:category to avoid "tags"/"collection" being treated as category names
-router.get('/tags', (_req, res) => {
+router.get('/tags', async (_req, res) => {
   try {
     const allTags = new Set();
     for (const cat of CATEGORIES) {
-      readData(cat).forEach(d => (d.tags || []).forEach(t => allTags.add(t)));
+      (await readData(cat)).forEach(d => (d.tags || []).forEach(t => allTags.add(t)));
     }
     res.json([...allTags].sort());
   } catch {
@@ -94,11 +94,11 @@ router.get('/region-coordinates', (_req, res) => {
   res.json(readCoordinates());
 });
 
-router.get('/collection', (req, res) => {
+router.get('/collection', async (req, res) => {
   try {
     const result = [];
     for (const cat of CATEGORIES) {
-      const data = readData(cat);
+      const data = await readData(cat);
       for (const drink of data) {
         if ((drink.collection || []).some(l => l.quantity > 0)) {
           result.push({ ...drink, _category: cat });
@@ -141,11 +141,11 @@ router.post('/generate-list', async (req, res) => {
   }
 });
 
-router.get('/:category', (req, res) => {
+router.get('/:category', async (req, res) => {
   const { category } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   try {
-    res.json(readData(category).filter(d => !d.collectionOnly));
+    res.json((await readData(category)).filter(d => !d.collectionOnly));
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
   }
@@ -157,12 +157,12 @@ router.post('/:category', async (req, res) => {
   const abvErr = abvError(req.body.abv);
   if (abvErr) return res.status(400).json({ error: abvErr });
   try {
-    const entry = await withLock(category, () => {
-      const data = readData(category);
+    const entry = await withLock(category, async () => {
+      const data = await readData(category);
       const newEntry = { id: randomUUID(), ...pickFields(req.body, category) };
       if (req.body.collectionOnly === true) newEntry.collectionOnly = true;
       data.push(newEntry);
-      writeData(category, data);
+      await writeData(category, data);
       return newEntry;
     });
     await maybeGeocodeRegion(category, entry);
@@ -178,8 +178,8 @@ router.put('/:category/:id', async (req, res) => {
   const abvErr = abvError(req.body.abv);
   if (abvErr) return res.status(400).json({ error: abvErr });
   try {
-    const updated = await withLock(category, () => {
-      const data = readData(category);
+    const updated = await withLock(category, async () => {
+      const data = await readData(category);
       const index = data.findIndex(d => d.id === id);
       if (index === -1) return null;
       data[index] = { ...data[index], ...pickFields(req.body, category, true), id };
@@ -187,7 +187,7 @@ router.put('/:category/:id', async (req, res) => {
         if (req.body.collectionOnly) data[index].collectionOnly = true;
         else delete data[index].collectionOnly;
       }
-      writeData(category, data);
+      await writeData(category, data);
       return data[index];
     });
     if (!updated) return res.status(404).json({ error: 'Entry not found' });
@@ -211,8 +211,8 @@ router.patch('/:category/bulk', async (req, res) => {
   }
   if (typeof value !== 'string' || !value) return res.status(400).json({ error: 'value is required' });
   try {
-    const updated = await withLock(category, () => {
-      const data = readData(category);
+    const updated = await withLock(category, async () => {
+      const data = await readData(category);
       const idSet = new Set(ids);
       const affected = [];
       for (const d of data) {
@@ -226,7 +226,7 @@ router.patch('/:category/bulk', async (req, res) => {
         }
         affected.push(d);
       }
-      writeData(category, data);
+      await writeData(category, data);
       return affected;
     });
     if (field === 'country' || field === 'region') {
@@ -242,11 +242,11 @@ router.delete('/:category/:id', async (req, res) => {
   const { category, id } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   try {
-    const found = await withLock(category, () => {
-      const data = readData(category);
+    const found = await withLock(category, async () => {
+      const data = await readData(category);
       const filtered = data.filter(d => d.id !== id);
       if (filtered.length === data.length) return false;
-      writeData(category, filtered);
+      await writeData(category, filtered);
       return true;
     });
     if (!found) return res.status(404).json({ error: 'Entry not found' });
@@ -264,8 +264,8 @@ router.post('/:category/:id/tastings', async (req, res) => {
     return res.status(400).json({ error: 'date is required and rating must be between 1 and 10' });
   }
   try {
-    const drink = await withLock(category, () => {
-      const data = readData(category);
+    const drink = await withLock(category, async () => {
+      const data = await readData(category);
       const d = data.find(x => x.id === id);
       if (!d) return null;
       const tasting = { id: randomUUID(), date, rating: Number(rating) };
@@ -276,7 +276,7 @@ router.post('/:category/:id/tastings', async (req, res) => {
       else if (!hadPriorTastings && d.collectionImageUrl) tasting.imageUrl = d.collectionImageUrl;
       d.tastings = [...(d.tastings || []), tasting];
       Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
-      writeData(category, data);
+      await writeData(category, data);
       return d;
     });
     if (!drink) return res.status(404).json({ error: 'Entry not found' });
@@ -290,8 +290,8 @@ router.delete('/:category/:id/tastings/:tastingId', async (req, res) => {
   const { category, id, tastingId } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   try {
-    const drink = await withLock(category, () => {
-      const data = readData(category);
+    const drink = await withLock(category, async () => {
+      const data = await readData(category);
       const d = data.find(x => x.id === id);
       if (!d) return null;
       const before = (d.tastings || []).length;
@@ -302,7 +302,7 @@ router.delete('/:category/:id/tastings/:tastingId', async (req, res) => {
       } else {
         Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
       }
-      writeData(category, data);
+      await writeData(category, data);
       return d;
     });
     if (drink === null) return res.status(404).json({ error: 'Entry not found' });
@@ -321,8 +321,8 @@ router.put('/:category/:id/tastings/:tastingId', async (req, res) => {
     return res.status(400).json({ error: 'date is required and rating must be between 1 and 10' });
   }
   try {
-    const drink = await withLock(category, () => {
-      const data = readData(category);
+    const drink = await withLock(category, async () => {
+      const data = await readData(category);
       const d = data.find(x => x.id === id);
       if (!d) return null;
       const tasting = (d.tastings || []).find(t => t.id === tastingId);
@@ -331,7 +331,7 @@ router.put('/:category/:id/tastings/:tastingId', async (req, res) => {
       tasting.rating = Number(rating);
       if (category === 'wine') tasting.vintage = vintage || undefined;
       Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
-      writeData(category, data);
+      await writeData(category, data);
       return d;
     });
     if (drink === null) return res.status(404).json({ error: 'Entry not found' });
@@ -348,8 +348,8 @@ router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), 
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const cleanupUpload = () => { try { fs.unlinkSync(req.file.path); } catch {} };
   try {
-    const drink = await withLock(category, () => {
-      const data = readData(category);
+    const drink = await withLock(category, async () => {
+      const data = await readData(category);
       const d = data.find(x => x.id === id);
       if (!d) return null;
       const tasting = (d.tastings || []).find(t => t.id === tastingId);
@@ -362,7 +362,7 @@ router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), 
         }
       }
       tasting.imageUrl = `/images/drinks/${req.file.filename}`;
-      writeData(category, data);
+      await writeData(category, data);
       return d;
     });
     if (drink === null) { cleanupUpload(); return res.status(404).json({ error: 'Entry not found' }); }
@@ -381,13 +381,13 @@ router.post('/:category/:id/collection', async (req, res) => {
   if (!Number.isInteger(quantity) || quantity < 1) return res.status(400).json({ error: 'quantity must be a positive integer' });
   const price = req.body.price !== undefined && req.body.price !== '' ? Number(req.body.price) : null;
   try {
-    const lot = await withLock(category, () => {
-      const data = readData(category);
+    const lot = await withLock(category, async () => {
+      const data = await readData(category);
       const drink = data.find(d => d.id === id);
       if (!drink) return null;
       const newLot = { id: randomUUID(), quantity, price, addedAt: new Date().toISOString().slice(0, 10) };
       drink.collection = [...(drink.collection || []), newLot];
-      writeData(category, data);
+      await writeData(category, data);
       return newLot;
     });
     if (!lot) return res.status(404).json({ error: 'Entry not found' });
@@ -403,8 +403,8 @@ router.post('/:category/:id/collection/image', upload.single('image'), async (re
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   const cleanupUpload = () => { try { fs.unlinkSync(req.file.path); } catch {} };
   try {
-    const drink = await withLock(category, () => {
-      const data = readData(category);
+    const drink = await withLock(category, async () => {
+      const data = await readData(category);
       const d = data.find(x => x.id === id);
       if (!d) return null;
       if (d.collectionImageUrl) {
@@ -414,7 +414,7 @@ router.post('/:category/:id/collection/image', upload.single('image'), async (re
         }
       }
       d.collectionImageUrl = `/images/drinks/${req.file.filename}`;
-      writeData(category, data);
+      await writeData(category, data);
       return d;
     });
     if (!drink) { cleanupUpload(); return res.status(404).json({ error: 'Entry not found' }); }
@@ -431,14 +431,14 @@ router.patch('/:category/:id/collection/:lotId', async (req, res) => {
   const quantity = Number(req.body.quantity);
   if (!Number.isInteger(quantity) || quantity < 0) return res.status(400).json({ error: 'quantity must be a non-negative integer' });
   try {
-    const updated = await withLock(category, () => {
-      const data = readData(category);
+    const updated = await withLock(category, async () => {
+      const data = await readData(category);
       const drink = data.find(d => d.id === id);
       if (!drink) return null;
       const lot = (drink.collection || []).find(l => l.id === lotId);
       if (!lot) return null;
       lot.quantity = quantity;
-      writeData(category, data);
+      await writeData(category, data);
       return lot;
     });
     if (!updated) return res.status(404).json({ error: 'Not found' });
@@ -452,14 +452,14 @@ router.delete('/:category/:id/collection/:lotId', async (req, res) => {
   const { category, id, lotId } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   try {
-    const found = await withLock(category, () => {
-      const data = readData(category);
+    const found = await withLock(category, async () => {
+      const data = await readData(category);
       const drink = data.find(d => d.id === id);
       if (!drink) return false;
       const before = (drink.collection || []).length;
       drink.collection = (drink.collection || []).filter(l => l.id !== lotId);
       if (drink.collection.length === before) return false;
-      writeData(category, data);
+      await writeData(category, data);
       return true;
     });
     if (!found) return res.status(404).json({ error: 'Not found' });

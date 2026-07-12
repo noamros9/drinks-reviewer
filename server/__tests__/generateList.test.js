@@ -1,10 +1,7 @@
 const request = require('supertest');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
 
 let app;
-let tmpDir;
+let db;
 
 const WINE = [
   { id: 'w1', producer: 'Domaine A', seriesAndName: 'Pinot Noir', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'], collection: [{ quantity: 2, price: 100 }] },
@@ -12,11 +9,12 @@ const WINE = [
 ];
 const BEER = [{ id: 'b1', brewery: 'Brew Co', name: 'IPA', style: 'IPA', country: 'USA', abv: '6', tags: [] }];
 
-function writeFixture({ wine = WINE, beer = BEER } = {}) {
-  fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(wine));
-  fs.writeFileSync(path.join(tmpDir, 'beer.json'), JSON.stringify(beer));
-  fs.writeFileSync(path.join(tmpDir, 'whiskey.json'), JSON.stringify([]));
-  fs.writeFileSync(path.join(tmpDir, 'others.json'), JSON.stringify([]));
+async function writeFixture({ wine = WINE, beer = BEER } = {}) {
+  db.resetFake();
+  const wineCol = await db.getCollection('wine');
+  await wineCol.insertMany(wine);
+  const beerCol = await db.getCollection('beer');
+  await beerCol.insertMany(beer);
 }
 
 function jsonResponse(payload) {
@@ -29,21 +27,12 @@ function jsonResponse(payload) {
   };
 }
 
-beforeAll(() => {
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'generate-list-test-'));
-  process.env.DATA_DIR = tmpDir;
-});
-
-afterAll(() => {
-  fs.rmSync(tmpDir, { recursive: true });
-  delete process.env.DATA_DIR;
-});
-
-beforeEach(() => {
-  writeFixture();
+beforeEach(async () => {
   process.env.GEMINI_API_KEY = 'test-key';
   jest.resetModules();
   app = require('../index');
+  db = require('../db');
+  await writeFixture();
   global.fetch = jest.fn();
 });
 
@@ -74,16 +63,17 @@ describe('POST /api/generate-list', () => {
   });
 
   it('returns 400 when the catalogue is entirely empty', async () => {
-    writeFixture({ wine: [], beer: [] });
+    await writeFixture({ wine: [], beer: [] });
     const res = await request(app).post('/api/generate-list').send({ prompt: 'anything' });
     expect(res.status).toBe(400);
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it('returns 500 when a catalogue file cannot be read', async () => {
-    fs.rmSync(path.join(tmpDir, 'wine.json'));
+  it('returns 500 when a catalogue collection cannot be read', async () => {
+    const getCollectionSpy = jest.spyOn(db, 'getCollection').mockRejectedValue(new Error('boom'));
     const res = await request(app).post('/api/generate-list').send({ prompt: 'anything' });
     expect(res.status).toBe(500);
+    getCollectionSpy.mockRestore();
   });
 
   it('returns 500 with a generic message on an unexpected error with no status (e.g. a network failure)', async () => {
@@ -175,7 +165,7 @@ describe('POST /api/generate-list', () => {
     const wine = Array.from({ length: 20 }, (_, i) => ({
       id: `w${i}`, producer: 'P', seriesAndName: `Wine ${i}`, variety: 'Red', country: 'France', region: 'R', abv: '13', tags: [],
     }));
-    writeFixture({ wine, beer: [] });
+    await writeFixture({ wine, beer: [] });
     global.fetch.mockResolvedValue(jsonResponse({
       results: wine.map(w => ({ id: w.id, category: 'wine', reason: 'r' })),
     }));

@@ -316,7 +316,7 @@ async function getRecommendations(seeds) {
 
   const catalogueByCategory = {};
   try {
-    for (const category of CATEGORIES) catalogueByCategory[category] = readData(category);
+    for (const category of CATEGORIES) catalogueByCategory[category] = await readData(category);
   } catch (err) {
     throw new RecommendError(err.message, 500);
   }
@@ -347,7 +347,7 @@ async function getTasteCard(category) {
 
   let drinks;
   try {
-    drinks = readData(category);
+    drinks = await readData(category);
   } catch (err) {
     throw new RecommendError(err.message, 500);
   }
@@ -448,7 +448,7 @@ async function getGeneratedList(prompt) {
 
   let catalogueByCategory;
   try {
-    catalogueByCategory = Object.fromEntries(CATEGORIES.map(c => [c, readData(c)]));
+    catalogueByCategory = Object.fromEntries(await Promise.all(CATEGORIES.map(async c => [c, await readData(c)])));
   } catch (err) {
     throw new RecommendError(err.message, 500);
   }
