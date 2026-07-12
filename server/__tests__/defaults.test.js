@@ -1,12 +1,11 @@
 // Two purposes:
-// 1. Load app without DATA_DIR/IMAGES_DIR to cover the || fallback branches in drinks.js constants
+// 1. Load app without DATA_DIR to cover the || fallback branch in geocoding.js
 // 2. Unit-test withLock concurrency (the while body is only reachable with an async fn())
 let app;
 let drinksRouter;
 
 beforeAll(() => {
   delete process.env.DATA_DIR;
-  delete process.env.IMAGES_DIR;
   jest.resetModules();
   app = require('../index');
   drinksRouter = require('../routes/drinks');
@@ -16,7 +15,7 @@ afterAll(() => {
   jest.resetModules();
 });
 
-it('loads and responds when using default data/images directories', async () => {
+it('loads and responds when using the default data directory', async () => {
   const request = require('supertest');
   const res = await request(app).get('/api/wine');
   expect(res.status).toBe(200);
