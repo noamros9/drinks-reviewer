@@ -89,7 +89,14 @@ test('count badge shows total when no filter active', async () => {
 
 test('count badge shows filtered / total when search narrows results', async () => {
   const WINE_B = { ...WINE_DRINK, id: '2', producer: 'OtherProd', seriesAndName: 'OtherWine' };
-  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, WINE_B]) }));
+  const all = [WINE_DRINK, WINE_B];
+  global.fetch = vi.fn((url) => {
+    const searchMatch = url.match(/\/api\/\w+\/search\?q=(.+)/);
+    const data = searchMatch
+      ? all.filter(d => d.producer.toLowerCase().includes(decodeURIComponent(searchMatch[1]).toLowerCase()))
+      : all;
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
+  });
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Reserve');
   fireEvent.change(screen.getByTestId('producer-search'), { target: { value: 'TestProd' } });
@@ -162,7 +169,14 @@ test('handles fetch error gracefully', async () => {
 
 test('clicking a producer cell sets producerSearch filter', async () => {
   const WINE_B = { ...WINE_DRINK, id: '2', producer: 'OtherProd', seriesAndName: 'OtherWine' };
-  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, WINE_B]) }));
+  const all = [WINE_DRINK, WINE_B];
+  global.fetch = vi.fn((url) => {
+    const searchMatch = url.match(/\/api\/\w+\/search\?q=(.+)/);
+    const data = searchMatch
+      ? all.filter(d => d.producer.toLowerCase().includes(decodeURIComponent(searchMatch[1]).toLowerCase()))
+      : all;
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
+  });
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Reserve');
   fireEvent.click(screen.getAllByText('TestProd')[0]);

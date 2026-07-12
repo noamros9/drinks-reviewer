@@ -7,9 +7,11 @@ import RangeFilter from '../components/RangeFilter';
 import RangeFilterChips from '../components/RangeFilterChips';
 import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilters, RANGE_FILTER_CONFIGS, applyUrlRangeOverrides } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
+import { useSearchResults } from '../hooks/useSearchResults';
 import './AllDrinksPage.css';
 
-const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
+const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
+const FILTERS = ['all', ...CATEGORIES];
 const STORAGE_KEY = 'drinks_columns_all';
 const FILTERABLE_ALL = new Set(['country', '_producer']);
 const RANGE_CONFIGS = RANGE_FILTER_CONFIGS.all;
@@ -96,13 +98,11 @@ export default function AllDrinksPage() {
 
   const activeFilters = { producerSearch, country: countryFilter, ...rangeFilters };
   const hasRangeFilter = Object.values(rangeFilters).some(v => v !== '');
-  const hasFilter = countryFilter.size > 0 || hasRangeFilter || producerSearch !== '';
-  const filterMatched = hasFilter
-    ? categoryFiltered.filter(d => matchesFilters(d, activeFilters, 'all'))
-    : categoryFiltered;
-  const visible = searchQuery
-    ? filterMatched.filter(d => Object.values(d).some(v => v != null && String(v).toLowerCase().includes(searchQuery)))
-    : filterMatched;
+  const searchIds = useSearchResults(CATEGORIES, producerSearch);
+  const searchScoped = searchIds == null ? categoryFiltered : categoryFiltered.filter(d => searchIds.has(d.id));
+  const filterMatched = searchScoped.filter(d => matchesFilters(d, activeFilters, 'all'));
+  const qIds = useSearchResults(CATEGORIES, searchQuery);
+  const visible = qIds == null ? filterMatched : filterMatched.filter(d => qIds.has(d.id));
 
   const { options: countryOptions } = buildDropdownOptions(categoryFiltered, { key: 'country' });
   const countryCounts = countOptions(categoryFiltered, { key: 'country' }, activeFilters, 'all');

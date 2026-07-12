@@ -8,7 +8,17 @@ const BEER = { id: 'b1', _category: 'beer', brewery: 'Brew Co', name: 'Pale Ale'
 
 function mockFetch(data = [WINE, BEER]) {
   global.fetch = vi.fn((url, opts) => {
-    if (!opts) return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
+    if (!opts) {
+      const searchMatch = url.match(/\/api\/\w+\/search\?q=(.+)/);
+      if (searchMatch) {
+        const q = decodeURIComponent(searchMatch[1]).toLowerCase();
+        const matched = data.filter(d =>
+          [d.producer, d.brewery, d.distillery, d.seriesAndName, d.name].some(f => (f || '').toLowerCase().includes(q))
+        );
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(matched) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
+    }
     return Promise.resolve({ ok: true, json: () => Promise.resolve(LOT) });
   });
 }
@@ -73,7 +83,7 @@ test('clicking a producer cell adds producer filter', async () => {
   await screen.findByText('Grand Cru');
   fireEvent.click(screen.getAllByText('Château X')[0]);
   expect(document.querySelector('.filter-chip').textContent).toContain('Château X');
-  expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument());
 });
 
 test('producer chip can be removed', async () => {

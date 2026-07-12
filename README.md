@@ -22,6 +22,8 @@ Client → `http://localhost:5173` · Server → `http://localhost:3001`
 
 Set `MONGODB_URI` (and optionally `MONGODB_DB`) in a root `.env` file to read/write through Atlas — without it, the server falls back to an in-memory store for local/test use. Set `CLOUDINARY_URL` to enable photo uploads. Set `GEMINI_API_KEY` to enable "Recommend Similar Drinks" (real-world matches use Gemini's free tier with Google Search grounding).
 
+Search (`/api/:category/search`) runs on MongoDB Atlas Search, which needs one `default` Search index per collection (`wines`, `beers`, `whiskeys` — `others` shares the `whiskeys` collection/index via a `_category` tag, since Atlas's free/shared tier caps Search indexes at 3 per cluster) with `producer`/`brewery`/`distillery` + `name`/`seriesAndName` mapped as searchable text. Create these once in the Atlas UI (or via `collection.createSearchIndex(...)`) after pointing `MONGODB_URI` at a real cluster — without them, search silently returns no results.
+
 ## Features
 
 - Category pages (Wine, Beer, Whiskey, Others), All Drinks, and Collection views
