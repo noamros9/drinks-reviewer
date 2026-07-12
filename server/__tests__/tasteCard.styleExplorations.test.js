@@ -1,10 +1,7 @@
 const request = require('supertest');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
 
 let app;
-let tmpDir;
+let db;
 
 const WINE = [
   { id: 'w1', producer: 'Domaine A', seriesAndName: 'Pinot Noir', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'], avgRating: 8, tastingCount: 3 },
@@ -16,11 +13,12 @@ const WINE = [
 
 const BEER = [];
 
-function writeFixture() {
-  fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(WINE));
-  fs.writeFileSync(path.join(tmpDir, 'beer.json'), JSON.stringify(BEER));
-  fs.writeFileSync(path.join(tmpDir, 'whiskey.json'), JSON.stringify([]));
-  fs.writeFileSync(path.join(tmpDir, 'others.json'), JSON.stringify([]));
+async function writeFixture() {
+  db.resetFake();
+  const wineCol = await db.getCollection('wine');
+  await wineCol.insertMany(WINE);
+  const beerCol = await db.getCollection('beer');
+  await beerCol.insertMany(BEER);
 }
 
 function jsonResponse(payload) {
@@ -33,21 +31,12 @@ function jsonResponse(payload) {
   };
 }
 
-beforeAll(() => {
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'taste-card-test-'));
-  process.env.DATA_DIR = tmpDir;
-});
-
-afterAll(() => {
-  fs.rmSync(tmpDir, { recursive: true });
-  delete process.env.DATA_DIR;
-});
-
-beforeEach(() => {
-  writeFixture();
+beforeEach(async () => {
   process.env.GEMINI_API_KEY = 'test-key';
   jest.resetModules();
   app = require('../index');
+  db = require('../db');
+  await writeFixture();
   global.fetch = jest.fn();
 });
 

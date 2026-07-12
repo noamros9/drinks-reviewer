@@ -1,31 +1,20 @@
 const request = require('supertest');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
 
 let app;
-let tmpDir;
+let db;
 
 beforeAll(() => {
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'drinks-bulk-test-'));
-  ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
-    fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
-  });
-  process.env.DATA_DIR = tmpDir;
   jest.resetModules();
   app = require('../index');
+  db = require('../db');
 });
 
 afterAll(() => {
-  fs.rmSync(tmpDir, { recursive: true });
-  delete process.env.DATA_DIR;
   jest.resetModules();
 });
 
 beforeEach(() => {
-  ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
-    fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
-  });
+  db.resetFake();
 });
 
 async function createDrink(category = 'wine', body = { producer: 'Test' }) {
@@ -79,9 +68,11 @@ describe('PATCH /api/:category/bulk', () => {
 
   it('adds a tag to a legacy entry with no tags property (covers tags || [] fallback)', async () => {
     const a = await createDrink('wine', { producer: 'A' });
-    const data = JSON.parse(fs.readFileSync(path.join(tmpDir, 'wine.json'), 'utf8'));
+    const col = await db.getCollection('wine');
+    const data = await col.find({}, { projection: { _id: 0 } }).toArray();
     delete data.find(d => d.id === a.id).tags;
-    fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(data));
+    await col.deleteMany({});
+    await col.insertMany(data);
 
     const res = await request(app)
       .patch('/api/wine/bulk')

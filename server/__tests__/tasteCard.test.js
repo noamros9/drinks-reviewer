@@ -1,10 +1,7 @@
 const request = require('supertest');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
 
 let app;
-let tmpDir;
+let db;
 
 const WINE = [
   { id: 'w1', producer: 'Domaine A', seriesAndName: 'Pinot Noir', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'], avgRating: 8, tastingCount: 3 },
@@ -16,11 +13,12 @@ const WINE = [
 
 const BEER = [];
 
-function writeFixture() {
-  fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(WINE));
-  fs.writeFileSync(path.join(tmpDir, 'beer.json'), JSON.stringify(BEER));
-  fs.writeFileSync(path.join(tmpDir, 'whiskey.json'), JSON.stringify([]));
-  fs.writeFileSync(path.join(tmpDir, 'others.json'), JSON.stringify([]));
+async function writeFixture(wine = WINE) {
+  db.resetFake();
+  const wineCol = await db.getCollection('wine');
+  await wineCol.insertMany(wine);
+  const beerCol = await db.getCollection('beer');
+  await beerCol.insertMany(BEER);
 }
 
 function jsonResponse(payload) {
@@ -33,21 +31,12 @@ function jsonResponse(payload) {
   };
 }
 
-beforeAll(() => {
-  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'taste-card-test-'));
-  process.env.DATA_DIR = tmpDir;
-});
-
-afterAll(() => {
-  fs.rmSync(tmpDir, { recursive: true });
-  delete process.env.DATA_DIR;
-});
-
-beforeEach(() => {
-  writeFixture();
+beforeEach(async () => {
   process.env.GEMINI_API_KEY = 'test-key';
   jest.resetModules();
   app = require('../index');
+  db = require('../db');
+  await writeFixture();
   global.fetch = jest.fn();
 });
 
@@ -84,10 +73,11 @@ describe('POST /api/taste-card', () => {
     expect(res.body.error).toMatch(/GEMINI_API_KEY/);
   });
 
-  it('returns 500 when a catalogue file cannot be read', async () => {
-    fs.rmSync(path.join(tmpDir, 'wine.json'));
+  it('returns 500 when a catalogue collection cannot be read', async () => {
+    const getCollectionSpy = jest.spyOn(db, 'getCollection').mockRejectedValue(new Error('boom'));
     const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
     expect(res.status).toBe(500);
+    getCollectionSpy.mockRestore();
   });
 
   it('computes a taste profile weighted toward higher-rated entries, excluding unrated drinks', async () => {
@@ -141,7 +131,7 @@ describe('POST /api/taste-card', () => {
     const fixture = [
       { id: 'x1', producer: 'X', seriesAndName: 'Nameless', variety: 'Zinfandel', country: 'USA', avgRating: 7, tastingCount: 1 }, // no tags, no abv
     ];
-    fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(fixture));
+    await writeFixture(fixture);
     global.fetch.mockResolvedValue(jsonResponse({ availableInIsrael: [], notAvailable: [] }));
     const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
     expect(res.status).toBe(200);
@@ -151,7 +141,7 @@ describe('POST /api/taste-card', () => {
 
   it('returns disliked: null and tells Gemini there is no clear dislike pattern when nothing is rated low', async () => {
     const highOnly = WINE.filter(d => typeof d.avgRating === 'number' && d.avgRating >= 5);
-    fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(highOnly));
+    await writeFixture(highOnly);
     global.fetch.mockResolvedValue(jsonResponse({ analysis: 'You like big reds.', availableInIsrael: [], notAvailable: [] }));
     const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
     expect(res.status).toBe(200);
@@ -167,7 +157,7 @@ describe('POST /api/taste-card', () => {
       { id: 't1', producer: 'X', seriesAndName: 'A', variety: 'Syrah', country: 'France', abv: '13', tags: [], avgRating: 8, tastingCount: 2 },
       { id: 't2', producer: 'Y', seriesAndName: 'B', variety: 'Grenache', country: 'France', abv: '13', tags: [], avgRating: 8, tastingCount: 2 },
     ];
-    fs.writeFileSync(path.join(tmpDir, 'wine.json'), JSON.stringify(TIED));
+    await writeFixture(TIED);
     global.fetch.mockResolvedValue(jsonResponse({ availableInIsrael: [], notAvailable: [] }));
     const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
     expect(res.status).toBe(200);

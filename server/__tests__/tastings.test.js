@@ -5,19 +5,18 @@ const os = require('os');
 const { computeFromTastings } = require('../tastingsHelper');
 
 let app;
+let db;
 let tmpDir;
 let imgDir;
 
 beforeAll(() => {
   tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'drinks-tasting-test-'));
   imgDir = fs.mkdtempSync(path.join(os.tmpdir(), 'drinks-img-test-'));
-  ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
-    fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
-  });
   process.env.DATA_DIR = tmpDir;
   process.env.IMAGES_DIR = imgDir;
   jest.resetModules();
   app = require('../index');
+  db = require('../db');
 });
 
 afterAll(() => {
@@ -29,9 +28,7 @@ afterAll(() => {
 });
 
 beforeEach(() => {
-  ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
-    fs.writeFileSync(path.join(tmpDir, `${cat}.json`), '[]');
-  });
+  db.resetFake();
 });
 
 async function createDrink(category = 'wine', body = { producer: 'Test' }) {
@@ -335,13 +332,13 @@ describe('POST /api/:category/:id/tastings/:tastingId/image', () => {
 
   it('returns 500 and cleans up uploaded file when data is corrupt', async () => {
     const filesBefore = fs.readdirSync(imgDir).length;
-    fs.writeFileSync(path.join(tmpDir, 'wine.json'), 'INVALID');
+    const getCollectionSpy = jest.spyOn(db, 'getCollection').mockRejectedValue(new Error('boom'));
     const res = await request(app)
       .post('/api/wine/any/tastings/any/image')
       .attach('image', Buffer.from('x'), { filename: 'x.png', contentType: 'image/png' });
     expect(res.status).toBe(500);
     expect(fs.readdirSync(imgDir).length).toBe(filesBefore);
-    fs.writeFileSync(path.join(tmpDir, 'wine.json'), '[]');
+    getCollectionSpy.mockRestore();
   });
 });
 
