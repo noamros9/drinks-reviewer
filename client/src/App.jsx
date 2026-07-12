@@ -9,6 +9,7 @@ import AdminPage from './pages/AdminPage';
 import ComparePage from './pages/ComparePage';
 import RecommendPage from './pages/RecommendPage';
 import TasteCardPage from './pages/TasteCardPage';
+import GenerateListPage from './pages/GenerateListPage';
 
 function AdminRoute() {
   const { key } = useLocation();
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/compare" element={<ComparePage />} />
           <Route path="/recommend" element={<RecommendPage />} />
           <Route path="/taste-card" element={<TasteCardPage />} />
+          <Route path="/generate-list" element={<GenerateListPage />} />
           <Route path="/admin" element={<AdminRoute />} />
         </Routes>
       </main>

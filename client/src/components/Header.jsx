@@ -10,6 +10,7 @@ const NAV = [
   { path: '/whiskey', label: 'Whiskey' },
   { path: '/others', label: 'Others' },
   { path: '/analytics', label: 'Analytics' },
+  { path: '/generate-list', label: 'Generate list' },
   { path: '/admin', label: 'Admin' },
 ];
 

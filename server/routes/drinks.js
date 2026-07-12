@@ -6,7 +6,7 @@ const multer = require('multer');
 const { computeFromTastings } = require('../tastingsHelper');
 const { ensureRegionCoordinates, readCoordinates } = require('../geocoding');
 const { readData, writeData } = require('../dataStore');
-const { getRecommendations, getTasteCard } = require('../recommend');
+const { getRecommendations, getTasteCard, getGeneratedList } = require('../recommend');
 
 const IMAGES_DIR_PATH = process.env.IMAGES_DIR || path.join(__dirname, '../../client/public/images/drinks');
 
@@ -117,6 +117,15 @@ router.post('/taste-card', async (req, res) => {
   const { category } = req.body;
   try {
     res.json(await getTasteCard(category));
+  } catch (err) {
+    res.status(err.status || 500).json({ error: typeof err.status === 'number' ? err.message : 'Data unavailable' });
+  }
+});
+
+router.post('/generate-list', async (req, res) => {
+  const { prompt } = req.body;
+  try {
+    res.json(await getGeneratedList(prompt));
   } catch (err) {
     res.status(err.status || 500).json({ error: typeof err.status === 'number' ? err.message : 'Data unavailable' });
   }
