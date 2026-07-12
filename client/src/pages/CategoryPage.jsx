@@ -7,6 +7,7 @@ import CompareBar from '../components/CompareBar';
 import RecommendBar from '../components/RecommendBar';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, applyUrlRangeOverrides, applyUrlDropdownOverrides, applyUrlProducerOverride } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
+import { useSearchResults } from '../hooks/useSearchResults';
 
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
 
@@ -88,7 +89,9 @@ export default function CategoryPage({ category }) {
     return drinks.map(d => ({ ...d, weightedRating: weights.get(d.id) ?? null }));
   }, [drinks]);
 
-  const filtered = drinksWithScore.filter(d => matchesFilters(d, activeFilters, category));
+  const searchIds = useSearchResults(category, activeFilters.producerSearch);
+  const searchScoped = searchIds == null ? drinksWithScore : drinksWithScore.filter(d => searchIds.has(d.id));
+  const filtered = searchScoped.filter(d => matchesFilters(d, activeFilters, category));
 
   const filterableCols = useMemo(() => new Set([
     PRODUCER_FIELD[category],

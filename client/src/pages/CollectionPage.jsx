@@ -6,10 +6,12 @@ import FilterDropdown from '../components/FilterDropdown';
 import RangeFilter from '../components/RangeFilter';
 import RangeFilterChips from '../components/RangeFilterChips';
 import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilters, RANGE_FILTER_CONFIGS } from '../utils/filterHelpers';
+import { useSearchResults } from '../hooks/useSearchResults';
 import './CollectionPage.css';
 
 const STORAGE_KEY = 'drinks_columns_collection';
-const FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
+const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
+const FILTERS = ['all', ...CATEGORIES];
 const FILTERABLE = new Set(['country', '_producer']);
 const RANGE_CONFIGS = RANGE_FILTER_CONFIGS.all;
 
@@ -119,7 +121,9 @@ export default function CollectionPage() {
   const activeFilters = { producerSearch, country: countryFilter, ...rangeFilters };
   const hasRangeFilter = Object.values(rangeFilters).some(v => v !== '');
   const hasFilter = countryFilter.size > 0 || hasRangeFilter || producerSearch !== '';
-  const visible = hasFilter ? categoryFiltered.filter(d => matchesFilters(d, activeFilters, 'all')) : categoryFiltered;
+  const searchIds = useSearchResults(CATEGORIES, producerSearch);
+  const searchScoped = searchIds == null ? categoryFiltered : categoryFiltered.filter(d => searchIds.has(d.id));
+  const visible = searchScoped.filter(d => matchesFilters(d, activeFilters, 'all'));
 
   const { options: countryOptions } = buildDropdownOptions(categoryFiltered, { key: 'country' });
   const countryCounts = countOptions(categoryFiltered, { key: 'country' }, activeFilters, 'all');

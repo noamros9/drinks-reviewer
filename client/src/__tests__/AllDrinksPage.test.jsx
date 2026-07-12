@@ -9,6 +9,16 @@ const OTHERS_ENTRY  = { id: 'o1', distillery: 'Suntory', name: 'Sake',       cou
 
 beforeEach(() => {
   global.fetch = vi.fn((url) => {
+    const searchMatch = url.match(/\/api\/(\w+)\/search\?q=(.+)/);
+    if (searchMatch) {
+      const [, cat, rawQ] = searchMatch;
+      const q = decodeURIComponent(rawQ).toLowerCase();
+      const byCategory = { wine: [WINE_ENTRY], beer: [BEER_ENTRY], whiskey: [WHISKEY_ENTRY], others: [OTHERS_ENTRY] };
+      const matched = (byCategory[cat] || []).filter(d =>
+        [d.producer, d.brewery, d.distillery, d.seriesAndName, d.name].some(f => (f || '').toLowerCase().includes(q))
+      );
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(matched) });
+    }
     const data = url.includes('wine') ? [WINE_ENTRY]
       : url.includes('beer') ? [BEER_ENTRY]
       : url.includes('whiskey') ? [WHISKEY_ENTRY]
@@ -183,15 +193,29 @@ test('resetting columns removes localStorage entry', async () => {
   expect(localStorage.getItem('drinks_columns_all')).toBeNull();
 });
 
-test('?q search param filters drinks across all fields', async () => {
+test('?q search param filters drinks by producer/name across categories', async () => {
+  render(
+    <MemoryRouter initialEntries={['/all?q=cru']}>
+      <AllDrinksPage />
+    </MemoryRouter>
+  );
+  // Wait for the unfiltered base load first, so the later "gone" check reflects the
+  // debounced search resolving rather than a false-positive from the still-empty initial render.
+  await screen.findByText('Pale Ale');
+  await waitFor(() => expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument());
+  expect(screen.getByText('Grand Cru')).toBeInTheDocument();
+  expect(screen.queryByText('Single Malt')).not.toBeInTheDocument();
+});
+
+test('?q search param no longer matches non-producer/name fields like country', async () => {
   render(
     <MemoryRouter initialEntries={['/all?q=france']}>
       <AllDrinksPage />
     </MemoryRouter>
   );
-  expect(await screen.findByText('Grand Cru')).toBeInTheDocument();
-  expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument();
-  expect(screen.queryByText('Single Malt')).not.toBeInTheDocument();
+  await screen.findByText('Grand Cru');
+  await waitFor(() => expect(screen.queryByText('Grand Cru')).not.toBeInTheDocument());
+  expect(screen.getByText('0 entries')).toBeInTheDocument();
 });
 
 test('clicking a producer cell filters to that producer', async () => {

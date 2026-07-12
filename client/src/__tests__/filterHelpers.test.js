@@ -42,17 +42,6 @@ test('isBlend: "Bordeaux Blend" is a single token = not a blend', () => {
   expect(isBlend('Bordeaux Blend')).toBe(false);
 });
 
-// ── matchesFilters – producer search ────────────────────────────
-
-test('producer search: matches substring case-insensitively', () => {
-  const filters = { producerSearch: 'test', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set() };
-  expect(matchesFilters(wine(), filters, 'wine')).toBe(true);
-});
-test('producer search: excludes non-matching producer', () => {
-  const filters = { producerSearch: 'xyz', wineCategory: new Set(), country: new Set(), variety: new Set(), region: new Set() };
-  expect(matchesFilters(wine(), filters, 'wine')).toBe(false);
-});
-
 // ── matchesFilters – country groups ─────────────────────────────
 
 test('country: Old World matches French wine', () => {
@@ -163,19 +152,6 @@ test('countOptions: contextual — other active filters narrow the count', () =>
   expect(counts['White']).toBe(1);
 });
 
-test('countOptions: producer search narrows counts', () => {
-  const drinks = [
-    wine({ producer: 'Latroun', wineCategory: 'Red' }),
-    wine({ producer: 'Other', wineCategory: 'Red' }),
-    wine({ producer: 'Latroun', wineCategory: 'White' }),
-  ];
-  const conf = { key: 'wineCategory', label: 'Type' };
-  const filters = { ...noFilters, producerSearch: 'Latroun' };
-  const counts = countOptions(drinks, conf, filters, 'wine');
-  expect(counts['Red']).toBe(1);
-  expect(counts['White']).toBe(1);
-});
-
 test('countOptions: worldGroups — counts Old/New World and individual countries', () => {
   const drinks = [wine({ country: 'France' }), wine({ country: 'Italy' }), wine({ country: 'Australia' })];
   const conf = { key: 'country', label: 'Country', worldGroups: true };
@@ -235,12 +211,6 @@ test('matchesFilters: unknown category with no producerSearch passes (|| [] fall
   expect(matchesFilters(wine(), filters, 'unknown')).toBe(true);
 });
 
-test('matchesFilters: unknown category with producerSearch hits ?? fallback for producerField', () => {
-  // PRODUCER_FIELD['unknown'] = undefined → drink[undefined] = undefined → ?? '' = ''
-  // '' does not include 'xyz' → returns false
-  const filters = { producerSearch: 'xyz', abvMin: '', abvMax: '' };
-  expect(matchesFilters(wine(), filters, 'unknown')).toBe(false);
-});
 
 // ── buildInitialFilters – unknown category ────────────────────────
 

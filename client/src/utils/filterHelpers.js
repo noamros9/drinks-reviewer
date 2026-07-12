@@ -114,12 +114,6 @@ function matchVariety(variety, selected) {
 }
 
 export function matchesFilters(drink, activeFilters, category) {
-  const producerField = PRODUCER_FIELD[category];
-  if (activeFilters.producerSearch) {
-    const val = drink[producerField] ?? '';
-    if (!val.toLowerCase().includes(activeFilters.producerSearch.toLowerCase())) return false;
-  }
-
   for (const conf of (RANGE_FILTER_CONFIGS[category] || [])) {
     const rangeMin = activeFilters[`${conf.key}Min`] ?? '';
     const rangeMax = activeFilters[`${conf.key}Max`] ?? '';

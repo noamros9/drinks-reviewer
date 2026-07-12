@@ -62,6 +62,120 @@ describe('db.js fake mode (no MONGODB_URI)', () => {
   it('close() is a no-op when there is no real client', async () => {
     await expect(db.close()).resolves.toBeUndefined();
   });
+
+  it('aggregate with $search.text matches case-insensitive substrings across the given paths', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([
+      { id: 1, producer: 'Chateau Margaux', seriesAndName: 'Grand Vin' },
+      { id: 2, producer: 'Opus One', seriesAndName: 'Napa Blend' },
+    ]);
+    const results = await col.aggregate([
+      { $search: { text: { query: 'MARGAUX', path: ['producer', 'seriesAndName'] } } },
+    ]).toArray();
+    expect(results).toEqual([{ id: 1, producer: 'Chateau Margaux', seriesAndName: 'Grand Vin' }]);
+  });
+
+  it('aggregate with $search.text matches on any of the given paths', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1, producer: 'Chateau Margaux', seriesAndName: 'Grand Vin' }]);
+    const results = await col.aggregate([
+      { $search: { text: { query: 'grand', path: ['producer', 'seriesAndName'] } } },
+    ]).toArray();
+    expect(results).toEqual([{ id: 1, producer: 'Chateau Margaux', seriesAndName: 'Grand Vin' }]);
+  });
+
+  it('aggregate with $search.text accepts a single string path', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1, producer: 'Chateau Margaux' }]);
+    const results = await col.aggregate([
+      { $search: { text: { query: 'margaux', path: 'producer' } } },
+    ]).toArray();
+    expect(results).toEqual([{ id: 1, producer: 'Chateau Margaux' }]);
+  });
+
+  it('aggregate ignores unknown stages', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1, producer: 'Chateau Margaux' }]);
+    const results = await col.aggregate([{ $project: { _id: 0 } }]).toArray();
+    expect(results).toEqual([{ id: 1, producer: 'Chateau Margaux' }]);
+  });
+
+  it('aggregate with a $match stage filters by equality', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1, _category: 'whiskey' }, { id: 2, _category: 'others' }]);
+    const results = await col.aggregate([{ $match: { _category: 'others' } }]).toArray();
+    expect(results).toEqual([{ id: 2, _category: 'others' }]);
+  });
+
+  it('$search accepts a single (non-array) path field', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1, producer: 'Chateau Margaux' }]);
+    const results = await col.aggregate([
+      { $search: { text: { query: 'margaux', path: 'producer' } } },
+    ]).toArray();
+    expect(results).toEqual([{ id: 1, producer: 'Chateau Margaux' }]);
+  });
+
+  it('$search treats a doc missing the searched field as non-matching, not a crash', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1 }]);
+    const results = await col.aggregate([
+      { $search: { text: { query: 'margaux', path: 'producer' } } },
+    ]).toArray();
+    expect(results).toEqual([]);
+  });
+
+  it('find(filter) only returns matching docs', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1, country: 'France' }, { id: 2, country: 'Italy' }]);
+    expect(await col.find({ country: 'Italy' }).toArray()).toEqual([{ id: 2, country: 'Italy' }]);
+  });
+
+  it('deleteMany(filter) only removes matching docs', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1, country: 'France' }, { id: 2, country: 'Italy' }]);
+    await col.deleteMany({ country: 'Italy' });
+    expect(await col.find().toArray()).toEqual([{ id: 1, country: 'France' }]);
+  });
+
+  it('deleteMany() with no filter clears the whole collection', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1 }, { id: 2 }]);
+    await col.deleteMany();
+    expect(await col.find().toArray()).toEqual([]);
+  });
+
+  describe('whiskey/others share the physical whiskeys collection via scopeByCategory', () => {
+    it('stay logically scoped from each other on insert/find', async () => {
+      const whiskeyCol = await db.getCollection('whiskey');
+      const othersCol = await db.getCollection('others');
+      await whiskeyCol.insertMany([{ id: 'w1', name: 'Glenlivet' }]);
+      await othersCol.insertMany([{ id: 'o1', name: 'Rum' }]);
+      expect(await whiskeyCol.find().toArray()).toEqual([{ id: 'w1', name: 'Glenlivet', _category: 'whiskey' }]);
+      expect(await othersCol.find().toArray()).toEqual([{ id: 'o1', name: 'Rum', _category: 'others' }]);
+    });
+
+    it('deleteMany on one tag does not affect the other', async () => {
+      const whiskeyCol = await db.getCollection('whiskey');
+      const othersCol = await db.getCollection('others');
+      await whiskeyCol.insertMany([{ id: 'w1' }]);
+      await othersCol.insertMany([{ id: 'o1' }]);
+      await othersCol.deleteMany({});
+      expect(await whiskeyCol.find().toArray()).toEqual([{ id: 'w1', _category: 'whiskey' }]);
+      expect(await othersCol.find().toArray()).toEqual([]);
+    });
+
+    it('$search aggregate scoped to whiskey does not match others docs', async () => {
+      const whiskeyCol = await db.getCollection('whiskey');
+      const othersCol = await db.getCollection('others');
+      await whiskeyCol.insertMany([{ id: 'w1', name: 'Glenlivet Cask' }]);
+      await othersCol.insertMany([{ id: 'o1', name: 'Cask Rum' }]);
+      const results = await whiskeyCol.aggregate([
+        { $search: { text: { query: 'cask', path: ['name'] } } },
+      ]).toArray();
+      expect(results).toEqual([{ id: 'w1', name: 'Glenlivet Cask', _category: 'whiskey' }]);
+    });
+  });
 });
 
 describe('db.js real mode (MONGODB_URI set)', () => {
@@ -106,5 +220,65 @@ describe('db.js real mode (MONGODB_URI set)', () => {
     await db.getCollection('wine');
     await db.close();
     expect(mockClient.close).toHaveBeenCalledTimes(1);
+  });
+
+  describe('whiskey/others scoping (scopeByCategory)', () => {
+    beforeEach(() => {
+      mockCollection.find = jest.fn(() => ({ toArray: jest.fn() }));
+      mockCollection.deleteMany = jest.fn();
+      mockCollection.insertMany = jest.fn();
+      mockCollection.aggregate = jest.fn(() => ({ toArray: jest.fn() }));
+    });
+
+    it('both whiskey and others resolve to the whiskeys collection, wrapped (not the raw mock)', async () => {
+      const whiskeyCol = await db.getCollection('whiskey');
+      const othersCol = await db.getCollection('others');
+      expect(mockDb.collection).toHaveBeenCalledWith('whiskeys');
+      expect(whiskeyCol).not.toBe(mockCollection);
+      expect(othersCol).not.toBe(mockCollection);
+    });
+
+    it('find/deleteMany/insertMany inject the _category tag', async () => {
+      const whiskeyCol = await db.getCollection('whiskey');
+      const othersCol = await db.getCollection('others');
+
+      whiskeyCol.find({ foo: 1 }, { projection: { _id: 0 } });
+      expect(mockCollection.find).toHaveBeenCalledWith({ foo: 1, _category: 'whiskey' }, { projection: { _id: 0 } });
+
+      await othersCol.deleteMany({});
+      expect(mockCollection.deleteMany).toHaveBeenCalledWith({ _category: 'others' });
+
+      await whiskeyCol.insertMany([{ id: 1 }]);
+      expect(mockCollection.insertMany).toHaveBeenCalledWith([{ id: 1, _category: 'whiskey' }]);
+    });
+
+    it('find/deleteMany fall back to an empty filter when called with no arguments', async () => {
+      const whiskeyCol = await db.getCollection('whiskey');
+
+      whiskeyCol.find();
+      expect(mockCollection.find).toHaveBeenCalledWith({ _category: 'whiskey' }, undefined);
+
+      await whiskeyCol.deleteMany();
+      expect(mockCollection.deleteMany).toHaveBeenCalledWith({ _category: 'whiskey' });
+    });
+
+    it('aggregate inserts a $match after $search when present', async () => {
+      const othersCol = await db.getCollection('others');
+      othersCol.aggregate([{ $search: { text: {} } }, { $project: {} }]);
+      expect(mockCollection.aggregate).toHaveBeenCalledWith([
+        { $search: { text: {} } },
+        { $match: { _category: 'others' } },
+        { $project: {} },
+      ]);
+    });
+
+    it('aggregate prepends a $match when there is no $search stage', async () => {
+      const whiskeyCol = await db.getCollection('whiskey');
+      whiskeyCol.aggregate([{ $project: {} }]);
+      expect(mockCollection.aggregate).toHaveBeenCalledWith([
+        { $match: { _category: 'whiskey' } },
+        { $project: {} },
+      ]);
+    });
   });
 });

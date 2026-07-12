@@ -4,6 +4,7 @@ const multer = require('multer');
 const { computeFromTastings } = require('../tastingsHelper');
 const { ensureRegionCoordinates, readCoordinates } = require('../geocoding');
 const { readData, writeData } = require('../dataStore');
+const { searchCategory } = require('../search');
 const { getRecommendations, getTasteCard, getGeneratedList } = require('../recommend');
 const { uploadImage, deleteImage } = require('../cloudinary');
 
@@ -144,6 +145,18 @@ router.get('/:category', async (req, res) => {
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   try {
     res.json((await readData(category)).filter(d => !d.collectionOnly));
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.get('/:category/search', async (req, res) => {
+  const { category } = req.params;
+  if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  const q = (req.query.q || '').trim();
+  if (!q) return res.json([]);
+  try {
+    res.json(await searchCategory(category, q));
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
   }
