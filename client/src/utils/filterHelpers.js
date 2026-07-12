@@ -20,6 +20,26 @@ export const PRODUCER_FIELD = {
   all:     '_producer',
 };
 
+export const NAME_FIELD = {
+  wine:    'seriesAndName',
+  beer:    'name',
+  whiskey: 'name',
+  others:  'name',
+};
+
+export function findDuplicate(drinks, category, producerVal, nameVal, excludeId) {
+  const p = (producerVal || '').trim().toLowerCase();
+  const n = (nameVal || '').trim().toLowerCase();
+  if (!p || !n) return null;
+  const producerKey = PRODUCER_FIELD[category];
+  const nameKey = NAME_FIELD[category];
+  return drinks.find(d =>
+    d.id !== excludeId &&
+    (d[producerKey] || '').trim().toLowerCase() === p &&
+    (d[nameKey] || '').trim().toLowerCase() === n
+  ) || null;
+}
+
 const ABV_RANGE = { key: 'abv', label: 'ABV', unit: '%', min: 0, max: 100, step: 0.1, unbounded: true };
 const AVG_RATING_RANGE = { key: 'avgRating', label: 'Avg Rating', unit: '', min: 1, max: 10, step: 0.5 };
 const VIVINO_RANGE = { key: 'vivinoScore', label: 'Vivino', unit: '', min: 1, max: 5, step: 0.1 };
