@@ -19,6 +19,7 @@ function renderCollectionTab() {
 
 beforeEach(() => {
   mockNavigate.mockClear();
+  window.confirm = vi.fn(() => true);
   global.fetch = vi.fn()
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })             // /api/tags
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })             // /api/wine suggestions (review tab)

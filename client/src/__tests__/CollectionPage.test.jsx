@@ -89,12 +89,52 @@ test('shows empty state when collection is empty', async () => {
   expect(await screen.findByText(/no entries yet/i)).toBeInTheDocument();
 });
 
-test('Pick for me does nothing when collection is empty', async () => {
+test('Pick for me alerts and does not open the spotlight when collection is empty', async () => {
+  window.alert = vi.fn();
   mockFetch([]);
   render(<MemoryRouter><CollectionPage /></MemoryRouter>);
   await screen.findByText(/no entries yet/i);
   fireEvent.click(screen.getByRole('button', { name: /pick for me/i }));
+  expect(window.alert).toHaveBeenCalledWith('Nothing in stock to pick from.');
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+});
+
+test('Pick for me ignores out-of-stock drinks and never picks them', async () => {
+  const outOfStock = { ...DRINK, id: 'w2', seriesAndName: 'Empty Bottle', collection: [{ ...LOT, id: 'lot2', quantity: 0 }] };
+  mockFetch([outOfStock]);
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Empty Bottle');
+  window.alert = vi.fn();
+  fireEvent.click(screen.getByRole('button', { name: /pick for me/i }));
+  expect(window.alert).toHaveBeenCalledWith('Nothing in stock to pick from.');
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+});
+
+test('Pick for me only picks from the active category tab', async () => {
+  const beerDrink = {
+    id: 'w2', _category: 'beer', brewery: 'Brew Co', name: 'Hoppy IPA',
+    collection: [{ id: 'lot2', quantity: 3, price: 10, addedAt: '2026-01-01' }],
+  };
+  mockFetch([DRINK, beerDrink]);
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Hoppy IPA');
+  fireEvent.click(screen.getByRole('button', { name: /^beer$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /pick for me/i }));
+  expect(screen.getByRole('dialog')).toHaveTextContent('Brew Co');
+});
+
+test('Pick for me alert names the active category tab when filtered', async () => {
+  const emptyBeer = {
+    id: 'w2', _category: 'beer', brewery: 'Brew Co', name: 'Empty IPA',
+    collection: [{ id: 'lot2', quantity: 0, price: 10, addedAt: '2026-01-01' }],
+  };
+  mockFetch([emptyBeer]);
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Empty IPA');
+  fireEvent.click(screen.getByRole('button', { name: /^beer$/i }));
+  window.alert = vi.fn();
+  fireEvent.click(screen.getByRole('button', { name: /pick for me/i }));
+  expect(window.alert).toHaveBeenCalledWith('Nothing in stock in beer to pick from.');
 });
 
 test('normalizes beer _producer from brewery field', async () => {

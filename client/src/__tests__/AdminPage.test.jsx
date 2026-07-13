@@ -21,6 +21,7 @@ vi.mock('react-router-dom', async () => {
 
 beforeEach(() => {
   mockNavigate.mockClear();
+  window.confirm = vi.fn(() => true);
   global.fetch = vi.fn(() =>
     Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-id' }) })
   );

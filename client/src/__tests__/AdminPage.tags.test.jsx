@@ -9,6 +9,7 @@ vi.mock('react-datepicker', () => ({
 }));
 
 beforeEach(() => {
+  window.confirm = vi.fn(() => true);
   global.fetch = vi.fn((url, opts) => {
     if (url === '/api/tags') return Promise.resolve({ ok: true, json: () => Promise.resolve(['cellar', 'gift', 'organic']) });
     if (opts?.method === 'POST' || opts?.method === 'PUT') return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-id' }) });
