@@ -37,9 +37,15 @@ export default function ColumnPanel({ allColumns, columnLayout, onChange }) {
     return undefined;
   };
 
-  const handleDragStart = (idx) => setDragIndex(idx);
-  const handleDragEnter = (idx) => setHoverIndex(idx);
-  const handleDragEnd = () => { setDragIndex(null); setHoverIndex(null); };
+  const handlePointerDown = (idx, e) => {
+    setDragIndex(idx);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const handlePointerMove = (e) => {
+    if (dragIndex === null) return;
+    const row = document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-row-index]');
+    if (row) setHoverIndex(Number(row.dataset.rowIndex));
+  };
 
   const handleDrop = (targetIdx) => {
     if (dragIndex !== null && dragIndex !== targetIdx) {
@@ -51,6 +57,10 @@ export default function ColumnPanel({ allColumns, columnLayout, onChange }) {
     }
     setDragIndex(null);
     setHoverIndex(null);
+  };
+  const handlePointerUp = () => {
+    if (dragIndex !== null && hoverIndex !== null) handleDrop(hoverIndex);
+    else { setDragIndex(null); setHoverIndex(null); }
   };
 
   return (
@@ -75,12 +85,10 @@ export default function ColumnPanel({ allColumns, columnLayout, onChange }) {
                 key={key}
                 className={`col-panel-row${dragIndex === idx ? ' col-panel-dragging' : ''}`}
                 style={{ transform: tf }}
-                draggable
-                onDragStart={() => handleDragStart(idx)}
-                onDragEnter={() => handleDragEnter(idx)}
-                onDragOver={e => e.preventDefault()}
-                onDrop={() => handleDrop(idx)}
-                onDragEnd={handleDragEnd}
+                data-row-index={idx}
+                onPointerDown={e => handlePointerDown(idx, e)}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
                 data-testid={`col-panel-row-${key}`}
               >
                 <span className="col-panel-handle">⠿</span>

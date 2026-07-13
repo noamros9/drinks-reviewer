@@ -152,6 +152,11 @@
   overflow-y: auto;
 }
 
+.filter-dropdown-menu--right {
+  left: auto;
+  right: 0;
+}
+
 .filter-option {
   display: flex;
   align-items: center;

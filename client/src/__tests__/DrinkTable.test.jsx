@@ -297,16 +297,22 @@ test('onEdit prop renders Edit button and calls callback on click', () => {
   expect(onEdit).toHaveBeenCalledWith(WINE_ROWS[0]);
 });
 
-// ── Drag-and-drop column reorder ─────────────────────────────────────
+// ── Pointer-based column reorder (touch + mouse) ──────────────────────
+
+function dragHeader(headers, fromIdx, toIdx) {
+  const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(headers[toIdx]);
+  fireEvent.pointerDown(headers[fromIdx], { pointerId: 1 });
+  fireEvent.pointerMove(headers[fromIdx], { pointerId: 1, clientX: 1, clientY: 1 });
+  fireEvent.pointerUp(headers[fromIdx], { pointerId: 1 });
+  spy.mockRestore();
+}
 
 test('drag-and-drop column calls onColumnLayoutChange with reordered columns', () => {
   const layout = { order: COLUMNS.wine.map(c => c.key), hidden: new Set() };
   const onChange = vi.fn();
   render(<DrinkTable category="wine" drinks={WINE_ROWS} columnLayout={layout} onColumnLayoutChange={onChange} />);
   const headers = screen.getAllByRole('columnheader');
-  fireEvent.dragStart(headers[0]);
-  fireEvent.dragOver(headers[1]);
-  fireEvent.drop(headers[1]);
+  dragHeader(headers, 0, 1);
   expect(onChange).toHaveBeenCalled();
   const { order } = onChange.mock.calls[0][0];
   expect(order[0]).toBe(COLUMNS.wine[1].key);
@@ -318,22 +324,20 @@ test('drag-and-drop backward (higher to lower index) also reorders columns', () 
   render(<DrinkTable category="wine" drinks={WINE_ROWS} columnLayout={layout} onColumnLayoutChange={onChange} />);
   const headers = screen.getAllByRole('columnheader');
   // Drag from index 2 to index 0 — triggers translateX(+) shift animation on middle columns
-  fireEvent.dragStart(headers[2]);
-  fireEvent.dragOver(headers[0]);
-  fireEvent.drop(headers[0]);
+  dragHeader(headers, 2, 0);
   expect(onChange).toHaveBeenCalled();
   const { order } = onChange.mock.calls[0][0];
   expect(order[0]).toBe(COLUMNS.wine[2].key);
 });
 
-test('dragEnd clears drag state', () => {
+test('pointerdown without a move (simple click) does not reorder and clears drag state', () => {
+  const onChange = vi.fn();
   const layout = { order: COLUMNS.wine.map(c => c.key), hidden: new Set() };
-  render(<DrinkTable category="wine" drinks={WINE_ROWS} columnLayout={layout} onColumnLayoutChange={vi.fn()} />);
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} columnLayout={layout} onColumnLayoutChange={onChange} />);
   const headers = screen.getAllByRole('columnheader');
-  fireEvent.dragStart(headers[0]);
-  fireEvent.dragOver(headers[1]);
-  fireEvent.dragEnd(headers[0]);
-  // After dragEnd, no dragging class remains
+  fireEvent.pointerDown(headers[0], { pointerId: 1 });
+  fireEvent.pointerUp(headers[0], { pointerId: 1 });
+  expect(onChange).not.toHaveBeenCalled();
   expect(headers[0]).not.toHaveClass('col-header-dragging');
 });
 
@@ -342,8 +346,7 @@ test('drop on same column is a no-op', () => {
   const onChange = vi.fn();
   render(<DrinkTable category="wine" drinks={WINE_ROWS} columnLayout={layout} onColumnLayoutChange={onChange} />);
   const headers = screen.getAllByRole('columnheader');
-  fireEvent.dragStart(headers[0]);
-  fireEvent.drop(headers[0]);
+  dragHeader(headers, 0, 0);
   expect(onChange).not.toHaveBeenCalled();
 });
 
@@ -420,9 +423,7 @@ test('drag with no columnLayout uses default layout', () => {
   const onChange = vi.fn();
   render(<DrinkTable category="wine" drinks={WINE_ROWS} onColumnLayoutChange={onChange} />);
   const headers = screen.getAllByRole('columnheader');
-  fireEvent.dragStart(headers[0]);
-  fireEvent.dragOver(headers[2]);
-  fireEvent.drop(headers[2]);
+  dragHeader(headers, 0, 2);
   expect(onChange).toHaveBeenCalled();
 });
 

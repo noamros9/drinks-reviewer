@@ -150,9 +150,17 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     return undefined;
   };
 
-  const handleDragStart = (key, e) => { setDragKey(key); dragWidth.current = e.currentTarget.offsetWidth; };
-  const handleDragOver = (e, key) => { e.preventDefault(); setDragOverKey(key); };
-  const handleDragEnd = () => { setDragOverKey(null); setDragKey(null); };
+  const handlePointerDown = (key, e) => {
+    if (!onColumnLayoutChange) return;
+    setDragKey(key);
+    dragWidth.current = e.currentTarget.offsetWidth;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const handlePointerMove = (e) => {
+    if (!dragKey) return;
+    const th = document.elementFromPoint(e.clientX, e.clientY)?.closest('th[data-col-key]');
+    if (th) setDragOverKey(th.dataset.colKey);
+  };
   const handleDrop = (targetKey) => {
     setDragOverKey(null);
     setDragKey(null);
@@ -164,6 +172,10 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     newOrder.splice(fromIdx, 1);
     newOrder.splice(toIdx, 0, dragKey);
     onColumnLayoutChange({ ...lay, order: newOrder });
+  };
+  const handlePointerUp = () => {
+    if (dragKey && dragOverKey) handleDrop(dragOverKey);
+    else { setDragKey(null); setDragOverKey(null); }
   };
 
   const hideColumn = (e, key) => {
@@ -264,11 +276,10 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                 className={`sortable${dragKey === col.key ? ' col-header-dragging' : ''}${dragOverKey === col.key ? ' col-drag-over' : ''}`}
                 style={{ transform: getHeaderTransform(col.key) }}
                 onClick={() => handleSort(col.key)}
-                draggable={!!onColumnLayoutChange}
-                onDragStart={e => handleDragStart(col.key, e)}
-                onDragOver={e => handleDragOver(e, col.key)}
-                onDrop={() => handleDrop(col.key)}
-                onDragEnd={handleDragEnd}
+                data-col-key={col.key}
+                onPointerDown={e => handlePointerDown(col.key, e)}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
               >
                 {col.label}
                 {sortKey === col.key && (sortDir === 'asc' ? ' ↑' : ' ↓')}
