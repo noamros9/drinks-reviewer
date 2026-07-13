@@ -65,7 +65,7 @@ test('calls POST /api/wine on submit', async () => {
 test('"Add another Review" submits without navigating and resets the form', async () => {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
   fireEvent.change(screen.getByLabelText(/producer/i), { target: { name: 'producer', value: 'New Producer' } });
-  fireEvent.click(screen.getByRole('button', { name: /add another review/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^add another$/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
   });

@@ -152,8 +152,13 @@ export default function AdminPage() {
   useEffect(() => {
     if (isEditing) return;
     const producerKey = PRODUCER_FIELD[colCat];
-    fetch(`/api/${colCat}`).then(r => r.json()).then(drinks => {
-      if (!Array.isArray(drinks)) return;
+    Promise.all([
+      fetch(`/api/${colCat}`).then(r => r.json()),
+      fetch('/api/collection').then(r => r.json()),
+    ]).then(([reviewed, collection]) => {
+      if (!Array.isArray(reviewed) || !Array.isArray(collection)) return;
+      const collectionOnly = collection.filter(d => d._category === colCat && d.collectionOnly);
+      const drinks = [...reviewed, ...collectionOnly];
       setColSuggestions({
         producer: [...new Set(drinks.map(d => d[producerKey]).filter(Boolean))].sort(),
         country: [...new Set(drinks.map(d => d.country).filter(Boolean))].sort(),
@@ -514,7 +519,7 @@ export default function AdminPage() {
           </button>
           {!isEditing && (
             <button type="button" className="btn-primary" onClick={(e) => handleSubmit(e, { another: true })}>
-              Add another Review
+              Add Another
             </button>
           )}
           {isEditing && (
@@ -579,7 +584,7 @@ export default function AdminPage() {
               openUp
             />
             <button type="button" className="btn-primary" onClick={() => handleAddToCollection()}>Add to Collection</button>
-            <button type="button" className="btn-primary" onClick={() => handleAddToCollection(true)}>Add another Collection</button>
+            <button type="button" className="btn-primary" onClick={() => handleAddToCollection(true)}>Add Another</button>
           </div>
           {colMessage && <p className="success-message">{colMessage}</p>}
         </div>

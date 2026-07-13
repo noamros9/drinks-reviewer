@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useDropdownAlign } from '../hooks/useDropdownAlign';
 import './ColumnPanel.css';
 
 const ROW_H = 36;
@@ -8,6 +9,7 @@ export default function ColumnPanel({ allColumns, columnLayout, onChange }) {
   const [dragIndex, setDragIndex] = useState(null);
   const [hoverIndex, setHoverIndex] = useState(null);
   const ref = useRef(null);
+  const { alignRight, menuRef } = useDropdownAlign(open);
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
@@ -75,7 +77,7 @@ export default function ColumnPanel({ allColumns, columnLayout, onChange }) {
         <span className="filter-chevron">{open ? '▴' : '▾'}</span>
       </button>
       {open && (
-        <div className="filter-dropdown-menu col-panel-menu">
+        <div className={`filter-dropdown-menu col-panel-menu${alignRight ? ' filter-dropdown-menu--right' : ''}`} ref={menuRef}>
           {order.map((key, idx) => {
             const col = colMap[key];
             if (!col) return null;
