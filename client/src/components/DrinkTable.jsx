@@ -35,6 +35,7 @@ export const COLUMNS = {
     { key: 'region',        label: 'Region' },
     { key: 'abv',           label: 'ABV' },
     { key: 'vintage',       label: 'Vintage' },
+    { key: 'photo',         label: 'Photo' },
     { key: 'tags',          label: 'Tags' },
     { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'lastRating',    label: 'Last Rating' },
@@ -49,6 +50,7 @@ export const COLUMNS = {
     { key: 'style',        label: 'Style' },
     { key: 'country',      label: 'Country' },
     { key: 'abv',          label: 'ABV' },
+    { key: 'photo',        label: 'Photo' },
     { key: 'tags',         label: 'Tags' },
     { key: 'lastTasted',   label: 'Last Tasted' },
     { key: 'lastRating',   label: 'Last Rating' },
@@ -64,6 +66,7 @@ export const COLUMNS = {
     { key: 'age',          label: 'Age' },
     { key: 'style',        label: 'Style' },
     { key: 'abv',          label: 'ABV' },
+    { key: 'photo',        label: 'Photo' },
     { key: 'tags',         label: 'Tags' },
     { key: 'lastTasted',   label: 'Last Tasted' },
     { key: 'lastRating',   label: 'Last Rating' },
@@ -79,6 +82,7 @@ export const COLUMNS = {
     { key: 'style',         label: 'Style' },
     { key: 'age',           label: 'Age' },
     { key: 'abv',           label: 'ABV' },
+    { key: 'photo',         label: 'Photo' },
     { key: 'tags',          label: 'Tags' },
     { key: 'lastTasted',    label: 'Last Tasted' },
     { key: 'lastRating',    label: 'Last Rating' },
@@ -92,6 +96,7 @@ export const COLUMNS = {
     { key: 'name',        label: 'Name' },
     { key: 'country',     label: 'Country' },
     { key: 'abv',         label: 'ABV' },
+    { key: 'photo',       label: 'Photo' },
     { key: 'tags',        label: 'Tags' },
     { key: 'lastTasted',  label: 'Last Tasted' },
     { key: 'lastRating',  label: 'Last Rating' },
@@ -350,7 +355,8 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                     )
                     : '—';
                 } else if (col.key === 'photo') {
-                  content = raw ? <img src={raw} alt="" className="table-thumb" /> : '—';
+                  const photoUrl = raw ?? drink.collectionImageUrl;
+                  content = photoUrl ? <img src={photoUrl} alt="" className="table-thumb" /> : '—';
                 } else if (chipClass) {
                   content = (
                     <span

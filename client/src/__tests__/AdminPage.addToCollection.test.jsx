@@ -17,15 +17,22 @@ function renderCollectionTab() {
   fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
 }
 
+function mockFetch(overrides = {}) {
+  global.fetch = vi.fn((url, opts) => {
+    if (overrides[url]) return Promise.resolve(overrides[url]);
+    if (opts?.method === 'POST') {
+      if (/\/collection\/image$/.test(url)) return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
+      if (/\/collection$/.test(url)) return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'lot1' }) });
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-drink' }) });
+    }
+    return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
+  });
+}
+
 beforeEach(() => {
   mockNavigate.mockClear();
   window.confirm = vi.fn(() => true);
-  global.fetch = vi.fn()
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })             // /api/tags
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })             // /api/wine suggestions (review tab)
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })             // /api/wine suggestions (collection tab autocomplete)
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'new-drink' }) })
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'lot1' }) });
+  mockFetch();
 });
 
 test('shows category selector in collection tab create mode', () => {
@@ -79,7 +86,7 @@ test('navigates to collection after submit', async () => {
 test('"Add another Collection" submits without navigating and resets the form', async () => {
   renderCollectionTab();
   fireEvent.change(screen.getByLabelText(/^producer$/i), { target: { value: 'Château X' } });
-  fireEvent.click(screen.getByRole('button', { name: /add another collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^add another$/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/wine',
@@ -115,11 +122,7 @@ test('includes price in lot body when price is filled', async () => {
 });
 
 test('shows error message when drink POST fails', async () => {
-  global.fetch = vi.fn()
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/tags
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/wine suggestions (review tab)
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/wine suggestions (collection tab autocomplete)
-    .mockResolvedValueOnce({ ok: false });
+  mockFetch({ '/api/wine': { ok: false } });
   renderCollectionTab();
   fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
   expect(await screen.findByText(/failed to add drink/i)).toBeInTheDocument();
@@ -153,11 +156,8 @@ test('blank quantity blocks the entire submit', () => {
 
 // ── Producer/country autocomplete ─────────────────────────────────
 
-test('autocomplete suggestions populate from /api/{colCat} and appear in producer/country fields', async () => {
-  global.fetch = vi.fn()
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/tags
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) }) // /api/wine suggestions (review tab)
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([{ producer: 'Domaine Test', country: 'France' }]) }); // /api/wine (collection autocomplete)
+test('autocomplete suggestions populate from reviewed drinks and appear in producer/country fields', async () => {
+  mockFetch({ '/api/wine': { ok: true, json: () => Promise.resolve([{ producer: 'Domaine Test', country: 'France' }]) } });
   renderCollectionTab();
   fireEvent.change(screen.getByLabelText(/^producer$/i), { target: { value: 'Dom' } });
   await waitFor(() => expect(screen.getByText('Domaine Test')).toBeInTheDocument());
@@ -165,16 +165,26 @@ test('autocomplete suggestions populate from /api/{colCat} and appear in produce
   await waitFor(() => expect(screen.getByText('France')).toBeInTheDocument());
 });
 
+test('autocomplete also includes producers that only exist as collection-only entries (no review)', async () => {
+  mockFetch({
+    '/api/wine': { ok: true, json: () => Promise.resolve([]) },
+    '/api/collection': {
+      ok: true,
+      json: () => Promise.resolve([
+        { _category: 'wine', collectionOnly: true, producer: 'Cellar Only Estate', country: 'Spain' },
+        { _category: 'beer', collectionOnly: true, producer: 'Other Category Brewery', country: 'Belgium' },
+      ]),
+    },
+  });
+  renderCollectionTab();
+  fireEvent.change(screen.getByLabelText(/^producer$/i), { target: { value: 'Cellar' } });
+  await waitFor(() => expect(screen.getByText('Cellar Only Estate')).toBeInTheDocument());
+  expect(screen.queryByText('Other Category Brewery')).not.toBeInTheDocument();
+});
+
 // ── Quick-add photo upload ─────────────────────────────────────────
 
 test('quick-add photo upload fires to the collection image endpoint after drink+lot are created', async () => {
-  global.fetch = vi.fn()
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })                   // /api/tags
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })                   // /api/wine suggestions (review tab)
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })                   // /api/wine suggestions (collection tab autocomplete)
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'new-drink' }) })  // POST drink
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ id: 'lot1' }) })       // POST lot
-    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) });                  // POST collection image
   renderCollectionTab();
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
   fireEvent.click(screen.getByTestId('new-col-img-trigger'));

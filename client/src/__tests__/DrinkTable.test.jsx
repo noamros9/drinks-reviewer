@@ -63,6 +63,24 @@ test('shows empty state when drinks array is empty', () => {
   expect(screen.getByText(/no entries yet/i)).toBeInTheDocument();
 });
 
+// ── Photo column (falls back to collectionImageUrl for non-collection pages) ──
+
+test('wine table has a Photo column', () => {
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} />);
+  expect(screen.getByRole('columnheader', { name: /photo/i })).toBeInTheDocument();
+});
+
+test('photo column renders collectionImageUrl when no photo field is set', () => {
+  const row = { ...WINE_ROWS[0], collectionImageUrl: 'http://example.com/bottle.jpg' };
+  render(<DrinkTable category="wine" drinks={[row]} />);
+  expect(document.querySelector('.table-thumb')).toHaveAttribute('src', 'http://example.com/bottle.jpg');
+});
+
+test('photo column shows — when neither photo nor collectionImageUrl is set', () => {
+  render(<DrinkTable category="wine" drinks={WINE_ROWS} />);
+  expect(document.querySelector('.table-thumb')).not.toBeInTheDocument();
+});
+
 test('unknown category falls back to empty columns via COLUMNS || [] (line 76)', () => {
   render(<DrinkTable category="unknown" drinks={[{ id: '1', name: 'X' }]} />);
   // Renders without crash; no columns visible but table wrapper present
