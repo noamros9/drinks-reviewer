@@ -1,14 +1,22 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 
 export default function FilterDropdown({ label, options, specialOptions, selected, counts = {}, onChange }) {
   const [open, setOpen] = useState(false);
+  const [alignRight, setAlignRight] = useState(false);
   const ref = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
+
+  useLayoutEffect(() => {
+    if (open && menuRef.current) {
+      setAlignRight(menuRef.current.getBoundingClientRect().right > window.innerWidth);
+    }
+  }, [open]);
 
   const toggle = (value) => {
     const next = new Set(selected);
@@ -35,7 +43,7 @@ export default function FilterDropdown({ label, options, specialOptions, selecte
         <span className="filter-chevron">{open ? '▴' : '▾'}</span>
       </button>
       {open && (
-        <div className="filter-dropdown-menu">
+        <div className={`filter-dropdown-menu${alignRight ? ' filter-dropdown-menu--right' : ''}`} ref={menuRef}>
           {specialOptions.length > 0 && (
             <>
               {specialOptions.map(opt => (

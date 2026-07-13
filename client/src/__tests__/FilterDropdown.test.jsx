@@ -109,6 +109,26 @@ test('clicking a special option checkbox invokes its onChange (covers specialOpt
   expect(onChange.mock.calls[0][0].has('Old World')).toBe(true);
 });
 
+test('adds alignRight modifier class when menu overflows the right edge', () => {
+  const getRectSpy = vi
+    .spyOn(Element.prototype, 'getBoundingClientRect')
+    .mockReturnValue({ right: window.innerWidth + 50 });
+  renderDropdown();
+  openDropdown();
+  expect(document.querySelector('.filter-dropdown-menu--right')).toBeInTheDocument();
+  getRectSpy.mockRestore();
+});
+
+test('does not add alignRight modifier class when menu fits on screen', () => {
+  const getRectSpy = vi
+    .spyOn(Element.prototype, 'getBoundingClientRect')
+    .mockReturnValue({ right: window.innerWidth - 50 });
+  renderDropdown();
+  openDropdown();
+  expect(document.querySelector('.filter-dropdown-menu--right')).not.toBeInTheDocument();
+  getRectSpy.mockRestore();
+});
+
 test('unmounting component runs useEffect cleanup (removeEventListener)', () => {
   const { unmount } = render(
     <FilterDropdown label="Type" options={['Red']} specialOptions={[]} selected={new Set()} onChange={vi.fn()} />

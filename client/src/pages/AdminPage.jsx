@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomSelect from '../components/CustomSelect';
 import AutocompleteInput from '../components/AutocompleteInput';
+import PhotoInputButtons from '../components/PhotoInputButtons';
 import { PRODUCER_FIELD, NAME_FIELD, findDuplicate } from '../utils/filterHelpers';
 import './AdminPage.css';
 
@@ -540,13 +541,13 @@ export default function AdminPage() {
             </div>
           ))}
           <div className="form-actions">
-            <label
-              className={`btn-photo-add${newColImage ? ' has-photo' : ''}`}
-              title={newColImage ? newColImage.name : 'Add photo'}
-            >
-              {newColImage ? '📷 ✓' : '📷 +'}
-              <input type="file" accept="image/*" data-testid="new-col-img" onChange={e => { const f = e.target.files[0] || null; newColImageRef.current = f; setNewColImage(f); }} />
-            </label>
+            <PhotoInputButtons
+              variant="btn-photo-add"
+              hasPhoto={!!newColImage}
+              label="Add photo"
+              testId="new-col-img"
+              onSelect={f => { newColImageRef.current = f; setNewColImage(f); }}
+            />
             <button type="button" className="btn-primary" onClick={handleAddToCollection}>Add to Collection</button>
           </div>
           {colMessage && <p className="success-message">{colMessage}</p>}
@@ -560,10 +561,13 @@ export default function AdminPage() {
             {form.collectionImageUrl
               ? <img src={form.collectionImageUrl} alt="" className="tasting-thumb" data-testid="collection-img" />
               : <div className="tasting-thumb-placeholder" data-testid="collection-placeholder" />}
-            <label className="btn-upload-img">
-              {form.collectionImageUrl ? 'Change photo' : 'Add photo'}
-              <input type="file" accept="image/*" data-testid="collection-img-upload" onChange={e => handleCollectionImage(e.target.files[0])} />
-            </label>
+            <PhotoInputButtons
+              variant="btn-upload-img"
+              hasPhoto={!!form.collectionImageUrl}
+              label="Add photo"
+              testId="collection-img-upload"
+              onSelect={f => handleCollectionImage(f)}
+            />
           </div>
           <div className="lot-list">
             {lots.length === 0 && <p className="no-lots">No bottles in collection.</p>}
@@ -638,10 +642,13 @@ export default function AdminPage() {
                     <span className="lot-qty">{t.rating}</span>
                     {category === 'wine' && <span className="tasting-vintage">{t.vintage || '—'}</span>}
                     <div className="tasting-row-actions">
-                      <label className="btn-upload-img">
-                        {t.imageUrl ? 'Change photo' : 'Add photo'}
-                        <input type="file" accept="image/*" data-testid={`img-upload-${t.id}`} onChange={e => handleTastingImage(t.id, e.target.files[0])} />
-                      </label>
+                      <PhotoInputButtons
+                        variant="btn-upload-img"
+                        hasPhoto={!!t.imageUrl}
+                        label="Add photo"
+                        testId={`img-upload-${t.id}`}
+                        onSelect={f => handleTastingImage(t.id, f)}
+                      />
                       <button type="button" className="btn-tasting-edit btn-sm" onClick={() => startEditTasting(t)}>Edit</button>
                       <button type="button" className="btn-danger btn-sm" onClick={() => handleDeleteTasting(t.id)}>Remove</button>
                     </div>
@@ -671,13 +678,13 @@ export default function AdminPage() {
                 <input type="text" placeholder="e.g. 2021" value={newTastingVintage} onChange={e => setNewTastingVintage(e.target.value)} />
               </div>
             )}
-            <label
-              className={`btn-photo-add${newTastingImage ? ' has-photo' : ''}`}
-              title={newTastingImage ? newTastingImage.name : 'Add photo'}
-            >
-              {newTastingImage ? '📷 ✓' : '📷 +'}
-              <input type="file" accept="image/*" data-testid="new-tasting-img" onChange={e => { const f = e.target.files[0] || null; newTastingImageRef.current = f; setNewTastingImage(f); }} />
-            </label>
+            <PhotoInputButtons
+              variant="btn-photo-add"
+              hasPhoto={!!newTastingImage}
+              label="Add photo"
+              testId="new-tasting-img"
+              onSelect={f => { newTastingImageRef.current = f; setNewTastingImage(f); }}
+            />
             <button type="button" className="btn-primary" onClick={handleAddTasting}>Add Tasting</button>
           </div>
           {tastingsMessage && <p className="success-message">{tastingsMessage}</p>}

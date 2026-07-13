@@ -27,6 +27,23 @@ beforeEach(() => mockFetch());
 
 afterEach(() => { localStorage.clear(); });
 
+test('Tags filter dropdown is now available (migrated to shared FilterBar)', async () => {
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  expect(screen.getByTestId('filter-dropdown-tags')).toBeInTheDocument();
+});
+
+test('Tags filter hides non-matching entries', async () => {
+  mockFetch([{ ...WINE, tags: ['special-occasion'] }, BEER]);
+  render(<MemoryRouter><CollectionPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-dropdown-tags'));
+  fireEvent.click(screen.getByRole('checkbox', { name: /special-occasion/i }));
+  fireEvent.click(document.body);
+  expect(screen.getByText('Grand Cru')).toBeInTheDocument();
+  expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument();
+});
+
 test('renders country filter dropdown', async () => {
   render(<MemoryRouter><CollectionPage /></MemoryRouter>);
   await screen.findByText('Grand Cru');

@@ -1,19 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
-import ColumnPanel from '../components/ColumnPanel';
-import FilterDropdown from '../components/FilterDropdown';
-import RangeFilter from '../components/RangeFilter';
-import RangeFilterChips from '../components/RangeFilterChips';
-import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilters, RANGE_FILTER_CONFIGS } from '../utils/filterHelpers';
+import FilterBar from '../components/FilterBar';
+import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
 import './CollectionPage.css';
 
 const STORAGE_KEY = 'drinks_columns_collection';
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 const FILTERS = ['all', ...CATEGORIES];
-const FILTERABLE = new Set(['country', '_producer']);
-const RANGE_CONFIGS = RANGE_FILTER_CONFIGS.all;
+const FILTERABLE = new Set([PRODUCER_FIELD.all, ...DROPDOWN_CONFIGS.all.filter(c => !c.varietyGroups).map(c => c.key)]);
 
 function loadLayout() {
   try {
@@ -68,9 +64,7 @@ export default function CollectionPage() {
   const [pick, setPick] = useState(null);
   const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
-  const [countryFilter, setCountryFilter] = useState(new Set());
-  const [rangeFilters, setRangeFilters] = useState(() => buildEmptyRangeFilters('all'));
-  const [producerSearch, setProducerSearch] = useState('');
+  const [activeFilters, setActiveFilters] = useState(() => buildInitialFilters('all'));
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
 
   useEffect(() => { fetchCollection(setDrinks); }, []);
@@ -118,15 +112,17 @@ export default function CollectionPage() {
   };
 
   const categoryFiltered = filter === 'all' ? drinks : drinks.filter(d => d._category.toLowerCase() === filter);
-  const activeFilters = { producerSearch, country: countryFilter, ...rangeFilters };
-  const hasRangeFilter = Object.values(rangeFilters).some(v => v !== '');
-  const hasFilter = countryFilter.size > 0 || hasRangeFilter || producerSearch !== '';
-  const searchIds = useSearchResults(CATEGORIES, producerSearch);
+  const searchIds = useSearchResults(CATEGORIES, activeFilters.producerSearch);
   const searchScoped = searchIds == null ? categoryFiltered : categoryFiltered.filter(d => searchIds.has(d.id));
   const visible = searchScoped.filter(d => matchesFilters(d, activeFilters, 'all'));
 
-  const { options: countryOptions } = buildDropdownOptions(categoryFiltered, { key: 'country' });
-  const countryCounts = countOptions(categoryFiltered, { key: 'country' }, activeFilters, 'all');
+  const handleCellClick = (colKey, value) => {
+    setActiveFilters(prev =>
+      colKey === PRODUCER_FIELD.all
+        ? { ...prev, producerSearch: value }
+        : { ...prev, [colKey]: new Set([...prev[colKey], value]) }
+    );
+  };
 
   const renderRowExtra = (drink) => (
     <div className="stock-controls">
@@ -151,65 +147,26 @@ export default function CollectionPage() {
         </button>
       </div>
 
-      <div className="all-page-toolbar">
-        <div className="category-tabs">
-          {FILTERS.map(f => (
-            <button
-              key={f}
-              className={filter === f ? 'active' : ''}
-              onClick={() => setFilter(f)}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
-          ))}
-        </div>
-        <span className="toolbar-divider">|</span>
-        <FilterDropdown
-          label="Country"
-          options={countryOptions}
-          specialOptions={[]}
-          selected={countryFilter}
-          counts={countryCounts}
-          onChange={setCountryFilter}
-        />
-        {RANGE_CONFIGS.map(conf => (
-          <RangeFilter
-            key={conf.key}
-            config={conf}
-            min={rangeFilters[`${conf.key}Min`]}
-            max={rangeFilters[`${conf.key}Max`]}
-            onChange={(min, max) => setRangeFilters(prev => ({ ...prev, [`${conf.key}Min`]: min, [`${conf.key}Max`]: max }))}
-          />
+      <div className="category-tabs">
+        {FILTERS.map(f => (
+          <button
+            key={f}
+            className={filter === f ? 'active' : ''}
+            onClick={() => setFilter(f)}
+          >
+            {f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
         ))}
-        <div className="filter-bar-spacer" />
-        <ColumnPanel
-          allColumns={COLUMNS['collection']}
-          columnLayout={columnLayout}
-          onChange={handleColumnLayoutChange}
-        />
       </div>
 
-      {hasFilter && (
-        <div className="filter-chips">
-          {[...countryFilter].map(c => (
-            <span key={c} className="filter-chip">
-              {c}
-              <button onClick={() => setCountryFilter(prev => { const next = new Set(prev); next.delete(c); return next; })} aria-label={`Remove ${c} filter`}>×</button>
-            </span>
-          ))}
-          {producerSearch && (
-            <span className="filter-chip">
-              Producer: {producerSearch}
-              <button onClick={() => setProducerSearch('')} aria-label="Remove producer filter">×</button>
-            </span>
-          )}
-          <RangeFilterChips
-            configs={RANGE_CONFIGS}
-            values={rangeFilters}
-            onClear={key => setRangeFilters(prev => ({ ...prev, [`${key}Min`]: '', [`${key}Max`]: '' }))}
-          />
-        </div>
-      )}
+      <FilterBar
+        category="all"
+        drinks={categoryFiltered}
+        activeFilters={activeFilters}
+        onChange={setActiveFilters}
+        columnLayout={columnLayout}
+        onColumnLayoutChange={handleColumnLayoutChange}
+      />
 
       {pick && (
         <div className="pick-spotlight" role="dialog" aria-label="Random pick">
@@ -233,10 +190,7 @@ export default function CollectionPage() {
         columnLayout={columnLayout}
         onColumnLayoutChange={handleColumnLayoutChange}
         filterableCols={FILTERABLE}
-        onCellClick={(colKey, value) => {
-          if (colKey === 'country') setCountryFilter(prev => new Set([...prev, value]));
-          if (colKey === '_producer') setProducerSearch(value);
-        }}
+        onCellClick={handleCellClick}
       />
     </div>
   );

@@ -72,17 +72,22 @@ test('Reset to default button calls onChange with null', () => {
   expect(onChange).toHaveBeenCalledWith(null);
 });
 
-// ── Drag reorder ─────────────────────────────────────────────────
+// ── Pointer-based drag reorder (touch + mouse) ────────────────────
+
+function dragRow(fromRow, toRow) {
+  const spy = vi.spyOn(document, 'elementFromPoint').mockReturnValue(toRow);
+  fireEvent.pointerDown(fromRow, { pointerId: 1 });
+  fireEvent.pointerMove(fromRow, { pointerId: 1, clientX: 1, clientY: 1 });
+  fireEvent.pointerUp(fromRow, { pointerId: 1 });
+  spy.mockRestore();
+}
 
 test('drag reorder calls onChange with reordered columns (forward)', () => {
   const onChange = renderPanel(null);
   fireEvent.click(screen.getByTestId('column-panel-btn'));
   const firstRow  = screen.getByTestId(`col-panel-row-${WINE_COLS[0].key}`);
   const secondRow = screen.getByTestId(`col-panel-row-${WINE_COLS[1].key}`);
-  fireEvent.dragStart(firstRow);
-  fireEvent.dragEnter(secondRow);
-  fireEvent.dragOver(secondRow);
-  fireEvent.drop(secondRow);
+  dragRow(firstRow, secondRow);
   expect(onChange).toHaveBeenCalled();
   const { order } = onChange.mock.calls[0][0];
   expect(order[0]).toBe(WINE_COLS[1].key);
@@ -94,10 +99,7 @@ test('drag reorder calls onChange with reordered columns (backward)', () => {
   fireEvent.click(screen.getByTestId('column-panel-btn'));
   const firstRow  = screen.getByTestId(`col-panel-row-${WINE_COLS[0].key}`);
   const thirdRow  = screen.getByTestId(`col-panel-row-${WINE_COLS[2].key}`);
-  fireEvent.dragStart(thirdRow);
-  fireEvent.dragEnter(firstRow);
-  fireEvent.dragOver(firstRow);
-  fireEvent.drop(firstRow);
+  dragRow(thirdRow, firstRow);
   expect(onChange).toHaveBeenCalled();
   const { order } = onChange.mock.calls[0][0];
   expect(order[0]).toBe(WINE_COLS[2].key);
@@ -107,17 +109,17 @@ test('drag to same row is a no-op', () => {
   const onChange = renderPanel(null);
   fireEvent.click(screen.getByTestId('column-panel-btn'));
   const firstRow = screen.getByTestId(`col-panel-row-${WINE_COLS[0].key}`);
-  fireEvent.dragStart(firstRow);
-  fireEvent.drop(firstRow);
+  dragRow(firstRow, firstRow);
   expect(onChange).not.toHaveBeenCalled();
 });
 
-test('dragEnd clears drag state', () => {
-  renderPanel(null);
+test('pointerdown without a move (simple click) clears drag state without reordering', () => {
+  const onChange = renderPanel(null);
   fireEvent.click(screen.getByTestId('column-panel-btn'));
   const firstRow = screen.getByTestId(`col-panel-row-${WINE_COLS[0].key}`);
-  fireEvent.dragStart(firstRow);
-  fireEvent.dragEnd(firstRow);
+  fireEvent.pointerDown(firstRow, { pointerId: 1 });
+  fireEvent.pointerUp(firstRow, { pointerId: 1 });
+  expect(onChange).not.toHaveBeenCalled();
   expect(firstRow).not.toHaveClass('col-panel-dragging');
 });
 

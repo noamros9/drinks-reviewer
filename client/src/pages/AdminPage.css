@@ -391,6 +391,12 @@
   flex-shrink: 0;
 }
 
+.photo-input-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
 .btn-photo-add {
   display: inline-flex;
   align-items: center;
