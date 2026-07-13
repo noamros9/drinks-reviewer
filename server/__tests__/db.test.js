@@ -51,6 +51,12 @@ describe('db.js fake mode (no MONGODB_URI)', () => {
     expect(await beerCol.find().toArray()).toEqual([]);
   });
 
+  it('getRegionCoordinatesCollection lazily initializes the fake store on first call', async () => {
+    const col = await db.getRegionCoordinatesCollection();
+    await col.insertMany([{ _id: 'Spain||Rioja', lat: 1, lon: 2 }]);
+    expect(await col.find().toArray()).toEqual([{ _id: 'Spain||Rioja', lat: 1, lon: 2 }]);
+  });
+
   it('resetFake clears all collections', async () => {
     const col = await db.getCollection('wine');
     await col.insertMany([{ id: 1 }]);
@@ -220,6 +226,12 @@ describe('db.js real mode (MONGODB_URI set)', () => {
     await db.getCollection('wine');
     await db.close();
     expect(mockClient.close).toHaveBeenCalledTimes(1);
+  });
+
+  it('getRegionCoordinatesCollection returns the regionCoordinates collection from the connected db', async () => {
+    const col = await db.getRegionCoordinatesCollection();
+    expect(mockDb.collection).toHaveBeenCalledWith('regionCoordinates');
+    expect(col).toBe(mockCollection);
   });
 
   describe('whiskey/others scoping (scopeByCategory)', () => {

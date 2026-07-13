@@ -28,7 +28,6 @@ afterAll(() => {
 
 beforeEach(() => {
   db.resetFake();
-  fs.writeFileSync(path.join(tmpDir, 'region-coordinates.json'), '{}');
 });
 
 describe('GET /api/:category/search', () => {

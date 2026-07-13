@@ -28,7 +28,6 @@ afterAll(() => {
 
 beforeEach(() => {
   db.resetFake();
-  fs.writeFileSync(path.join(tmpDir, 'region-coordinates.json'), '{}');
 });
 
 describe('GET /api/:category', () => {
@@ -397,8 +396,9 @@ describe('GET /api/region-coordinates', () => {
     expect(res.body).toEqual({});
   });
 
-  it('returns the cached coordinates file contents', async () => {
-    fs.writeFileSync(path.join(tmpDir, 'region-coordinates.json'), JSON.stringify({ 'Spain||Rioja': { lat: 1, lon: 2 } }));
+  it('returns the cached coordinates', async () => {
+    const col = await db.getRegionCoordinatesCollection();
+    await col.insertMany([{ _id: 'Spain||Rioja', lat: 1, lon: 2 }]);
     const res = await request(app).get('/api/region-coordinates');
     expect(res.body).toEqual({ 'Spain||Rioja': { lat: 1, lon: 2 } });
   });
@@ -416,8 +416,9 @@ describe('region geocoding hook on save', () => {
   it('geocodes a new wine entry with both country and region set', async () => {
     await request(app).post('/api/wine').send({ producer: 'X', country: 'Spain', region: 'Rioja' });
     expect(global.fetch).toHaveBeenCalledTimes(1);
-    const coords = JSON.parse(fs.readFileSync(path.join(tmpDir, 'region-coordinates.json'), 'utf8'));
-    expect(coords['Spain||Rioja']).toEqual({ lat: 42.4, lon: -2.4 });
+    const col = await db.getRegionCoordinatesCollection();
+    const [doc] = await col.find({ _id: 'Spain||Rioja' }).toArray();
+    expect(doc).toEqual({ _id: 'Spain||Rioja', lat: 42.4, lon: -2.4 });
   });
 
   it('geocodes a whiskey entry updated to add both country and region', async () => {
@@ -458,6 +459,11 @@ describe('500 error handling when the data backend fails', () => {
   });
   it('GET /api/collection returns 500', async () => {
     expect((await request(app).get('/api/collection')).status).toBe(500);
+  });
+  it('GET /api/region-coordinates returns 500', async () => {
+    const spy = jest.spyOn(db, 'getRegionCoordinatesCollection').mockRejectedValue(new Error('boom'));
+    expect((await request(app).get('/api/region-coordinates')).status).toBe(500);
+    spy.mockRestore();
   });
   it('GET /api/wine returns 500', async () => {
     expect((await request(app).get('/api/wine')).status).toBe(500);
