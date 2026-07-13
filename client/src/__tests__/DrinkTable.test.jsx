@@ -81,6 +81,18 @@ test('photo column shows — when neither photo nor collectionImageUrl is set', 
   expect(document.querySelector('.table-thumb')).not.toBeInTheDocument();
 });
 
+test('photo column falls back to the most recent tasting photo when no collectionImageUrl is set', () => {
+  const row = { ...WINE_ROWS[0], tastings: [{ id: 't1', imageUrl: 'http://example.com/old.jpg' }, { id: 't2', imageUrl: 'http://example.com/latest.jpg' }] };
+  render(<DrinkTable category="wine" drinks={[row]} />);
+  expect(document.querySelector('.table-thumb')).toHaveAttribute('src', 'http://example.com/latest.jpg');
+});
+
+test('collectionImageUrl takes priority over a tasting photo when both are present', () => {
+  const row = { ...WINE_ROWS[0], collectionImageUrl: 'http://example.com/bottle.jpg', tastings: [{ id: 't1', imageUrl: 'http://example.com/latest.jpg' }] };
+  render(<DrinkTable category="wine" drinks={[row]} />);
+  expect(document.querySelector('.table-thumb')).toHaveAttribute('src', 'http://example.com/bottle.jpg');
+});
+
 test('unknown category falls back to empty columns via COLUMNS || [] (line 76)', () => {
   render(<DrinkTable category="unknown" drinks={[{ id: '1', name: 'X' }]} />);
   // Renders without crash; no columns visible but table wrapper present
