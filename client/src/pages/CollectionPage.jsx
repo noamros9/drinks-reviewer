@@ -52,6 +52,16 @@ function oldestInStockLot(drink) {
     .sort((a, b) => (a.addedAt > b.addedAt ? 1 : -1))[0] ?? null;
 }
 
+function weightedPick(items, weightFn) {
+  const total = items.reduce((sum, d) => sum + weightFn(d), 0);
+  if (total <= 0) return null;
+  let r = Math.random() * total;
+  for (const item of items) {
+    r -= weightFn(item);
+    if (r < 0) return item;
+  }
+}
+
 function fetchCollection(setDrinks) {
   fetch('/api/collection')
     .then(r => r.json())
@@ -92,8 +102,12 @@ export default function CollectionPage() {
   };
 
   const handlePick = () => {
-    if (!drinks.length) return;
-    setPick(drinks[Math.floor(Math.random() * drinks.length)]);
+    const picked = weightedPick(visible, totalQty);
+    if (!picked) {
+      alert(`Nothing in stock${filter !== 'all' ? ` in ${filter}` : ''} to pick from.`);
+      return;
+    }
+    setPick(picked);
   };
 
   const handleDrankIt = (drink) => {

@@ -182,6 +182,12 @@ export default function AdminPage() {
 
   const handleSubmit = async (e, { another = false } = {}) => {
     e.preventDefault();
+    if (!isEditing) {
+      const missing = [PRODUCER_FIELD[category], NAME_FIELD[category], 'country']
+        .filter(key => !String(form[key] ?? '').trim())
+        .map(key => FIELDS[category].find(f => f.key === key)?.label ?? key);
+      if (missing.length && !window.confirm(`Missing ${missing.join(', ')}. Add anyway?`)) return;
+    }
     if (duplicate && !window.confirm(
       `This looks like a duplicate of an existing entry: "${duplicate[PRODUCER_FIELD[category]]} — ${duplicate[NAME_FIELD[category]]}". Save anyway?`
     )) return;
@@ -245,6 +251,10 @@ export default function AdminPage() {
   };
 
   const handleAddToCollection = async (another = false) => {
+    const missing = [['producer', 'Producer'], ['name', 'Name'], ['country', 'Country']]
+      .filter(([key]) => !colForm[key].trim())
+      .map(([, label]) => label);
+    if (missing.length && !window.confirm(`Missing ${missing.join(', ')}. Add anyway?`)) return;
     const qty = parsePositiveInt(colForm.qty);
     if (qty === null) { setColMessage('Quantity must be a positive whole number.'); return; }
     const producerKey = PRODUCER_FIELD[colCat];
@@ -503,7 +513,7 @@ export default function AdminPage() {
             {isEditing ? 'Update' : 'Add'}
           </button>
           {!isEditing && (
-            <button type="button" className="btn-secondary" onClick={(e) => handleSubmit(e, { another: true })}>
+            <button type="button" className="btn-primary" onClick={(e) => handleSubmit(e, { another: true })}>
               Add another Review
             </button>
           )}
@@ -569,7 +579,7 @@ export default function AdminPage() {
               openUp
             />
             <button type="button" className="btn-primary" onClick={() => handleAddToCollection()}>Add to Collection</button>
-            <button type="button" className="btn-secondary" onClick={() => handleAddToCollection(true)}>Add another Collection</button>
+            <button type="button" className="btn-primary" onClick={() => handleAddToCollection(true)}>Add another Collection</button>
           </div>
           {colMessage && <p className="success-message">{colMessage}</p>}
         </div>

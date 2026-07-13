@@ -60,6 +60,7 @@ test('submitting a duplicate prompts window.confirm; cancelling aborts the save'
   await waitForCatalogue();
   fireEvent.change(screen.getByLabelText(/producer/i), { target: { value: 'Chateau Margaux' } });
   fireEvent.change(screen.getByLabelText(/series & name/i), { target: { value: 'Grand Vin' } });
+  fireEvent.change(screen.getByLabelText(/country/i), { target: { value: 'France' } });
   fireEvent.submit(screen.getByRole('button', { name: /^add$/i }).closest('form'));
   expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining('Chateau Margaux'));
   expect(global.fetch.mock.calls.some(([url, opts]) => url === '/api/wine' && opts?.method === 'POST')).toBe(false);
@@ -71,6 +72,7 @@ test('submitting a duplicate and confirming proceeds with the save', async () =>
   await waitForCatalogue();
   fireEvent.change(screen.getByLabelText(/producer/i), { target: { value: 'Chateau Margaux' } });
   fireEvent.change(screen.getByLabelText(/series & name/i), { target: { value: 'Grand Vin' } });
+  fireEvent.change(screen.getByLabelText(/country/i), { target: { value: 'France' } });
   fireEvent.submit(screen.getByRole('button', { name: /^add$/i }).closest('form'));
   await waitFor(() => {
     expect(global.fetch.mock.calls.some(([url, opts]) => url === '/api/wine' && opts?.method === 'POST')).toBe(true);
