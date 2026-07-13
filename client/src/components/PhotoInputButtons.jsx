@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-export default function PhotoInputButtons({ hasPhoto, label, variant, onSelect, testId }) {
+export default function PhotoInputButtons({ hasPhoto, label, variant, onSelect, testId, openUp }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -26,7 +26,7 @@ export default function PhotoInputButtons({ hasPhoto, label, variant, onSelect, 
         {hasPhoto ? 'Change photo' : label}
       </button>
       {open && (
-        <div className="photo-input-menu">
+        <div className={`photo-input-menu${openUp ? ' photo-input-menu-up' : ''}`}>
           <label className="photo-input-option">
             📷 Take Photo
             <input type="file" accept="image/*" capture="environment" data-testid={testId && `${testId}-camera`} onChange={pick} />

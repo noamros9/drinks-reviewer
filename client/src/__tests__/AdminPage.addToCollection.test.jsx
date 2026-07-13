@@ -75,6 +75,20 @@ test('navigates to collection after submit', async () => {
   });
 });
 
+test('"Add another Collection" submits without navigating and resets the form', async () => {
+  renderCollectionTab();
+  fireEvent.change(screen.getByLabelText(/^producer$/i), { target: { value: 'Château X' } });
+  fireEvent.click(screen.getByRole('button', { name: /add another collection/i }));
+  await waitFor(() => {
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/wine',
+      expect.objectContaining({ method: 'POST', body: expect.stringContaining('"collectionOnly":true') })
+    );
+  });
+  expect(mockNavigate).not.toHaveBeenCalled();
+  expect(screen.getByLabelText(/^producer$/i)).toHaveValue('');
+});
+
 test('switching category changes the POST endpoint', async () => {
   renderCollectionTab();
   fireEvent.click(screen.getByRole('button', { name: /^beer$/i }));

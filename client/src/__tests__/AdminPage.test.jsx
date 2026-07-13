@@ -61,6 +61,17 @@ test('calls POST /api/wine on submit', async () => {
   });
 });
 
+test('"Add another Review" submits without navigating and resets the form', async () => {
+  render(<MemoryRouter><AdminPage /></MemoryRouter>);
+  fireEvent.change(screen.getByLabelText(/producer/i), { target: { name: 'producer', value: 'New Producer' } });
+  fireEvent.click(screen.getByRole('button', { name: /add another review/i }));
+  await waitFor(() => {
+    expect(global.fetch).toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
+  });
+  expect(mockNavigate).not.toHaveBeenCalled();
+  expect(screen.getByLabelText(/producer/i)).toHaveValue('');
+});
+
 test('navigates to tastings tab after adding new entry', async () => {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
   fireEvent.submit(screen.getByRole('button', { name: /^add$/i }).closest('form'));
@@ -87,9 +98,9 @@ function renderEditPage() {
   );
 }
 
-test('edit mode shows "Edit Entry" heading', () => {
+test('edit mode shows the drink\'s producer + name as the heading', () => {
   renderEditPage();
-  expect(screen.getByRole('heading', { name: /edit entry/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Château Test — Reserve' })).toBeInTheDocument();
 });
 
 test('edit mode hides category tab switcher', () => {
@@ -189,7 +200,7 @@ test('null field values render as empty string via ?? fallback', () => {
 test('shows error message when save fails (res.ok false on POST)', async () => {
   global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
-  fireEvent.submit(screen.getByRole('button', { name: /add/i }).closest('form'));
+  fireEvent.submit(screen.getByRole('button', { name: /^add$/i }).closest('form'));
   expect(await screen.findByText('Save failed. Please try again.')).toBeInTheDocument();
 });
 

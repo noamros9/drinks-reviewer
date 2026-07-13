@@ -239,3 +239,13 @@ test('collection photo upload failure shows error message', async () => {
   fireEvent.change(screen.getByTestId('collection-img-upload'), { target: { files: [file] } });
   expect(await screen.findByText('Failed to upload photo.')).toBeInTheDocument();
 });
+
+test('shows a large photo preview when a collection photo is set', () => {
+  renderEditPage({ ...EDIT_DRINK, collectionImageUrl: '/images/drinks/col.jpg' });
+  expect(screen.getByTestId('collection-preview-img')).toHaveAttribute('src', '/images/drinks/col.jpg');
+});
+
+test('does not show a large photo preview when no collection photo is set', () => {
+  renderEditPage();
+  expect(screen.queryByTestId('collection-preview-img')).not.toBeInTheDocument();
+});
