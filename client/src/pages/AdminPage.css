@@ -410,6 +410,11 @@
   padding: 0.3rem 0;
 }
 
+.photo-input-menu-up {
+  top: auto;
+  bottom: calc(100% + 0.3rem);
+}
+
 .photo-input-option {
   display: flex;
   align-items: center;

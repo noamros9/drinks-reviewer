@@ -180,7 +180,7 @@ export default function AdminPage() {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, { another = false } = {}) => {
     e.preventDefault();
     if (duplicate && !window.confirm(
       `This looks like a duplicate of an existing entry: "${duplicate[PRODUCER_FIELD[category]]} — ${duplicate[NAME_FIELD[category]]}". Save anyway?`
@@ -207,6 +207,11 @@ export default function AdminPage() {
       return;
     }
     if (!isEditing) {
+      if (another) {
+        setForm(emptyForm(category));
+        setMessage('Added! Add another below.');
+        return;
+      }
       const newDrink = await res.json();
       navigate('/admin', { state: { drink: newDrink, category, tab: 'tastings' } });
       return;
@@ -239,7 +244,7 @@ export default function AdminPage() {
     setCollectionMessage('Lot removed.');
   };
 
-  const handleAddToCollection = async () => {
+  const handleAddToCollection = async (another = false) => {
     const qty = parsePositiveInt(colForm.qty);
     if (qty === null) { setColMessage('Quantity must be a positive whole number.'); return; }
     const producerKey = PRODUCER_FIELD[colCat];
@@ -265,6 +270,11 @@ export default function AdminPage() {
       const fd = new FormData();
       fd.append('image', imageFile);
       await fetch(`/api/${colCat}/${drink.id}/collection/image`, { method: 'POST', body: fd }).catch(() => {});
+    }
+    if (another) {
+      setColForm({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
+      setColMessage('Added! Add another below.');
+      return;
     }
     navigate('/collection');
   };
@@ -383,9 +393,13 @@ export default function AdminPage() {
     navigate(`/${category}`);
   };
 
+  const producerVal = form[PRODUCER_FIELD[category]];
+  const nameVal = form[NAME_FIELD[category]];
+  const editTitle = (producerVal || nameVal) ? `${producerVal || ''} — ${nameVal || ''}` : 'Edit Entry';
+
   return (
     <div className="admin-page">
-      <h1>{isEditing ? 'Edit Entry' : 'Add Entry'}</h1>
+      <h1>{isEditing ? editTitle : 'Add Entry'}</h1>
 
       <div className="category-tabs">
         <button className={activeTab === 'review' ? 'active' : ''} onClick={() => setActiveTab('review')}>Review</button>
@@ -488,6 +502,11 @@ export default function AdminPage() {
           <button type="submit" className="btn-primary" disabled={loadingDrink}>
             {isEditing ? 'Update' : 'Add'}
           </button>
+          {!isEditing && (
+            <button type="button" className="btn-secondary" onClick={(e) => handleSubmit(e, { another: true })}>
+              Add another Review
+            </button>
+          )}
           {isEditing && (
             <button type="button" className="btn-danger" onClick={handleDelete}>
               Delete
@@ -547,15 +566,18 @@ export default function AdminPage() {
               label="Add photo"
               testId="new-col-img"
               onSelect={f => { newColImageRef.current = f; setNewColImage(f); }}
+              openUp
             />
-            <button type="button" className="btn-primary" onClick={handleAddToCollection}>Add to Collection</button>
+            <button type="button" className="btn-primary" onClick={() => handleAddToCollection()}>Add to Collection</button>
+            <button type="button" className="btn-secondary" onClick={() => handleAddToCollection(true)}>Add another Collection</button>
           </div>
           {colMessage && <p className="success-message">{colMessage}</p>}
         </div>
       )}
 
       {isEditing && activeTab === 'collection' && (
-        <section className="collection-section">
+        <section className="collection-section tastings-section">
+          <div className="tastings-main">
           <h2>My Collection</h2>
           <div className="lot-row collection-photo-row">
             {form.collectionImageUrl
@@ -592,6 +614,12 @@ export default function AdminPage() {
             <button type="button" className="btn-primary" onClick={handleAddLot}>Add to Collection</button>
           </div>
           {collectionMessage && <p className="success-message">{collectionMessage}</p>}
+          </div>
+          {form.collectionImageUrl && (
+            <div className="tastings-preview">
+              <img src={form.collectionImageUrl} alt="" data-testid="collection-preview-img" />
+            </div>
+          )}
         </section>
       )}
       {isEditing && activeTab === 'tastings' && (

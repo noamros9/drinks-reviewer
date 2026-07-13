@@ -54,3 +54,9 @@ test('shows the fallback label on the trigger when no photo exists', () => {
   render(<PhotoInputButtons hasPhoto={false} label="Add photo" variant="btn-upload-img" onSelect={() => {}} />);
   expect(screen.getByText('Add photo')).toBeInTheDocument();
 });
+
+test('openUp adds the upward-opening menu class', () => {
+  render(<PhotoInputButtons hasPhoto={false} label="Add photo" variant="btn-photo-add" testId="photo" onSelect={() => {}} openUp />);
+  openMenu();
+  expect(document.querySelector('.photo-input-menu')).toHaveClass('photo-input-menu-up');
+});
