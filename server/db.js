@@ -75,14 +75,23 @@ async function connect() {
   return db;
 }
 
+function fakeOrReal(realDb, name) {
+  if (realDb) return realDb.collection(name);
+  if (!fake) fake = new Map();
+  return fakeCollection(name);
+}
+
 async function getCollection(category) {
   const name = COLLECTIONS[category];
   const realDb = await connect();
-  const raw = realDb
-    ? realDb.collection(name)
-    : (() => { if (!fake) fake = new Map(); return fakeCollection(name); })();
+  const raw = fakeOrReal(realDb, name);
   const tag = SHARED_CATEGORY_TAG[category];
   return tag ? scopeByCategory(raw, tag) : raw;
+}
+
+async function getRegionCoordinatesCollection() {
+  const realDb = await connect();
+  return fakeOrReal(realDb, 'regionCoordinates');
 }
 
 function resetFake() {
@@ -97,4 +106,4 @@ async function close() {
   }
 }
 
-module.exports = { getCollection, COLLECTIONS, close, resetFake };
+module.exports = { getCollection, getRegionCoordinatesCollection, COLLECTIONS, close, resetFake };

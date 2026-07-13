@@ -89,8 +89,12 @@ router.get('/tags', async (_req, res) => {
   }
 });
 
-router.get('/region-coordinates', (_req, res) => {
-  res.json(readCoordinates());
+router.get('/region-coordinates', async (_req, res) => {
+  try {
+    res.json(await readCoordinates());
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
 });
 
 router.get('/collection', async (req, res) => {

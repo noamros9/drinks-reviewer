@@ -42,6 +42,12 @@ The site is gated behind Google Sign-In, restricted to an allowlist of Google ac
 
 `ALLOWED_EMAILS` is a comma-separated list of the only Google accounts permitted to sign in; anyone else lands on an access-denied page. `SESSION_SECRET` signs the login cookie — any random string works.
 
+### Deploying to Render
+
+The app deploys as a single Render web service: `npm run build` produces `client/dist`, and `npm start` runs one Express process that serves both the API/auth routes and the built client (same origin, no CORS in production). `render.yaml` documents the build/start commands and the full list of required env vars — set their actual values in the Render dashboard's Environment tab (they're marked `sync: false`, so they aren't stored in the repo).
+
+After the first deploy, Render assigns a `https://<name>.onrender.com` URL. Update `GOOGLE_REDIRECT_URI` on Render to `https://<name>.onrender.com/auth/google/callback`, and add that same URL as an authorized redirect URI on the OAuth Client in Google Cloud Console.
+
 ## Features
 
 - Category pages (Wine, Beer, Whiskey, Others), All Drinks, and Collection views
