@@ -1,22 +1,16 @@
-import { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useDropdownAlign } from '../hooks/useDropdownAlign';
 
 export default function FilterDropdown({ label, options, specialOptions, selected, counts = {}, onChange }) {
   const [open, setOpen] = useState(false);
-  const [alignRight, setAlignRight] = useState(false);
   const ref = useRef(null);
-  const menuRef = useRef(null);
+  const { alignRight, menuRef } = useDropdownAlign(open);
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
-
-  useLayoutEffect(() => {
-    if (open && menuRef.current) {
-      setAlignRight(menuRef.current.getBoundingClientRect().right > window.innerWidth);
-    }
-  }, [open]);
 
   const toggle = (value) => {
     const next = new Set(selected);

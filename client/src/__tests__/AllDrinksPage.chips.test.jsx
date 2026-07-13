@@ -17,6 +17,26 @@ beforeEach(() => {
   });
 });
 
+test('Tags filter dropdown is available (migrated to shared FilterBar)', async () => {
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  expect(screen.getByTestId('filter-dropdown-tags')).toBeInTheDocument();
+});
+
+test('Tags filter hides non-matching entries', async () => {
+  global.fetch = vi.fn((url) => {
+    const data = url.includes('wine') ? [{ ...WINE, tags: ['special-occasion'] }] : url.includes('beer') ? [BEER] : [];
+    return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
+  });
+  render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
+  await screen.findByText('Grand Cru');
+  fireEvent.click(screen.getByTestId('filter-dropdown-tags'));
+  fireEvent.click(screen.getByRole('checkbox', { name: /special-occasion/i }));
+  fireEvent.click(document.body);
+  expect(screen.getByText('Grand Cru')).toBeInTheDocument();
+  expect(screen.queryByText('Pale Ale')).not.toBeInTheDocument();
+});
+
 test('no chips when no filters active', async () => {
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
   await screen.findByText('Grand Cru');

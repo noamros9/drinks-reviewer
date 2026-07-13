@@ -162,6 +162,7 @@ test('quick-add photo upload fires to the collection image endpoint after drink+
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) });                  // POST collection image
   renderCollectionTab();
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.click(screen.getByTestId('new-col-img-trigger'));
   fireEvent.change(screen.getByTestId('new-col-img'), { target: { files: [file] } });
   fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
   await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(

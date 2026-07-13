@@ -213,6 +213,13 @@ main {
   .page-header { flex-wrap: wrap; gap: 0.5rem; }
 
   .sort-presets { margin-left: 0; flex-basis: 100%; }
+
+  .page-header .sort-preset,
+  .page-header .btn-outline {
+    flex: 1 1 auto;
+    min-width: 6.5rem;
+    text-align: center;
+  }
 }
 
 /* ── Animations ── */

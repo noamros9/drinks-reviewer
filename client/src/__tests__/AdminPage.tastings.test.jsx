@@ -177,6 +177,7 @@ test('uploading an image calls POST with FormData and updates tastings', async (
   const updatedDrink = { ...EDIT_DRINK, tastings: [{ ...TASTING, imageUrl: '/images/drinks/new.jpg' }] };
   global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve(updatedDrink) });
   renderTastingsTab();
+  fireEvent.click(screen.getByTestId('img-upload-t1-trigger'));
   const fileInput = screen.getByTestId('img-upload-t1');
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
   fireEvent.change(fileInput, { target: { files: [file] } });
@@ -189,6 +190,7 @@ test('uploading an image calls POST with FormData and updates tastings', async (
 
 test('file input with no file does not call fetch', () => {
   renderTastingsTab();
+  fireEvent.click(screen.getByTestId('img-upload-t1-trigger'));
   fireEvent.change(screen.getByTestId('img-upload-t1'), { target: { files: [] } });
   expect(global.fetch).not.toHaveBeenCalledWith(expect.stringContaining('/image'), expect.anything());
 });
@@ -196,6 +198,7 @@ test('file input with no file does not call fetch', () => {
 test('shows error when image upload fails', async () => {
   global.fetch.mockResolvedValue({ ok: false });
   renderTastingsTab();
+  fireEvent.click(screen.getByTestId('img-upload-t1-trigger'));
   const fileInput = screen.getByTestId('img-upload-t1');
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
   fireEvent.change(fileInput, { target: { files: [file] } });
@@ -204,6 +207,7 @@ test('shows error when image upload fails', async () => {
 
 test('add-tasting form has a photo file input', () => {
   renderTastingsTab();
+  fireEvent.click(screen.getByTestId('new-tasting-img-trigger'));
   expect(screen.getByTestId('new-tasting-img')).toBeInTheDocument();
 });
 
@@ -220,6 +224,7 @@ test('adding a tasting with an image uploads image to new tasting id', async () 
   fireEvent.click(screen.getByTestId('mock-datepicker'));
   fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '9' } });
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.click(screen.getByTestId('new-tasting-img-trigger'));
   fireEvent.change(screen.getByTestId('new-tasting-img'), { target: { files: [file] } });
   fireEvent.click(screen.getByRole('button', { name: /add tasting/i }));
 

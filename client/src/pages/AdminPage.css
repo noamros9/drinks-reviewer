@@ -392,26 +392,52 @@
 }
 
 .photo-input-buttons {
+  position: relative;
   display: inline-flex;
-  gap: 0.4rem;
   align-items: center;
 }
+
+.photo-input-menu {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 0;
+  min-width: 11rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 200;
+  padding: 0.3rem 0;
+}
+
+.photo-input-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.photo-input-option:hover { background: var(--bg); }
+
+.photo-input-option input[type="file"] { display: none; }
 
 .btn-photo-add {
   display: inline-flex;
   align-items: center;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.875rem;
   background: var(--bg-secondary);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 5px 10px;
+  padding: 0.6rem 1.1rem;
   transition: border-color 0.15s;
-  align-self: flex-end;
   white-space: nowrap;
 }
 .btn-photo-add.has-photo { border-color: var(--accent); }
-.btn-photo-add input[type="file"] { display: none; }
 
 .btn-upload-img {
   cursor: pointer;
@@ -427,10 +453,6 @@
 .btn-upload-img:hover {
   border-color: var(--accent);
   color: var(--accent);
-}
-
-.btn-upload-img input[type="file"] {
-  display: none;
 }
 
 .tastings-section {
