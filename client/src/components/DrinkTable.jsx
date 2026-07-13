@@ -355,7 +355,10 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                     )
                     : '—';
                 } else if (col.key === 'photo') {
-                  const photoUrl = raw ?? drink.collectionImageUrl;
+                  const lastTastingPhoto = drink.tastings?.length > 0
+                    ? drink.tastings[drink.tastings.length - 1].imageUrl
+                    : undefined;
+                  const photoUrl = raw ?? drink.collectionImageUrl ?? lastTastingPhoto;
                   content = photoUrl ? <img src={photoUrl} alt="" className="table-thumb" /> : '—';
                 } else if (chipClass) {
                   content = (
