@@ -219,6 +219,7 @@ test('uploading a collection photo updates the thumbnail', async () => {
   );
   renderEditPage();
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.click(screen.getByTestId('collection-img-upload-trigger'));
   fireEvent.change(screen.getByTestId('collection-img-upload'), { target: { files: [file] } });
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
@@ -234,6 +235,7 @@ test('collection photo upload failure shows error message', async () => {
   global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
   renderEditPage();
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.click(screen.getByTestId('collection-img-upload-trigger'));
   fireEvent.change(screen.getByTestId('collection-img-upload'), { target: { files: [file] } });
   expect(await screen.findByText('Failed to upload photo.')).toBeInTheDocument();
 });

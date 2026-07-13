@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
+import { useDropdownAlign } from '../hooks/useDropdownAlign';
 import './RangeFilter.css';
 
 export default function RangeFilter({ config, min, max, onChange }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+  const { alignRight, menuRef } = useDropdownAlign(open);
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
@@ -29,7 +31,7 @@ export default function RangeFilter({ config, min, max, onChange }) {
         <span className="filter-chevron">{open ? '▴' : '▾'}</span>
       </button>
       {open && (
-        <div className="filter-dropdown-menu">
+        <div className={`filter-dropdown-menu${alignRight ? ' filter-dropdown-menu--right' : ''}`} ref={menuRef}>
           <div className="range-filter-row">
             <span className="range-filter-label">Min</span>
             <input

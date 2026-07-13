@@ -1,20 +1,15 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
-import ColumnPanel from '../components/ColumnPanel';
-import FilterDropdown from '../components/FilterDropdown';
-import RangeFilter from '../components/RangeFilter';
-import RangeFilterChips from '../components/RangeFilterChips';
-import { buildDropdownOptions, countOptions, matchesFilters, buildEmptyRangeFilters, RANGE_FILTER_CONFIGS, applyUrlRangeOverrides } from '../utils/filterHelpers';
+import FilterBar from '../components/FilterBar';
+import { buildInitialFilters, matchesFilters, applyUrlRangeOverrides, applyUrlDropdownOverrides, PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
-import './AllDrinksPage.css';
 
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 const FILTERS = ['all', ...CATEGORIES];
 const STORAGE_KEY = 'drinks_columns_all';
-const FILTERABLE_ALL = new Set(['country', '_producer']);
-const RANGE_CONFIGS = RANGE_FILTER_CONFIGS.all;
+const FILTERABLE_ALL = new Set([PRODUCER_FIELD.all, ...DROPDOWN_CONFIGS.all.filter(c => !c.varietyGroups).map(c => c.key)]);
 
 const PRESETS = [
   { label: 'Top rated', key: 'weightedRating', dir: 'desc' },
@@ -49,12 +44,9 @@ export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
   const [searchParams, setSearchParams] = useSearchParams();
-  const [countryFilter, setCountryFilter] = useState(() => {
-    const c = searchParams.get('country');
-    return c ? new Set([c]) : new Set();
-  });
-  const [rangeFilters, setRangeFilters] = useState(() => applyUrlRangeOverrides(buildEmptyRangeFilters('all'), searchParams, 'all'));
-  const [producerSearch, setProducerSearch] = useState('');
+  const [activeFilters, setActiveFilters] = useState(() =>
+    applyUrlDropdownOverrides(applyUrlRangeOverrides(buildInitialFilters('all'), searchParams, 'all'), searchParams, 'all')
+  );
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
@@ -67,11 +59,7 @@ export default function AllDrinksPage() {
   };
 
   useEffect(() => {
-    if (searchQuery) {
-      setCountryFilter(new Set());
-      setProducerSearch('');
-      setRangeFilters(buildEmptyRangeFilters('all'));
-    }
+    if (searchQuery) setActiveFilters(buildInitialFilters('all'));
   }, [searchQuery]);
 
   useEffect(() => {
@@ -96,16 +84,19 @@ export default function AllDrinksPage() {
     return scoped.map(d => ({ ...d, weightedRating: weights.get(d.id) ?? null }));
   }, [drinks, filter]);
 
-  const activeFilters = { producerSearch, country: countryFilter, ...rangeFilters };
-  const hasRangeFilter = Object.values(rangeFilters).some(v => v !== '');
-  const searchIds = useSearchResults(CATEGORIES, producerSearch);
+  const searchIds = useSearchResults(CATEGORIES, activeFilters.producerSearch);
   const searchScoped = searchIds == null ? categoryFiltered : categoryFiltered.filter(d => searchIds.has(d.id));
   const filterMatched = searchScoped.filter(d => matchesFilters(d, activeFilters, 'all'));
   const qIds = useSearchResults(CATEGORIES, searchQuery);
   const visible = qIds == null ? filterMatched : filterMatched.filter(d => qIds.has(d.id));
 
-  const { options: countryOptions } = buildDropdownOptions(categoryFiltered, { key: 'country' });
-  const countryCounts = countOptions(categoryFiltered, { key: 'country' }, activeFilters, 'all');
+  const handleCellClick = (colKey, value) => {
+    setActiveFilters(prev =>
+      colKey === PRODUCER_FIELD.all
+        ? { ...prev, producerSearch: value }
+        : { ...prev, [colKey]: new Set([...prev[colKey], value]) }
+    );
+  };
 
   return (
     <div className="category-page">
@@ -128,68 +119,33 @@ export default function AllDrinksPage() {
           Add to Collection
         </button>
       </div>
-      <div className="all-page-toolbar">
-        <div className="category-tabs">
-          {FILTERS.map(f => (
-            <button
-              key={f}
-              className={filter === f ? 'active' : ''}
-              onClick={() => setFilter(f)}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
-          ))}
-        </div>
-        <span className="toolbar-divider">|</span>
-        <FilterDropdown
-          label="Country"
-          options={countryOptions}
-          specialOptions={[]}
-          selected={countryFilter}
-          counts={countryCounts}
-          onChange={setCountryFilter}
-        />
-        {RANGE_CONFIGS.map(conf => (
-          <RangeFilter
-            key={conf.key}
-            config={conf}
-            min={rangeFilters[`${conf.key}Min`]}
-            max={rangeFilters[`${conf.key}Max`]}
-            onChange={(min, max) => setRangeFilters(prev => ({ ...prev, [`${conf.key}Min`]: min, [`${conf.key}Max`]: max }))}
-          />
+      <div className="category-tabs">
+        {FILTERS.map(f => (
+          <button
+            key={f}
+            className={filter === f ? 'active' : ''}
+            onClick={() => setFilter(f)}
+          >
+            {f.charAt(0).toUpperCase() + f.slice(1)}
+          </button>
         ))}
-        <div className="filter-bar-spacer" />
-        <ColumnPanel
-          allColumns={COLUMNS['all']}
-          columnLayout={columnLayout}
-          onChange={handleColumnLayoutChange}
-        />
       </div>
-      {(countryFilter.size > 0 || hasRangeFilter || producerSearch || searchQuery) && (
+
+      <FilterBar
+        category="all"
+        drinks={categoryFiltered}
+        activeFilters={activeFilters}
+        onChange={setActiveFilters}
+        columnLayout={columnLayout}
+        onColumnLayoutChange={handleColumnLayoutChange}
+      />
+
+      {searchQuery && (
         <div className="filter-chips">
-          {searchQuery && (
-            <span className="filter-chip">
-              Search: {searchQuery}
-              <button onClick={() => setSearchParams({})} aria-label="Clear search">×</button>
-            </span>
-          )}
-          {[...countryFilter].map(c => (
-            <span key={c} className="filter-chip">
-              {c}
-              <button onClick={() => setCountryFilter(prev => { const next = new Set(prev); next.delete(c); return next; })} aria-label={`Remove ${c} filter`}>×</button>
-            </span>
-          ))}
-          {producerSearch && (
-            <span className="filter-chip">
-              Producer: {producerSearch}
-              <button onClick={() => setProducerSearch('')} aria-label="Remove producer filter">×</button>
-            </span>
-          )}
-          <RangeFilterChips
-            configs={RANGE_CONFIGS}
-            values={rangeFilters}
-            onClear={key => setRangeFilters(prev => ({ ...prev, [`${key}Min`]: '', [`${key}Max`]: '' }))}
-          />
+          <span className="filter-chip">
+            Search: {searchQuery}
+            <button onClick={() => setSearchParams({})} aria-label="Clear search">×</button>
+          </span>
         </div>
       )}
       <DrinkTable
@@ -198,10 +154,7 @@ export default function AllDrinksPage() {
         columnLayout={columnLayout}
         onColumnLayoutChange={handleColumnLayoutChange}
         filterableCols={FILTERABLE_ALL}
-        onCellClick={(colKey, value) => {
-          if (colKey === 'country') setCountryFilter(prev => new Set([...prev, value]));
-          if (colKey === '_producer') setProducerSearch(value);
-        }}
+        onCellClick={handleCellClick}
         sortKey={sortKey}
         sortDir={sortDir}
         onSort={handleSort}
