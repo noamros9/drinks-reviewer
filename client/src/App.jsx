@@ -10,6 +10,7 @@ import ComparePage from './pages/ComparePage';
 import RecommendPage from './pages/RecommendPage';
 import TasteCardPage from './pages/TasteCardPage';
 import GenerateListPage from './pages/GenerateListPage';
+import AccessDeniedPage from './pages/AccessDeniedPage';
 
 function AdminRoute() {
   const { key } = useLocation();
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="/taste-card" element={<TasteCardPage />} />
           <Route path="/generate-list" element={<GenerateListPage />} />
           <Route path="/admin" element={<AdminRoute />} />
+          <Route path="/access-denied" element={<AccessDeniedPage />} />
         </Routes>
       </main>
     </BrowserRouter>

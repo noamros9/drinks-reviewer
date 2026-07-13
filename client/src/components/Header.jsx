@@ -20,8 +20,16 @@ export default function Header() {
   );
   const [query, setQuery] = useState('');
   const [navOpen, setNavOpen] = useState(false);
+  const [email, setEmail] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch('/auth/me')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setEmail(data?.email ?? null))
+      .catch(() => setEmail(null));
+  }, []);
 
   useEffect(() => { setNavOpen(false); }, [location.pathname]);
 
@@ -67,6 +75,15 @@ export default function Header() {
             aria-label="Search all drinks"
           />
         </form>
+        {email && (
+          <span className="user-badge">
+            <span className="user-avatar" tabIndex={0}>{email[0].toUpperCase()}</span>
+            <div className="user-menu">
+              <span className="user-menu-email">{email}</span>
+              <a href="/auth/logout" className="user-menu-signout">Sign out</a>
+            </div>
+          </span>
+        )}
         <button
           className="theme-toggle"
           onClick={toggleTheme}
