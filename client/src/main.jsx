@@ -13,6 +13,10 @@ window.fetch = async (url, ...rest) => {
   return res;
 };
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js'));
+}
+
 const savedTheme =
   localStorage.getItem('theme') ||
   (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
