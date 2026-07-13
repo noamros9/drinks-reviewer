@@ -24,6 +24,24 @@ Set `MONGODB_URI` (and optionally `MONGODB_DB`) in a root `.env` file to read/wr
 
 Search (`/api/:category/search`) runs on MongoDB Atlas Search, which needs one `default` Search index per collection (`wines`, `beers`, `whiskeys` — `others` shares the `whiskeys` collection/index via a `_category` tag, since Atlas's free/shared tier caps Search indexes at 3 per cluster) with `producer`/`brewery`/`distillery` + `name`/`seriesAndName` mapped as searchable text. Create these once in the Atlas UI (or via `collection.createSearchIndex(...)`) after pointing `MONGODB_URI` at a real cluster — without them, search silently returns no results.
 
+### Auth setup
+
+The site is gated behind Google Sign-In, restricted to an allowlist of Google accounts. Without `GOOGLE_CLIENT_ID` set, local dev runs with auth bypassed — no login prompt, everything works as before. To turn on real auth:
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create an OAuth consent screen (Testing mode is fine for personal use) and add your Google account(s) as test users.
+2. Create a Web application OAuth Client ID, with `http://localhost:5173/auth/google/callback` as an authorized redirect URI (add your production URL too once deployed).
+3. Set these in your root `.env`:
+
+   ```
+   GOOGLE_CLIENT_ID=
+   GOOGLE_CLIENT_SECRET=
+   GOOGLE_REDIRECT_URI=http://localhost:5173/auth/google/callback
+   ALLOWED_EMAILS=you@gmail.com,other@gmail.com
+   SESSION_SECRET=
+   ```
+
+`ALLOWED_EMAILS` is a comma-separated list of the only Google accounts permitted to sign in; anyone else lands on an access-denied page. `SESSION_SECRET` signs the login cookie — any random string works.
+
 ## Features
 
 - Category pages (Wine, Beer, Whiskey, Others), All Drinks, and Collection views

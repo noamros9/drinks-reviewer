@@ -37,6 +37,8 @@ header nav {
   display: flex;
   gap: 2px;
   flex: 1;
+  min-width: 0;
+  overflow-x: auto;
 }
 
 header nav a {
@@ -83,6 +85,63 @@ header nav a.active {
 
 .header-search input::placeholder {
   color: var(--text-secondary);
+}
+
+.user-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: default;
+}
+
+.user-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 12rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  z-index: 200;
+  padding: 0.85rem;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.user-badge:hover .user-menu,
+.user-badge:focus-within .user-menu {
+  display: flex;
+}
+
+.user-menu-email {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.user-menu-signout {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.user-menu-signout:hover {
+  color: var(--danger);
 }
 
 .theme-toggle {
@@ -139,7 +198,7 @@ header nav a.active {
     border-top: 1px solid var(--border);
   }
 
-  header nav { flex-direction: column; gap: 0; }
+  header nav { flex-direction: column; gap: 0; overflow-x: visible; }
 
   header nav a {
     padding: 0.6rem 0.25rem;
