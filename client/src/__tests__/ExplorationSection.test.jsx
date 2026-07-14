@@ -13,12 +13,12 @@ const thisYear = new Date().getFullYear();
 const DRINKS = [
   {
     id: 'w1', _category: 'wine', producer: 'Chateau', seriesAndName: 'Reserve', avgRating: 9.5, tastingCount: 1,
-    country: 'France', variety: 'Cabernet', lastTasted: '01/01/2000',
+    country: 'France', variety: ['Cabernet'], lastTasted: '01/01/2000',
     tastings: [{ date: `01/06/${thisYear}` }],
   },
   {
     id: 'w2', _category: 'wine', producer: 'Winery', seriesAndName: 'Blend', avgRating: 8.8, tastingCount: 9,
-    country: 'Italy', variety: 'Sangiovese', lastTasted: `01/06/${thisYear}`,
+    country: 'Italy', variety: ['Sangiovese'], lastTasted: `01/06/${thisYear}`,
     tastings: [{ date: '01/01/2020' }],
   },
   {
@@ -115,7 +115,7 @@ test('Newly Unlocked lists show an empty state when nothing was unlocked this ye
   render(
     <MemoryRouter>
       <ExplorationSection
-        drinks={[{ id: 'x', _category: 'wine', avgRating: 8, country: 'Italy', variety: 'Sangiovese', tastings: [{ date: '01/01/2000' }] }]}
+        drinks={[{ id: 'x', _category: 'wine', avgRating: 8, country: 'Italy', variety: ['Sangiovese'], tastings: [{ date: '01/01/2000' }] }]}
         globalCategory="all"
       />
     </MemoryRouter>

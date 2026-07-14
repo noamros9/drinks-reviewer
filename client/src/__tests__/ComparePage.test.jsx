@@ -10,7 +10,7 @@ vi.mock('react-router-dom', async () => {
 
 const DRINKS = [
   {
-    id: '1', producer: 'Citra', seriesAndName: 'Bisanzio', wineCategory: 'White', variety: 'Trebbiano',
+    id: '1', producer: 'Citra', seriesAndName: 'Bisanzio', wineCategory: 'White', variety: ['Trebbiano'],
     sweetness: 'Dry', country: 'Italy', region: 'Abruzzo', abv: 12.5, vivinoScore: 4.2, tags: ['crisp', 'citrus'],
     avgRating: 4.5, tastingCount: 3, collection: [{ price: 20 }, { price: 30 }],
     tastings: [
@@ -20,13 +20,13 @@ const DRINKS = [
     ],
   },
   {
-    id: '2', producer: 'Latroun', seriesAndName: 'Reserve', wineCategory: 'Red', variety: '',
+    id: '2', producer: 'Latroun', seriesAndName: 'Reserve', wineCategory: 'Red', variety: [],
     sweetness: 'Dry', country: 'Israel', region: 'Judean Hills', abv: 14, vivinoScore: '', tags: [],
     avgRating: 4.0, tastingCount: 1, collection: [{ price: 10 }],
     tastings: [{ date: '2024-01-15', rating: 4, vintage: '2018' }],
   },
   {
-    id: '3', producer: 'Yatir', seriesAndName: 'Forest', wineCategory: 'Red', variety: 'Cabernet Sauvignon',
+    id: '3', producer: 'Yatir', seriesAndName: 'Forest', wineCategory: 'Red', variety: ['Cabernet Sauvignon'],
     sweetness: 'Dry', country: 'Israel', region: 'Judean Hills', abv: 14.5, vivinoScore: 4.4, tags: [],
     avgRating: 4.2, tastingCount: 2, collection: [{ price: 40 }],
     tastings: [{ date: '2024-04-01', rating: 4 }, { date: '2024-05-01', rating: 4.4 }],

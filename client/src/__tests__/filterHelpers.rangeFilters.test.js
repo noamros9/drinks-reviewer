@@ -1,7 +1,7 @@
 import { matchesFilters, buildInitialFilters } from '../utils/filterHelpers';
 
 const wine = (overrides) => ({
-  id: '1', producer: 'TestProd', wineCategory: 'Red', variety: 'Cabernet Sauvignon',
+  id: '1', producer: 'TestProd', wineCategory: 'Red', variety: ['Cabernet Sauvignon'],
   country: 'France', region: 'Bordeaux', ...overrides,
 });
 

@@ -4,8 +4,8 @@ import { buildStyleLeaderboard, buildUndiscovered } from '../utils/analyticsHelp
 describe('buildStyleLeaderboard', () => {
   test('wine grape mode splits blends so each grape counts separately', () => {
     const wine = [
-      { variety: 'Merlot', avgRating: 8 },
-      { variety: 'Cabernet Sauvignon, Merlot', avgRating: 6 },
+      { variety: ['Merlot'], avgRating: 8 },
+      { variety: ['Cabernet Sauvignon', 'Merlot'], avgRating: 6 },
     ];
     const rows = buildStyleLeaderboard(wine, 'wine', { splitBlends: true });
     // Merlot appears in both drinks; Cab only in the blend
@@ -17,9 +17,9 @@ describe('buildStyleLeaderboard', () => {
 
   test('adds a weightedRating field shrinking each row toward the leaderboard mean', () => {
     const wine = [
-      { variety: 'Merlot', avgRating: 7, },
-      { variety: 'Merlot', avgRating: 7 },
-      { variety: 'Cabernet Sauvignon', avgRating: 6 },
+      { variety: ['Merlot'], avgRating: 7, },
+      { variety: ['Merlot'], avgRating: 7 },
+      { variety: ['Cabernet Sauvignon'], avgRating: 6 },
     ];
     const rows = buildStyleLeaderboard(wine, 'wine');
     // C = avgOf([7,6]) = 6.5, m = median([2,1]) = 1.5
@@ -33,8 +33,8 @@ describe('buildStyleLeaderboard', () => {
 
   test('wine blend mode keeps the whole variety string as one key', () => {
     const wine = [
-      { variety: 'Merlot', avgRating: 8 },
-      { variety: 'Cabernet Sauvignon, Merlot', avgRating: 6 },
+      { variety: ['Merlot'], avgRating: 8 },
+      { variety: ['Cabernet Sauvignon', 'Merlot'], avgRating: 6 },
     ];
     const rows = buildStyleLeaderboard(wine, 'wine', { splitBlends: false });
     expect(rows).toMatchObject([

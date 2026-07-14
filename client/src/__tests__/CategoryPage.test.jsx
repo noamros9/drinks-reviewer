@@ -47,7 +47,7 @@ test.each([
 // ── handleEdit, localStorage, filtered count ─────────────────────
 
 const WINE_DRINK = { id: '1', producer: 'TestProd', seriesAndName: 'Reserve', wineCategory: 'Red',
-  variety: 'Merlot', country: 'France', region: 'Bordeaux', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' };
+  variety: ['Merlot'], country: 'France', region: 'Bordeaux', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' };
 
 test('clicking Edit navigates to admin (handleEdit executes)', async () => {
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK]) }));
@@ -185,11 +185,11 @@ test('clicking a producer cell sets producerSearch filter', async () => {
 });
 
 test('variety cell is not filterable — clicking a blend does not filter', async () => {
-  const BLEND = { ...WINE_DRINK, id: '2', producer: 'Other', seriesAndName: 'BlendWine', variety: 'Cabernet/Merlot' };
+  const BLEND = { ...WINE_DRINK, id: '2', producer: 'Other', seriesAndName: 'BlendWine', variety: ['Cabernet', 'Merlot'] };
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, BLEND]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Reserve');
-  fireEvent.click(screen.getAllByText('Cabernet/Merlot')[0]);
+  fireEvent.click(screen.getAllByText('Cabernet')[0]);
   expect(screen.getByText('Reserve')).toBeInTheDocument();
   expect(screen.getByText('BlendWine')).toBeInTheDocument();
 });

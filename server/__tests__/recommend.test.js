@@ -4,9 +4,9 @@ let app;
 let db;
 
 const WINE = [
-  { id: 'w1', producer: 'Domaine A', seriesAndName: 'Pinot Noir', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'] },
-  { id: 'w2', producer: 'Domaine B', seriesAndName: 'Pinot Noir', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light'] },
-  { id: 'w3', producer: 'Domaine C', seriesAndName: 'Chardonnay', variety: 'Chardonnay', country: 'France', region: 'Chablis', abv: '12.5', tags: [] },
+  { id: 'w1', producer: 'Domaine A', seriesAndName: 'Pinot Noir', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'] },
+  { id: 'w2', producer: 'Domaine B', seriesAndName: 'Pinot Noir', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13', tags: ['light'] },
+  { id: 'w3', producer: 'Domaine C', seriesAndName: 'Chardonnay', variety: ['Chardonnay'], country: 'France', region: 'Chablis', abv: '12.5', tags: [] },
 ];
 
 const BEER = [{ id: 'b1', brewery: 'Brew Co', name: 'IPA', style: 'IPA', country: 'USA', abv: '6', tags: [] }];
@@ -51,27 +51,27 @@ describe('scoreSimilarity', () => {
   const { scoreSimilarity } = require('../recommend');
 
   it('ranks an exact-match candidate above a partial match', () => {
-    const seeds = [{ category: 'wine', producer: 'Domaine A', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'] }];
-    const exact = { category: 'wine', producer: 'Domaine A', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'] };
-    const partial = { category: 'wine', producer: 'Domaine C', variety: 'Chardonnay', country: 'France', region: 'Chablis', abv: '12.5', tags: [] };
+    const seeds = [{ category: 'wine', producer: 'Domaine A', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'] }];
+    const exact = { category: 'wine', producer: 'Domaine A', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'] };
+    const partial = { category: 'wine', producer: 'Domaine C', variety: ['Chardonnay'], country: 'France', region: 'Chablis', abv: '12.5', tags: [] };
     expect(scoreSimilarity(seeds, exact)).toBeGreaterThan(scoreSimilarity(seeds, partial));
   });
 
   it('scores zero when nothing matches', () => {
-    const seeds = [{ category: 'wine', producer: 'Domaine A', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light'] }];
-    const candidate = { category: 'wine', producer: 'Nobody', variety: 'Riesling', country: 'Germany', region: 'Mosel', abv: '9', tags: ['sweet'] };
+    const seeds = [{ category: 'wine', producer: 'Domaine A', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13', tags: ['light'] }];
+    const candidate = { category: 'wine', producer: 'Nobody', variety: ['Riesling'], country: 'Germany', region: 'Mosel', abv: '9', tags: ['sweet'] };
     expect(scoreSimilarity(seeds, candidate)).toBe(0);
   });
 
   it('ignores candidates from a different category than any seed', () => {
-    const seeds = [{ category: 'wine', producer: 'Domaine A', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: [] }];
+    const seeds = [{ category: 'wine', producer: 'Domaine A', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13', tags: [] }];
     const candidate = { category: 'beer', brewery: 'Brew Co', name: 'IPA', style: 'IPA', country: 'USA', abv: '6', tags: [] };
     expect(scoreSimilarity(seeds, candidate)).toBe(0);
   });
 
   it('treats a non-numeric numeric field as no match instead of crashing', () => {
-    const seeds = [{ category: 'wine', producer: 'Domaine A', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: 'unknown', tags: [] }];
-    const candidate = { category: 'wine', producer: 'Domaine A', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: [] };
+    const seeds = [{ category: 'wine', producer: 'Domaine A', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: 'unknown', tags: [] }];
+    const candidate = { category: 'wine', producer: 'Domaine A', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13', tags: [] };
     expect(() => scoreSimilarity(seeds, candidate)).not.toThrow();
     expect(scoreSimilarity(seeds, candidate)).toBe(4); // producer + variety + country + region, abv excluded
   });

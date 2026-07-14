@@ -4,11 +4,11 @@ let app;
 let db;
 
 const WINE = [
-  { id: 'w1', producer: 'Domaine A', seriesAndName: 'Pinot Noir', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'], avgRating: 8, tastingCount: 3 },
-  { id: 'w2', producer: 'Domaine B', seriesAndName: 'Pinot Noir', variety: 'Pinot Noir', country: 'France', region: 'Burgundy', abv: '13.5', tags: ['light'], avgRating: 9, tastingCount: 2 },
-  { id: 'w3', producer: 'Domaine C', seriesAndName: 'Chardonnay', variety: 'Chardonnay', country: 'Chile', region: 'Maipo', abv: '12.5', tags: ['oaky'], avgRating: 6, tastingCount: 1 },
-  { id: 'w4', producer: 'Domaine D', seriesAndName: 'Unrated Wine', variety: 'Malbec', country: 'Argentina', region: 'Mendoza', abv: '14', tags: [] }, // no avgRating -> excluded
-  { id: 'w5', producer: 'Domaine E', seriesAndName: 'Merlot', variety: 'Merlot', country: 'Spain', region: 'Rioja', abv: '13', tags: ['bitter'], avgRating: 3, tastingCount: 2 }, // low rating -> disliked bucket
+  { id: 'w1', producer: 'Domaine A', seriesAndName: 'Pinot Noir', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13', tags: ['light', 'earthy'], avgRating: 8, tastingCount: 3 },
+  { id: 'w2', producer: 'Domaine B', seriesAndName: 'Pinot Noir', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13.5', tags: ['light'], avgRating: 9, tastingCount: 2 },
+  { id: 'w3', producer: 'Domaine C', seriesAndName: 'Chardonnay', variety: ['Chardonnay'], country: 'Chile', region: 'Maipo', abv: '12.5', tags: ['oaky'], avgRating: 6, tastingCount: 1 },
+  { id: 'w4', producer: 'Domaine D', seriesAndName: 'Unrated Wine', variety: ['Malbec'], country: 'Argentina', region: 'Mendoza', abv: '14', tags: [] }, // no avgRating -> excluded
+  { id: 'w5', producer: 'Domaine E', seriesAndName: 'Merlot', variety: ['Merlot'], country: 'Spain', region: 'Rioja', abv: '13', tags: ['bitter'], avgRating: 3, tastingCount: 2 }, // low rating -> disliked bucket
 ];
 
 const BEER = [];
@@ -87,13 +87,13 @@ describe('POST /api/taste-card', () => {
     const { profile, disliked } = res.body;
     expect(profile.category).toBe('wine');
     expect(profile.entryCount).toBe(4); // w4 excluded (no avgRating)
-    expect(profile.variety).toBe('Pinot Noir'); // w1+w2 outweigh w3
+    expect(profile.variety).toEqual(['Pinot Noir', 'Chardonnay', 'Merlot']); // w1+w2 outweigh w3 and w5
     expect(profile.country).toBe('France');
     expect(profile.topTags).toEqual(expect.arrayContaining(['light']));
     expect(profile.abv.min).toBe(12.5);
     expect(profile.abv.max).toBe(13.5);
     expect(disliked.entryCount).toBe(1); // w5, the only entry below DISLIKE_THRESHOLD
-    expect(disliked.variety).toBe('Merlot');
+    expect(disliked.variety).toEqual(['Merlot']);
   });
 
   it('sends the taste profile (not raw drinks) to Gemini and applies the raised caps', async () => {
@@ -112,8 +112,8 @@ describe('POST /api/taste-card', () => {
     const [url, opts] = global.fetch.mock.calls[0];
     expect(url).toContain('generativelanguage.googleapis.com');
     const promptText = JSON.parse(opts.body).contents[0].parts[0].text;
-    expect(promptText).toContain('"variety": "Pinot Noir"');
-    expect(promptText).toContain('"variety": "Merlot"'); // disliked profile reaches the prompt
+    expect(promptText).toContain('"Pinot Noir"');
+    expect(promptText).toContain('"Merlot"'); // disliked profile reaches the prompt
     expect(promptText).not.toContain('"id": "w1"'); // profile sent, not raw seed drinks
   });
 
@@ -129,7 +129,7 @@ describe('POST /api/taste-card', () => {
 
   it('handles a rated drink with no tags and no valid numeric field value', async () => {
     const fixture = [
-      { id: 'x1', producer: 'X', seriesAndName: 'Nameless', variety: 'Zinfandel', country: 'USA', avgRating: 7, tastingCount: 1 }, // no tags, no abv
+      { id: 'x1', producer: 'X', seriesAndName: 'Nameless', variety: ['Zinfandel'], country: 'USA', avgRating: 7, tastingCount: 1 }, // no tags, no abv
     ];
     await writeFixture(fixture);
     global.fetch.mockResolvedValue(jsonResponse({ availableInIsrael: [], notAvailable: [] }));
@@ -154,14 +154,15 @@ describe('POST /api/taste-card', () => {
 
   it('reports near-tied fields as an array of values instead of picking one arbitrarily', async () => {
     const TIED = [
-      { id: 't1', producer: 'X', seriesAndName: 'A', variety: 'Syrah', country: 'France', abv: '13', tags: [], avgRating: 8, tastingCount: 2 },
-      { id: 't2', producer: 'Y', seriesAndName: 'B', variety: 'Grenache', country: 'France', abv: '13', tags: [], avgRating: 8, tastingCount: 2 },
+      { id: 't1', producer: 'X', seriesAndName: 'A', variety: ['Syrah'], region: 'Rhone', country: 'France', abv: '13', tags: [], avgRating: 8, tastingCount: 2 },
+      { id: 't2', producer: 'Y', seriesAndName: 'B', variety: ['Grenache'], region: 'Languedoc', country: 'France', abv: '13', tags: [], avgRating: 8, tastingCount: 2 },
     ];
     await writeFixture(TIED);
     global.fetch.mockResolvedValue(jsonResponse({ availableInIsrael: [], notAvailable: [] }));
     const res = await request(app).post('/api/taste-card').send({ category: 'wine' });
     expect(res.status).toBe(200);
     expect(res.body.profile.variety).toEqual(['Syrah', 'Grenache']);
+    expect(res.body.profile.region).toEqual(['Rhone', 'Languedoc']); // dominantValue's near-tie array branch
   });
 
   it('returns 500 with a generic message on an unexpected error with no status (e.g. a network failure)', async () => {

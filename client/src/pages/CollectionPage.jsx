@@ -2,14 +2,78 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
-import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
+import CustomSelect from '../components/CustomSelect';
+import AutocompleteInput from '../components/AutocompleteInput';
+import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, buildDropdownOptions } from '../utils/filterHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
+import '../components/BulkEditBar.css';
 import './CollectionPage.css';
 
 const STORAGE_KEY = 'drinks_columns_collection';
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 const FILTERS = ['all', ...CATEGORIES];
 const FILTERABLE = new Set([PRODUCER_FIELD.all, ...DROPDOWN_CONFIGS.all.filter(c => !c.varietyGroups).map(c => c.key)]);
+const BULK_CONFIGS = DROPDOWN_CONFIGS.all.filter(c => c.key === 'tags' || c.key === 'collectionTags');
+
+function CollectionBulkEditBar({ drinks, selectedIds, onApplied, onCancel }) {
+  const [fieldLabel, setFieldLabel] = useState(BULK_CONFIGS[0].label);
+  const [value, setValue] = useState('');
+  const [message, setMessage] = useState('');
+
+  const activeConfig = BULK_CONFIGS.find(c => c.label === fieldLabel) ?? BULK_CONFIGS[0];
+  const { options: suggestions } = buildDropdownOptions(drinks, activeConfig);
+  const count = selectedIds.size;
+  const countLabel = `${count} ${count === 1 ? 'entry' : 'entries'}`;
+
+  const apply = async (tagAction) => {
+    const verb = tagAction === 'add' ? `Add tag "${value}" to` : `Remove tag "${value}" from`;
+    if (!window.confirm(`${verb} ${countLabel}?`)) return;
+    const selected = drinks.filter(d => selectedIds.has(d.id));
+    const byCategory = new Map();
+    for (const d of selected) {
+      const cat = d._category.toLowerCase();
+      if (!byCategory.has(cat)) byCategory.set(cat, []);
+      byCategory.get(cat).push(d.id);
+    }
+    const results = await Promise.all([...byCategory.entries()].map(async ([cat, ids]) => {
+      const res = await fetch(`/api/${cat}/bulk`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, field: activeConfig.key, value, tagAction }),
+      });
+      if (!res.ok) return null;
+      const { updated } = await res.json();
+      return updated.map(d => ({ ...d, _category: cat }));
+    }));
+    if (results.some(r => r === null)) { setMessage('Bulk edit failed. Please try again.'); return; }
+    setValue('');
+    setMessage('');
+    onApplied(results.flat());
+  };
+
+  return (
+    <div className="bulk-edit-bar" data-testid="collection-bulk-edit-bar">
+      <span className="bulk-edit-count">{countLabel} selected</span>
+      <CustomSelect
+        value={fieldLabel}
+        onChange={label => { setFieldLabel(label); setValue(''); }}
+        options={BULK_CONFIGS.map(c => c.label)}
+      />
+      <AutocompleteInput
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        placeholder="Tag"
+        className="bulk-edit-value-input"
+        suggestions={suggestions}
+        inputTestId="collection-bulk-edit-value"
+      />
+      <button type="button" className="bulk-edit-btn" disabled={!value} onClick={() => apply('add')}>Add to {count}</button>
+      <button type="button" className="bulk-edit-btn bulk-edit-btn-danger" disabled={!value} onClick={() => apply('remove')}>Remove from {count}</button>
+      <button type="button" className="bulk-edit-cancel" onClick={onCancel}>Cancel</button>
+      {message && <span className="bulk-edit-message">{message}</span>}
+    </div>
+  );
+}
 
 function loadLayout() {
   try {
@@ -76,8 +140,31 @@ export default function CollectionPage() {
   const [filter, setFilter] = useState('all');
   const [activeFilters, setActiveFilters] = useState(() => buildInitialFilters('all'));
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
+  const [selectedIds, setSelectedIds] = useState(new Set());
 
   useEffect(() => { fetchCollection(setDrinks); }, []);
+
+  const handleToggleRow = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const handleToggleAll = (ids, checked) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      ids.forEach(id => checked ? next.add(id) : next.delete(id));
+      return next;
+    });
+  };
+
+  const handleBulkApplied = (updated) => {
+    const byId = new Map(updated.map(d => [d.id, normalize(d)]));
+    setDrinks(prev => prev.map(d => byId.get(d.id) ?? d));
+    setSelectedIds(new Set());
+  };
 
   const handleDecrement = async (drink) => {
     const lot = oldestInStockLot(drink);
@@ -182,6 +269,15 @@ export default function CollectionPage() {
         onColumnLayoutChange={handleColumnLayoutChange}
       />
 
+      {selectedIds.size > 0 && (
+        <CollectionBulkEditBar
+          drinks={categoryFiltered}
+          selectedIds={selectedIds}
+          onApplied={handleBulkApplied}
+          onCancel={() => setSelectedIds(new Set())}
+        />
+      )}
+
       {pick && (
         <div className="pick-spotlight" role="dialog" aria-label="Random pick">
           <div className="pick-card">
@@ -205,6 +301,9 @@ export default function CollectionPage() {
         onColumnLayoutChange={handleColumnLayoutChange}
         filterableCols={FILTERABLE}
         onCellClick={handleCellClick}
+        selectedIds={selectedIds}
+        onToggleRow={handleToggleRow}
+        onToggleAll={handleToggleAll}
       />
     </div>
   );

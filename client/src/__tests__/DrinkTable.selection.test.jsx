@@ -2,9 +2,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import DrinkTable from '../components/DrinkTable';
 
 const WINE_ROWS = [
-  { id: '1', producer: 'Citra', seriesAndName: 'Bisanzio', wineCategory: 'White', variety: 'Pinot Grigio',
+  { id: '1', producer: 'Citra', seriesAndName: 'Bisanzio', wineCategory: 'White', variety: ['Pinot Grigio'],
     country: 'Italy', region: 'Abruzzo', abv: '12.5' },
-  { id: '2', producer: 'Latroun', seriesAndName: 'Reserve', wineCategory: 'Red', variety: 'Merlot',
+  { id: '2', producer: 'Latroun', seriesAndName: 'Reserve', wineCategory: 'Red', variety: ['Merlot'],
     country: 'Israel', region: 'Judean Hills', abv: '13' },
 ];
 

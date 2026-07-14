@@ -48,7 +48,7 @@ test('price column shows — when there is no in-stock lot', async () => {
   await screen.findByText('Grand Cru');
   const row = screen.getByText('Grand Cru').closest('tr');
   const cells = within(row).getAllByRole('cell');
-  expect(cells[5]).toHaveTextContent('—');
+  expect(cells[6]).toHaveTextContent('—');
 });
 
 test('shows Photo column header', async () => {
@@ -69,7 +69,7 @@ test('photo column shows — when collectionImageUrl is absent', async () => {
   expect(document.querySelector('.table-thumb')).not.toBeInTheDocument();
   const row = screen.getByText('Grand Cru').closest('tr');
   const cells = within(row).getAllByRole('cell');
-  expect(cells[6]).toHaveTextContent('—');
+  expect(cells[7]).toHaveTextContent('—');
 });
 
 test('Edit button is rendered per row', async () => {

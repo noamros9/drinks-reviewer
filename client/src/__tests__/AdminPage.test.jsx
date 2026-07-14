@@ -87,7 +87,7 @@ test('navigates to tastings tab after adding new entry', async () => {
 
 const EDIT_DRINK = {
   id: '1', producer: 'Château Test', seriesAndName: 'Reserve', wineCategory: 'Red',
-  variety: 'Merlot', country: 'France', region: 'Bordeaux', abv: '13.5',
+  variety: ['Merlot'], country: 'France', region: 'Bordeaux', abv: '13.5',
   lastTasted: '01/01/2025', lastRating: '9', avgRating: '8.5', notionLink: '',
 };
 
@@ -209,7 +209,7 @@ test('shows error message when delete fails (res.ok false on DELETE)', async () 
   window.confirm = vi.fn(() => true);
   global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
   render(
-    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' } } }]}>
+    <MemoryRouter initialEntries={[{ pathname: '/admin', state: { category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red', variety: ['Merlot'], country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' } } }]}>
       <AdminPage />
     </MemoryRouter>
   );

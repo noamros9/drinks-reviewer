@@ -10,10 +10,10 @@ vi.mock('react-router-dom', async () => {
 
 const RESULT = {
   profile: {
-    category: 'wine', entryCount: 3, wineCategory: 'Red', variety: 'Pinot Noir', country: 'France',
+    category: 'wine', entryCount: 3, wineCategory: 'Red', variety: ['Pinot Noir'], country: 'France',
     abv: { avg: 13, min: 12.5, max: 13.5 }, topTags: ['light', 'earthy'],
   },
-  disliked: { category: 'wine', entryCount: 1, variety: 'Merlot', country: 'Spain', topTags: [] },
+  disliked: { category: 'wine', entryCount: 1, variety: ['Merlot'], country: 'Spain', topTags: [] },
   analysis: 'You lean toward light, earthy Pinot Noir from France.',
   availableInIsrael: [{ name: 'Some Wine', description: 'crisp red', url: 'https://example.com/wine' }],
   notAvailable: [{ name: 'Rare Wine', description: 'hard to find' }],

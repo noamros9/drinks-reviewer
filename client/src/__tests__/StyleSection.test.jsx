@@ -2,9 +2,9 @@ import { render, screen, fireEvent, within } from '@testing-library/react';
 import StyleSection from '../pages/analytics/StyleSection';
 
 const DRINKS = [
-  { id: 'w1', _category: 'wine', variety: 'Merlot', avgRating: 9 },
-  { id: 'w2', _category: 'wine', variety: 'Cabernet Sauvignon, Merlot', avgRating: 6 },
-  { id: 'w3', _category: 'wine', variety: 'Riesling', avgRating: 9, },
+  { id: 'w1', _category: 'wine', variety: ['Merlot'], avgRating: 9 },
+  { id: 'w2', _category: 'wine', variety: ['Cabernet Sauvignon', 'Merlot'], avgRating: 6 },
+  { id: 'w3', _category: 'wine', variety: ['Riesling'], avgRating: 9, },
   { id: 'b1', _category: 'beer', style: 'IPA', avgRating: 8.5 },
   { id: 'b2', _category: 'beer', style: 'IPA', avgRating: 8 },
   { id: 'k1', _category: 'whiskey', style: 'Single Malt', avgRating: 9 },

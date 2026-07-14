@@ -1,6 +1,11 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AdminPage from '../pages/AdminPage';
+
+// Wine's review form has both a Variety tags-field and a Tags field; scope to the latter.
+function getTagsInput() {
+  return within(screen.getByText('Tags').closest('.form-group')).getByPlaceholderText(/type a tag/i);
+}
 
 vi.mock('react-datepicker', () => ({
   default: ({ onChange }) => (
@@ -27,7 +32,7 @@ function renderAdmin(state = null) {
 
 test('tags input renders on wine form', () => {
   renderAdmin();
-  expect(screen.getByPlaceholderText(/type a tag/i)).toBeInTheDocument();
+  expect(getTagsInput()).toBeInTheDocument();
 });
 
 test('tags input renders on beer form', () => {
@@ -49,7 +54,7 @@ test('sweetness select does not render for beer', () => {
 
 test('typing a tag and pressing Enter adds it as a chip', () => {
   renderAdmin();
-  const input = screen.getByPlaceholderText(/type a tag/i);
+  const input = getTagsInput();
   fireEvent.change(input, { target: { value: 'gift' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(screen.getByText('gift')).toBeInTheDocument();
@@ -57,7 +62,7 @@ test('typing a tag and pressing Enter adds it as a chip', () => {
 
 test('clicking × removes a tag chip', () => {
   renderAdmin();
-  const input = screen.getByPlaceholderText(/type a tag/i);
+  const input = getTagsInput();
   fireEvent.change(input, { target: { value: 'gift' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   fireEvent.click(screen.getByLabelText('Remove gift'));
@@ -66,7 +71,7 @@ test('clicking × removes a tag chip', () => {
 
 test('duplicate tag is not added', () => {
   renderAdmin();
-  const input = screen.getByPlaceholderText(/type a tag/i);
+  const input = getTagsInput();
   fireEvent.change(input, { target: { value: 'gift' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   fireEvent.change(input, { target: { value: 'gift' } });
@@ -76,7 +81,7 @@ test('duplicate tag is not added', () => {
 
 test('empty tag is not added', () => {
   renderAdmin();
-  const input = screen.getByPlaceholderText(/type a tag/i);
+  const input = getTagsInput();
   fireEvent.change(input, { target: { value: '   ' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(screen.queryByRole('button', { name: /remove/i })).not.toBeInTheDocument();
@@ -84,7 +89,7 @@ test('empty tag is not added', () => {
 
 test('tags are included in POST body', async () => {
   renderAdmin();
-  const input = screen.getByPlaceholderText(/type a tag/i);
+  const input = getTagsInput();
   fireEvent.change(input, { target: { value: 'gift' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   fireEvent.submit(screen.getByRole('button', { name: /^add$/i }).closest('form'));
@@ -129,7 +134,7 @@ test('edit mode shows existing tags', () => {
 
 test('adding a tag in edit mode with no prior tags works (covers || [] branch)', () => {
   renderAdmin({ category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y' } });
-  const input = screen.getByPlaceholderText(/type a tag/i);
+  const input = getTagsInput();
   fireEvent.change(input, { target: { value: 'gift' } });
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(screen.getByText('gift')).toBeInTheDocument();
@@ -141,5 +146,5 @@ test('renders without crashing when /api/tags fetch rejects', async () => {
     return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-id' }) });
   });
   renderAdmin();
-  await waitFor(() => expect(screen.getByPlaceholderText(/type a tag/i)).toBeInTheDocument());
+  await waitFor(() => expect(getTagsInput()).toBeInTheDocument());
 });
