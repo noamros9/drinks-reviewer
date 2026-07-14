@@ -7,6 +7,10 @@ function getTagsInput() {
   return within(screen.getByText('Tags').closest('.form-group')).getByPlaceholderText(/type a tag/i);
 }
 
+function getVarietyInput() {
+  return within(screen.getByText('Variety').closest('.form-group')).getByPlaceholderText(/type a tag/i);
+}
+
 vi.mock('react-datepicker', () => ({
   default: ({ onChange }) => (
     <input data-testid="mock-datepicker" type="text" onChange={(e) => onChange(e.target.value ? new Date('2025-06-01') : null)} />
@@ -70,6 +74,25 @@ test('focus stays in the tags input after Enter, so a second tag can be typed im
   fireEvent.keyDown(input, { key: 'Enter' });
   expect(screen.getByText('gift')).toBeInTheDocument();
   expect(screen.getByText('organic')).toBeInTheDocument();
+});
+
+test('variety input adds a chip and keeps focus after Enter, same as tags', () => {
+  renderAdmin();
+  const input = getVarietyInput();
+  fireEvent.change(input, { target: { value: 'Merlot' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  expect(document.activeElement).toBe(input);
+  expect(screen.getByText('Merlot')).toBeInTheDocument();
+});
+
+// Chrome ignores autoComplete="off" on fields it heuristically classifies as address
+// fields (e.g. anything near a "Country" input), and will hijack Enter to jump focus
+// there instead of letting our own tag-adding handler run. A non-standard token like
+// "nope" isn't a recognized autofill hint, so Chrome falls back to leaving it alone.
+test('tag inputs opt out of browser autofill with a non-off token', () => {
+  renderAdmin();
+  expect(getVarietyInput()).toHaveAttribute('autoComplete', 'nope');
+  expect(getTagsInput()).toHaveAttribute('autoComplete', 'nope');
 });
 
 test('focus stays in the collection-tab tags input after Enter (edit mode)', async () => {

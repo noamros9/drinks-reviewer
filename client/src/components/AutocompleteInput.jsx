@@ -44,7 +44,7 @@ export default forwardRef(function AutocompleteInput({ id, name, value, onChange
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        autoComplete="off"
+        autoComplete="nope"
       />
       {open && filtered.length > 0 && (
         <ul className="autocomplete-menu">
