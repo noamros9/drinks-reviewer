@@ -60,6 +60,44 @@ test('typing a tag and pressing Enter adds it as a chip', () => {
   expect(screen.getByText('gift')).toBeInTheDocument();
 });
 
+test('focus stays in the tags input after Enter, so a second tag can be typed immediately', () => {
+  renderAdmin();
+  const input = getTagsInput();
+  fireEvent.change(input, { target: { value: 'gift' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  expect(document.activeElement).toBe(input);
+  fireEvent.change(input, { target: { value: 'organic' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  expect(screen.getByText('gift')).toBeInTheDocument();
+  expect(screen.getByText('organic')).toBeInTheDocument();
+});
+
+test('focus stays in the collection-tab tags input after Enter (edit mode)', async () => {
+  renderAdmin({ category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', collectionOnly: true } });
+  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  const input = getTagsInput();
+  fireEvent.change(input, { target: { value: 'gift' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  expect(document.activeElement).toBe(input);
+  expect(await screen.findByText('gift')).toBeInTheDocument();
+});
+
+test('adding a collection-tab tag does not touch the lot form', async () => {
+  renderAdmin({ category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', collectionOnly: true } });
+  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  const qtyInput = screen.getByLabelText('Quantity');
+  const originalQty = qtyInput.value;
+  const input = getTagsInput();
+  fireEvent.change(input, { target: { value: 'gift' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+    '/api/wine/1',
+    expect.objectContaining({ method: 'PUT', body: JSON.stringify({ tags: ['gift'] }) })
+  ));
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/1/collection', expect.anything());
+  expect(qtyInput.value).toBe(originalQty);
+});
+
 test('clicking × removes a tag chip', () => {
   renderAdmin();
   const input = getTagsInput();

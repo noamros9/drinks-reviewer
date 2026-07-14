@@ -92,7 +92,7 @@ test('deep link with category and tab: collection lands on Collection tab with t
 
 test('add lot calls POST to collection endpoint', async () => {
   renderEditPage();
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add lot/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/wine/1/collection',
@@ -104,7 +104,7 @@ test('add lot calls POST to collection endpoint', async () => {
 test('add lot with custom quantity sends correct body', async () => {
   renderEditPage();
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '5' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add lot/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/wine/1/collection',
@@ -118,7 +118,7 @@ test('add lot with custom quantity sends correct body', async () => {
 
 test('add lot shows success message', async () => {
   renderEditPage();
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add lot/i }));
   expect(await screen.findByText('Lot added!')).toBeInTheDocument();
 });
 
@@ -146,7 +146,7 @@ test('remove lot hides it from the list', async () => {
 test('add lot failure shows error message', async () => {
   global.fetch = vi.fn(() => Promise.resolve({ ok: false }));
   renderEditPage({ ...EDIT_DRINK, collection: [] });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add lot/i }));
   expect(await screen.findByText('Failed to add lot.')).toBeInTheDocument();
 });
 
@@ -160,7 +160,7 @@ test('remove lot failure shows error message', async () => {
 test('add lot with qty 0 does not call the collection endpoint', () => {
   renderEditPage({ ...EDIT_DRINK, collection: [] });
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '0' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add lot/i }));
   expect(global.fetch).not.toHaveBeenCalledWith(
     '/api/wine/1/collection',
     expect.anything()
@@ -171,7 +171,7 @@ test('add lot with price sends price in request body', async () => {
   renderEditPage({ ...EDIT_DRINK, collection: [] });
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '2' } });
   fireEvent.change(screen.getByLabelText(/^price$/i), { target: { value: '45.50' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add lot/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/wine/1/collection',
@@ -188,7 +188,7 @@ test('add lot with price sends price in request body', async () => {
 test('add lot with decimal quantity shows error and does not call the endpoint', () => {
   renderEditPage({ ...EDIT_DRINK, collection: [] });
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '2.5' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add lot/i }));
   expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
   expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/1/collection', expect.objectContaining({ method: 'POST' }));
 });
@@ -196,7 +196,7 @@ test('add lot with decimal quantity shows error and does not call the endpoint',
 test('add lot with blank quantity shows error and does not call the endpoint', () => {
   renderEditPage({ ...EDIT_DRINK, collection: [] });
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add lot/i }));
   expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
   expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/1/collection', expect.objectContaining({ method: 'POST' }));
 });

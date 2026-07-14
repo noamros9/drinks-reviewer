@@ -111,11 +111,11 @@ export const COLUMNS = {
     { key: 'abv',         label: 'ABV' },
     { key: 'price',       label: 'Price' },
     { key: 'photo',       label: 'Photo' },
-    { key: 'collectionTags', label: 'Collection Tags' },
+    { key: 'tags',        label: 'Tags' },
   ],
 };
 
-const TAG_CHIP_KEYS = new Set(['tags', 'collectionTags', 'variety']);
+const TAG_CHIP_KEYS = new Set(['tags', 'variety']);
 
 export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort, activeVintage, selectedIds, onToggleRow, onToggleAll }) {
   const [intKey, setIntKey] = useState(null);
