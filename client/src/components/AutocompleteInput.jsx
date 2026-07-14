@@ -1,7 +1,7 @@
 import { forwardRef, useState, useRef, useEffect } from 'react';
 import './AutocompleteInput.css';
 
-export default forwardRef(function AutocompleteInput({ id, name, value, onChange, suggestions = [], placeholder = '', className = '', onKeyDown: onKeyDownProp, inputTestId }, ref) {
+export default forwardRef(function AutocompleteInput({ id, name, value, onChange, suggestions = [], placeholder = '', className = '', onKeyDown: onKeyDownProp, inputTestId, enterKeyHint }, ref) {
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const wrapRef = useRef(null);
@@ -45,6 +45,7 @@ export default forwardRef(function AutocompleteInput({ id, name, value, onChange
         onKeyDown={onKeyDown}
         placeholder={placeholder}
         autoComplete="nope"
+        enterKeyHint={enterKeyHint}
       />
       {open && filtered.length > 0 && (
         <ul className="autocomplete-menu">

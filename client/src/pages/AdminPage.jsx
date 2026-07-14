@@ -487,6 +487,7 @@ export default function AdminPage() {
                   }}
                   suggestions={tagSuggestionsFor(field.key)}
                   placeholder="Type a tag and press Enter"
+                  enterKeyHint="enter"
                 />
               </div>
             ) : field.type === 'select' ? (
@@ -624,6 +625,7 @@ export default function AdminPage() {
                 }}
                 suggestions={allTags}
                 placeholder="Type a tag and press Enter"
+                enterKeyHint="enter"
               />
             </div>
           </div>
@@ -688,6 +690,7 @@ export default function AdminPage() {
                 }}
                 suggestions={allTags}
                 placeholder="Type a tag and press Enter"
+                enterKeyHint="enter"
               />
             </div>
           </div>
