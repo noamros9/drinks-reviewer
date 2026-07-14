@@ -458,7 +458,7 @@ export default function AdminPage() {
       )}
 
       {activeTab === 'review' && (
-      <form onSubmit={handleSubmit} className="admin-form">
+      <form onSubmit={handleSubmit} className="admin-form" autoComplete="off">
         {FIELDS[category].map(field => (
           <div key={field.key} className="form-group">
             <label htmlFor={field.key}>{field.label}</label>
