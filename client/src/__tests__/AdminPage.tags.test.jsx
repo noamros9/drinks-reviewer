@@ -95,6 +95,16 @@ test('tag inputs opt out of browser autofill with a non-off token', () => {
   expect(getTagsInput()).toHaveAttribute('autoComplete', 'nope');
 });
 
+// Mobile keyboards default to a "Next" action button (which moves focus off the
+// field entirely, bypassing our Enter handler) whenever more fields follow in the
+// form. enterkeyhint="enter" forces a real Enter key so Android/iOS keyboards
+// behave the same as desktop for these Enter-to-add-a-tag inputs.
+test('tag inputs force a real Enter key on mobile keyboards', () => {
+  renderAdmin();
+  expect(getVarietyInput()).toHaveAttribute('enterKeyHint', 'enter');
+  expect(getTagsInput()).toHaveAttribute('enterKeyHint', 'enter');
+});
+
 test('focus stays in the collection-tab tags input after Enter (edit mode)', async () => {
   renderAdmin({ category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', collectionOnly: true } });
   fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
