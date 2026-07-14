@@ -3,7 +3,7 @@ import FilterBar from '../components/FilterBar';
 import { buildInitialFilters } from '../utils/filterHelpers';
 
 const WINES = [
-  { id: '1', producer: 'Citra', wineCategory: 'Red', variety: 'Sangiovese', country: 'Italy', region: 'Abruzzo' },
+  { id: '1', producer: 'Citra', wineCategory: 'Red', variety: ['Sangiovese'], country: 'Italy', region: 'Abruzzo' },
 ];
 
 function renderBar(overrides = {}) {

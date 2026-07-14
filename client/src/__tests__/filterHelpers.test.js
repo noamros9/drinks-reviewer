@@ -1,45 +1,21 @@
-import { matchesFilters, buildDropdownOptions, countOptions, splitVarieties, isBlend, buildInitialFilters, OLD_WORLD, NEW_WORLD, applyUrlDropdownOverrides, applyUrlProducerOverride } from '../utils/filterHelpers';
+import { matchesFilters, buildDropdownOptions, countOptions, isBlend, buildInitialFilters, OLD_WORLD, NEW_WORLD, applyUrlDropdownOverrides, applyUrlProducerOverride } from '../utils/filterHelpers';
 
 const wine = (overrides) => ({
-  id: '1', producer: 'TestProd', wineCategory: 'Red', variety: 'Cabernet Sauvignon',
+  id: '1', producer: 'TestProd', wineCategory: 'Red', variety: ['Cabernet Sauvignon'],
   country: 'France', region: 'Bordeaux', ...overrides,
-});
-
-// ── splitVarieties ───────────────────────────────────────────────
-
-test('splitVarieties splits on slash', () => {
-  expect(splitVarieties('Cabernet/Merlot')).toEqual(['Cabernet', 'Merlot']);
-});
-test('splitVarieties splits on comma', () => {
-  expect(splitVarieties('Merlot, Cabernet Sauvignon, Malbec')).toEqual(['Merlot', 'Cabernet Sauvignon', 'Malbec']);
-});
-test('splitVarieties splits on " and "', () => {
-  expect(splitVarieties('Syrah and Grenache')).toEqual(['Syrah', 'Grenache']);
-});
-test('splitVarieties splits on " & "', () => {
-  expect(splitVarieties('Syrah & Grenache')).toEqual(['Syrah', 'Grenache']);
-});
-test('splitVarieties returns single-element array for single variety', () => {
-  expect(splitVarieties('Chardonnay')).toEqual(['Chardonnay']);
-});
-test('splitVarieties returns empty array for empty/null input', () => {
-  expect(splitVarieties('')).toEqual([]);
-  expect(splitVarieties(null)).toEqual([]);
 });
 
 // ── isBlend ──────────────────────────────────────────────────────
 
-test('isBlend: slash-separated = blend', () => {
-  expect(isBlend('Cabernet/Merlot')).toBe(true);
+test('isBlend: multi-element array = blend', () => {
+  expect(isBlend(['Cabernet', 'Merlot'])).toBe(true);
 });
-test('isBlend: comma-separated = blend', () => {
-  expect(isBlend('Syrah, Grenache')).toBe(true);
+test('isBlend: single-element array = not a blend', () => {
+  expect(isBlend(['Chardonnay'])).toBe(false);
 });
-test('isBlend: single variety = not a blend', () => {
-  expect(isBlend('Chardonnay')).toBe(false);
-});
-test('isBlend: "Bordeaux Blend" is a single token = not a blend', () => {
-  expect(isBlend('Bordeaux Blend')).toBe(false);
+test('isBlend: empty/null = not a blend', () => {
+  expect(isBlend([])).toBe(false);
+  expect(isBlend(null)).toBe(false);
 });
 
 // ── matchesFilters – country groups ─────────────────────────────
@@ -65,31 +41,27 @@ test('country: Other matches country not in any group', () => {
 
 test('variety: exact match on single variety', () => {
   const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(['Cabernet Sauvignon']), region: new Set() };
-  expect(matchesFilters(wine({ variety: 'Cabernet Sauvignon' }), filters, 'wine')).toBe(true);
+  expect(matchesFilters(wine({ variety: ['Cabernet Sauvignon'] }), filters, 'wine')).toBe(true);
 });
 test('variety: exact match — "Cabernet" does NOT match "Cabernet Sauvignon"', () => {
   const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(['Cabernet']), region: new Set() };
-  expect(matchesFilters(wine({ variety: 'Cabernet Sauvignon' }), filters, 'wine')).toBe(false);
+  expect(matchesFilters(wine({ variety: ['Cabernet Sauvignon'] }), filters, 'wine')).toBe(false);
 });
 test('variety: selecting a grape matches a blend containing it', () => {
   const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(['Cabernet Sauvignon']), region: new Set() };
-  expect(matchesFilters(wine({ variety: 'Merlot, Cabernet Sauvignon, Malbec' }), filters, 'wine')).toBe(true);
+  expect(matchesFilters(wine({ variety: ['Merlot', 'Cabernet Sauvignon', 'Malbec'] }), filters, 'wine')).toBe(true);
 });
-test('variety: Blend matches slash-separated variety', () => {
+test('variety: Blend matches multi-element variety array', () => {
   const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(['Blend']), region: new Set() };
-  expect(matchesFilters(wine({ variety: 'Cabernet/Merlot' }), filters, 'wine')).toBe(true);
-});
-test('variety: Blend matches comma-separated variety', () => {
-  const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(['Blend']), region: new Set() };
-  expect(matchesFilters(wine({ variety: 'Merlot, Cabernet Sauvignon' }), filters, 'wine')).toBe(true);
+  expect(matchesFilters(wine({ variety: ['Cabernet', 'Merlot'] }), filters, 'wine')).toBe(true);
 });
 test('variety: Single Variety matches single grape', () => {
   const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(['Single Variety']), region: new Set() };
-  expect(matchesFilters(wine({ variety: 'Chardonnay' }), filters, 'wine')).toBe(true);
+  expect(matchesFilters(wine({ variety: ['Chardonnay'] }), filters, 'wine')).toBe(true);
 });
 test('variety: Single Variety excludes blends', () => {
   const filters = { producerSearch: '', wineCategory: new Set(), country: new Set(), variety: new Set(['Single Variety']), region: new Set() };
-  expect(matchesFilters(wine({ variety: 'Cabernet/Merlot' }), filters, 'wine')).toBe(false);
+  expect(matchesFilters(wine({ variety: ['Cabernet', 'Merlot'] }), filters, 'wine')).toBe(false);
 });
 
 // ── buildDropdownOptions ─────────────────────────────────────────
@@ -107,8 +79,8 @@ test('buildDropdownOptions adds Other when unknown country present', () => {
 });
 test('buildDropdownOptions variety: emits individual grape names, not raw combos', () => {
   const drinks = [
-    wine({ variety: 'Merlot, Cabernet Sauvignon' }),
-    wine({ variety: 'Chardonnay' }),
+    wine({ variety: ['Merlot', 'Cabernet Sauvignon'] }),
+    wine({ variety: ['Chardonnay'] }),
   ];
   const { options, special } = buildDropdownOptions(drinks, { key: 'variety', varietyGroups: true });
   expect(options).toContain('Merlot');
@@ -164,8 +136,8 @@ test('countOptions: worldGroups — counts Old/New World and individual countrie
 
 test('countOptions: varietyGroups — counts Blend, Single Variety, and individual grapes', () => {
   const drinks = [
-    wine({ variety: 'Merlot, Cabernet Sauvignon' }),
-    wine({ variety: 'Chardonnay' }),
+    wine({ variety: ['Merlot', 'Cabernet Sauvignon'] }),
+    wine({ variety: ['Chardonnay'] }),
   ];
   const conf = { key: 'variety', label: 'Variety', varietyGroups: true };
   const counts = countOptions(drinks, conf, noFilters, 'wine');

@@ -2,9 +2,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 
 const WINE_ROWS = [
-  { id: '1', producer: 'Citra', seriesAndName: 'Bisanzio', wineCategory: 'White', variety: 'Pinot Grigio',
+  { id: '1', producer: 'Citra', seriesAndName: 'Bisanzio', wineCategory: 'White', variety: ['Pinot Grigio'],
     country: 'Italy', region: 'Abruzzo', abv: '12.5', lastTasted: '19/07/2025', lastRating: '8', avgRating: '8', notionLink: '' },
-  { id: '2', producer: 'Latroun', seriesAndName: 'Reserve', wineCategory: 'Red', variety: 'Merlot',
+  { id: '2', producer: 'Latroun', seriesAndName: 'Reserve', wineCategory: 'Red', variety: ['Merlot'],
     country: 'Israel', region: 'Judean Hills', abv: '13', lastTasted: '31/05/2025', lastRating: '8.5', avgRating: '8', notionLink: '' },
 ];
 
@@ -114,14 +114,14 @@ test('wine country cells get the correct world-group chip class', () => {
 });
 
 test('New World country cell gets chip-country-new-world class', () => {
-  const australiaRow = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: 'Shiraz',
+  const australiaRow = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: ['Shiraz'],
     country: 'Australia', region: '', abv: '14', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' }];
   render(<DrinkTable category="wine" drinks={australiaRow} />);
   expect(screen.getByText('Australia')).toHaveClass('chip-country-new-world');
 });
 
 test('Other (non-Old/non-New) country gets chip-country-other class', () => {
-  const unknownRow = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: 'Red',
+  const unknownRow = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: ['Red'],
     country: 'UnknownLand', region: '', abv: '14', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' }];
   render(<DrinkTable category="wine" drinks={unknownRow} />);
   expect(screen.getByText('UnknownLand')).toHaveClass('chip-country-other');
@@ -195,9 +195,9 @@ test('chip cell that is also filterable gets both classes', () => {
 // ── Sorting ──────────────────────────────────────────────────────────
 
 const SORT_ROWS = [
-  { id: '1', producer: 'Zara', seriesAndName: 'Z-Wine', wineCategory: 'Red', variety: 'Merlot',
+  { id: '1', producer: 'Zara', seriesAndName: 'Z-Wine', wineCategory: 'Red', variety: ['Merlot'],
     country: 'France', region: '', abv: '14', lastTasted: '01/01/2020', lastRating: '7', avgRating: '7', notionLink: '' },
-  { id: '2', producer: 'Alpha', seriesAndName: 'A-Wine', wineCategory: 'White', variety: 'Chardonnay',
+  { id: '2', producer: 'Alpha', seriesAndName: 'A-Wine', wineCategory: 'White', variety: ['Chardonnay'],
     country: 'Italy', region: '', abv: '12', lastTasted: '31/12/2025', lastRating: '9', avgRating: '9', notionLink: '' },
 ];
 
@@ -243,7 +243,7 @@ test('sorting by abv uses numeric comparison: NaN→0 and valid→numeric, both 
   const rowsForNumericSort = [
     { ...SORT_ROWS[1], abv: '12', id: '2' },  // Alpha: parseFloat('12') = 12 (truthy)
     { ...SORT_ROWS[0], abv: '', id: '1' },     // Zara: parseFloat('') = NaN → 0 (falsy)
-    { id: '3', producer: 'Beta', seriesAndName: 'B-Wine', wineCategory: 'Red', variety: 'Merlot',
+    { id: '3', producer: 'Beta', seriesAndName: 'B-Wine', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
   ];
   render(<DrinkTable category="wine" drinks={rowsForNumericSort} />);
@@ -306,7 +306,7 @@ test('columnLayout.hidden as plain array is converted to Set (Array.isArray bran
 
 test('null drink field renders as em dash', () => {
   const rowWithNull = [{ id: '1', producer: 'Test', seriesAndName: null, wineCategory: 'Red',
-    variety: 'Merlot', country: 'France', region: null, abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' }];
+    variety: ['Merlot'], country: 'France', region: null, abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' }];
   render(<DrinkTable category="wine" drinks={rowWithNull} />);
   const dashes = screen.getAllByText('—');
   expect(dashes.length).toBeGreaterThan(0);
@@ -382,9 +382,9 @@ test('drop on same column is a no-op', () => {
 
 test('sort with null field: null at index 1 covers av=null??\" \" (line 148)', () => {
   const rows = [
-    { id: '2', producer: 'Alpha', seriesAndName: 'B', wineCategory: 'Red', variety: 'Merlot',
+    { id: '2', producer: 'Alpha', seriesAndName: 'B', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
-    { id: '1', producer: null, seriesAndName: 'A', wineCategory: 'Red', variety: 'Merlot',
+    { id: '1', producer: null, seriesAndName: 'A', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
   ];
   render(<DrinkTable category="wine" drinks={rows} />);
@@ -394,9 +394,9 @@ test('sort with null field: null at index 1 covers av=null??\" \" (line 148)', (
 
 test('sort with null field: null at index 0 covers bv=null??\" \" (line 149)', () => {
   const rows = [
-    { id: '1', producer: null, seriesAndName: 'A', wineCategory: 'Red', variety: 'Merlot',
+    { id: '1', producer: null, seriesAndName: 'A', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
-    { id: '2', producer: 'Alpha', seriesAndName: 'B', wineCategory: 'Red', variety: 'Merlot',
+    { id: '2', producer: 'Alpha', seriesAndName: 'B', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
   ];
   render(<DrinkTable category="wine" drinks={rows} />);
@@ -406,9 +406,9 @@ test('sort with null field: null at index 0 covers bv=null??\" \" (line 149)', (
 
 test('sort by lastTasted with empty date field covers !s return 0 branch', () => {
   const rowsWithEmptyDate = [
-    { id: '1', producer: 'Alpha', seriesAndName: 'A', wineCategory: 'Red', variety: 'Merlot',
+    { id: '1', producer: 'Alpha', seriesAndName: 'A', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
-    { id: '2', producer: 'Beta', seriesAndName: 'B', wineCategory: 'Red', variety: 'Merlot',
+    { id: '2', producer: 'Beta', seriesAndName: 'B', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '01/01/2025', lastRating: '8', avgRating: '8', notionLink: '' },
   ];
   render(<DrinkTable category="wine" drinks={rowsWithEmptyDate} />);
@@ -420,11 +420,11 @@ test('sort by lastTasted with empty date field covers !s return 0 branch', () =>
 test('sort with 3 drinks in [Zara, Middle, Alpha] order forces av > bv comparison (covers line 160)', () => {
   // V8 calls compare(arr[i], arr[i+1]): compare(Zara, Middle) → av='Zara' > bv='Middle' → line 160
   const three = [
-    { id: '3', producer: 'Zara', seriesAndName: 'Z', wineCategory: 'Red', variety: 'Merlot',
+    { id: '3', producer: 'Zara', seriesAndName: 'Z', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
-    { id: '2', producer: 'Middle', seriesAndName: 'M', wineCategory: 'Red', variety: 'Merlot',
+    { id: '2', producer: 'Middle', seriesAndName: 'M', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
-    { id: '1', producer: 'Alpha', seriesAndName: 'A', wineCategory: 'Red', variety: 'Merlot',
+    { id: '1', producer: 'Alpha', seriesAndName: 'A', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
   ];
   render(<DrinkTable category="wine" drinks={three} />);
@@ -436,9 +436,9 @@ test('sort with 3 drinks in [Zara, Middle, Alpha] order forces av > bv compariso
 
 test('sorting two rows with equal values returns stable order (covers sort return 0)', () => {
   const sameProducer = [
-    { id: '1', producer: 'Same', seriesAndName: 'A', wineCategory: 'Red', variety: 'Merlot',
+    { id: '1', producer: 'Same', seriesAndName: 'A', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
-    { id: '2', producer: 'Same', seriesAndName: 'B', wineCategory: 'Red', variety: 'Merlot',
+    { id: '2', producer: 'Same', seriesAndName: 'B', wineCategory: 'Red', variety: ['Merlot'],
       country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '' },
   ];
   render(<DrinkTable category="wine" drinks={sameProducer} />);
@@ -492,7 +492,7 @@ test('all four sweetness values get distinct chip classes', () => {
 
 // ── Tags column ──────────────────────────────────────────────────────
 
-const WINE_WITH_TAGS = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: 'Merlot',
+const WINE_WITH_TAGS = [{ id: '1', producer: 'P', seriesAndName: 'W', wineCategory: 'Red', variety: ['Merlot'],
   country: 'France', region: '', abv: '13', lastTasted: '', lastRating: '8', avgRating: '8', notionLink: '',
   tags: ['gift', 'organic'] }];
 

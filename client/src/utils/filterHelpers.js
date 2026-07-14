@@ -82,18 +82,11 @@ export const DROPDOWN_CONFIGS = {
   all: [
     { key: 'country', label: 'Country' },
     { key: 'tags',    label: 'Tags',    multiValue: true },
+    { key: 'collectionTags', label: 'Collection Tags', multiValue: true },
   ],
 };
 
-export function splitVarieties(variety) {
-  if (!variety) return [];
-  return variety
-    .split(/\s*[/,]\s*|\s+and\s+|\s+&\s+/i)
-    .map(v => v.trim())
-    .filter(Boolean);
-}
-
-export const isBlend = (variety) => splitVarieties(variety).length > 1;
+export const isBlend = (varietyArr) => (varietyArr?.length ?? 0) > 1;
 
 function matchCountry(country, selected) {
   if (selected.has(country)) return true;
@@ -104,7 +97,7 @@ function matchCountry(country, selected) {
 }
 
 function matchVariety(variety, selected) {
-  const grapes = splitVarieties(variety);
+  const grapes = variety || [];
   for (const v of selected) {
     if (v === 'Blend' && grapes.length > 1) return true;
     if (v === 'Single Variety' && grapes.length === 1) return true;
@@ -158,7 +151,7 @@ export function buildDropdownOptions(drinks, conf) {
     if (drinks.some(d => isBlend(d[conf.key])))  special.push('Blend');
     if (drinks.some(d => !isBlend(d[conf.key]))) special.push('Single Variety');
     const allGrapes = new Set();
-    drinks.forEach(d => splitVarieties(d[conf.key]).forEach(g => allGrapes.add(g)));
+    drinks.forEach(d => (d[conf.key] || []).forEach(g => allGrapes.add(g)));
     return { special, options: [...allGrapes].sort() };
   }
 
@@ -191,8 +184,8 @@ export function countOptions(drinks, conf, activeFilters, category) {
     } else if (conf.multiValue) {
       (d[conf.key] || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; });
     } else if (conf.varietyGroups) {
-      splitVarieties(raw).forEach(g => { counts[g] = (counts[g] || 0) + 1; });
-      if (raw) {
+      (raw || []).forEach(g => { counts[g] = (counts[g] || 0) + 1; });
+      if (raw?.length) {
         if (isBlend(raw)) counts['Blend'] = (counts['Blend'] || 0) + 1;
         else counts['Single Variety'] = (counts['Single Variety'] || 0) + 1;
       }

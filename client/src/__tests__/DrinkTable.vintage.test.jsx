@@ -7,7 +7,7 @@ const WINE_WITH_TASTINGS = {
   seriesAndName: 'Reserve',
   wineCategory: 'Red',
   sweetness: 'Dry',
-  variety: 'Merlot',
+  variety: ['Merlot'],
   country: 'France',
   region: 'Bordeaux',
   abv: '13',

@@ -111,8 +111,11 @@ export const COLUMNS = {
     { key: 'abv',         label: 'ABV' },
     { key: 'price',       label: 'Price' },
     { key: 'photo',       label: 'Photo' },
+    { key: 'collectionTags', label: 'Collection Tags' },
   ],
 };
+
+const TAG_CHIP_KEYS = new Set(['tags', 'collectionTags', 'variety']);
 
 export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort, activeVintage, selectedIds, onToggleRow, onToggleAll }) {
   const [intKey, setIntKey] = useState(null);
@@ -338,9 +341,9 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                       placeholder="All"
                     />
                   );
-                } else if (col.key === 'tags') {
+                } else if (TAG_CHIP_KEYS.has(col.key)) {
                   const tags = Array.isArray(raw) ? raw : [];
-                  const canFilter = onCellClick && filterableCols?.has('tags');
+                  const canFilter = onCellClick && filterableCols?.has(col.key);
                   content = tags.length > 0
                     ? (
                       <div className="tag-chips-cell">
@@ -348,7 +351,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                           <span
                             key={tag}
                             className={`tag-chip-cell${canFilter ? ' cell-filterable' : ''}`}
-                            onClick={canFilter ? () => onCellClick('tags', tag) : undefined}
+                            onClick={canFilter ? () => onCellClick(col.key, tag) : undefined}
                           >{tag}</span>
                         ))}
                       </div>

@@ -78,7 +78,7 @@ describe('buildNewCountriesThisYear', () => {
 describe('buildNewStylesThisYear', () => {
   test('groups wine by variety and beer by style, tagged with category', () => {
     const drinks = [
-      { id: 'a', _category: 'wine', variety: 'Nebbiolo', tastings: [{ date: '01/06/2026' }] },
+      { id: 'a', _category: 'wine', variety: ['Nebbiolo'], tastings: [{ date: '01/06/2026' }] },
       { id: 'b', _category: 'beer', style: 'IPA', tastings: [{ date: '01/06/2026' }] },
     ];
     expect(buildNewStylesThisYear(drinks, 2026)).toEqual([

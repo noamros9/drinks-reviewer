@@ -3,9 +3,9 @@ import FilterBar from '../components/FilterBar';
 import { buildInitialFilters } from '../utils/filterHelpers';
 
 const WINES = [
-  { id: '1', producer: 'Citra',     wineCategory: 'Red',   variety: 'Sangiovese',       country: 'Italy',  region: 'Abruzzo' },
-  { id: '2', producer: 'Latroun',   wineCategory: 'White', variety: 'Chardonnay',        country: 'Israel', region: 'Judean Hills' },
-  { id: '3', producer: 'ChateauX',  wineCategory: 'Red',   variety: 'Cabernet/Merlot',   country: 'France', region: 'Bordeaux' },
+  { id: '1', producer: 'Citra',     wineCategory: 'Red',   variety: ['Sangiovese'],       country: 'Italy',  region: 'Abruzzo' },
+  { id: '2', producer: 'Latroun',   wineCategory: 'White', variety: ['Chardonnay'],        country: 'Israel', region: 'Judean Hills' },
+  { id: '3', producer: 'ChateauX',  wineCategory: 'Red',   variety: ['Cabernet', 'Merlot'],   country: 'France', region: 'Bordeaux' },
 ];
 
 const BEERS = [
@@ -191,9 +191,9 @@ test('onColumnLayoutChange with unknown category hits COLUMNS || [] fallback', (
 
 test('tags dropdown shows count next to each tag option', () => {
   const drinks = [
-    { id: '1', producer: 'A', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', tags: ['organic', 'gift'] },
-    { id: '2', producer: 'B', wineCategory: 'White', variety: 'Chardonnay', country: 'Italy', region: '', tags: ['organic'] },
-    { id: '3', producer: 'C', wineCategory: 'Red', variety: 'Cabernet', country: 'Spain', region: '', tags: [] },
+    { id: '1', producer: 'A', wineCategory: 'Red', variety: ['Merlot'], country: 'France', region: '', tags: ['organic', 'gift'] },
+    { id: '2', producer: 'B', wineCategory: 'White', variety: ['Chardonnay'], country: 'Italy', region: '', tags: ['organic'] },
+    { id: '3', producer: 'C', wineCategory: 'Red', variety: ['Cabernet'], country: 'Spain', region: '', tags: [] },
   ];
   renderBar('wine', drinks);
   fireEvent.click(screen.getByTestId('filter-dropdown-tags'));

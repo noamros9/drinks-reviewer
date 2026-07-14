@@ -14,7 +14,7 @@ export const FIELDS = {
     { key: 'producer',      label: 'Producer',              type: 'text', autocomplete: true },
     { key: 'seriesAndName', label: 'Series & Name',          type: 'text' },
     { key: 'wineCategory',  label: 'Wine Type',              type: 'select', options: ['Red', 'White', 'Rosé', 'Sparkling', 'Fortified'] },
-    { key: 'variety',       label: 'Variety',                type: 'text', autocomplete: true },
+    { key: 'variety',       label: 'Variety',                type: 'tags', default: [] },
     { key: 'sweetness',     label: 'Sweetness',              type: 'select', options: ['Extra-Dry', 'Dry', 'Off-Dry', 'Sweet'] },
     { key: 'country',       label: 'Country of Origin',      type: 'text', autocomplete: true },
     { key: 'region',        label: 'Region / Appellation',   type: 'text', autocomplete: true },
@@ -75,9 +75,14 @@ export default function AdminPage() {
 
   const initialCategory = editState?.category || searchParams.get('category');
   const [category, setCategory] = useState(CATEGORIES.includes(initialCategory) ? initialCategory : 'wine');
-  const [form, setForm] = useState(
-    editState?.drink ? { ...editState.drink } : emptyForm(editState?.category || 'wine')
-  );
+  const [form, setForm] = useState(() => {
+    if (!editState?.drink) return emptyForm(editState?.category || 'wine');
+    if (editState?.drankIt) {
+      const { drink } = editState;
+      return { ...drink, tags: [...new Set([...(drink.tags || []), ...(drink.collectionTags || [])])] };
+    }
+    return { ...editState.drink };
+  });
   const deepLinkId = searchParams.get('id');
   const [loadingDrink, setLoadingDrink] = useState(!!deepLinkId && !editState?.drink);
   const isEditing = !!form.id || (loadingDrink && !!deepLinkId);
@@ -88,7 +93,7 @@ export default function AdminPage() {
   const [collectionMessage, setCollectionMessage] = useState('');
   const [activeTab, setActiveTab] = useState(editState?.tab || 'review');
   const drankIt = editState?.drankIt ?? false;
-  const [tagInput, setTagInput] = useState('');
+  const [tagInputs, setTagInputs] = useState({});
   const [tastings, setTastings] = useState(editState?.drink?.tastings ?? []);
   const [newTastingDate, setNewTastingDate] = useState(null);
   const [newTastingRating, setNewTastingRating] = useState('');
@@ -103,7 +108,7 @@ export default function AdminPage() {
   const [categoryDrinks, setCategoryDrinks] = useState([]);
   const duplicate = findDuplicate(categoryDrinks, category, form[PRODUCER_FIELD[category]], form[NAME_FIELD[category]], form.id);
   const [colCat, setColCat] = useState(CATEGORIES.includes(initialCategory) ? initialCategory : 'wine');
-  const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
+  const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '', collectionTags: [] });
   const [colMessage, setColMessage] = useState('');
   const [colSuggestions, setColSuggestions] = useState({});
   const [newColImage, setNewColImage] = useState(null);
@@ -166,14 +171,22 @@ export default function AdminPage() {
     }).catch(() => {});
   }, [colCat, isEditing]);
 
-  const addTag = (key, tag) => {
-    if (!tag || (form[key] || []).includes(tag)) return;
-    setForm(prev => ({ ...prev, [key]: [...(prev[key] || []), tag] }));
+  const getTagInput = key => tagInputs[key] || '';
+  const setTagInputFor = (key, value) => setTagInputs(prev => ({ ...prev, [key]: value }));
+
+  const addTag = (setter, key, tag) => {
+    setter(prev => {
+      if (!tag || (prev[key] || []).includes(tag)) return prev;
+      return { ...prev, [key]: [...(prev[key] || []), tag] };
+    });
   };
 
-  const removeTag = (key, tag) => {
-    setForm(prev => ({ ...prev, [key]: prev[key].filter(t => t !== tag) }));
+  const removeTag = (setter, key, tag) => {
+    setter(prev => ({ ...prev, [key]: prev[key].filter(t => t !== tag) }));
   };
+
+  const varietySuggestions = [...new Set(categoryDrinks.flatMap(d => d.variety || []))].sort();
+  const tagSuggestionsFor = (key) => key === 'variety' ? varietySuggestions : allTags;
 
   const handleCategoryChange = (cat) => {
     setCategory(cat);
@@ -267,7 +280,7 @@ export default function AdminPage() {
     const drinkRes = await fetch(`/api/${colCat}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ [producerKey]: colForm.producer, [nameKey]: colForm.name, country: colForm.country, abv: colForm.abv, collectionOnly: true }),
+      body: JSON.stringify({ [producerKey]: colForm.producer, [nameKey]: colForm.name, country: colForm.country, abv: colForm.abv, collectionOnly: true, collectionTags: colForm.collectionTags }),
     });
     if (!drinkRes.ok) { setColMessage('Failed to add drink.'); return; }
     const drink = await drinkRes.json();
@@ -287,7 +300,7 @@ export default function AdminPage() {
       await fetch(`/api/${colCat}/${drink.id}/collection/image`, { method: 'POST', body: fd }).catch(() => {});
     }
     if (another) {
-      setColForm({ producer: '', name: '', country: '', abv: '', qty: '1', price: '' });
+      setColForm({ producer: '', name: '', country: '', abv: '', qty: '1', price: '', collectionTags: [] });
       setColMessage('Added! Add another below.');
       return;
     }
@@ -366,6 +379,17 @@ export default function AdminPage() {
     const updated = await res.json();
     setForm(prev => ({ ...prev, collectionImageUrl: updated.collectionImageUrl }));
     setCollectionMessage('Photo updated!');
+  };
+
+  const handleUpdateCollectionTags = async (tags) => {
+    const res = await fetch(`/api/${category}/${form.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ collectionTags: tags }),
+    });
+    if (!res.ok) { setCollectionMessage('Failed to update collection tags.'); return; }
+    setForm(prev => ({ ...prev, collectionTags: tags }));
+    setCollectionMessage('Collection tags updated!');
   };
 
   const handleDeleteTasting = async (tastingId) => {
@@ -447,22 +471,22 @@ export default function AdminPage() {
                   {(form[field.key] || []).map(tag => (
                     <span key={tag} className="tag-chip">
                       {tag}
-                      <button type="button" aria-label={`Remove ${tag}`} onClick={() => removeTag(field.key, tag)}>×</button>
+                      <button type="button" aria-label={`Remove ${tag}`} onClick={() => removeTag(setForm, field.key, tag)}>×</button>
                     </span>
                   ))}
                 </div>
                 <AutocompleteInput
                   name="tagInput"
-                  value={tagInput}
-                  onChange={e => setTagInput(e.target.value)}
+                  value={getTagInput(field.key)}
+                  onChange={e => setTagInputFor(field.key, e.target.value)}
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      addTag(field.key, tagInput.trim());
-                      setTagInput('');
+                      addTag(setForm, field.key, getTagInput(field.key).trim());
+                      setTagInputFor(field.key, '');
                     }
                   }}
-                  suggestions={allTags}
+                  suggestions={tagSuggestionsFor(field.key)}
                   placeholder="Type a tag and press Enter"
                 />
               </div>
@@ -574,6 +598,34 @@ export default function AdminPage() {
               )}
             </div>
           ))}
+          <div className="form-group">
+            <label htmlFor="col-collectionTags">Collection Tags</label>
+            <div className="tags-input">
+              <div className="tags-chips">
+                {colForm.collectionTags.map(tag => (
+                  <span key={tag} className="tag-chip">
+                    {tag}
+                    <button type="button" aria-label={`Remove ${tag}`} onClick={() => removeTag(setColForm, 'collectionTags', tag)}>×</button>
+                  </span>
+                ))}
+              </div>
+              <AutocompleteInput
+                id="col-collectionTags"
+                name="colCollectionTagInput"
+                value={getTagInput('collectionTags')}
+                onChange={e => setTagInputFor('collectionTags', e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag(setColForm, 'collectionTags', getTagInput('collectionTags').trim());
+                    setTagInputFor('collectionTags', '');
+                  }
+                }}
+                suggestions={allTags}
+                placeholder="Type a tag and press Enter"
+              />
+            </div>
+          </div>
           <div className="form-actions">
             <PhotoInputButtons
               variant="btn-photo-add"
@@ -605,6 +657,36 @@ export default function AdminPage() {
               testId="collection-img-upload"
               onSelect={f => handleCollectionImage(f)}
             />
+          </div>
+          <div className="form-group">
+            <label htmlFor="collectionTags">Collection Tags</label>
+            <div className="tags-input">
+              <div className="tags-chips">
+                {(form.collectionTags || []).map(tag => (
+                  <span key={tag} className="tag-chip">
+                    {tag}
+                    <button type="button" aria-label={`Remove ${tag}`} onClick={() => handleUpdateCollectionTags(form.collectionTags.filter(t => t !== tag))}>×</button>
+                  </span>
+                ))}
+              </div>
+              <AutocompleteInput
+                name="collectionTagInput"
+                value={getTagInput('collectionTags')}
+                onChange={e => setTagInputFor('collectionTags', e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const tag = getTagInput('collectionTags').trim();
+                    if (tag && !(form.collectionTags || []).includes(tag)) {
+                      handleUpdateCollectionTags([...(form.collectionTags || []), tag]);
+                    }
+                    setTagInputFor('collectionTags', '');
+                  }
+                }}
+                suggestions={allTags}
+                placeholder="Type a tag and press Enter"
+              />
+            </div>
           </div>
           <div className="lot-list">
             {lots.length === 0 && <p className="no-lots">No bottles in collection.</p>}

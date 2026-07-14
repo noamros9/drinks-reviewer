@@ -32,7 +32,7 @@ const NUMERIC_FIELDS = { abv: 1, age: 3 }; // ponytail: fixed tolerance per fiel
 
 function fieldScore(field, seedVal, candVal) {
   if (seedVal == null || candVal == null || seedVal === '' || candVal === '') return 0;
-  if (field === 'tags') {
+  if (field === 'tags' || field === 'variety') {
     const a = new Set(seedVal), b = new Set(candVal);
     if (!a.size || !b.size) return 0;
     const intersection = [...a].filter(x => b.has(x)).length;
@@ -158,12 +158,12 @@ function dominantValue(entries, field, weights) {
   return close.length === 1 ? close[0] : close;
 }
 
-function topTags(entries, weights, n = 3) {
+function topArrayValues(entries, weights, field, n = 3) {
   const totals = new Map();
   for (const d of entries) {
-    for (const tag of d.tags || []) totals.set(tag, (totals.get(tag) || 0) + weights.get(d.id));
+    for (const v of d[field] || []) totals.set(v, (totals.get(v) || 0) + weights.get(d.id));
   }
-  return [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([tag]) => tag);
+  return [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([v]) => v);
 }
 
 function numericRange(entries, field) {
@@ -176,7 +176,8 @@ function numericRange(entries, field) {
 function buildTasteProfile(category, ratedDrinks, weights) {
   const profile = { category, entryCount: ratedDrinks.length };
   for (const field of TASTE_FIELDS[category]) {
-    if (field === 'tags') profile.topTags = topTags(ratedDrinks, weights);
+    if (field === 'tags') profile.topTags = topArrayValues(ratedDrinks, weights, 'tags');
+    else if (field === 'variety') profile.variety = topArrayValues(ratedDrinks, weights, 'variety');
     else if (field in NUMERIC_FIELDS) profile[field] = numericRange(ratedDrinks, field);
     else profile[field] = dominantValue(ratedDrinks, field, weights);
   }

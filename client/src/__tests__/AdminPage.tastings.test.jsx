@@ -18,7 +18,7 @@ vi.mock('react-datepicker', () => ({
 const TASTING = { id: 't1', date: '15/03/2025', rating: 8, vintage: '2021' };
 const EDIT_DRINK = {
   id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red',
-  variety: 'Merlot', country: 'France', region: '', abv: '13',
+  variety: ['Merlot'], country: 'France', region: '', abv: '13',
   lastTasted: '15/03/2025', lastRating: 8, avgRating: 8,
   notionLink: '', tags: [], tastings: [TASTING],
 };
@@ -345,7 +345,7 @@ test('adding a tasting updates the review tab derived fields without a reload', 
 });
 
 test('removing the last tasting clears the review tab derived fields', async () => {
-  const updatedDrink = { id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red', variety: 'Merlot', country: 'France', region: '', abv: '13', notionLink: '', tags: [], tastings: [] };
+  const updatedDrink = { id: '1', producer: 'X', seriesAndName: 'Y', wineCategory: 'Red', variety: ['Merlot'], country: 'France', region: '', abv: '13', notionLink: '', tags: [], tastings: [] };
   global.fetch.mockResolvedValue({ ok: true, json: () => Promise.resolve(updatedDrink) });
   renderTastingsTab();
   fireEvent.click(screen.getByRole('button', { name: /remove/i }));

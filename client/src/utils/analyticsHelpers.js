@@ -1,5 +1,5 @@
 import { parse, isValid, format } from 'date-fns';
-import { OLD_WORLD, NEW_WORLD, splitVarieties, PRODUCER_FIELD } from './filterHelpers';
+import { OLD_WORLD, NEW_WORLD, PRODUCER_FIELD } from './filterHelpers';
 
 export const RATING_BUCKETS = Array.from({ length: 9 }, (_, i) => ({ min: i + 1, max: i + 2 }));
 
@@ -345,9 +345,12 @@ function buildKeyLeaderboard(drinks, keysOf) {
 }
 
 export function buildStyleLeaderboard(drinks, category, { splitBlends = true } = {}) {
-  const keysOf = (category === 'wine' && splitBlends)
-    ? d => splitVarieties(d.variety)
-    : d => [d[STYLE_FIELD[category] || 'style']];
+  let keysOf;
+  if (category === 'wine') {
+    keysOf = splitBlends ? d => d.variety || [] : d => [(d.variety || []).join(', ')];
+  } else {
+    keysOf = d => [d[STYLE_FIELD[category] || 'style']];
+  }
   return buildKeyLeaderboard(drinks, keysOf);
 }
 

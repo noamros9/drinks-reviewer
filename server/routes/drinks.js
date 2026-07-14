@@ -22,26 +22,29 @@ const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
 const ALLOWED_FIELDS = {
-  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'vivinoScore', 'tags'],
-  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'tags'],
-  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'tags'],
-  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags'],
+  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'vivinoScore', 'tags', 'collectionTags'],
+  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'tags', 'collectionTags'],
+  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'tags', 'collectionTags'],
+  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags', 'collectionTags'],
 };
 
 // Fields a shared "bulk edit" action may overwrite across many entries at once
 const BULK_EDITABLE_FIELDS = {
-  wine:    ['wineCategory', 'sweetness', 'country', 'variety', 'region', 'tags'],
-  beer:    ['style', 'country', 'tags'],
-  whiskey: ['style', 'country', 'region', 'tags'],
-  others:  ['drinkCategory', 'style', 'country', 'tags'],
+  wine:    ['wineCategory', 'sweetness', 'country', 'variety', 'region', 'tags', 'collectionTags'],
+  beer:    ['style', 'country', 'tags', 'collectionTags'],
+  whiskey: ['style', 'country', 'region', 'tags', 'collectionTags'],
+  others:  ['drinkCategory', 'style', 'country', 'tags', 'collectionTags'],
 };
+
+// Fields stored as string[] rather than a scalar string
+const ARRAY_FIELD_KEYS = new Set(['tags', 'collectionTags', 'variety']);
 
 function pickFields(body, category, partial = false) {
   const allowed = ALLOWED_FIELDS[category];
   return Object.fromEntries(
     allowed
       .filter(k => !partial || k in body)
-      .map(k => [k, k === 'tags' ? (Array.isArray(body[k]) ? body[k] : []) : (body[k] ?? '')])
+      .map(k => [k, ARRAY_FIELD_KEYS.has(k) ? (Array.isArray(body[k]) ? body[k] : []) : (body[k] ?? '')])
   );
 }
 
@@ -219,7 +222,8 @@ router.patch('/:category/bulk', async (req, res) => {
   const { ids, field, value, tagAction } = req.body;
   if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: 'ids must be a non-empty array' });
   if (!BULK_EDITABLE_FIELDS[category]?.includes(field)) return res.status(400).json({ error: 'Field not editable in bulk' });
-  if (field === 'tags') {
+  const isArrayField = ARRAY_FIELD_KEYS.has(field);
+  if (isArrayField) {
     if (tagAction !== 'add' && tagAction !== 'remove') return res.status(400).json({ error: 'tagAction must be "add" or "remove"' });
   } else if (tagAction) {
     return res.status(400).json({ error: 'tagAction only applies to tags' });
@@ -232,10 +236,10 @@ router.patch('/:category/bulk', async (req, res) => {
       const affected = [];
       for (const d of data) {
         if (!idSet.has(d.id)) continue;
-        if (field === 'tags') {
-          const tags = new Set(d.tags || []);
-          if (tagAction === 'add') tags.add(value); else tags.delete(value);
-          d.tags = [...tags];
+        if (isArrayField) {
+          const items = new Set(d[field] || []);
+          if (tagAction === 'add') items.add(value); else items.delete(value);
+          d[field] = [...items];
         } else {
           d[field] = value;
         }
