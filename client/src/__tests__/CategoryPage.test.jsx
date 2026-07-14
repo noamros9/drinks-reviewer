@@ -184,13 +184,13 @@ test('clicking a producer cell sets producerSearch filter', async () => {
   expect(screen.getByText('Reserve')).toBeInTheDocument();
 });
 
-test('variety cell is not filterable — clicking a blend does not filter', async () => {
+test('clicking a variety chip filters like a tag chip', async () => {
   const BLEND = { ...WINE_DRINK, id: '2', producer: 'Other', seriesAndName: 'BlendWine', variety: ['Cabernet', 'Merlot'] };
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve([WINE_DRINK, BLEND]) }));
   render(<MemoryRouter><CategoryPage category="wine" /></MemoryRouter>);
   await screen.findByText('Reserve');
   fireEvent.click(screen.getAllByText('Cabernet')[0]);
-  expect(screen.getByText('Reserve')).toBeInTheDocument();
+  await waitFor(() => expect(screen.queryByText('Reserve')).not.toBeInTheDocument());
   expect(screen.getByText('BlendWine')).toBeInTheDocument();
 });
 

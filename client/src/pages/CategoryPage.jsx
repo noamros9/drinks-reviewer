@@ -95,7 +95,7 @@ export default function CategoryPage({ category }) {
 
   const filterableCols = useMemo(() => new Set([
     PRODUCER_FIELD[category],
-    ...DROPDOWN_CONFIGS[category].filter(c => !c.varietyGroups).map(c => c.key),
+    ...DROPDOWN_CONFIGS[category].map(c => c.key),
   ]), [category]);
 
   const handleCellClick = (colKey, value) => {

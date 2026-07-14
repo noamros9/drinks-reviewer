@@ -82,7 +82,6 @@ export const DROPDOWN_CONFIGS = {
   all: [
     { key: 'country', label: 'Country' },
     { key: 'tags',    label: 'Tags',    multiValue: true },
-    { key: 'collectionTags', label: 'Collection Tags', multiValue: true },
   ],
 };
 

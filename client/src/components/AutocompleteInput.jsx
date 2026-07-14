@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { forwardRef, useState, useRef, useEffect } from 'react';
 import './AutocompleteInput.css';
 
-export default function AutocompleteInput({ id, name, value, onChange, suggestions = [], placeholder = '', className = '', onKeyDown: onKeyDownProp, inputTestId }) {
+export default forwardRef(function AutocompleteInput({ id, name, value, onChange, suggestions = [], placeholder = '', className = '', onKeyDown: onKeyDownProp, inputTestId }, ref) {
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const wrapRef = useRef(null);
@@ -33,6 +33,7 @@ export default function AutocompleteInput({ id, name, value, onChange, suggestio
   return (
     <div ref={wrapRef} className="autocomplete-wrap">
       <input
+        ref={ref}
         id={id}
         name={name}
         type="text"
@@ -60,4 +61,4 @@ export default function AutocompleteInput({ id, name, value, onChange, suggestio
       )}
     </div>
   );
-}
+});

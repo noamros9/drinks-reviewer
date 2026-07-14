@@ -22,22 +22,22 @@ const router = express.Router();
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
 const ALLOWED_FIELDS = {
-  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'vivinoScore', 'tags', 'collectionTags'],
-  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'tags', 'collectionTags'],
-  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'tags', 'collectionTags'],
-  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags', 'collectionTags'],
+  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'vivinoScore', 'tags'],
+  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'tags'],
+  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'tags'],
+  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags'],
 };
 
 // Fields a shared "bulk edit" action may overwrite across many entries at once
 const BULK_EDITABLE_FIELDS = {
-  wine:    ['wineCategory', 'sweetness', 'country', 'variety', 'region', 'tags', 'collectionTags'],
-  beer:    ['style', 'country', 'tags', 'collectionTags'],
-  whiskey: ['style', 'country', 'region', 'tags', 'collectionTags'],
-  others:  ['drinkCategory', 'style', 'country', 'tags', 'collectionTags'],
+  wine:    ['wineCategory', 'sweetness', 'country', 'variety', 'region', 'tags'],
+  beer:    ['style', 'country', 'tags'],
+  whiskey: ['style', 'country', 'region', 'tags'],
+  others:  ['drinkCategory', 'style', 'country', 'tags'],
 };
 
 // Fields stored as string[] rather than a scalar string
-const ARRAY_FIELD_KEYS = new Set(['tags', 'collectionTags', 'variety']);
+const ARRAY_FIELD_KEYS = new Set(['tags', 'variety']);
 
 function pickFields(body, category, partial = false) {
   const allowed = ALLOWED_FIELDS[category];

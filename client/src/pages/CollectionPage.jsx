@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
-import CustomSelect from '../components/CustomSelect';
 import AutocompleteInput from '../components/AutocompleteInput';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, buildDropdownOptions } from '../utils/filterHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
@@ -13,15 +12,13 @@ const STORAGE_KEY = 'drinks_columns_collection';
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 const FILTERS = ['all', ...CATEGORIES];
 const FILTERABLE = new Set([PRODUCER_FIELD.all, ...DROPDOWN_CONFIGS.all.filter(c => !c.varietyGroups).map(c => c.key)]);
-const BULK_CONFIGS = DROPDOWN_CONFIGS.all.filter(c => c.key === 'tags' || c.key === 'collectionTags');
+const TAGS_CONFIG = DROPDOWN_CONFIGS.all.find(c => c.key === 'tags');
 
 function CollectionBulkEditBar({ drinks, selectedIds, onApplied, onCancel }) {
-  const [fieldLabel, setFieldLabel] = useState(BULK_CONFIGS[0].label);
   const [value, setValue] = useState('');
   const [message, setMessage] = useState('');
 
-  const activeConfig = BULK_CONFIGS.find(c => c.label === fieldLabel) ?? BULK_CONFIGS[0];
-  const { options: suggestions } = buildDropdownOptions(drinks, activeConfig);
+  const { options: suggestions } = buildDropdownOptions(drinks, TAGS_CONFIG);
   const count = selectedIds.size;
   const countLabel = `${count} ${count === 1 ? 'entry' : 'entries'}`;
 
@@ -39,7 +36,7 @@ function CollectionBulkEditBar({ drinks, selectedIds, onApplied, onCancel }) {
       const res = await fetch(`/api/${cat}/bulk`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids, field: activeConfig.key, value, tagAction }),
+        body: JSON.stringify({ ids, field: TAGS_CONFIG.key, value, tagAction }),
       });
       if (!res.ok) return null;
       const { updated } = await res.json();
@@ -54,11 +51,6 @@ function CollectionBulkEditBar({ drinks, selectedIds, onApplied, onCancel }) {
   return (
     <div className="bulk-edit-bar" data-testid="collection-bulk-edit-bar">
       <span className="bulk-edit-count">{countLabel} selected</span>
-      <CustomSelect
-        value={fieldLabel}
-        onChange={label => { setFieldLabel(label); setValue(''); }}
-        options={BULK_CONFIGS.map(c => c.label)}
-      />
       <AutocompleteInput
         value={value}
         onChange={e => setValue(e.target.value)}

@@ -543,7 +543,7 @@ test('tags column appears on all page', () => {
   expect(screen.getByRole('columnheader', { name: /^tags$/i })).toBeInTheDocument();
 });
 
-test('tags column does not appear on collection page', () => {
+test('tags column appears on collection page', () => {
   render(<DrinkTable category="collection" drinks={[{ id: '1', _category: 'Wine', _producer: 'P', name: 'W', country: 'France', abv: '', notionLink: '', tags: ['gift'] }]} />);
-  expect(screen.queryByRole('columnheader', { name: /^tags$/i })).not.toBeInTheDocument();
+  expect(screen.getByRole('columnheader', { name: /^tags$/i })).toBeInTheDocument();
 });
