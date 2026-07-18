@@ -58,6 +58,24 @@ describe('PATCH /api/:category/bulk', () => {
     expect(res.body.updated[0].tags).toEqual(['organic']);
   });
 
+  it('normalizes tag case so a mixed-case add does not create a duplicate', async () => {
+    const a = await createDrink('wine', { producer: 'A', tags: ['gift'] });
+    const res = await request(app)
+      .patch('/api/wine/bulk')
+      .send({ ids: [a.id], field: 'tags', value: 'Gift', tagAction: 'add' });
+    expect(res.status).toBe(200);
+    expect(res.body.updated[0].tags).toEqual(['gift']);
+  });
+
+  it('adds a variety without lowercasing it (proper grape name, not a tag)', async () => {
+    const a = await createDrink('wine', { producer: 'A', variety: [] });
+    const res = await request(app)
+      .patch('/api/wine/bulk')
+      .send({ ids: [a.id], field: 'variety', value: 'Merlot', tagAction: 'add' });
+    expect(res.status).toBe(200);
+    expect(res.body.updated[0].variety).toEqual(['Merlot']);
+  });
+
   it('does not modify entries not included in ids', async () => {
     const a = await createDrink('wine', { producer: 'A', region: 'Old' });
     const b = await createDrink('wine', { producer: 'B', region: 'Old' });

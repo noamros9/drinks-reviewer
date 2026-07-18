@@ -84,7 +84,7 @@ router.get('/tags', async (_req, res) => {
   try {
     const allTags = new Set();
     for (const cat of CATEGORIES) {
-      (await readData(cat)).forEach(d => (d.tags || []).forEach(t => allTags.add(t)));
+      (await readData(cat)).forEach(d => (d.tags || []).forEach(t => allTags.add(t.trim().toLowerCase())));
     }
     res.json([...allTags].sort());
   } catch {
@@ -238,7 +238,8 @@ router.patch('/:category/bulk', async (req, res) => {
         if (!idSet.has(d.id)) continue;
         if (isArrayField) {
           const items = new Set(d[field] || []);
-          if (tagAction === 'add') items.add(value); else items.delete(value);
+          const item = field === 'tags' ? value.trim().toLowerCase() : value;
+          if (tagAction === 'add') items.add(item); else items.delete(item);
           d[field] = [...items];
         } else {
           d[field] = value;
