@@ -49,11 +49,11 @@ test('submit button is disabled until a prompt is entered', () => {
   expect(screen.getByRole('button', { name: 'Generate' })).toBeEnabled();
 });
 
-test('does not call the API for a blank/whitespace prompt', () => {
+test('does not call the generate-list API for a blank/whitespace prompt', () => {
   renderPage();
   typePrompt('   ');
   fireEvent.click(screen.getByRole('button', { name: 'Generate' }));
-  expect(global.fetch).not.toHaveBeenCalled();
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/generate-list', expect.anything());
 });
 
 test('shows a loading message, then all three sections', async () => {

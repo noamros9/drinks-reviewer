@@ -32,6 +32,15 @@ function mockPayload(email, email_verified) {
   mockVerifyIdToken.mockResolvedValue({ getPayload: () => ({ email, email_verified }) });
 }
 
+// Drives the full redirect -> callback flow on a cookie-preserving agent so the
+// oauth_state cookie set by GET /auth/google is present for the callback request.
+async function callbackWithState(agent) {
+  mockGenerateAuthUrl.mockReturnValue('https://accounts.google.com/o/oauth2/v2/auth?mock=1');
+  await agent.get('/auth/google');
+  const { state } = mockGenerateAuthUrl.mock.calls[mockGenerateAuthUrl.mock.calls.length - 1][0];
+  return agent.get(`/auth/google/callback?code=abc&state=${state}`);
+}
+
 beforeEach(() => {
   jest.clearAllMocks();
   process.env.GOOGLE_CLIENT_ID = 'test-client-id';
@@ -58,41 +67,58 @@ describe('GET /auth/google', () => {
     expect(mockGenerateAuthUrl).toHaveBeenCalledWith({
       scope: ['openid', 'email'],
       prompt: 'select_account',
+      state: expect.any(String),
     });
+    expect(res.headers['set-cookie'][0]).toMatch(/^oauth_state=/);
   });
 });
 
 describe('GET /auth/google/callback', () => {
   it('sets a session cookie and redirects home for an allowlisted, verified email', async () => {
     mockPayload(ALLOWED_A, true);
-    const res = await request(buildApp()).get('/auth/google/callback?code=abc');
+    const res = await callbackWithState(request.agent(buildApp()));
     expect(res.status).toBe(302);
     expect(res.headers.location).toBe('/');
-    expect(res.headers['set-cookie'][0]).toMatch(/^session=/);
+    expect(res.headers['set-cookie'].some(c => c.startsWith('session='))).toBe(true);
   });
 
   it('also accepts the second allowlisted email', async () => {
     mockPayload(ALLOWED_B, true);
-    const res = await request(buildApp()).get('/auth/google/callback?code=abc');
+    const res = await callbackWithState(request.agent(buildApp()));
     expect(res.status).toBe(302);
     expect(res.headers.location).toBe('/');
-    expect(res.headers['set-cookie'][0]).toMatch(/^session=/);
+    expect(res.headers['set-cookie'].some(c => c.startsWith('session='))).toBe(true);
   });
 
-  it('redirects to /access-denied with no cookie for a non-allowlisted email', async () => {
+  it('redirects to /access-denied with no session cookie for a non-allowlisted email', async () => {
     mockPayload('stranger@gmail.com', true);
-    const res = await request(buildApp()).get('/auth/google/callback?code=abc');
+    const res = await callbackWithState(request.agent(buildApp()));
     expect(res.status).toBe(302);
     expect(res.headers.location).toBe('/access-denied');
-    expect(res.headers['set-cookie']).toBeUndefined();
+    expect(res.headers['set-cookie'].some(c => c.startsWith('session='))).toBe(false);
   });
 
-  it('redirects to /access-denied with no cookie for an unverified email', async () => {
+  it('redirects to /access-denied with no session cookie for an unverified email', async () => {
     mockPayload(ALLOWED_A, false);
-    const res = await request(buildApp()).get('/auth/google/callback?code=abc');
+    const res = await callbackWithState(request.agent(buildApp()));
     expect(res.status).toBe(302);
     expect(res.headers.location).toBe('/access-denied');
-    expect(res.headers['set-cookie']).toBeUndefined();
+    expect(res.headers['set-cookie'].some(c => c.startsWith('session='))).toBe(false);
+  });
+
+  it('redirects to /access-denied when the state param is missing or does not match the oauth_state cookie', async () => {
+    mockPayload(ALLOWED_A, true);
+    const res = await request(buildApp()).get('/auth/google/callback?code=abc&state=forged');
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/access-denied');
+    expect(mockGetToken).not.toHaveBeenCalled();
+  });
+
+  it('redirects to /access-denied when getToken/verifyIdToken rejects, instead of hanging the request', async () => {
+    mockGetToken.mockRejectedValue(new Error('invalid_grant'));
+    const res = await callbackWithState(request.agent(buildApp()));
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe('/access-denied');
   });
 });
 
@@ -113,20 +139,18 @@ describe('GET /auth/me', () => {
   });
 
   it('returns the email for a logged-in allowlisted user', async () => {
-    const app = buildApp();
-    const agent = request.agent(app);
+    const agent = request.agent(buildApp());
     mockPayload(ALLOWED_A, true);
-    await agent.get('/auth/google/callback?code=abc');
+    await callbackWithState(agent);
     const res = await agent.get('/auth/me');
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ email: ALLOWED_A });
   });
 
   it('returns 401 when the cookie email is no longer in the allowlist', async () => {
-    const app = buildApp();
-    const agent = request.agent(app);
+    const agent = request.agent(buildApp());
     mockPayload(ALLOWED_A, true);
-    await agent.get('/auth/google/callback?code=abc');
+    await callbackWithState(agent);
     process.env.ALLOWED_EMAILS = ALLOWED_B;
     const res = await agent.get('/auth/me');
     expect(res.status).toBe(401);
@@ -155,10 +179,9 @@ describe('requireAuth', () => {
   });
 
   it('calls next() for an /api path with a valid allowlisted cookie', async () => {
-    const app = buildApp();
-    const agent = request.agent(app);
+    const agent = request.agent(buildApp());
     mockPayload(ALLOWED_B, true);
-    await agent.get('/auth/google/callback?code=abc');
+    await callbackWithState(agent);
     const res = await agent.get('/api/protected');
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ ok: true });

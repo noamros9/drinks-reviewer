@@ -379,13 +379,14 @@ router.post('/:category/:id/tastings/:tastingId/image', upload.single('image'), 
       if (!d) return null;
       const tasting = (d.tastings || []).find(t => t.id === tastingId);
       if (!tasting) return false;
-      if (tasting.imageUrl) {
-        const stillShared = d.tastings.some(t => t.id !== tastingId && t.imageUrl === tasting.imageUrl);
-        const isCollectionPhoto = tasting.imageUrl === d.collectionImageUrl;
-        if (!stillShared && !isCollectionPhoto) await deleteImage(tasting.imageUrl);
-      }
+      const oldImageUrl = tasting.imageUrl;
       tasting.imageUrl = imageUrl;
       await writeData(category, data);
+      if (oldImageUrl) {
+        const stillShared = d.tastings.some(t => t.id !== tastingId && t.imageUrl === oldImageUrl);
+        const isCollectionPhoto = oldImageUrl === d.collectionImageUrl;
+        if (!stillShared && !isCollectionPhoto) await deleteImage(oldImageUrl);
+      }
       return d;
     });
     if (drink === null) { await deleteImage(imageUrl); return res.status(404).json({ error: 'Entry not found' }); }
@@ -435,12 +436,13 @@ router.post('/:category/:id/collection/image', upload.single('image'), async (re
       const data = await readData(category);
       const d = data.find(x => x.id === id);
       if (!d) return null;
-      if (d.collectionImageUrl) {
-        const stillUsedByTasting = (d.tastings || []).some(t => t.imageUrl === d.collectionImageUrl);
-        if (!stillUsedByTasting) await deleteImage(d.collectionImageUrl);
-      }
+      const oldImageUrl = d.collectionImageUrl;
       d.collectionImageUrl = imageUrl;
       await writeData(category, data);
+      if (oldImageUrl) {
+        const stillUsedByTasting = (d.tastings || []).some(t => t.imageUrl === oldImageUrl);
+        if (!stillUsedByTasting) await deleteImage(oldImageUrl);
+      }
       return d;
     });
     if (!drink) { await deleteImage(imageUrl); return res.status(404).json({ error: 'Entry not found' }); }

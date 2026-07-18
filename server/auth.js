@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 
 const router = express.Router();
@@ -16,31 +17,43 @@ function allowedEmails() {
 }
 
 router.get('/google', (req, res) => {
+  const state = crypto.randomBytes(16).toString('hex');
+  res.cookie('oauth_state', state, { httpOnly: true, signed: true, maxAge: 10 * 60 * 1000, sameSite: 'lax' });
   const url = client().generateAuthUrl({
     scope: ['openid', 'email'],
     prompt: 'select_account',
+    state,
   });
   res.redirect(url);
 });
 
 router.get('/google/callback', async (req, res) => {
-  const { tokens } = await client().getToken(req.query.code);
-  const ticket = await client().verifyIdToken({
-    idToken: tokens.id_token,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  });
-  const payload = ticket.getPayload();
-
-  if (payload.email_verified && allowedEmails().includes(payload.email)) {
-    res.cookie('session', payload.email, {
-      httpOnly: true,
-      signed: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-      sameSite: 'lax',
-    });
-    return res.redirect('/');
+  const expectedState = req.signedCookies.oauth_state;
+  res.clearCookie('oauth_state');
+  if (!expectedState || req.query.state !== expectedState) {
+    return res.redirect('/access-denied');
   }
-  return res.redirect('/access-denied');
+  try {
+    const { tokens } = await client().getToken(req.query.code);
+    const ticket = await client().verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    if (payload.email_verified && allowedEmails().includes(payload.email)) {
+      res.cookie('session', payload.email, {
+        httpOnly: true,
+        signed: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        sameSite: 'lax',
+      });
+      return res.redirect('/');
+    }
+    return res.redirect('/access-denied');
+  } catch {
+    return res.redirect('/access-denied');
+  }
 });
 
 router.get('/logout', (req, res) => {

@@ -83,6 +83,9 @@ export default function AdminPage() {
   const [loadingDrink, setLoadingDrink] = useState(!!deepLinkId && !editState?.drink);
   const isEditing = !!form.id || (loadingDrink && !!deepLinkId);
   const [message, setMessage] = useState('');
+  const [addLotBusy, setAddLotBusy] = useState(false);
+  const [addToCollectionBusy, setAddToCollectionBusy] = useState(false);
+  const [addTastingBusy, setAddTastingBusy] = useState(false);
   const [lots, setLots] = useState(editState?.drink?.collection ?? []);
   const [newLotQty, setNewLotQty] = useState('1');
   const [newLotPrice, setNewLotPrice] = useState('');
@@ -250,21 +253,27 @@ export default function AdminPage() {
   };
 
   const handleAddLot = async () => {
+    if (addLotBusy) return;
     const qty = parsePositiveInt(newLotQty);
     if (qty === null) { setCollectionMessage('Quantity must be a positive whole number.'); return; }
-    const body = { quantity: qty };
-    if (newLotPrice !== '') body.price = parseFloat(newLotPrice);
-    const res = await fetch(`/api/${category}/${form.id}/collection`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) { setCollectionMessage('Failed to add lot.'); return; }
-    const newLot = await res.json();
-    setLots(prev => [...prev, newLot]);
-    setNewLotQty('1');
-    setNewLotPrice('');
-    setCollectionMessage('Lot added!');
+    setAddLotBusy(true);
+    try {
+      const body = { quantity: qty };
+      if (newLotPrice !== '') body.price = parseFloat(newLotPrice);
+      const res = await fetch(`/api/${category}/${form.id}/collection`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { setCollectionMessage('Failed to add lot.'); return; }
+      const newLot = await res.json();
+      setLots(prev => [...prev, newLot]);
+      setNewLotQty('1');
+      setNewLotPrice('');
+      setCollectionMessage('Lot added!');
+    } finally {
+      setAddLotBusy(false);
+    }
   };
 
   const handleDeleteLot = async (lotId) => {
@@ -275,42 +284,48 @@ export default function AdminPage() {
   };
 
   const handleAddToCollection = async (another = false) => {
+    if (addToCollectionBusy) return;
     const missing = [['producer', 'Producer'], ['name', 'Name'], ['country', 'Country']]
       .filter(([key]) => !colForm[key].trim())
       .map(([, label]) => label);
     if (missing.length && !window.confirm(`Missing ${missing.join(', ')}. Add anyway?`)) return;
     const qty = parsePositiveInt(colForm.qty);
     if (qty === null) { setColMessage('Quantity must be a positive whole number.'); return; }
-    const producerKey = PRODUCER_FIELD[colCat];
-    const nameKey = colCat === 'wine' ? 'seriesAndName' : 'name';
-    const drinkRes = await fetch(`/api/${colCat}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ [producerKey]: colForm.producer, [nameKey]: colForm.name, country: colForm.country, abv: colForm.abv, collectionOnly: true, tags: colForm.tags }),
-    });
-    if (!drinkRes.ok) { setColMessage('Failed to add drink.'); return; }
-    const drink = await drinkRes.json();
-    const lotBody = { quantity: qty };
-    if (colForm.price !== '') lotBody.price = parseFloat(colForm.price);
-    await fetch(`/api/${colCat}/${drink.id}/collection`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(lotBody),
-    });
-    const imageFile = newColImageRef.current;
-    newColImageRef.current = null;
-    setNewColImage(null);
-    if (imageFile) {
-      const fd = new FormData();
-      fd.append('image', imageFile);
-      await fetch(`/api/${colCat}/${drink.id}/collection/image`, { method: 'POST', body: fd }).catch(() => {});
+    setAddToCollectionBusy(true);
+    try {
+      const producerKey = PRODUCER_FIELD[colCat];
+      const nameKey = colCat === 'wine' ? 'seriesAndName' : 'name';
+      const drinkRes = await fetch(`/api/${colCat}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [producerKey]: colForm.producer, [nameKey]: colForm.name, country: colForm.country, abv: colForm.abv, collectionOnly: true, tags: colForm.tags }),
+      });
+      if (!drinkRes.ok) { setColMessage('Failed to add drink.'); return; }
+      const drink = await drinkRes.json();
+      const lotBody = { quantity: qty };
+      if (colForm.price !== '') lotBody.price = parseFloat(colForm.price);
+      await fetch(`/api/${colCat}/${drink.id}/collection`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lotBody),
+      });
+      const imageFile = newColImageRef.current;
+      newColImageRef.current = null;
+      setNewColImage(null);
+      if (imageFile) {
+        const fd = new FormData();
+        fd.append('image', imageFile);
+        await fetch(`/api/${colCat}/${drink.id}/collection/image`, { method: 'POST', body: fd }).catch(() => {});
+      }
+      if (another) {
+        setColForm({ producer: '', name: '', country: '', abv: '', qty: '1', price: '', tags: [] });
+        setColMessage('Added! Add another below.');
+        return;
+      }
+      navigate('/collection');
+    } finally {
+      setAddToCollectionBusy(false);
     }
-    if (another) {
-      setColForm({ producer: '', name: '', country: '', abv: '', qty: '1', price: '', tags: [] });
-      setColMessage('Added! Add another below.');
-      return;
-    }
-    navigate('/collection');
   };
 
   const syncFormFromDrink = (updated) => {
@@ -322,47 +337,52 @@ export default function AdminPage() {
   };
 
   const handleAddTasting = async () => {
-    if (!newTastingDate || !newTastingRating) return;
-    const body = { date: format(newTastingDate, 'dd/MM/yyyy'), rating: Number(newTastingRating) };
-    if (category === 'wine' && newTastingVintage) body.vintage = newTastingVintage;
-    const res = await fetch(`/api/${category}/${form.id}/tastings`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) { setTastingsMessage('Failed to add tasting.'); return; }
-    const updated = await res.json();
-
-    const imageFile = newTastingImageRef.current;
-    newTastingImageRef.current = null;
-    setNewTastingImage(null);
-    setNewTastingDate(null);
-    setNewTastingRating('');
-    setNewTastingVintage('');
-    setTastings(updated.tastings);
-    syncFormFromDrink(updated);
-    setTastingsMessage('Tasting added!');
-
-    if (imageFile) {
-      const newTastingId = updated.tastings.at(-1).id;
-      const fd = new FormData();
-      fd.append('image', imageFile);
-      const imgRes = await fetch(`/api/${category}/${form.id}/tastings/${newTastingId}/image`, { method: 'POST', body: fd });
-      if (!imgRes.ok) { setTastingsMessage('Failed to upload image.'); return; }
-      const imgUpdated = await imgRes.json();
-      const imageUrl = imgUpdated.tastings?.find(t => t.id === newTastingId)?.imageUrl;
-      if (imageUrl) {
-        setTastings(prev => prev.map(t => t.id === newTastingId ? { ...t, imageUrl } : t));
-      }
-    }
-
-    if (drankIt && editState.lot) {
-      await fetch(`/api/${category}/${form.id}/collection/${editState.lot.id}`, {
-        method: 'PATCH',
+    if (!newTastingDate || !newTastingRating || addTastingBusy) return;
+    setAddTastingBusy(true);
+    try {
+      const body = { date: format(newTastingDate, 'dd/MM/yyyy'), rating: Number(newTastingRating) };
+      if (category === 'wine' && newTastingVintage) body.vintage = newTastingVintage;
+      const res = await fetch(`/api/${category}/${form.id}/tastings`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity: editState.lot.quantity - 1 }),
+        body: JSON.stringify(body),
       });
-      navigate('/collection');
+      if (!res.ok) { setTastingsMessage('Failed to add tasting.'); return; }
+      const updated = await res.json();
+
+      const imageFile = newTastingImageRef.current;
+      newTastingImageRef.current = null;
+      setNewTastingImage(null);
+      setNewTastingDate(null);
+      setNewTastingRating('');
+      setNewTastingVintage('');
+      setTastings(updated.tastings);
+      syncFormFromDrink(updated);
+      setTastingsMessage('Tasting added!');
+
+      if (imageFile) {
+        const newTastingId = updated.tastings.at(-1).id;
+        const fd = new FormData();
+        fd.append('image', imageFile);
+        const imgRes = await fetch(`/api/${category}/${form.id}/tastings/${newTastingId}/image`, { method: 'POST', body: fd });
+        if (!imgRes.ok) { setTastingsMessage('Failed to upload image.'); return; }
+        const imgUpdated = await imgRes.json();
+        const imageUrl = imgUpdated.tastings?.find(t => t.id === newTastingId)?.imageUrl;
+        if (imageUrl) {
+          setTastings(prev => prev.map(t => t.id === newTastingId ? { ...t, imageUrl } : t));
+        }
+      }
+
+      if (drankIt && editState.lot) {
+        await fetch(`/api/${category}/${form.id}/collection/${editState.lot.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity: editState.lot.quantity - 1 }),
+        });
+        navigate('/collection');
+      }
+    } finally {
+      setAddTastingBusy(false);
     }
   };
 
@@ -645,8 +665,8 @@ export default function AdminPage() {
               onSelect={f => { newColImageRef.current = f; setNewColImage(f); }}
               openUp
             />
-            <button type="button" className="btn-primary" onClick={() => handleAddToCollection()}>Add to Collection</button>
-            <button type="button" className="btn-primary" onClick={() => handleAddToCollection(true)}>Add Another</button>
+            <button type="button" className="btn-primary" disabled={addToCollectionBusy} onClick={() => handleAddToCollection()}>Add to Collection</button>
+            <button type="button" className="btn-primary" disabled={addToCollectionBusy} onClick={() => handleAddToCollection(true)}>Add Another</button>
           </div>
           {colMessage && <p className="success-message">{colMessage}</p>}
         </div>
@@ -721,7 +741,7 @@ export default function AdminPage() {
               <label htmlFor="new-lot-price">Price</label>
               <input id="new-lot-price" type="number" min="0" step="0.01" placeholder="Optional" value={newLotPrice} onChange={e => setNewLotPrice(e.target.value)} />
             </div>
-            <button type="button" className="btn-primary" onClick={handleAddLot}>Add Lot</button>
+            <button type="button" className="btn-primary" disabled={addLotBusy} onClick={handleAddLot}>Add Lot</button>
           </div>
           {collectionMessage && <p className="success-message">{collectionMessage}</p>}
           </div>
@@ -824,7 +844,7 @@ export default function AdminPage() {
               testId="new-tasting-img"
               onSelect={f => { newTastingImageRef.current = f; setNewTastingImage(f); }}
             />
-            <button type="button" className="btn-primary" onClick={handleAddTasting}>Add Tasting</button>
+            <button type="button" className="btn-primary" disabled={addTastingBusy} onClick={handleAddTasting}>Add Tasting</button>
           </div>
           {tastingsMessage && <p className="success-message">{tastingsMessage}</p>}
           </div>

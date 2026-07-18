@@ -133,6 +133,7 @@ export default function CollectionPage() {
   const [activeFilters, setActiveFilters] = useState(() => buildInitialFilters('all'));
   const [columnLayout, setColumnLayout] = useState(() => loadLayout());
   const [selectedIds, setSelectedIds] = useState(new Set());
+  const [pendingStockIds, setPendingStockIds] = useState(new Set());
 
   useEffect(() => { fetchCollection(setDrinks); }, []);
 
@@ -158,27 +159,23 @@ export default function CollectionPage() {
     setSelectedIds(new Set());
   };
 
-  const handleDecrement = async (drink) => {
-    const lot = oldestInStockLot(drink);
-    if (!lot) return;
-    await fetch(`/api/${drink._category.toLowerCase()}/${drink.id}/collection/${lot.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ quantity: lot.quantity - 1 }),
-    });
-    fetchCollection(setDrinks);
+  const adjustStock = async (drink, lot, delta) => {
+    if (!lot || pendingStockIds.has(drink.id)) return;
+    setPendingStockIds(prev => new Set(prev).add(drink.id));
+    try {
+      await fetch(`/api/${drink._category.toLowerCase()}/${drink.id}/collection/${lot.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity: lot.quantity + delta }),
+      });
+      fetchCollection(setDrinks);
+    } finally {
+      setPendingStockIds(prev => { const next = new Set(prev); next.delete(drink.id); return next; });
+    }
   };
 
-  const handleIncrement = async (drink) => {
-    const lot = newestInStockLot(drink);
-    if (!lot) return;
-    await fetch(`/api/${drink._category.toLowerCase()}/${drink.id}/collection/${lot.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ quantity: lot.quantity + 1 }),
-    });
-    fetchCollection(setDrinks);
-  };
+  const handleDecrement = (drink) => adjustStock(drink, oldestInStockLot(drink), -1);
+  const handleIncrement = (drink) => adjustStock(drink, newestInStockLot(drink), 1);
 
   const handlePick = () => {
     const picked = weightedPick(visible, totalQty);
@@ -217,14 +214,17 @@ export default function CollectionPage() {
     );
   };
 
-  const renderRowExtra = (drink) => (
-    <div className="stock-controls">
-      <button className="stock-btn" onClick={() => handleDecrement(drink)} aria-label="Remove one bottle">−</button>
-      <span className="stock-badge" data-testid="stock-badge">{totalQty(drink)}</span>
-      <button className="stock-btn" onClick={() => handleIncrement(drink)} aria-label="Add one bottle">+</button>
-      <button className="drank-it-btn" onClick={() => handleDrankIt(drink)}>Drank it</button>
-    </div>
-  );
+  const renderRowExtra = (drink) => {
+    const busy = pendingStockIds.has(drink.id);
+    return (
+      <div className="stock-controls">
+        <button className="stock-btn" onClick={() => handleDecrement(drink)} disabled={busy} aria-label="Remove one bottle">−</button>
+        <span className="stock-badge" data-testid="stock-badge">{totalQty(drink)}</span>
+        <button className="stock-btn" onClick={() => handleIncrement(drink)} disabled={busy} aria-label="Add one bottle">+</button>
+        <button className="drank-it-btn" onClick={() => handleDrankIt(drink)}>Drank it</button>
+      </div>
+    );
+  };
 
   return (
     <div className="category-page">

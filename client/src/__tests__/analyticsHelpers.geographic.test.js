@@ -17,9 +17,9 @@ describe('buildCountryRanking', () => {
     expect(byCountry.France).toMatchObject({ country: 'France', avgRating: 9, count: 1 });
   });
 
-  test('a country with no valid-rating drinks still appears with avgRating 0, count 0', () => {
+  test('a country with no valid-rating drinks is excluded, not shown as a fabricated 0-avg row', () => {
     const result = buildCountryRanking([{ country: 'Spain', avgRating: undefined }]);
-    expect(result).toEqual([{ country: 'Spain', avgRating: 0, count: 0, weightedRating: 0 }]);
+    expect(result).toEqual([]);
   });
 
   test('empty array -> []', () => {

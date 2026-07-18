@@ -13,6 +13,7 @@ export function useSearchResults(categories, query) {
       setIds(null);
       return;
     }
+    let stale = false;
     const timer = setTimeout(() => {
       const cats = Array.isArray(categories) ? categories : [categories];
       Promise.all(
@@ -21,9 +22,9 @@ export function useSearchResults(categories, query) {
             .then(r => r.ok ? r.json() : [])
             .catch(() => [])
         )
-      ).then(results => setIds(new Set(results.flat().map(d => d.id))));
+      ).then(results => { if (!stale) setIds(new Set(results.flat().map(d => d.id))); });
     }, DEBOUNCE_MS);
-    return () => clearTimeout(timer);
+    return () => { stale = true; clearTimeout(timer); };
   }, [JSON.stringify(categories), query]);
 
   return ids;
