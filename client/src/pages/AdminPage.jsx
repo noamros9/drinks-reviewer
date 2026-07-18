@@ -172,9 +172,11 @@ export default function AdminPage() {
   const setTagInputFor = (key, value) => setTagInputs(prev => ({ ...prev, [key]: value }));
 
   const addTag = (setter, key, tag) => {
+    const trimmed = tag.trim();
+    const norm = key === 'tags' ? trimmed.toLowerCase() : trimmed;
     setter(prev => {
-      if (!tag || (prev[key] || []).includes(tag)) return prev;
-      return { ...prev, [key]: [...(prev[key] || []), tag] };
+      if (!norm || (prev[key] || []).includes(norm)) return prev;
+      return { ...prev, [key]: [...(prev[key] || []), norm] };
     });
   };
 
@@ -680,7 +682,7 @@ export default function AdminPage() {
                 onKeyDown={e => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    const tag = getTagInput('tags').trim();
+                    const tag = getTagInput('tags').trim().toLowerCase();
                     if (tag && !(form.tags || []).includes(tag)) {
                       handleUpdateTags([...(form.tags || []), tag]);
                     }

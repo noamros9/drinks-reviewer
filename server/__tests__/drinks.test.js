@@ -387,6 +387,13 @@ describe('GET /api/tags', () => {
     const res = await request(app).get('/api/tags');
     expect(res.body).toEqual(['cellar', 'gift', 'organic']);
   });
+
+  it('normalizes case-variant tags from unmigrated data into one entry', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 'x', producer: 'W', tags: ['Gift', ' gift '] }]);
+    const res = await request(app).get('/api/tags');
+    expect(res.body).toEqual(['gift']);
+  });
 });
 
 describe('GET /api/region-coordinates', () => {

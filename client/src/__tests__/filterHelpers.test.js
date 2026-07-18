@@ -255,6 +255,12 @@ test('buildDropdownOptions tags: handles drinks with no tags', () => {
   expect(options).toEqual([]);
 });
 
+test('buildDropdownOptions tags: normalizes case-variant tags into one option', () => {
+  const drinks = [wine({ tags: ['Gift'] }), wine({ tags: ['gift'] })];
+  const { options } = buildDropdownOptions(drinks, { key: 'tags', multiValue: true });
+  expect(options).toEqual(['gift']);
+});
+
 // ── countOptions – multiValue (tags) ─────────────────────────────
 
 test('countOptions tags: counts each tag individually', () => {
