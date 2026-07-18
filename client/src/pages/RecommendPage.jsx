@@ -22,6 +22,7 @@ export default function RecommendPage() {
 
   useEffect(() => {
     if (seeds.length < 1) { setStatus('error'); return; }
+    let cancelled = false;
     setStatus('loading');
     fetch('/api/recommend', {
       method: 'POST',
@@ -29,16 +30,19 @@ export default function RecommendPage() {
       body: JSON.stringify({ seeds }),
     })
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then(result => { setData(result); setStatus('done'); })
-      .catch(() => setStatus('error'));
+      .then(result => { if (!cancelled) { setData(result); setStatus('done'); } })
+      .catch(() => { if (!cancelled) setStatus('error'); });
+    return () => { cancelled = true; };
   }, [searchParams.get('seeds')]);
 
   useEffect(() => {
     if (!data?.ownCatalogue?.length) return;
+    let cancelled = false;
     const categories = [...new Set(data.ownCatalogue.map(e => e.category))];
     Promise.all(categories.map(c => fetch(`/api/${c}`).then(r => r.ok ? r.json() : []).then(d => [c, d])))
-      .then(pairs => setCatalogue(Object.fromEntries(pairs)))
+      .then(pairs => { if (!cancelled) setCatalogue(Object.fromEntries(pairs)); })
       .catch(() => {});
+    return () => { cancelled = true; };
   }, [data]);
 
   const handleOwnClick = (entry) => {

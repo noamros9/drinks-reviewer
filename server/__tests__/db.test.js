@@ -65,6 +65,13 @@ describe('db.js fake mode (no MONGODB_URI)', () => {
     expect(await col2.find().toArray()).toEqual([]);
   });
 
+  it('withTransaction runs fn directly with no session when there is no real connection', async () => {
+    const fn = jest.fn().mockResolvedValue('ok');
+    const result = await db.withTransaction(fn);
+    expect(fn).toHaveBeenCalledWith(undefined);
+    expect(result).toBe('ok');
+  });
+
   it('close() is a no-op when there is no real client', async () => {
     await expect(db.close()).resolves.toBeUndefined();
   });
@@ -212,7 +219,12 @@ describe('db.js real mode (MONGODB_URI set)', () => {
   beforeEach(() => {
     mockCollection = { fake: 'collection' };
     mockDb = { collection: jest.fn(() => mockCollection) };
-    mockClient = { connect: jest.fn().mockResolvedValue(), db: jest.fn(() => mockDb), close: jest.fn().mockResolvedValue() };
+    mockClient = {
+      connect: jest.fn().mockResolvedValue(),
+      db: jest.fn(() => mockDb),
+      close: jest.fn().mockResolvedValue(),
+      startSession: jest.fn(),
+    };
     MockMongoClient = jest.fn(() => mockClient);
     jest.resetModules();
     jest.doMock('mongodb', () => ({ MongoClient: MockMongoClient }));
@@ -252,6 +264,28 @@ describe('db.js real mode (MONGODB_URI set)', () => {
     expect(col).toBe(mockCollection);
   });
 
+  describe('withTransaction', () => {
+    it('runs fn inside a real session and ends the session afterwards', async () => {
+      const session = { withTransaction: jest.fn(cb => cb()) };
+      mockClient.startSession.mockReturnValue({ ...session, endSession: jest.fn().mockResolvedValue() });
+      const fn = jest.fn().mockResolvedValue('result');
+
+      const result = await db.withTransaction(fn);
+
+      expect(mockClient.startSession).toHaveBeenCalledTimes(1);
+      expect(fn).toHaveBeenCalledWith(expect.anything());
+      expect(result).toBe('result');
+    });
+
+    it('ends the session even if fn throws', async () => {
+      const endSession = jest.fn().mockResolvedValue();
+      mockClient.startSession.mockReturnValue({ withTransaction: cb => cb(), endSession });
+
+      await expect(db.withTransaction(() => { throw new Error('boom'); })).rejects.toThrow('boom');
+      expect(endSession).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('whiskey/others scoping (scopeByCategory)', () => {
     beforeEach(() => {
       mockCollection.find = jest.fn(() => ({ toArray: jest.fn() }));
@@ -275,11 +309,11 @@ describe('db.js real mode (MONGODB_URI set)', () => {
       whiskeyCol.find({ foo: 1 }, { projection: { _id: 0 } });
       expect(mockCollection.find).toHaveBeenCalledWith({ foo: 1, _category: 'whiskey' }, { projection: { _id: 0 } });
 
-      await othersCol.deleteMany({});
-      expect(mockCollection.deleteMany).toHaveBeenCalledWith({ _category: 'others' });
+      await othersCol.deleteMany({}, { session: 'sess' });
+      expect(mockCollection.deleteMany).toHaveBeenCalledWith({ _category: 'others' }, { session: 'sess' });
 
-      await whiskeyCol.insertMany([{ id: 1 }]);
-      expect(mockCollection.insertMany).toHaveBeenCalledWith([{ id: 1, _category: 'whiskey' }]);
+      await whiskeyCol.insertMany([{ id: 1 }], { session: 'sess' });
+      expect(mockCollection.insertMany).toHaveBeenCalledWith([{ id: 1, _category: 'whiskey' }], { session: 'sess' });
     });
 
     it('find/deleteMany fall back to an empty filter when called with no arguments', async () => {
@@ -289,7 +323,7 @@ describe('db.js real mode (MONGODB_URI set)', () => {
       expect(mockCollection.find).toHaveBeenCalledWith({ _category: 'whiskey' }, undefined);
 
       await whiskeyCol.deleteMany();
-      expect(mockCollection.deleteMany).toHaveBeenCalledWith({ _category: 'whiskey' });
+      expect(mockCollection.deleteMany).toHaveBeenCalledWith({ _category: 'whiskey' }, undefined);
     });
 
     it('aggregate inserts a $match after $search when present', async () => {

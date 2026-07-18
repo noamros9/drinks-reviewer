@@ -62,6 +62,8 @@ function fakeCollection(name) {
     find: (filter = {}) => ({ toArray: async () => docs().filter(d => matchesFilter(d, filter)).map(d => ({ ...d })) }),
     deleteMany: async (filter = {}) => { fake.set(name, docs().filter(d => !matchesFilter(d, filter))); },
     insertMany: async (newDocs) => { docs().push(...newDocs.map(d => ({ ...d }))); },
+    // fake DB is a synchronous in-memory array — there's no partial-failure window to
+    // guard against, so transaction sessions are accepted (for signature parity) and ignored.
     aggregate: (pipeline) => ({ toArray: async () => fakeAggregate(docs(), pipeline) }),
   };
 }
@@ -72,8 +74,8 @@ function fakeCollection(name) {
 function scopeByCategory(raw, tag) {
   return {
     find: (filter = {}, opts) => raw.find({ ...filter, _category: tag }, opts),
-    deleteMany: (filter = {}) => raw.deleteMany({ ...filter, _category: tag }),
-    insertMany: (docs) => raw.insertMany(docs.map(d => ({ ...d, _category: tag }))),
+    deleteMany: (filter = {}, opts) => raw.deleteMany({ ...filter, _category: tag }, opts),
+    insertMany: (docs, opts) => raw.insertMany(docs.map(d => ({ ...d, _category: tag })), opts),
     aggregate: (pipeline) => {
       const idx = pipeline.findIndex(s => s.$search);
       const withMatch = idx >= 0
@@ -92,6 +94,21 @@ async function connect() {
     db = client.db(process.env.MONGODB_DB);
   }
   return db;
+}
+
+// Runs fn(session) inside a real multi-document transaction when a real Atlas connection
+// is active (every Atlas cluster, including the free M0 tier, runs as a replica set and
+// supports transactions). In fake/in-memory mode there's no partial-failure window to
+// protect against, so fn just runs with no session.
+async function withTransaction(fn) {
+  const realDb = await connect();
+  if (!realDb) return fn(undefined);
+  const session = client.startSession();
+  try {
+    return await session.withTransaction(() => fn(session));
+  } finally {
+    await session.endSession();
+  }
 }
 
 function fakeOrReal(realDb, name) {
@@ -125,4 +142,4 @@ async function close() {
   }
 }
 
-module.exports = { getCollection, getRegionCoordinatesCollection, COLLECTIONS, close, resetFake };
+module.exports = { getCollection, getRegionCoordinatesCollection, COLLECTIONS, close, resetFake, withTransaction };

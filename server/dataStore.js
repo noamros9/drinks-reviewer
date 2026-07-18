@@ -10,9 +10,11 @@ async function readData(category) {
 }
 
 async function writeData(category, data) {
-  const col = await db.getCollection(category);
-  await col.deleteMany({});
-  if (data.length) await col.insertMany(data);
+  await db.withTransaction(async session => {
+    const col = await db.getCollection(category);
+    await col.deleteMany({}, { session });
+    if (data.length) await col.insertMany(data, { session });
+  });
 }
 
 module.exports = { readData, writeData };

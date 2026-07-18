@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DrinkList from '../components/DrinkList';
 import './RecommendPage.css';
@@ -30,6 +30,10 @@ export default function GenerateListPage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [catalogue, setCatalogue] = useState({});
+
+  useEffect(() => {
+    fetch('/api/tags').catch(() => {});
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();

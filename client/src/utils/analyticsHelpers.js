@@ -198,7 +198,9 @@ export function buildCountryRanking(drinks) {
     if (!groups.has(d.country)) groups.set(d.country, []);
     if (typeof d.avgRating === 'number' && !Number.isNaN(d.avgRating)) groups.get(d.country).push(d.avgRating);
   }
-  const rows = [...groups.entries()].map(([country, values]) => ({ country, avgRating: avgOf(values), count: values.length }));
+  const rows = [...groups.entries()]
+    .filter(([, values]) => values.length > 0)
+    .map(([country, values]) => ({ country, avgRating: avgOf(values), count: values.length }));
   return addWeightedRatingToRows(rows);
 }
 
