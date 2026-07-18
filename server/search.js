@@ -8,10 +8,17 @@ const SEARCH_FIELDS = {
   others: ['distillery', 'name'],
 };
 
+// Atlas Search wildcard() treats * and ? as glob operators; escape them so a
+// literal "*" typed by a user is matched literally rather than as a wildcard.
+function escapeWildcard(str) {
+  return str.replace(/\\/g, '\\\\').replace(/\*/g, '\\*').replace(/\?/g, '\\?');
+}
+
 async function searchCategory(category, q) {
   const col = await db.getCollection(category);
+  const query = `*${escapeWildcard(q.toLowerCase())}*`;
   const docs = await col.aggregate([
-    { $search: { text: { query: q, path: SEARCH_FIELDS[category] } } },
+    { $search: { wildcard: { query, path: SEARCH_FIELDS[category], allowAnalyzedField: true } } },
     { $project: { _id: 0 } },
   ]).toArray();
   return docs.filter(d => !d.collectionOnly);

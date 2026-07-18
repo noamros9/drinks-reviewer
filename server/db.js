@@ -14,17 +14,36 @@ let fake = null;
 // environment that hasn't been given real credentials). Mirrors the tiny slice of the
 // MongoDB driver's API dataStore.js/search.js actually call: find().toArray(), deleteMany,
 // insertMany, aggregate().toArray().
-// ponytail: fakeAggregate is a best-effort approximation of $search.text (substring match)
+// Turns an Atlas Search wildcard() pattern (Lucene glob: * = any run of chars, ? = any
+// single char, \ escapes a literal) into a case-insensitive RegExp.
+function wildcardToRegex(pattern) {
+  let re = '';
+  for (let i = 0; i < pattern.length; i++) {
+    const c = pattern[i];
+    if (c === '\\' && i + 1 < pattern.length) {
+      re += pattern[++i].replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    } else if (c === '*') {
+      re += '.*';
+    } else if (c === '?') {
+      re += '.';
+    } else {
+      re += c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+  }
+  return new RegExp(`^${re}$`, 'i');
+}
+
+// ponytail: fakeAggregate is a best-effort approximation of $search.wildcard (glob match)
 // plus a plain $match equality filter (for scopeByCategory's _category injection) — not a
 // real aggregation engine, only understands the stages this codebase actually emits.
 function fakeAggregate(docs, pipeline) {
   let result = docs.map(d => ({ ...d }));
   for (const stage of pipeline) {
-    if (stage.$search?.text) {
-      const { query, path } = stage.$search.text;
-      const q = query.toLowerCase();
+    if (stage.$search?.wildcard) {
+      const { query, path } = stage.$search.wildcard;
+      const re = wildcardToRegex(query);
       const fields = Array.isArray(path) ? path : [path];
-      result = result.filter(d => fields.some(f => String(d[f] ?? '').toLowerCase().includes(q)));
+      result = result.filter(d => fields.some(f => re.test(String(d[f] ?? ''))));
     } else if (stage.$match) {
       result = result.filter(d => Object.entries(stage.$match).every(([k, v]) => d[k] === v));
     }
