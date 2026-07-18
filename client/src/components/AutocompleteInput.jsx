@@ -1,7 +1,7 @@
 import { forwardRef, useState, useRef, useEffect } from 'react';
 import './AutocompleteInput.css';
 
-export default forwardRef(function AutocompleteInput({ id, name, value, onChange, suggestions = [], placeholder = '', className = '', onKeyDown: onKeyDownProp, inputTestId, enterKeyHint }, ref) {
+export default forwardRef(function AutocompleteInput({ id, name, value, onChange, onSelect, suggestions = [], placeholder = '', className = '', onKeyDown: onKeyDownProp, inputTestId, enterKeyHint }, ref) {
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(-1);
   const wrapRef = useRef(null);
@@ -18,7 +18,11 @@ export default forwardRef(function AutocompleteInput({ id, name, value, onChange
     return () => document.removeEventListener('mousedown', close);
   }, []);
 
-  const pick = val => { onChange({ target: { name, value: val } }); setOpen(false); };
+  const pick = val => {
+    if (onSelect) onSelect(val);
+    else onChange({ target: { name, value: val } });
+    setOpen(false);
+  };
 
   const onKeyDown = e => {
     if (open && filtered.length) {
@@ -53,7 +57,7 @@ export default forwardRef(function AutocompleteInput({ id, name, value, onChange
             <li
               key={s}
               className={i === activeIdx ? 'ac-active' : ''}
-              onMouseDown={() => pick(s)}
+              onMouseDown={e => { e.preventDefault(); pick(s); }}
             >
               {s}
             </li>

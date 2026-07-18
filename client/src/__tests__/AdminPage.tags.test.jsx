@@ -222,6 +222,17 @@ test('adding a tag in edit mode with no prior tags works (covers || [] branch)',
   expect(screen.getByText('gift')).toBeInTheDocument();
 });
 
+test('clicking an autocomplete suggestion adds the tag chip immediately, clears the input, and keeps focus', async () => {
+  renderAdmin();
+  const input = getTagsInput();
+  fireEvent.change(input, { target: { value: 'gi' } });
+  const suggestion = await screen.findByText('gift', { selector: 'li' });
+  fireEvent.mouseDown(suggestion);
+  expect(screen.getByText('gift')).toBeInTheDocument();
+  expect(input.value).toBe('');
+  expect(document.activeElement).toBe(input);
+});
+
 test('renders without crashing when /api/tags fetch rejects', async () => {
   global.fetch = vi.fn((url) => {
     if (url === '/api/tags') return Promise.reject(new Error('network error'));
