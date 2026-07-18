@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
+import { shift } from '@floating-ui/dom';
 import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomSelect from '../components/CustomSelect';
@@ -797,6 +798,7 @@ export default function AdminPage() {
                 dateFormat="dd/MM/yyyy"
                 placeholderText="dd/mm/yyyy"
                 className="date-picker-input"
+                popperModifiers={[shift({ padding: 8 })]}
               />
             </div>
             <div className="form-group">
