@@ -19,6 +19,7 @@
     "prepare": "node scripts/install-hooks.js"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.7.6",
     "@vitejs/plugin-react": "^4.2.1",
     "cloudinary": "^2.10.0",
     "cookie-parser": "^1.4.7",
