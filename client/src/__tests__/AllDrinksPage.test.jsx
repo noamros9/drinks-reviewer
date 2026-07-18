@@ -69,10 +69,12 @@ test('producer column shows brewery for beer', async () => {
   expect(await screen.findByText('Brew Co')).toBeInTheDocument();
 });
 
-test('does not show Edit button (no onEdit prop)', async () => {
+test('shows Edit button and navigates to admin on click', async () => {
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
   await screen.findByText('Grand Cru');
-  expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument();
+  const editButtons = screen.getAllByRole('button', { name: /edit/i });
+  expect(editButtons.length).toBeGreaterThan(0);
+  fireEvent.click(editButtons[0]);
 });
 
 test('country filter narrows visible entries', async () => {

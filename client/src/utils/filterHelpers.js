@@ -162,7 +162,7 @@ export function buildDropdownOptions(drinks, conf) {
 
   if (conf.multiValue) {
     const allTags = new Set();
-    drinks.forEach(d => (d[conf.key] || []).forEach(t => allTags.add(t)));
+    drinks.forEach(d => (d[conf.key] || []).forEach(t => allTags.add(t.trim().toLowerCase())));
     return { special, options: [...allTags].sort() };
   }
 

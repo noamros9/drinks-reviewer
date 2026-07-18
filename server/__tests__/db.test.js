@@ -69,34 +69,52 @@ describe('db.js fake mode (no MONGODB_URI)', () => {
     await expect(db.close()).resolves.toBeUndefined();
   });
 
-  it('aggregate with $search.text matches case-insensitive substrings across the given paths', async () => {
+  it('aggregate with $search.wildcard matches case-insensitive substrings across the given paths', async () => {
     const col = await db.getCollection('wine');
     await col.insertMany([
       { id: 1, producer: 'Chateau Margaux', seriesAndName: 'Grand Vin' },
       { id: 2, producer: 'Opus One', seriesAndName: 'Napa Blend' },
     ]);
     const results = await col.aggregate([
-      { $search: { text: { query: 'MARGAUX', path: ['producer', 'seriesAndName'] } } },
+      { $search: { wildcard: { query: '*MARGAUX*', path: ['producer', 'seriesAndName'] } } },
     ]).toArray();
     expect(results).toEqual([{ id: 1, producer: 'Chateau Margaux', seriesAndName: 'Grand Vin' }]);
   });
 
-  it('aggregate with $search.text matches on any of the given paths', async () => {
+  it('aggregate with $search.wildcard matches on any of the given paths', async () => {
     const col = await db.getCollection('wine');
     await col.insertMany([{ id: 1, producer: 'Chateau Margaux', seriesAndName: 'Grand Vin' }]);
     const results = await col.aggregate([
-      { $search: { text: { query: 'grand', path: ['producer', 'seriesAndName'] } } },
+      { $search: { wildcard: { query: '*grand*', path: ['producer', 'seriesAndName'] } } },
     ]).toArray();
     expect(results).toEqual([{ id: 1, producer: 'Chateau Margaux', seriesAndName: 'Grand Vin' }]);
   });
 
-  it('aggregate with $search.text accepts a single string path', async () => {
+  it('aggregate with $search.wildcard accepts a single string path', async () => {
     const col = await db.getCollection('wine');
     await col.insertMany([{ id: 1, producer: 'Chateau Margaux' }]);
     const results = await col.aggregate([
-      { $search: { text: { query: 'margaux', path: 'producer' } } },
+      { $search: { wildcard: { query: '*margaux*', path: 'producer' } } },
     ]).toArray();
     expect(results).toEqual([{ id: 1, producer: 'Chateau Margaux' }]);
+  });
+
+  it('aggregate with $search.wildcard supports ? as a single-character glob', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1, producer: 'margaux' }, { id: 2, producer: 'margauxx' }]);
+    const results = await col.aggregate([
+      { $search: { wildcard: { query: 'margau?', path: 'producer' } } },
+    ]).toArray();
+    expect(results).toEqual([{ id: 1, producer: 'margaux' }]);
+  });
+
+  it('aggregate with $search.wildcard treats an escaped * as a literal character', async () => {
+    const col = await db.getCollection('wine');
+    await col.insertMany([{ id: 1, producer: 'a*b' }, { id: 2, producer: 'axb' }]);
+    const results = await col.aggregate([
+      { $search: { wildcard: { query: 'a\\*b', path: 'producer' } } },
+    ]).toArray();
+    expect(results).toEqual([{ id: 1, producer: 'a*b' }]);
   });
 
   it('aggregate ignores unknown stages', async () => {
@@ -117,7 +135,7 @@ describe('db.js fake mode (no MONGODB_URI)', () => {
     const col = await db.getCollection('wine');
     await col.insertMany([{ id: 1, producer: 'Chateau Margaux' }]);
     const results = await col.aggregate([
-      { $search: { text: { query: 'margaux', path: 'producer' } } },
+      { $search: { wildcard: { query: '*margaux*', path: 'producer' } } },
     ]).toArray();
     expect(results).toEqual([{ id: 1, producer: 'Chateau Margaux' }]);
   });
@@ -126,7 +144,7 @@ describe('db.js fake mode (no MONGODB_URI)', () => {
     const col = await db.getCollection('wine');
     await col.insertMany([{ id: 1 }]);
     const results = await col.aggregate([
-      { $search: { text: { query: 'margaux', path: 'producer' } } },
+      { $search: { wildcard: { query: '*margaux*', path: 'producer' } } },
     ]).toArray();
     expect(results).toEqual([]);
   });
@@ -177,7 +195,7 @@ describe('db.js fake mode (no MONGODB_URI)', () => {
       await whiskeyCol.insertMany([{ id: 'w1', name: 'Glenlivet Cask' }]);
       await othersCol.insertMany([{ id: 'o1', name: 'Cask Rum' }]);
       const results = await whiskeyCol.aggregate([
-        { $search: { text: { query: 'cask', path: ['name'] } } },
+        { $search: { wildcard: { query: '*cask*', path: ['name'] } } },
       ]).toArray();
       expect(results).toEqual([{ id: 'w1', name: 'Glenlivet Cask', _category: 'whiskey' }]);
     });

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
+import { shift } from '@floating-ui/dom';
 import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 import CustomSelect from '../components/CustomSelect';
@@ -172,9 +173,11 @@ export default function AdminPage() {
   const setTagInputFor = (key, value) => setTagInputs(prev => ({ ...prev, [key]: value }));
 
   const addTag = (setter, key, tag) => {
+    const trimmed = tag.trim();
+    const norm = key === 'tags' ? trimmed.toLowerCase() : trimmed;
     setter(prev => {
-      if (!tag || (prev[key] || []).includes(tag)) return prev;
-      return { ...prev, [key]: [...(prev[key] || []), tag] };
+      if (!norm || (prev[key] || []).includes(norm)) return prev;
+      return { ...prev, [key]: [...(prev[key] || []), norm] };
     });
   };
 
@@ -687,7 +690,7 @@ export default function AdminPage() {
                 onKeyDown={e => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    commitTag('tags', getTagInput('tags').trim(), t => {
+                    commitTag('tags', getTagInput('tags').trim().toLowerCase(), t => {
                       if (!(form.tags || []).includes(t)) handleUpdateTags([...(form.tags || []), t]);
                     });
                   }
@@ -801,6 +804,7 @@ export default function AdminPage() {
                 dateFormat="dd/MM/yyyy"
                 placeholderText="dd/mm/yyyy"
                 className="date-picker-input"
+                popperModifiers={[shift({ padding: 8 })]}
               />
             </div>
             <div className="form-group">

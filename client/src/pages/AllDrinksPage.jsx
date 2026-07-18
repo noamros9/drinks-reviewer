@@ -73,6 +73,10 @@ export default function AllDrinksPage() {
     ).then(results => setDrinks(results.flat()));
   }, []);
 
+  const handleEdit = (drink) => {
+    navigate('/admin', { state: { category: drink._category.toLowerCase(), drink, tab: 'review' } });
+  };
+
   const handleColumnLayoutChange = (next) => {
     setColumnLayout(next);
     saveLayout(next);
@@ -151,6 +155,7 @@ export default function AllDrinksPage() {
       <DrinkTable
         category="all"
         drinks={visible}
+        onEdit={handleEdit}
         columnLayout={columnLayout}
         onColumnLayoutChange={handleColumnLayoutChange}
         filterableCols={FILTERABLE_ALL}

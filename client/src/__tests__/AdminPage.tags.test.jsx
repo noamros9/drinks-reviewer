@@ -150,6 +150,17 @@ test('duplicate tag is not added', () => {
   expect(screen.getAllByText('gift')).toHaveLength(1);
 });
 
+test('tag is normalized to lowercase and a case-variant duplicate is not added', () => {
+  renderAdmin();
+  const input = getTagsInput();
+  fireEvent.change(input, { target: { value: 'Gift' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  fireEvent.change(input, { target: { value: 'GIFT' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  expect(screen.getAllByText('gift')).toHaveLength(1);
+  expect(screen.queryByText('Gift')).not.toBeInTheDocument();
+});
+
 test('empty tag is not added', () => {
   renderAdmin();
   const input = getTagsInput();

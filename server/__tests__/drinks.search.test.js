@@ -58,6 +58,15 @@ describe('GET /api/:category/search', () => {
     expect(res.body[0].producer).toBe('Chateau Margaux');
   });
 
+  it('matches a partial, in-progress query against the start of a producer name', async () => {
+    await request(app).post('/api/wine').send({ producer: 'Sartori', seriesAndName: 'Corte Vantris' });
+
+    const res = await request(app).get('/api/wine/search?q=Sar');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].producer).toBe('Sartori');
+  });
+
   it('matches on the name field too, not just producer', async () => {
     await request(app).post('/api/wine').send({ producer: 'Chateau Margaux', seriesAndName: 'Grand Vin' });
 
