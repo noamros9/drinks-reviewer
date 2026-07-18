@@ -182,6 +182,12 @@ export default function AdminPage() {
     setter(prev => ({ ...prev, [key]: prev[key].filter(t => t !== tag) }));
   };
 
+  const commitTag = (key, tag, addFn) => {
+    if (tag) addFn(tag);
+    setTagInputFor(key, '');
+    getInputRef(key).current?.focus();
+  };
+
   const varietySuggestions = [...new Set(categoryDrinks.flatMap(d => d.variety || []))].sort();
   const tagSuggestionsFor = (key) => key === 'variety' ? varietySuggestions : allTags;
 
@@ -477,12 +483,11 @@ export default function AdminPage() {
                   ref={getInputRef(field.key)}
                   value={getTagInput(field.key)}
                   onChange={e => setTagInputFor(field.key, e.target.value)}
+                  onSelect={tag => commitTag(field.key, tag, t => addTag(setForm, field.key, t))}
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      addTag(setForm, field.key, getTagInput(field.key).trim());
-                      setTagInputFor(field.key, '');
-                      getInputRef(field.key).current?.focus();
+                      commitTag(field.key, getTagInput(field.key).trim(), t => addTag(setForm, field.key, t));
                     }
                   }}
                   suggestions={tagSuggestionsFor(field.key)}
@@ -615,12 +620,11 @@ export default function AdminPage() {
                 ref={getInputRef('tags')}
                 value={getTagInput('tags')}
                 onChange={e => setTagInputFor('tags', e.target.value)}
+                onSelect={tag => commitTag('tags', tag, t => addTag(setColForm, 'tags', t))}
                 onKeyDown={e => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    addTag(setColForm, 'tags', getTagInput('tags').trim());
-                    setTagInputFor('tags', '');
-                    getInputRef('tags').current?.focus();
+                    commitTag('tags', getTagInput('tags').trim(), t => addTag(setColForm, 'tags', t));
                   }
                 }}
                 suggestions={allTags}
@@ -677,15 +681,15 @@ export default function AdminPage() {
                 ref={getInputRef('tags')}
                 value={getTagInput('tags')}
                 onChange={e => setTagInputFor('tags', e.target.value)}
+                onSelect={tag => commitTag('tags', tag, t => {
+                  if (!(form.tags || []).includes(t)) handleUpdateTags([...(form.tags || []), t]);
+                })}
                 onKeyDown={e => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    const tag = getTagInput('tags').trim();
-                    if (tag && !(form.tags || []).includes(tag)) {
-                      handleUpdateTags([...(form.tags || []), tag]);
-                    }
-                    setTagInputFor('tags', '');
-                    getInputRef('tags').current?.focus();
+                    commitTag('tags', getTagInput('tags').trim(), t => {
+                      if (!(form.tags || []).includes(t)) handleUpdateTags([...(form.tags || []), t]);
+                    });
                   }
                 }}
                 suggestions={allTags}
