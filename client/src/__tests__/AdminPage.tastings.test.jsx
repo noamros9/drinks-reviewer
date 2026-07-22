@@ -217,6 +217,7 @@ test('adding a tasting with an image uploads image to new tasting id', async () 
   const updatedWithImg = { ...EDIT_DRINK, tastings: [TASTING, { ...newTasting, imageUrl: '/images/drinks/new.jpg' }] };
   global.fetch
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) })              // /api/tags on mount
+    .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ catalogPublic: false }) }) // /api/settings on mount
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedDrink) })   // POST tasting
     .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(updatedWithImg) }); // POST image
   renderTastingsTab();
