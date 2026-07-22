@@ -117,6 +117,31 @@ export const COLUMNS = {
 
 const TAG_CHIP_KEYS = new Set(['tags', 'variety']);
 
+const NUMERIC_KEYS = new Set(['abv', 'lastRating', 'avgRating', 'weightedRating', 'age', 'vivinoScore', 'price']);
+
+export function sortDrinks(drinks, sortKey, sortDir) {
+  return [...drinks].sort((a, b) => {
+    if (!sortKey) return 0;
+    let av = a[sortKey] ?? '';
+    let bv = b[sortKey] ?? '';
+    if (sortKey === 'lastTasted') {
+      const toInt = (s) => {
+        if (!s) return 0;
+        const [d, m, y] = s.split('/');
+        return parseInt(y, 10) * 10000 + parseInt(m, 10) * 100 + parseInt(d, 10);
+      };
+      av = toInt(av);
+      bv = toInt(bv);
+    } else if (NUMERIC_KEYS.has(sortKey)) {
+      av = parseFloat(av) || 0;
+      bv = parseFloat(bv) || 0;
+    }
+    if (av === bv) return 0;
+    const sign = av < bv ? -1 : 1;
+    return sortDir === 'asc' ? sign : -sign;
+  });
+}
+
 export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, columnLayout, onColumnLayoutChange, onCellClick, filterableCols, sortKey: propSortKey, sortDir: propSortDir, onSort, activeVintage, selectedIds, onToggleRow, onToggleAll }) {
   const [intKey, setIntKey] = useState(null);
   const [intDir, setIntDir] = useState('asc');
@@ -234,28 +259,7 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
     return '';
   };
 
-  const NUMERIC_KEYS = new Set(['abv', 'lastRating', 'avgRating', 'weightedRating', 'age', 'vivinoScore', 'price']);
-
-  const sorted = [...drinks].sort((a, b) => {
-    if (!sortKey) return 0;
-    let av = a[sortKey] ?? '';
-    let bv = b[sortKey] ?? '';
-    if (sortKey === 'lastTasted') {
-      const toInt = (s) => {
-        if (!s) return 0;
-        const [d, m, y] = s.split('/');
-        return parseInt(y, 10) * 10000 + parseInt(m, 10) * 100 + parseInt(d, 10);
-      };
-      av = toInt(av);
-      bv = toInt(bv);
-    } else if (NUMERIC_KEYS.has(sortKey)) {
-      av = parseFloat(av) || 0;
-      bv = parseFloat(bv) || 0;
-    }
-    if (av === bv) return 0;
-    const sign = av < bv ? -1 : 1;
-    return sortDir === 'asc' ? sign : -sign;
-  });
+  const sorted = sortDrinks(drinks, sortKey, sortDir);
 
   if (drinks.length === 0) {
     return <p className="empty-state">No entries yet. Add one via Admin.</p>;
