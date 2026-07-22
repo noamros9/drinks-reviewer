@@ -165,6 +165,39 @@ describe('DELETE /api/:category/:id', () => {
   });
 });
 
+describe('PATCH /api/:category/:id/share', () => {
+  it('sets shared to true', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).patch(`/api/wine/${wine.body.id}/share`).send({ shared: true });
+    expect(res.status).toBe(200);
+    expect(res.body.shared).toBe(true);
+  });
+
+  it('unsets shared, removing the field', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    await request(app).patch(`/api/wine/${wine.body.id}/share`).send({ shared: true });
+    const res = await request(app).patch(`/api/wine/${wine.body.id}/share`).send({ shared: false });
+    expect(res.status).toBe(200);
+    expect(res.body.shared).toBeUndefined();
+  });
+
+  it('returns 400 for a non-boolean shared value', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    const res = await request(app).patch(`/api/wine/${wine.body.id}/share`).send({ shared: 'yes' });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 404 for unknown drink id', async () => {
+    const res = await request(app).patch('/api/wine/nonexistent/share').send({ shared: true });
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 404 for unknown category', async () => {
+    const res = await request(app).patch('/api/unknown/123/share').send({ shared: true });
+    expect(res.status).toBe(404);
+  });
+});
+
 describe('PUT /api/:category/:id preserves collection', () => {
   it('preserves collection field when updating other fields', async () => {
     const wine = await request(app).post('/api/wine').send({ producer: 'X', seriesAndName: 'Y' });
@@ -396,6 +429,27 @@ describe('GET /api/tags', () => {
   });
 });
 
+describe('GET/PATCH /api/settings', () => {
+  it('GET returns catalogPublic false by default', async () => {
+    const res = await request(app).get('/api/settings');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ catalogPublic: false });
+  });
+
+  it('PATCH sets catalogPublic to true and GET reflects it', async () => {
+    const patchRes = await request(app).patch('/api/settings').send({ catalogPublic: true });
+    expect(patchRes.status).toBe(200);
+    expect(patchRes.body).toEqual({ catalogPublic: true });
+    const getRes = await request(app).get('/api/settings');
+    expect(getRes.body).toEqual({ catalogPublic: true });
+  });
+
+  it('PATCH returns 400 for a non-boolean catalogPublic value', async () => {
+    const res = await request(app).patch('/api/settings').send({ catalogPublic: 'yes' });
+    expect(res.status).toBe(400);
+  });
+});
+
 describe('GET /api/region-coordinates', () => {
   it('returns {} when nothing has been geocoded yet', async () => {
     const res = await request(app).get('/api/region-coordinates');
@@ -471,6 +525,19 @@ describe('500 error handling when the data backend fails', () => {
     const spy = jest.spyOn(db, 'getRegionCoordinatesCollection').mockRejectedValue(new Error('boom'));
     expect((await request(app).get('/api/region-coordinates')).status).toBe(500);
     spy.mockRestore();
+  });
+  it('GET /api/settings returns 500', async () => {
+    const spy = jest.spyOn(db, 'getSettingsCollection').mockRejectedValue(new Error('boom'));
+    expect((await request(app).get('/api/settings')).status).toBe(500);
+    spy.mockRestore();
+  });
+  it('PATCH /api/settings returns 500', async () => {
+    const spy = jest.spyOn(db, 'getSettingsCollection').mockRejectedValue(new Error('boom'));
+    expect((await request(app).patch('/api/settings').send({ catalogPublic: true })).status).toBe(500);
+    spy.mockRestore();
+  });
+  it('PATCH /api/wine/:id/share returns 500', async () => {
+    expect((await request(app).patch('/api/wine/any-id/share').send({ shared: true })).status).toBe(500);
   });
   it('GET /api/wine returns 500', async () => {
     expect((await request(app).get('/api/wine')).status).toBe(500);

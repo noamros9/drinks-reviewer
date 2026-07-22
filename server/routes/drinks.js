@@ -7,6 +7,7 @@ const { readData, writeData } = require('../dataStore');
 const { searchCategory } = require('../search');
 const { getRecommendations, getTasteCard, getGeneratedList } = require('../recommend');
 const { uploadImage, deleteImage } = require('../cloudinary');
+const { getSettings, setCatalogPublic } = require('../settings');
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -112,6 +113,26 @@ router.get('/collection', async (req, res) => {
       }
     }
     res.json(result);
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.get('/settings', async (_req, res) => {
+  try {
+    res.json(await getSettings());
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.patch('/settings', async (req, res) => {
+  if (typeof req.body.catalogPublic !== 'boolean') {
+    return res.status(400).json({ error: 'catalogPublic must be a boolean' });
+  }
+  try {
+    await setCatalogPublic(req.body.catalogPublic);
+    res.json(await getSettings());
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
   }
@@ -271,6 +292,27 @@ router.delete('/:category/:id', async (req, res) => {
     });
     if (!found) return res.status(404).json({ error: 'Entry not found' });
     res.status(204).end();
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
+router.patch('/:category/:id/share', async (req, res) => {
+  const { category, id } = req.params;
+  if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  if (typeof req.body.shared !== 'boolean') return res.status(400).json({ error: 'shared must be a boolean' });
+  try {
+    const updated = await withLock(category, async () => {
+      const data = await readData(category);
+      const index = data.findIndex(d => d.id === id);
+      if (index === -1) return null;
+      if (req.body.shared) data[index].shared = true;
+      else delete data[index].shared;
+      await writeData(category, data);
+      return data[index];
+    });
+    if (!updated) return res.status(404).json({ error: 'Entry not found' });
+    res.json(updated);
   } catch {
     res.status(500).json({ error: 'Data unavailable' });
   }
@@ -498,4 +540,5 @@ router.delete('/:category/:id/collection/:lotId', async (req, res) => {
 });
 
 router._withLock = withLock; // exported for concurrency unit tests only
+router.CATEGORIES = CATEGORIES;
 module.exports = router;

@@ -1,0 +1,17 @@
+.share-photo {
+  width: 100%;
+  max-width: 320px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.share-meta {
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.share-tastings {
+  margin-top: 1rem;
+  padding-left: 1.25rem;
+}

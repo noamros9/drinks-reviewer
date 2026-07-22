@@ -57,6 +57,12 @@ describe('db.js fake mode (no MONGODB_URI)', () => {
     expect(await col.find().toArray()).toEqual([{ _id: 'Spain||Rioja', lat: 1, lon: 2 }]);
   });
 
+  it('getSettingsCollection lazily initializes the fake store on first call', async () => {
+    const col = await db.getSettingsCollection();
+    await col.insertMany([{ _id: 'global', catalogPublic: true }]);
+    expect(await col.find().toArray()).toEqual([{ _id: 'global', catalogPublic: true }]);
+  });
+
   it('resetFake clears all collections', async () => {
     const col = await db.getCollection('wine');
     await col.insertMany([{ id: 1 }]);
@@ -261,6 +267,12 @@ describe('db.js real mode (MONGODB_URI set)', () => {
   it('getRegionCoordinatesCollection returns the regionCoordinates collection from the connected db', async () => {
     const col = await db.getRegionCoordinatesCollection();
     expect(mockDb.collection).toHaveBeenCalledWith('regionCoordinates');
+    expect(col).toBe(mockCollection);
+  });
+
+  it('getSettingsCollection returns the settings collection from the connected db', async () => {
+    const col = await db.getSettingsCollection();
+    expect(mockDb.collection).toHaveBeenCalledWith('settings');
     expect(col).toBe(mockCollection);
   });
 

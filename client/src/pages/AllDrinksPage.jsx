@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
+import DrinkTable, { COLUMNS, resolveColumnOrder, sortDrinks } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
 import { buildInitialFilters, matchesFilters, applyUrlRangeOverrides, applyUrlDropdownOverrides, PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
+import { rowsToCsv, downloadCsv } from '../utils/csvExport';
 
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 const FILTERS = ['all', ...CATEGORIES];
@@ -102,6 +103,11 @@ export default function AllDrinksPage() {
     );
   };
 
+  const handleExportCsv = () => {
+    const rows = sortDrinks(visible, sortKey, sortDir);
+    downloadCsv('all-drinks.csv', rowsToCsv(rows, COLUMNS.all));
+  };
+
   return (
     <div className="category-page">
       <div className="page-header">
@@ -121,6 +127,9 @@ export default function AllDrinksPage() {
         </button>
         <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: filter === 'all' ? { tab: 'collection' } : { category: filter, tab: 'collection' } })}>
           Add to Collection
+        </button>
+        <button type="button" className="btn-outline" onClick={handleExportCsv}>
+          Export CSV
         </button>
       </div>
       <div className="category-tabs">

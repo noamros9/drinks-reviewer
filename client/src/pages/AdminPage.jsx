@@ -116,10 +116,34 @@ export default function AdminPage() {
   const newColImageRef = useRef(null);
   const [focusVivino, setFocusVivino] = useState(false);
   const vivinoInputRef = useRef(null);
+  const [catalogPublic, setCatalogPublic] = useState(false);
 
   useEffect(() => {
     fetch('/api/tags').then(r => r.json()).then(data => { if (Array.isArray(data)) setAllTags(data); }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    fetch('/api/settings').then(r => r.json()).then(data => setCatalogPublic(!!data.catalogPublic)).catch(() => {});
+  }, []);
+
+  const handleToggleCatalogPublic = async (checked) => {
+    setCatalogPublic(checked);
+    await fetch('/api/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ catalogPublic: checked }),
+    }).catch(() => {});
+  };
+
+  const handleToggleShared = async (checked) => {
+    const res = await fetch(`/api/${category}/${form.id}/share`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ shared: checked }),
+    });
+    if (!res.ok) { setMessage('Failed to update sharing.'); return; }
+    setForm(prev => ({ ...prev, shared: checked }));
+  };
 
   useEffect(() => {
     if (!focusVivino || !vivinoInputRef.current) return;
@@ -466,6 +490,19 @@ export default function AdminPage() {
     <div className="admin-page">
       <h1>{isEditing ? editTitle : 'Add Entry'}</h1>
 
+      <div className="catalog-toggle-row">
+        <label htmlFor="catalog-public-toggle">
+          <input
+            id="catalog-public-toggle"
+            type="checkbox"
+            checked={catalogPublic}
+            onChange={e => handleToggleCatalogPublic(e.target.checked)}
+          />
+          {' '}Public catalog
+        </label>
+        {catalogPublic && <a href="/catalog" target="_blank" rel="noopener noreferrer">View public catalog</a>}
+      </div>
+
       <div className="category-tabs">
         <button className={activeTab === 'review' ? 'active' : ''} onClick={() => setActiveTab('review')}>Review</button>
         <button className={activeTab === 'collection' ? 'active' : ''} onClick={() => setActiveTab('collection')}>Collection</button>
@@ -562,6 +599,29 @@ export default function AdminPage() {
             {form.lastTasted   && <div className="form-group"><label>Last Tasted</label><input readOnly value={form.lastTasted} className="input-readonly" /></div>}
             {form.lastRating != null && form.lastRating !== '' && <div className="form-group"><label>Last Rating</label><input readOnly value={form.lastRating} className="input-readonly" /></div>}
             {form.avgRating  != null && form.avgRating  !== '' && <div className="form-group"><label>Avg Rating</label><input readOnly value={form.avgRating}  className="input-readonly" /></div>}
+          </div>
+        )}
+
+        {isEditing && (
+          <div className="share-toggle-row">
+            <label htmlFor="shared-toggle">
+              <input
+                id="shared-toggle"
+                type="checkbox"
+                checked={!!form.shared}
+                onChange={e => handleToggleShared(e.target.checked)}
+              />
+              {' '}Share this drink
+            </label>
+            {form.shared && (
+              <input
+                readOnly
+                className="input-readonly"
+                data-testid="share-link"
+                value={`${window.location.origin}/share/${category}/${form.id}`}
+                onFocus={e => e.target.select()}
+              />
+            )}
           </div>
         )}
 

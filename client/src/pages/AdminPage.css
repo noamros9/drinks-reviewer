@@ -45,6 +45,30 @@
   background: var(--bg-secondary) !important;
 }
 
+.catalog-toggle-row,
+.share-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.catalog-toggle-row label,
+.share-toggle-row label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.share-toggle-row input[readonly] {
+  flex: 1;
+  max-width: 320px;
+}
+
 .derived-fields {
   border-top: 1px solid var(--border);
   padding-top: 1rem;

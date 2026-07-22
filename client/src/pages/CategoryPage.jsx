@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
+import DrinkTable, { COLUMNS, resolveColumnOrder, sortDrinks } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
 import BulkEditBar from '../components/BulkEditBar';
 import CompareBar from '../components/CompareBar';
@@ -8,6 +8,7 @@ import RecommendBar from '../components/RecommendBar';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, applyUrlRangeOverrides, applyUrlDropdownOverrides, applyUrlProducerOverride } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
+import { rowsToCsv, downloadCsv } from '../utils/csvExport';
 
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
 
@@ -111,6 +112,11 @@ export default function CategoryPage({ category }) {
     navigate('/admin', { state: { category, drink, tab: 'review' } });
   };
 
+  const handleExportCsv = () => {
+    const rows = sortDrinks(filtered, sortKey, sortDir);
+    downloadCsv(`${category}.csv`, rowsToCsv(rows, COLUMNS[category]));
+  };
+
   return (
     <div className="category-page">
       <div className="page-header">
@@ -136,6 +142,9 @@ export default function CategoryPage({ category }) {
         </button>
         <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: { category, tab: 'collection' } })}>
           Add to Collection
+        </button>
+        <button type="button" className="btn-outline" onClick={handleExportCsv}>
+          Export CSV
         </button>
       </div>
       <FilterBar

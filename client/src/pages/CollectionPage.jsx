@@ -5,6 +5,7 @@ import FilterBar from '../components/FilterBar';
 import AutocompleteInput from '../components/AutocompleteInput';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, buildDropdownOptions } from '../utils/filterHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
+import { rowsToCsv, downloadCsv } from '../utils/csvExport';
 import '../components/BulkEditBar.css';
 import './CollectionPage.css';
 
@@ -214,6 +215,10 @@ export default function CollectionPage() {
     );
   };
 
+  const handleExportCsv = () => {
+    downloadCsv('collection.csv', rowsToCsv(visible, COLUMNS.collection));
+  };
+
   const renderRowExtra = (drink) => {
     const busy = pendingStockIds.has(drink.id);
     return (
@@ -237,6 +242,9 @@ export default function CollectionPage() {
         </button>
         <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: filter === 'all' ? { tab: 'collection' } : { category: filter, tab: 'collection' } })}>
           Add to Collection
+        </button>
+        <button type="button" className="btn-outline" onClick={handleExportCsv}>
+          Export CSV
         </button>
       </div>
 
