@@ -130,6 +130,11 @@ async function getRegionCoordinatesCollection() {
   return fakeOrReal(realDb, 'regionCoordinates');
 }
 
+async function getSettingsCollection() {
+  const realDb = await connect();
+  return fakeOrReal(realDb, 'settings');
+}
+
 function resetFake() {
   fake = new Map();
 }
@@ -142,4 +147,4 @@ async function close() {
   }
 }
 
-module.exports = { getCollection, getRegionCoordinatesCollection, COLLECTIONS, close, resetFake, withTransaction };
+module.exports = { getCollection, getRegionCoordinatesCollection, getSettingsCollection, COLLECTIONS, close, resetFake, withTransaction };
