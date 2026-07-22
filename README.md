@@ -63,6 +63,8 @@ After the first deploy, Render assigns a `https://<name>.onrender.com` URL. Upda
 - Recommend Similar Drinks — pick 1+ drinks and get matches already in your catalogue (scored locally, no API cost) plus real-world drinks available/not available in Israel (via Gemini + Google Search grounding)
 - Personal Taste Card — per-category page summarizing your palate from rated entries (what you tend to like/avoid) plus Gemini-sourced real-world matches available/not available in Israel
 - Generate a List — type a freetext prompt (e.g. "something bold for a barbecue") and get a ranked list split into what's in your collection, what's elsewhere in your catalogue, and real purchasable options to buy (via Gemini + Google Search grounding)
+- Sharing — Admin toggle for a public read-only catalog at `/catalog` (opt-in, off by default, curated fields only), plus a per-drink "Share this drink" toggle producing a public link preview (`/share/:category/:id`) with Open Graph tags for chat/messaging previews
+- Export CSV — download the current filtered/sorted view from any category page, All Drinks, or Collection
 
 ## Testing
 
