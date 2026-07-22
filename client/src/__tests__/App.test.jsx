@@ -16,3 +16,10 @@ test('renders nav with Admin link', () => {
   render(<App />);
   expect(screen.getByRole('link', { name: /admin/i })).toBeInTheDocument();
 });
+
+test('suppresses the Header nav on public catalog/share routes', () => {
+  window.history.pushState({}, '', '/catalog');
+  render(<App />);
+  expect(screen.queryByText('Drinks Reviewer')).not.toBeInTheDocument();
+  expect(screen.queryByRole('link', { name: /admin/i })).not.toBeInTheDocument();
+});

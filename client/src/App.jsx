@@ -11,16 +11,24 @@ import RecommendPage from './pages/RecommendPage';
 import TasteCardPage from './pages/TasteCardPage';
 import GenerateListPage from './pages/GenerateListPage';
 import AccessDeniedPage from './pages/AccessDeniedPage';
+import CatalogPage from './pages/CatalogPage';
+import SharePage from './pages/SharePage';
 
 function AdminRoute() {
   const { key } = useLocation();
   return <AdminPage key={key} />;
 }
 
-export default function App() {
+// Public routes are reachable without a Google session — the normal Header's nav
+// (Admin, Analytics, etc.) all redirect to login, so it's suppressed here.
+const PUBLIC_PATHS = [/^\/catalog$/, /^\/share\/[^/]+\/[^/]+$/];
+
+function AppShell() {
+  const { pathname } = useLocation();
+  const isPublic = PUBLIC_PATHS.some(re => re.test(pathname));
   return (
-    <BrowserRouter>
-      <Header />
+    <>
+      {!isPublic && <Header />}
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -37,8 +45,18 @@ export default function App() {
           <Route path="/generate-list" element={<GenerateListPage />} />
           <Route path="/admin" element={<AdminRoute />} />
           <Route path="/access-denied" element={<AccessDeniedPage />} />
+          <Route path="/catalog" element={<CatalogPage />} />
+          <Route path="/share/:category/:id" element={<SharePage />} />
         </Routes>
       </main>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
     </BrowserRouter>
   );
 }
