@@ -199,9 +199,11 @@ export default function AdminPage() {
   const getTagInput = key => tagInputs[key] || '';
   const setTagInputFor = (key, value) => setTagInputs(prev => ({ ...prev, [key]: value }));
 
+  const titleCase = str => str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
   const addTag = (setter, key, tag) => {
     const trimmed = tag.trim();
-    const norm = key === 'tags' ? trimmed.toLowerCase() : trimmed;
+    const norm = key === 'tags' ? trimmed.toLowerCase() : titleCase(trimmed);
     setter(prev => {
       if (!norm || (prev[key] || []).includes(norm)) return prev;
       return { ...prev, [key]: [...(prev[key] || []), norm] };

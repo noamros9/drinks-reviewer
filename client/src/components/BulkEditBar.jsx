@@ -11,20 +11,20 @@ export default function BulkEditBar({ category, drinks, selectedIds, onApplied, 
   const [message, setMessage] = useState('');
 
   const activeConfig = bulkConfigs.find(c => c.label === fieldLabel) ?? bulkConfigs[0];
-  const isTags = activeConfig?.key === 'tags';
+  const isArrayField = !!(activeConfig?.multiValue || activeConfig?.varietyGroups);
   const { options: suggestions } = buildDropdownOptions(drinks, activeConfig);
   const count = selectedIds.size;
   const countLabel = `${count} ${count === 1 ? 'entry' : 'entries'}`;
 
   const apply = async (tagAction) => {
-    const verb = isTags
-      ? (tagAction === 'add' ? `Add tag "${value}" to` : `Remove tag "${value}" from`)
+    const verb = isArrayField
+      ? (tagAction === 'add' ? `Add "${value}" to ${activeConfig.label} for` : `Remove "${value}" from ${activeConfig.label} for`)
       : `Set ${activeConfig.label} to "${value}" for`;
     if (!window.confirm(`${verb} ${countLabel}?`)) return;
     const res = await fetch(`/api/${category}/bulk`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ids: [...selectedIds], field: activeConfig.key, value, ...(isTags ? { tagAction } : {}) }),
+      body: JSON.stringify({ ids: [...selectedIds], field: activeConfig.key, value, ...(isArrayField ? { tagAction } : {}) }),
     });
     if (!res.ok) { setMessage('Bulk edit failed. Please try again.'); return; }
     const { updated } = await res.json();
@@ -44,12 +44,12 @@ export default function BulkEditBar({ category, drinks, selectedIds, onApplied, 
       <AutocompleteInput
         value={value}
         onChange={e => setValue(e.target.value)}
-        placeholder={isTags ? 'Tag' : activeConfig?.label}
+        placeholder={activeConfig?.label}
         className="bulk-edit-value-input"
         suggestions={suggestions}
         inputTestId="bulk-edit-value"
       />
-      {isTags ? (
+      {isArrayField ? (
         <>
           <button type="button" className="bulk-edit-btn" disabled={!value} onClick={() => apply('add')}>Add to {count}</button>
           <button type="button" className="bulk-edit-btn bulk-edit-btn-danger" disabled={!value} onClick={() => apply('remove')}>Remove from {count}</button>

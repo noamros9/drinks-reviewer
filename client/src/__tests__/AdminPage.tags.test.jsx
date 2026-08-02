@@ -161,6 +161,16 @@ test('tag is normalized to lowercase and a case-variant duplicate is not added',
   expect(screen.queryByText('Gift')).not.toBeInTheDocument();
 });
 
+test('variety is normalized to Title Case and a case-variant duplicate is not added', () => {
+  renderAdmin();
+  const input = getVarietyInput();
+  fireEvent.change(input, { target: { value: 'cabernet sauvignon' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  fireEvent.change(input, { target: { value: 'CABERNET SAUVIGNON' } });
+  fireEvent.keyDown(input, { key: 'Enter' });
+  expect(screen.getAllByText('Cabernet Sauvignon')).toHaveLength(1);
+});
+
 test('empty tag is not added', () => {
   renderAdmin();
   const input = getTagsInput();

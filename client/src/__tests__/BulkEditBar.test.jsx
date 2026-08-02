@@ -114,6 +114,19 @@ test('confirming a tag Remove sends tagAction "remove"', async () => {
   })));
 });
 
+test('selecting Variety shows Add/Remove buttons and sends tagAction (array field, like tags)', async () => {
+  renderBar();
+  openFieldMenu();
+  fireEvent.mouseDown(screen.getByText('Variety'));
+  expect(screen.getByRole('button', { name: /add to 2/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /remove from 2/i })).toBeInTheDocument();
+  fireEvent.change(screen.getByTestId('bulk-edit-value'), { target: { value: 'Merlot' } });
+  fireEvent.click(screen.getByRole('button', { name: /add to 2/i }));
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/wine/bulk', expect.objectContaining({
+    body: JSON.stringify({ ids: ['1', '2'], field: 'variety', value: 'Merlot', tagAction: 'add' }),
+  })));
+});
+
 test('shows an error message and does not call onApplied when the request fails', async () => {
   global.fetch.mockResolvedValue({ ok: false });
   const { onApplied } = renderBar();
