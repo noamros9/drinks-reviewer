@@ -40,6 +40,8 @@ const BULK_EDITABLE_FIELDS = {
 // Fields stored as string[] rather than a scalar string
 const ARRAY_FIELD_KEYS = new Set(['tags', 'variety']);
 
+const titleCase = str => str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+
 function pickFields(body, category, partial = false) {
   const allowed = ALLOWED_FIELDS[category];
   return Object.fromEntries(
@@ -259,7 +261,7 @@ router.patch('/:category/bulk', async (req, res) => {
         if (!idSet.has(d.id)) continue;
         if (isArrayField) {
           const items = new Set(d[field] || []);
-          const item = field === 'tags' ? value.trim().toLowerCase() : value;
+          const item = field === 'tags' ? value.trim().toLowerCase() : titleCase(value.trim());
           if (tagAction === 'add') items.add(item); else items.delete(item);
           d[field] = [...items];
         } else {

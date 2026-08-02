@@ -67,13 +67,22 @@ describe('PATCH /api/:category/bulk', () => {
     expect(res.body.updated[0].tags).toEqual(['gift']);
   });
 
-  it('adds a variety without lowercasing it (proper grape name, not a tag)', async () => {
+  it('adds a variety unchanged when already title-cased', async () => {
     const a = await createDrink('wine', { producer: 'A', variety: [] });
     const res = await request(app)
       .patch('/api/wine/bulk')
       .send({ ids: [a.id], field: 'variety', value: 'Merlot', tagAction: 'add' });
     expect(res.status).toBe(200);
     expect(res.body.updated[0].variety).toEqual(['Merlot']);
+  });
+
+  it('title-cases a variety add so a differently-cased entry does not create a duplicate', async () => {
+    const a = await createDrink('wine', { producer: 'A', variety: ['Cabernet Sauvignon'] });
+    const res = await request(app)
+      .patch('/api/wine/bulk')
+      .send({ ids: [a.id], field: 'variety', value: 'cabernet sauvignon', tagAction: 'add' });
+    expect(res.status).toBe(200);
+    expect(res.body.updated[0].variety).toEqual(['Cabernet Sauvignon']);
   });
 
   it('does not modify entries not included in ids', async () => {
