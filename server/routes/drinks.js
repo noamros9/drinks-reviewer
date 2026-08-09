@@ -340,6 +340,7 @@ router.post('/:category/:id/tastings', async (req, res) => {
       else if (!hadPriorTastings && d.collectionImageUrl) tasting.imageUrl = d.collectionImageUrl;
       d.tastings = [...(d.tastings || []), tasting];
       Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
+      delete d.collectionOnly;
       await writeData(category, data);
       return d;
     });

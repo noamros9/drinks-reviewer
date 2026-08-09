@@ -256,13 +256,9 @@ export default function AdminPage() {
       setMessage('Save failed. Please try again.');
       return;
     }
-    if (drankIt && editState.lot) {
-      await fetch(`/api/${category}/${form.id}/collection/${editState.lot.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity: editState.lot.quantity - 1 }),
-      });
-      navigate('/collection');
+    if (drankIt && editState.lot && activeTab !== 'tastings') {
+      setActiveTab('tastings');
+      setTastingsMessage('Details saved — now add your tasting.');
       return;
     }
     if (!isEditing) {

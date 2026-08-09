@@ -49,23 +49,44 @@ test('saving in drankIt mode sends collectionOnly: false on PUT', async () => {
   });
 });
 
-test('saving in drankIt mode PATCHes the lot', async () => {
+test('saving in drankIt mode does not PATCH the lot yet', async () => {
   renderDrankIt();
   fireEvent.submit(screen.getByRole('button', { name: /update/i }).closest('form'));
+  await waitFor(() => {
+    expect(global.fetch).toHaveBeenCalledWith('/api/wine/1', expect.objectContaining({ method: 'PUT' }));
+  });
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/1/collection/lot1', expect.anything());
+});
+
+test('saving in drankIt mode hands off to the Tastings tab instead of navigating', async () => {
+  renderDrankIt();
+  fireEvent.submit(screen.getByRole('button', { name: /update/i }).closest('form'));
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: /^tastings$/i })).toHaveClass('active');
+  });
+  expect(mockNavigate).not.toHaveBeenCalled();
+});
+
+test('completing the Tastings tab after the review handoff PATCHes the lot and navigates', async () => {
+  const updatedDrink = { ...DRINK, tastings: [{ id: 't1', date: '05/01/2026', rating: 9 }] };
+  global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(updatedDrink) }));
+  renderDrankIt();
+  fireEvent.submit(screen.getByRole('button', { name: /update/i }).closest('form'));
+  await waitFor(() => {
+    expect(screen.getByRole('button', { name: /^tastings$/i })).toHaveClass('active');
+  });
+
+  fireEvent.click(screen.getByTestId('mock-datepicker'));
+  fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '9' } });
+  fireEvent.click(screen.getByRole('button', { name: /add tasting/i }));
+
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/wine/1/collection/lot1',
       expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ quantity: 1 }) })
     );
   });
-});
-
-test('saving in drankIt mode navigates to /collection', async () => {
-  renderDrankIt();
-  fireEvent.submit(screen.getByRole('button', { name: /update/i }).closest('form'));
-  await waitFor(() => {
-    expect(mockNavigate).toHaveBeenCalledWith('/collection');
-  });
+  await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/collection'));
 });
 
 // ── Drank it → Tastings tab (already-reviewed drinks) ─────────────
