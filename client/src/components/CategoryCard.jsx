@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
 
 const META = {
-  wine:    { icon: '🍷', label: 'Wine' },
-  beer:    { icon: '🍺', label: 'Beer' },
-  whiskey: { icon: '🥃', label: 'Whiskey' },
-  others:  { icon: '🍹', label: 'Others' },
+  collection: { icon: '🗄️', label: 'Collection' },
+  wine:       { icon: '🍷', label: 'Wine Reviews' },
+  beer:       { icon: '🍺', label: 'Beer Reviews' },
+  whiskey:    { icon: '🥃', label: 'Whiskey Reviews' },
+  others:     { icon: '🍹', label: 'Other Reviews' },
 };
 
 export default function CategoryCard({ category, count }) {
