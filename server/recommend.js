@@ -467,4 +467,4 @@ async function getGeneratedList(prompt) {
   return { prompt, inCollection, elsewhereInCatalogue, toBuy };
 }
 
-module.exports = { getRecommendations, scoreSimilarity, getTasteCard, getGeneratedList };
+module.exports = { getRecommendations, scoreSimilarity, getTasteCard, getGeneratedList, callGemini, parseResponse };

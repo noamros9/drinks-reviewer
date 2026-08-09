@@ -44,7 +44,7 @@ export default function ValueSection({ drinks, globalCategory }) {
         : <AbvRatingScatter points={scatterPoints} onPointClick={handleSelectDrink} xKey="price" xLabel="Price" xUnit="" />}
 
       <h3 className="analytics-subsection-title">
-        Best Value <span className="scope-note">(weighted rating ÷ avg price)</span>
+        Best Value <span className="scope-note">(0-100, within-category rating percentile vs price percentile; 50 = neutral)</span>
       </h3>
       <BestValueLeaderboard rows={bestValue} onSelectDrink={handleSelectDrink} />
 

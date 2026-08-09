@@ -1,6 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import {
-  buildPriceRatingScatter, buildAvgPriceCategoryComparison, buildAvgPriceByCountry, buildBestValue,
+  buildPriceRatingScatter, buildAvgPriceCategoryComparison, buildAvgPriceByCountry, buildBestValue, avgLotPrice, priceIsEstimated,
+  buildCategoryComparison,
 } from '../utils/analyticsHelpers';
 
 describe('buildPriceRatingScatter', () => {
@@ -11,7 +12,7 @@ describe('buildPriceRatingScatter', () => {
       { id: 'c', collection: [{ price: 40 }] },
     ];
     const result = buildPriceRatingScatter(drinks);
-    expect(result).toEqual([{ id: 'a', category: 'wine', label: 'P X', price: 60, rating: 8, drink: drinks[0] }]);
+    expect(result).toEqual([{ id: 'a', category: 'wine', label: 'P X', price: 60, rating: 8, priceIsEstimated: false, drink: drinks[0] }]);
   });
 
   test('averages multiple lots and skips lots with no price', () => {
@@ -21,6 +22,41 @@ describe('buildPriceRatingScatter', () => {
 
   test('no collection field -> excluded', () => {
     expect(buildPriceRatingScatter([{ id: 'a', avgRating: 8 }])).toEqual([]);
+  });
+
+  test('falls back to estimatedPrice and flags it', () => {
+    const drinks = [{ id: 'a', avgRating: 8, collection: [], estimatedPrice: 45 }];
+    const result = buildPriceRatingScatter(drinks);
+    expect(result[0].price).toBe(45);
+    expect(result[0].priceIsEstimated).toBe(true);
+  });
+});
+
+describe('avgLotPrice', () => {
+  test('falls back to estimatedPrice when no real lot price exists', () => {
+    expect(avgLotPrice({ collection: [], estimatedPrice: 30 })).toBe(30);
+  });
+
+  test('real lot price wins when both are present', () => {
+    expect(avgLotPrice({ collection: [{ price: 50 }], estimatedPrice: 30 })).toBe(50);
+  });
+
+  test('null when neither exists', () => {
+    expect(avgLotPrice({ collection: [] })).toBeNull();
+  });
+});
+
+describe('priceIsEstimated', () => {
+  test('true when only estimatedPrice is set', () => {
+    expect(priceIsEstimated({ collection: [], estimatedPrice: 30 })).toBe(true);
+  });
+
+  test('false when a real lot price exists', () => {
+    expect(priceIsEstimated({ collection: [{ price: 50 }], estimatedPrice: 30 })).toBe(false);
+  });
+
+  test('false when neither exists', () => {
+    expect(priceIsEstimated({ collection: [] })).toBe(false);
   });
 });
 
@@ -60,13 +96,15 @@ describe('buildAvgPriceByCountry', () => {
 });
 
 describe('buildBestValue', () => {
-  test('ranks by weighted rating ÷ avg price, descending', () => {
+  test('ranks by rating percentile minus price percentile within category, descending', () => {
     const drinks = [
       { id: 'cheap-good', producer: 'A', avgRating: 8, tastingCount: 5, collection: [{ price: 20 }] },
       { id: 'pricey-good', producer: 'B', avgRating: 8, tastingCount: 5, collection: [{ price: 200 }] },
     ];
     const result = buildBestValue(drinks);
     expect(result.map(r => r.id)).toEqual(['cheap-good', 'pricey-good']);
+    expect(result.find(r => r.id === 'cheap-good').valueScore).toBe(62.5);
+    expect(result.find(r => r.id === 'pricey-good').valueScore).toBe(37.5);
   });
 
   test('excludes drinks with no price', () => {
@@ -85,5 +123,41 @@ describe('buildBestValue', () => {
     }));
     expect(buildBestValue(drinks, 3)).toHaveLength(3);
     expect(buildBestValue([])).toEqual([]);
+  });
+
+  test('an expensive-but-cheap-for-its-category wine outranks a merely-average beer (cross-category comparability)', () => {
+    const drinks = [
+      // Wines: prices 50-500, this one is the cheapest and best-rated of its category
+      { id: 'good-wine', _category: 'wine', avgRating: 9, tastingCount: 5, collection: [{ price: 50 }] },
+      { id: 'mid-wine-1', _category: 'wine', avgRating: 7, tastingCount: 5, collection: [{ price: 300 }] },
+      { id: 'mid-wine-2', _category: 'wine', avgRating: 7, tastingCount: 5, collection: [{ price: 500 }] },
+      // Beers: prices 3-10, this one is merely mid-pack for its category
+      { id: 'avg-beer', _category: 'beer', avgRating: 7, tastingCount: 5, collection: [{ price: 6 }] },
+      { id: 'cheap-beer', _category: 'beer', avgRating: 6, tastingCount: 5, collection: [{ price: 3 }] },
+      { id: 'pricey-beer', _category: 'beer', avgRating: 6, tastingCount: 5, collection: [{ price: 10 }] },
+    ];
+    const result = buildBestValue(drinks);
+    const wineRank = result.findIndex(r => r.id === 'good-wine');
+    const beerRank = result.findIndex(r => r.id === 'avg-beer');
+    expect(wineRank).toBeLessThan(beerRank);
+  });
+
+  test('a lone priced drink in a category gets valueScore 50 (neutral), no division-by-zero', () => {
+    const drinks = [{ id: 'a', _category: 'whiskey', avgRating: 8, tastingCount: 5, collection: [{ price: 100 }] }];
+    expect(buildBestValue(drinks)[0].valueScore).toBe(50);
+  });
+
+  test('rows carry categoryAvgPrice/categoryAvgRating matching the category comparison helpers', () => {
+    const drinks = [
+      { id: 'a', _category: 'wine', avgRating: 8, tastingCount: 5, collection: [{ price: 20 }] },
+      { id: 'b', _category: 'wine', avgRating: 6, tastingCount: 5, collection: [{ price: 40 }] },
+    ];
+    const result = buildBestValue(drinks);
+    const expectedAvgPrice = buildAvgPriceCategoryComparison(drinks).find(r => r.category === 'wine').avgPrice;
+    const expectedAvgRating = buildCategoryComparison(drinks).find(r => r.category === 'wine').avgRating;
+    for (const row of result) {
+      expect(row.categoryAvgPrice).toBe(expectedAvgPrice);
+      expect(row.categoryAvgRating).toBe(expectedAvgRating);
+    }
   });
 });
