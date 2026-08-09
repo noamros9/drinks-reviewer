@@ -12,6 +12,7 @@ export default function BestValueLeaderboard({ rows, onSelectDrink }) {
             <th>Category</th>
             <th>Avg Price</th>
             <th>Weighted Rating</th>
+            <th>Category Avg</th>
             <th>Value Score</th>
           </tr>
         </thead>
@@ -24,8 +25,9 @@ export default function BestValueLeaderboard({ rows, onSelectDrink }) {
                 </button>
               </td>
               <td>{r.category.charAt(0).toUpperCase() + r.category.slice(1)}</td>
-              <td>{r.price}</td>
+              <td>{r.price}{r.priceIsEstimated ? ' (est.)' : ''}</td>
               <td>{r.weightedRating}</td>
+              <td>${r.categoryAvgPrice} / {r.categoryAvgRating}★</td>
               <td>{r.valueScore}</td>
             </tr>
           ))}

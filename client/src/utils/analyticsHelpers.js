@@ -206,7 +206,14 @@ export function buildCountryRanking(drinks) {
 
 export function avgLotPrice(drink) {
   const prices = (drink.collection || []).map(l => l.price).filter(p => typeof p === 'number' && !Number.isNaN(p));
-  return prices.length ? avgOf(prices) : null;
+  if (prices.length) return avgOf(prices);
+  return typeof drink.estimatedPrice === 'number' ? drink.estimatedPrice : null;
+}
+
+// True when a drink's price comes only from the Gemini backfill, not a real collection lot
+export function priceIsEstimated(drink) {
+  const hasRealPrice = (drink.collection || []).some(l => typeof l.price === 'number' && !Number.isNaN(l.price));
+  return !hasRealPrice && typeof drink.estimatedPrice === 'number';
 }
 
 export function buildPriceRatingScatter(drinks) {
@@ -214,7 +221,7 @@ export function buildPriceRatingScatter(drinks) {
     .map(d => ({ price: avgLotPrice(d), rating: d.avgRating, d }))
     .filter(({ price, rating }) => price !== null && typeof rating === 'number' && !Number.isNaN(rating))
     .map(({ price, rating, d }) => ({
-      id: d.id, category: d._category, label: drinkLabel(d), price, rating, drink: d,
+      id: d.id, category: d._category, label: drinkLabel(d), price, rating, priceIsEstimated: priceIsEstimated(d), drink: d,
     }));
 }
 
@@ -236,16 +243,51 @@ export function buildAvgPriceByCountry(drinks) {
     .filter(r => r.count > 0);
 }
 
+function percentileRank(values, value) {
+  let below = 0, equal = 0;
+  for (const v of values) {
+    if (v < value) below++;
+    else if (v === value) equal++;
+  }
+  return ((below + equal / 2) / values.length) * 100;
+}
+
+function percentileRanksByCategory(drinks, getValue) {
+  const byCategory = new Map();
+  for (const d of drinks) {
+    const v = getValue(d);
+    if (typeof v !== 'number' || Number.isNaN(v)) continue;
+    if (!byCategory.has(d._category)) byCategory.set(d._category, []);
+    byCategory.get(d._category).push({ id: d.id, value: v });
+  }
+  const ranks = new Map();
+  for (const entries of byCategory.values()) {
+    const values = entries.map(e => e.value);
+    for (const e of entries) ranks.set(e.id, percentileRank(values, e.value));
+  }
+  return ranks;
+}
+
 export function buildBestValue(drinks, n = 10) {
   const weights = buildWeightedRatings(drinks);
+  const ratingRanks = percentileRanksByCategory(drinks, d => weights.get(d.id));
+  const priceRanks = percentileRanksByCategory(drinks, avgLotPrice);
+  const avgPriceByCategory = new Map(buildAvgPriceCategoryComparison(drinks).map(r => [r.category, r.avgPrice]));
+  const avgRatingByCategory = new Map(buildCategoryComparison(drinks).map(r => [r.category, r.avgRating]));
+
   const scored = drinks
     .map(d => {
       const price = avgLotPrice(d);
-      const weightedRating = weights.get(d.id);
-      if (price === null || price <= 0 || typeof weightedRating !== 'number') return null;
+      const weightedRatingVal = weights.get(d.id);
+      if (price === null || price <= 0 || typeof weightedRatingVal !== 'number') return null;
       return {
-        id: d.id, label: drinkLabel(d), category: d._category, avgRating: d.avgRating, price, weightedRating,
-        valueScore: Math.round((weightedRating / price) * 100) / 100, drink: d,
+        id: d.id, label: drinkLabel(d), category: d._category, avgRating: d.avgRating, price, weightedRating: weightedRatingVal,
+        priceIsEstimated: priceIsEstimated(d),
+        categoryAvgPrice: avgPriceByCategory.get(d._category) ?? 0,
+        categoryAvgRating: avgRatingByCategory.get(d._category) ?? 0,
+        // min-max rescale of (ratingPercentile - pricePercentile), theoretical range [-100,100] -> [0,100]
+        valueScore: Math.round((((ratingRanks.get(d.id) - priceRanks.get(d.id)) + 100) / 2) * 10) / 10,
+        drink: d,
       };
     })
     .filter(Boolean);
