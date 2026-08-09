@@ -1,0 +1,44 @@
+name: Backup Atlas + Cloudinary
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout drinks-reviewer
+        uses: actions/checkout@v4
+        with:
+          path: drinks-reviewer
+
+      - name: Checkout drinks-reviewer-backup
+        uses: actions/checkout@v4
+        with:
+          repository: noamros9/drinks-reviewer-backup
+          token: ${{ secrets.BACKUP_REPO_PAT }}
+          path: drinks-reviewer-backup
+
+      - name: Configure git identity for backup commit
+        working-directory: drinks-reviewer-backup
+        run: |
+          git config user.name "drinks-reviewer-bot"
+          git config user.email "actions@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: drinks-reviewer
+        run: npm ci --omit=dev
+
+      - name: Run backup
+        working-directory: drinks-reviewer
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          MONGODB_DB: ${{ secrets.MONGODB_DB }}
+          CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+        run: node server/scripts/backup-data.js
