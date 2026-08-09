@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import CategoryCard from '../components/CategoryCard';
 import './Home.css';
 
-const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
+const CATEGORIES = ['collection', 'wine', 'beer', 'whiskey', 'others'];
 
 export default function Home() {
   const [counts, setCounts] = useState({});

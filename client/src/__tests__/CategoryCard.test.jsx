@@ -14,7 +14,13 @@ test('shows "entries" (plural) for count > 1', () => {
 
 test('renders the correct icon and label for each category', () => {
   const { rerender } = render(<MemoryRouter><CategoryCard category="beer" count={0} /></MemoryRouter>);
-  expect(screen.getByText('Beer')).toBeInTheDocument();
+  expect(screen.getByText('Beer Reviews')).toBeInTheDocument();
   rerender(<MemoryRouter><CategoryCard category="whiskey" count={0} /></MemoryRouter>);
-  expect(screen.getByText('Whiskey')).toBeInTheDocument();
+  expect(screen.getByText('Whiskey Reviews')).toBeInTheDocument();
+});
+
+test('renders the collection card without a "Reviews" suffix', () => {
+  render(<MemoryRouter><CategoryCard category="collection" count={3} /></MemoryRouter>);
+  expect(screen.getByText('Collection')).toBeInTheDocument();
+  expect(screen.getByRole('link')).toHaveAttribute('href', '/collection');
 });
