@@ -97,6 +97,16 @@ describe('POST /api/:category/:id/tastings', () => {
     expect(res.status).toBe(404);
   });
 
+  it('clears collectionOnly when a tasting is added', async () => {
+    const drink = await createDrink('wine', { producer: 'Cellar Only', collectionOnly: true });
+    const res = await request(app)
+      .post(`/api/wine/${drink.id}/tastings`)
+      .send({ date: '01/01/2025', rating: 7 });
+    expect(res.body.collectionOnly).toBeUndefined();
+    const listRes = await request(app).get('/api/wine');
+    expect(listRes.body.some(d => d.id === drink.id)).toBe(true);
+  });
+
   it('returns 404 for unknown drink id', async () => {
     const res = await request(app).post('/api/wine/nonexistent/tastings').send({ date: '01/01/2025', rating: 7 });
     expect(res.status).toBe(404);
