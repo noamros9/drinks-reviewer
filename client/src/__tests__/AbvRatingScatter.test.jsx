@@ -49,3 +49,34 @@ test('tooltip renders the generalized xKey/xLabel/xUnit when provided', () => {
   render(<ScatterTooltip active payload={[{ payload: { label: 'A X', age: 5, rating: 8 } }]} xKey="age" xLabel="Age at tasting" xUnit=" yrs" />);
   expect(screen.getByText(/Age at tasting 5 yrs, rating 8/)).toBeInTheDocument();
 });
+
+test('pointStyle colors a point and hollow points get no fill plus an "(estimated price)" label', () => {
+  const HOLLOW_POINTS = [
+    { id: '1', label: 'Paid', abv: 13, rating: 8 },
+    { id: '2', label: 'Estimated', abv: 5, rating: 6 },
+  ];
+  render(
+    <AbvRatingScatter
+      points={HOLLOW_POINTS} onPointClick={() => {}}
+      pointStyle={p => ({ fill: p.id === '1' ? 'green' : 'red', hollow: p.id === '2' })}
+    />,
+  );
+  const paid = screen.getByTestId('point-1');
+  const estimated = screen.getByTestId('point-2');
+  expect(paid).toHaveStyle({ fill: 'green' });
+  expect(estimated).toHaveStyle({ fill: 'none', stroke: 'red' });
+  expect(estimated).toHaveAttribute('aria-label', 'Estimated: ABV 5%, rating 6 (estimated price)');
+});
+
+test('without pointStyle, points fall back to the CSS class fill (ABV tab is unaffected)', () => {
+  render(<AbvRatingScatter points={POINTS} onPointClick={() => {}} />);
+  expect(screen.getByTestId('point-1')).not.toHaveAttribute('style');
+});
+
+test('medians render dashed reference lines only when numeric', () => {
+  const { container, rerender } = render(<AbvRatingScatter points={POINTS} onPointClick={() => {}} />);
+  expect(container.querySelectorAll('.recharts-reference-line')).toHaveLength(0);
+
+  rerender(<AbvRatingScatter points={POINTS} onPointClick={() => {}} medians={{ x: 10, y: 7 }} />);
+  expect(container.querySelectorAll('.recharts-reference-line')).toHaveLength(2);
+});

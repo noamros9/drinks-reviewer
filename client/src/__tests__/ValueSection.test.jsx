@@ -98,3 +98,68 @@ test('Avg Price by Country lists countries in scope, row click deep-links with t
   fireEvent.click(table.getByText('France'));
   expect(window.open).toHaveBeenCalledWith('/wine?country=France', '_blank');
 });
+
+test('prices render in ILS with a trailing symbol, never a dollar sign', () => {
+  renderSection('all');
+  const table = within(screen.getByTestId('best-value-table'));
+  expect(table.getByText('30 ₪')).toBeInTheDocument();
+  expect(screen.queryByText(/\$/)).not.toBeInTheDocument();
+});
+
+test('Rebuy Candidates lists priced/rated drinks not currently in stock, tagging previously-owned ones', () => {
+  const drinks = [
+    { id: 'r1', _category: 'wine', producer: 'InStock', avgRating: 8, tastingCount: 5, collection: [{ quantity: 2, price: 40 }] },
+    { id: 'r2', _category: 'wine', producer: 'NeverOwned', avgRating: 8, tastingCount: 5, estimatedPrice: 40 },
+    { id: 'r3', _category: 'wine', producer: 'DrankItAll', avgRating: 8, tastingCount: 5, collection: [{ quantity: 0, price: 40 }] },
+  ];
+  render(<ValueSection drinks={drinks} globalCategory="all" />);
+  const table = within(screen.getByTestId('rebuy-table'));
+  expect(table.queryByText('InStock')).not.toBeInTheDocument();
+  expect(table.getByText('NeverOwned')).toBeInTheDocument();
+  expect(table.getByText('DrankItAll')).toBeInTheDocument();
+  expect(table.getByTitle("You've bought this before")).toBeInTheDocument();
+
+  fireEvent.click(table.getByText('DrankItAll'));
+  expect(mockNavigate).toHaveBeenCalledWith('/admin', { state: { drink: drinks[2], category: 'wine', tab: 'tastings' } });
+});
+
+test('Rebuy Candidates shows an empty state when everything rated is in stock', () => {
+  const drinks = [{ id: 'r1', _category: 'wine', producer: 'InStock', avgRating: 8, tastingCount: 5, collection: [{ quantity: 2, price: 40 }] }];
+  render(<ValueSection drinks={drinks} globalCategory="all" />);
+  expect(screen.getByText('No rebuy candidates — everything rated is still in stock.')).toBeInTheDocument();
+});
+
+test('spend summary is hidden with nothing in stock, appears once a priced lot has quantity', () => {
+  const { rerender } = render(<ValueSection drinks={DRINKS} globalCategory="all" />);
+  expect(screen.queryByTestId('spend-summary')).not.toBeInTheDocument();
+
+  const withStock = [...DRINKS, {
+    id: 's1', _category: 'wine', producer: 'Stocked', avgRating: 7, tastingCount: 5, collection: [{ quantity: 2, price: 50 }],
+  }];
+  rerender(<ValueSection drinks={withStock} globalCategory="all" />);
+  expect(within(screen.getByTestId('spend-summary')).getByText('100 ₪')).toBeInTheDocument();
+});
+
+test('drinks with no price are counted in the footnote under the scatter', () => {
+  renderSection('all');
+  expect(screen.getByText('1 drink not shown above — no price recorded.')).toBeInTheDocument();
+});
+
+test('price bands are hidden on All and show a low-data message for a thinly priced category', () => {
+  renderSection('all');
+  expect(screen.queryByText('Does Paying More Help?')).not.toBeInTheDocument();
+
+  renderSection('wine');
+  expect(screen.getByText('Does Paying More Help?')).toBeInTheDocument();
+  expect(screen.getByText('Not enough priced drinks in this category yet.')).toBeInTheDocument();
+});
+
+test('price bands render as a bar chart once a category has enough priced/rated drinks', () => {
+  const wines = Array.from({ length: 12 }, (_, i) => ({
+    id: `w${i}`, _category: 'wine', producer: `W${i}`, avgRating: 5 + (i % 5), tastingCount: 5,
+    collection: [{ price: (i + 1) * 20 }],
+  }));
+  render(<ValueSection drinks={wines} globalCategory="wine" />);
+  expect(screen.queryByText('Not enough priced drinks in this category yet.')).not.toBeInTheDocument();
+  expect(screen.getByTestId('bar-20-60 ₪')).toBeInTheDocument();
+});

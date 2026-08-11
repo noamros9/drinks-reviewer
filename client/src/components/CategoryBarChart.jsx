@@ -55,6 +55,7 @@ export default function CategoryBarChart({
   emptyLabel = 'no rated drinks',
   describeBar = defaultDescribeBar,
   describeTooltip = defaultDescribeTooltip,
+  yAxisWidth = 32,
 }) {
   return (
     <ResponsiveContainer width="100%" height={240}>
@@ -67,7 +68,7 @@ export default function CategoryBarChart({
           axisLine={{ stroke: 'var(--border)' }}
           tickLine={false}
         />
-        <YAxis domain={domain} allowDecimals={false} width={32} tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
+        <YAxis domain={domain} allowDecimals={false} width={yAxisWidth} tick={{ fill: 'var(--text-secondary)', fontSize: 12 }} axisLine={{ stroke: 'var(--border)' }} tickLine={false} />
         <Tooltip content={<CategoryTooltip dataKey={dataKey} emptyLabel={emptyLabel} describeTooltip={describeTooltip} />} cursor={{ fill: 'var(--border)', opacity: 0.5 }} />
         <Bar
           dataKey={dataKey}

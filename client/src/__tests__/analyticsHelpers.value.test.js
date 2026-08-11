@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import {
   buildPriceRatingScatter, buildAvgPriceCategoryComparison, buildAvgPriceByCountry, buildBestValue, avgLotPrice, priceIsEstimated,
-  buildCategoryComparison,
+  buildCategoryComparison, formatPrice, buildRebuyList, buildSpendSummary, buildPriceBands,
 } from '../utils/analyticsHelpers';
 
 describe('buildPriceRatingScatter', () => {
@@ -22,6 +22,14 @@ describe('buildPriceRatingScatter', () => {
 
   test('no collection field -> excluded', () => {
     expect(buildPriceRatingScatter([{ id: 'a', avgRating: 8 }])).toEqual([]);
+  });
+
+  test('zero or negative price -> excluded (avoids breaking a log-scale axis)', () => {
+    const drinks = [
+      { id: 'a', avgRating: 8, collection: [{ price: 0 }] },
+      { id: 'b', avgRating: 8, collection: [{ price: -5 }] },
+    ];
+    expect(buildPriceRatingScatter(drinks)).toEqual([]);
   });
 
   test('falls back to estimatedPrice and flags it', () => {
@@ -159,5 +167,96 @@ describe('buildBestValue', () => {
       expect(row.categoryAvgPrice).toBe(expectedAvgPrice);
       expect(row.categoryAvgRating).toBe(expectedAvgRating);
     }
+  });
+
+  test('rows carry pricePerPoint = price / weightedRating', () => {
+    const drinks = [{ id: 'a', avgRating: 8, tastingCount: 5, collection: [{ price: 20 }] }];
+    const row = buildBestValue(drinks)[0];
+    expect(row.pricePerPoint).toBe(Math.round((row.price / row.weightedRating) * 10) / 10);
+  });
+});
+
+describe('formatPrice', () => {
+  test('rounds and appends the trailing shekel sign', () => {
+    expect(formatPrice(65.025)).toBe('65 ₪');
+    expect(formatPrice(30)).toBe('30 ₪');
+  });
+
+  test('non-finite input renders an em dash', () => {
+    expect(formatPrice(null)).toBe('—');
+    expect(formatPrice(undefined)).toBe('—');
+    expect(formatPrice(NaN)).toBe('—');
+    expect(formatPrice(Infinity)).toBe('—');
+  });
+});
+
+describe('buildRebuyList', () => {
+  test('excludes drinks currently in stock', () => {
+    const drinks = [
+      { id: 'a', avgRating: 8, tastingCount: 5, collection: [{ quantity: 2, price: 20 }] },
+      { id: 'b', avgRating: 8, tastingCount: 5, collection: [{ quantity: 0, price: 30 }] },
+    ];
+    expect(buildRebuyList(drinks).map(r => r.id)).toEqual(['b']);
+  });
+
+  test('includes drinks with no collection at all, using estimatedPrice', () => {
+    const drinks = [{ id: 'a', avgRating: 8, tastingCount: 5, estimatedPrice: 40 }];
+    expect(buildRebuyList(drinks)).toHaveLength(1);
+  });
+
+  test('previouslyOwned is true only for drinks that had lots now all at zero', () => {
+    const drinks = [
+      { id: 'a', avgRating: 8, tastingCount: 5, collection: [{ quantity: 0, price: 20 }] },
+      { id: 'b', avgRating: 8, tastingCount: 5, estimatedPrice: 20 },
+    ];
+    const result = buildRebuyList(drinks);
+    expect(result.find(r => r.id === 'a').previouslyOwned).toBe(true);
+    expect(result.find(r => r.id === 'b').previouslyOwned).toBe(false);
+  });
+});
+
+describe('buildSpendSummary', () => {
+  test('returns null when nothing is in stock', () => {
+    expect(buildSpendSummary([])).toBeNull();
+    expect(buildSpendSummary([{ id: 'a', collection: [{ quantity: 0, price: 20 }] }])).toBeNull();
+  });
+
+  test('sums cellar value and bottle count from in-stock, priced lots only', () => {
+    const drinks = [
+      { id: 'a', producer: 'A', collection: [{ quantity: 2, price: 30 }, { quantity: 0, price: 90 }] },
+      { id: 'b', producer: 'B', collection: [{ quantity: 1, price: null }] },
+    ];
+    const summary = buildSpendSummary(drinks);
+    expect(summary.cellarValue).toBe(60);
+    expect(summary.bottles).toBe(2);
+    expect(summary.avgBottlePrice).toBe(30);
+    expect(summary.priciest).toEqual({ label: 'A', price: 30 });
+  });
+});
+
+describe('buildPriceBands', () => {
+  test('returns [] below the minimum sample size', () => {
+    const drinks = Array.from({ length: 5 }, (_, i) => ({ id: `${i}`, avgRating: 7, collection: [{ price: 10 + i }] }));
+    expect(buildPriceBands(drinks)).toEqual([]);
+  });
+
+  test('splits priced+rated drinks into four ascending quartile bands', () => {
+    const drinks = Array.from({ length: 20 }, (_, i) => ({
+      id: `${i}`, avgRating: 5 + (i % 5), collection: [{ price: (i + 1) * 10 }],
+    }));
+    const bands = buildPriceBands(drinks);
+    expect(bands).toHaveLength(4);
+    expect(bands.reduce((s, b) => s + b.count, 0)).toBe(20);
+    const lows = bands.map(b => Number(b.category.split('-')[0]));
+    expect(lows).toEqual([...lows].sort((a, b) => a - b));
+  });
+
+  test('ignores unpriced or unrated drinks', () => {
+    const drinks = [
+      ...Array.from({ length: 12 }, (_, i) => ({ id: `p${i}`, avgRating: 7, collection: [{ price: 10 + i }] })),
+      { id: 'no-price', avgRating: 7 },
+      { id: 'no-rating', collection: [{ price: 50 }] },
+    ];
+    expect(buildPriceBands(drinks).reduce((s, b) => s + b.count, 0)).toBe(12);
   });
 });
