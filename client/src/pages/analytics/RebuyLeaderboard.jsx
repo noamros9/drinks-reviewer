@@ -1,20 +1,18 @@
 import { formatPrice } from '../../utils/analyticsHelpers';
 import './ConsistencyLeaderboard.css';
 
-export default function BestValueLeaderboard({ rows, onSelectDrink }) {
-  if (rows.length === 0) return <p className="empty-state">No priced drinks yet.</p>;
+export default function RebuyLeaderboard({ rows, onSelectDrink }) {
+  if (rows.length === 0) return <p className="empty-state">No rebuy candidates — everything rated is still in stock.</p>;
 
   return (
-    <div className="consistency-leaderboard-table" data-testid="best-value-table">
+    <div className="consistency-leaderboard-table" data-testid="rebuy-table">
       <table>
         <thead>
           <tr>
             <th>Drink</th>
             <th>Category</th>
-            <th>Avg Price</th>
+            <th>Price</th>
             <th>Weighted Rating</th>
-            <th title="Only comparable within the same category">₪ / point</th>
-            <th>Category Avg</th>
             <th>Value Score</th>
           </tr>
         </thead>
@@ -25,12 +23,11 @@ export default function BestValueLeaderboard({ rows, onSelectDrink }) {
                 <button type="button" className="consistency-leaderboard-link" onClick={() => onSelectDrink(r)}>
                   {r.label}
                 </button>
+                {r.previouslyOwned && <span title="You've bought this before"> ↻</span>}
               </td>
               <td>{r.category.charAt(0).toUpperCase() + r.category.slice(1)}</td>
               <td>{formatPrice(r.price)}{r.priceIsEstimated ? ' (est.)' : ''}</td>
               <td>{r.weightedRating}</td>
-              <td>{formatPrice(r.pricePerPoint)}</td>
-              <td>{formatPrice(r.categoryAvgPrice)} / {r.categoryAvgRating}★</td>
               <td>{r.valueScore}</td>
             </tr>
           ))}

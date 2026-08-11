@@ -155,7 +155,7 @@ export function weightedRating(R, v, C, m) {
   return Math.round(((v / (v + m)) * R + (m / (v + m)) * C) * 100) / 100;
 }
 
-function median(nums) {
+export function median(nums) {
   if (!nums.length) return 0;
   const sorted = [...nums].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
@@ -204,6 +204,12 @@ export function buildCountryRanking(drinks) {
   return addWeightedRatingToRows(rows);
 }
 
+// Every price here is ILS — there is no currency field on the model, and the
+// estimated-price backfill (server/scripts/backfill-estimated-prices.js) quotes Israeli retailers.
+export function formatPrice(n) {
+  return Number.isFinite(n) ? `${Math.round(n)} ₪` : '—';
+}
+
 export function avgLotPrice(drink) {
   const prices = (drink.collection || []).map(l => l.price).filter(p => typeof p === 'number' && !Number.isNaN(p));
   if (prices.length) return avgOf(prices);
@@ -219,7 +225,7 @@ export function priceIsEstimated(drink) {
 export function buildPriceRatingScatter(drinks) {
   return drinks
     .map(d => ({ price: avgLotPrice(d), rating: d.avgRating, d }))
-    .filter(({ price, rating }) => price !== null && typeof rating === 'number' && !Number.isNaN(rating))
+    .filter(({ price, rating }) => price > 0 && typeof rating === 'number' && !Number.isNaN(rating))
     .map(({ price, rating, d }) => ({
       id: d.id, category: d._category, label: drinkLabel(d), price, rating, priceIsEstimated: priceIsEstimated(d), drink: d,
     }));
@@ -287,11 +293,70 @@ export function buildBestValue(drinks, n = 10) {
         categoryAvgRating: avgRatingByCategory.get(d._category) ?? 0,
         // min-max rescale of (ratingPercentile - pricePercentile), theoretical range [-100,100] -> [0,100]
         valueScore: Math.round((((ratingRanks.get(d.id) - priceRanks.get(d.id)) + 100) / 2) * 10) / 10,
+        // Only comparable within one category — beer (~2 ₪/pt) and whiskey (~35 ₪/pt) live on
+        // different scales, so this is shown per-row, never sorted or aggregated across categories.
+        pricePerPoint: weightedRatingVal > 0 ? Math.round((price / weightedRatingVal) * 10) / 10 : null,
         drink: d,
       };
     })
     .filter(Boolean);
   return scored.sort((a, b) => b.valueScore - a.valueScore).slice(0, n);
+}
+
+// Anything with nothing on the shelf right now — not "had lots, now zero", since most drinks
+// here have no logged lots at all and would never qualify under that stricter definition.
+function isInStock(drink) {
+  return (drink.collection || []).some(l => l.quantity > 0);
+}
+
+// You logged a purchase and drank through every lot — a stronger rebuy signal than never
+// having owned it, surfaced as a badge rather than the filter itself.
+function wasPreviouslyOwned(drink) {
+  return (drink.collection || []).length > 0 && !isInStock(drink);
+}
+
+export function buildRebuyList(drinks, n = 10) {
+  return buildBestValue(drinks, Infinity)
+    .filter(r => !isInStock(r.drink))
+    .map(r => ({ ...r, previouslyOwned: wasPreviouslyOwned(r.drink) }))
+    .slice(0, n);
+}
+
+export function buildSpendSummary(drinks) {
+  const inStockLots = drinks.flatMap(d => (d.collection || [])
+    .filter(l => l.quantity > 0 && Number.isFinite(l.price))
+    .map(l => ({ ...l, drink: d })));
+  if (!inStockLots.length) return null;
+  const cellarValue = inStockLots.reduce((s, l) => s + l.price * l.quantity, 0);
+  const bottles = inStockLots.reduce((s, l) => s + l.quantity, 0);
+  const priciest = inStockLots.reduce((best, l) => (best && best.price >= l.price ? best : l));
+  return {
+    cellarValue,
+    bottles,
+    avgBottlePrice: cellarValue / bottles,
+    priciest: { label: drinkLabel(priciest.drink), price: priciest.price },
+  };
+}
+
+// Quartiles rather than fixed ₪ edges: categories sit on wildly different price scales
+// (beer ~14 ₪ median, whiskey ~283 ₪), so a shared "0-50 ₪" band would be nearly all of one
+// category and a sliver of another. Caller should scope `drinks` to one category first.
+export function buildPriceBands(drinks, minSample = 12) {
+  const priced = drinks
+    .map(d => ({ price: avgLotPrice(d), rating: d.avgRating }))
+    .filter(p => p.price > 0 && typeof p.rating === 'number' && !Number.isNaN(p.rating))
+    .sort((a, b) => a.price - b.price);
+  if (priced.length < minSample) return [];
+  const size = Math.ceil(priced.length / 4);
+  return [0, 1, 2, 3]
+    .map(i => priced.slice(i * size, (i + 1) * size))
+    .filter(slice => slice.length)
+    .map(slice => ({
+      // ponytail: shaped as { category } so CategoryBarChart renders it with no changes.
+      category: `${Math.round(slice[0].price)}-${Math.round(slice.at(-1).price)} ₪`,
+      avgRating: avgOf(slice.map(s => s.rating)),
+      count: slice.length,
+    }));
 }
 
 const WORLD_BUCKETS = [

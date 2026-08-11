@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatPrice } from '../../utils/analyticsHelpers';
 
 const COLUMNS = [
   { key: 'country', label: 'Country' },
@@ -39,7 +40,7 @@ export default function AvgPriceByCountryTable({ rows, onSelectCountry }) {
         {sorted.map(row => (
           <tr key={row.country} className="country-ranking-row" onClick={() => onSelectCountry(row.country)}>
             <td>{row.country}</td>
-            <td>{row.avgPrice}</td>
+            <td>{formatPrice(row.avgPrice)}</td>
             <td>{row.count}</td>
           </tr>
         ))}
