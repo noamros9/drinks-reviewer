@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import RatingSection from '../pages/analytics/RatingSection';
 
@@ -24,10 +24,6 @@ function renderSection(globalCategory = 'all') {
   );
 }
 
-function scopeFilter() {
-  return within(screen.getByTestId('rating-category-filter'));
-}
-
 beforeEach(() => {
   mockNavigate.mockClear();
   vi.spyOn(window, 'open').mockImplementation(() => {});
@@ -40,39 +36,15 @@ afterEach(() => {
 test('defaults to following the global category (All) and shows the total count', () => {
   renderSection('all');
   expect(screen.getByText('5 rated drinks')).toBeInTheDocument();
-  expect(scopeFilter().getByRole('button', { name: 'All' })).toHaveClass('active');
 });
 
-test('follows a non-All global category when no local override has been made', () => {
+test('follows a non-All global category', () => {
   renderSection('wine');
   expect(screen.getByText('2 rated drinks')).toBeInTheDocument();
-  expect(scopeFilter().getByRole('button', { name: 'Wine' })).toHaveClass('active');
-});
-
-test('clicking the local scope filter overrides the global category', () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
-  expect(screen.getByText('1 rated drink')).toBeInTheDocument();
-  expect(scopeFilter().getByRole('button', { name: 'Beer' })).toHaveClass('active');
-});
-
-test('once overridden, the section stops following changes to the global category', () => {
-  const { rerender } = renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
-  expect(screen.getByText('1 rated drink')).toBeInTheDocument();
-
-  rerender(
-    <MemoryRouter>
-      <RatingSection drinks={DRINKS} globalCategory="whiskey" />
-    </MemoryRouter>
-  );
-  expect(scopeFilter().getByRole('button', { name: 'Beer' })).toHaveClass('active');
-  expect(screen.getByText('1 rated drink')).toBeInTheDocument();
 });
 
 test('clicking a bar opens a new tab to the scoped category with the bucket range', () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  renderSection('wine');
   fireEvent.click(screen.getByTestId('bar-7-8'));
   expect(window.open).toHaveBeenCalledWith('/wine?avgRatingMin=7&avgRatingMax=7.99', '_blank');
 });
@@ -94,17 +66,20 @@ test('shows empty state when there are no rated drinks', () => {
 });
 
 test('percentile tiles re-render when the scope changes', () => {
-  renderSection('all');
+  const { rerender } = renderSection('all');
   // 2/5 drinks >= 7 (w1: 7.5, b1: 9, k1: 9.2 -> 3/5 = 60%)
   expect(screen.getByText('60%')).toBeInTheDocument();
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  rerender(
+    <MemoryRouter>
+      <RatingSection drinks={DRINKS} globalCategory="wine" />
+    </MemoryRouter>
+  );
   // wine only: w1 7.5 (>=7), w2 4 (not) -> 1/2 = 50%
   expect(screen.getByText('50%')).toBeInTheDocument();
 });
 
 test('category comparison chart always shows all 4 categories regardless of scope', () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  renderSection('wine');
   ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
     expect(screen.getByTestId(`bar-${cat}`)).toBeInTheDocument();
   });
@@ -117,8 +92,7 @@ test('clicking a category comparison bar opens a new tab to that category with n
 });
 
 test('clicking a percentile tile opens a new tab to the scoped category with only avgRatingMin set', () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  renderSection('wine');
   fireEvent.click(screen.getByRole('button', { name: /≥ 7/ }));
   expect(window.open).toHaveBeenCalledWith('/wine?avgRatingMin=7', '_blank');
 });

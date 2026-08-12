@@ -3,8 +3,6 @@ import CountryRankingTable from './CountryRankingTable';
 import WorldMap from './WorldMap';
 import RegionLeaderboard from './RegionLeaderboard';
 import CategoryBarChart from '../../components/CategoryBarChart';
-import ScopeTabs from '../../components/ScopeTabs';
-import { useScopeCategory } from '../../hooks/useScopeCategory';
 import { buildCountryRanking, buildOldNewWorldBreakdown, buildRegionLeaderboard } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 import './GeographicSection.css';
@@ -12,7 +10,7 @@ import './GeographicSection.css';
 const REGION_CATEGORIES = new Set(['wine', 'whiskey']);
 
 export default function GeographicSection({ drinks, globalCategory }) {
-  const [category, setOverride] = useScopeCategory(globalCategory);
+  const category = globalCategory;
   const [regionCountry, setRegionCountry] = useState('all');
   const [regionCoordinates, setRegionCoordinates] = useState({});
 
@@ -58,7 +56,6 @@ export default function GeographicSection({ drinks, globalCategory }) {
     <div className="analytics-section">
       <div className="analytics-section-header">
         <span className="count-badge">{total} {total === 1 ? 'drink' : 'drinks'} with country data</span>
-        <ScopeTabs category={category} onChange={setOverride} testId="geo-category-filter" />
       </div>
       {total === 0
         ? <p className="empty-state">No country data yet.</p>

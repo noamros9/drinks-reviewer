@@ -1,6 +1,4 @@
 import TrendLineChart from '../../components/TrendLineChart';
-import ScopeTabs from '../../components/ScopeTabs';
-import { useScopeCategory } from '../../hooks/useScopeCategory';
 import { buildDiscoveryPace, buildSeasonalPattern, buildCategoryTrend } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 
@@ -12,7 +10,7 @@ const CATEGORY_TREND_SERIES = [
 ];
 
 export default function TimePaceSection({ drinks, globalCategory }) {
-  const [category, setOverride] = useScopeCategory(globalCategory);
+  const category = globalCategory;
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
 
   const total = scoped.filter(d => (d.tastings || []).length > 0).length;
@@ -24,7 +22,6 @@ export default function TimePaceSection({ drinks, globalCategory }) {
     <div className="analytics-section">
       <div className="analytics-section-header">
         <span className="count-badge">{total} tasted {total === 1 ? 'drink' : 'drinks'}</span>
-        <ScopeTabs category={category} onChange={setOverride} testId="timepace-category-filter" />
       </div>
       {total === 0
         ? <p className="empty-state">No tastings logged yet.</p>
