@@ -22,38 +22,25 @@ function renderSection(globalCategory = 'all') {
   return render(<GeographicSection drinks={DRINKS} globalCategory={globalCategory} />);
 }
 
-function scopeFilter() {
-  return within(screen.getByTestId('geo-category-filter'));
-}
-
 test('defaults to following the global category (All) and shows the total count', async () => {
   renderSection('all');
   expect(await screen.findByText('5 drinks with country data')).toBeInTheDocument();
-  expect(scopeFilter().getByRole('button', { name: 'All' })).toHaveClass('active');
 });
 
-test('follows a non-All global category when no local override has been made', async () => {
+test('follows a non-All global category', async () => {
   renderSection('wine');
   expect(await screen.findByText('2 drinks with country data')).toBeInTheDocument();
 });
 
-test('clicking the local scope filter overrides the global category', async () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
-  expect(await screen.findByText('1 drink with country data')).toBeInTheDocument();
-});
-
 test('clicking a country ranking table row opens a new tab to the scoped category with a country filter', async () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  renderSection('wine');
   const rankingTable = within(await screen.findByTestId('country-ranking-table'));
   fireEvent.click(rankingTable.getByText('Italy'));
   expect(window.open).toHaveBeenCalledWith('/wine?country=Italy', '_blank');
 });
 
 test('Old World vs New World breakdown always shows all 3 buckets regardless of scope', async () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
+  renderSection('beer');
   await waitFor(() => {
     ['Old World', 'New World', 'Other'].forEach(cat => {
       expect(screen.getByTestId(`bar-${cat}`)).toBeInTheDocument();
@@ -88,14 +75,13 @@ test('clicking a region-country pivot filters the leaderboard without navigating
   expect(window.open).not.toHaveBeenCalled();
 });
 
-test('switching scope resets a stale region-country pivot instead of carrying it over', async () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+test('switching global scope resets a stale region-country pivot instead of carrying it over', async () => {
+  const { rerender } = renderSection('wine');
   await screen.findByText('Chianti');
   fireEvent.click(within(screen.getByTestId('geo-region-country-filter')).getByRole('button', { name: 'Italy' }));
   expect(screen.getByText('Chianti')).toBeInTheDocument();
 
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Whiskey' }));
+  rerender(<GeographicSection drinks={DRINKS} globalCategory="whiskey" />);
   expect(await screen.findByText('Speyside')).toBeInTheDocument();
 });
 

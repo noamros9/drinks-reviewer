@@ -2,13 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import RatingHistogram from '../../components/RatingHistogram';
 import CategoryBarChart from '../../components/CategoryBarChart';
 import AbvRatingScatter from '../../components/AbvRatingScatter';
-import ScopeTabs from '../../components/ScopeTabs';
-import { useScopeCategory } from '../../hooks/useScopeCategory';
 import { buildAbvHistogram, buildAbvVsRatingScatter, buildAbvCategoryComparison } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 
 export default function AbvSection({ drinks, globalCategory }) {
-  const [category, setOverride] = useScopeCategory(globalCategory);
+  const category = globalCategory;
   const navigate = useNavigate();
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
@@ -34,7 +32,6 @@ export default function AbvSection({ drinks, globalCategory }) {
     <div className="analytics-section">
       <div className="analytics-section-header">
         <span className="count-badge">{total} {total === 1 ? 'drink' : 'drinks'} with ABV data</span>
-        <ScopeTabs category={category} onChange={setOverride} testId="abv-category-filter" />
       </div>
       {total === 0
         ? <p className="empty-state">No ABV data yet.</p>

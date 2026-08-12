@@ -2,8 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import BestOfLeaderboard from './BestOfLeaderboard';
 import RevisitLeaderboard from './RevisitLeaderboard';
 import StatTileRow from '../../components/StatTileRow';
-import ScopeTabs from '../../components/ScopeTabs';
-import { useScopeCategory } from '../../hooks/useScopeCategory';
 import {
   buildBestOf, buildExplorerScore, buildNewCountriesThisYear, buildNewStylesThisYear, buildDrinksToRevisit,
 } from '../../utils/analyticsHelpers';
@@ -12,7 +10,7 @@ import './StyleSection.css';
 import './ExplorationSection.css';
 
 export default function ExplorationSection({ drinks, globalCategory }) {
-  const [category, setOverride] = useScopeCategory(globalCategory);
+  const category = globalCategory;
   const navigate = useNavigate();
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
@@ -35,10 +33,6 @@ export default function ExplorationSection({ drinks, globalCategory }) {
 
   return (
     <div className="analytics-section">
-      <div className="analytics-section-header">
-        <ScopeTabs category={category} onChange={setOverride} testId="exploration-category-filter" />
-      </div>
-
       <h3 className="analytics-subsection-title">Explorer Score</h3>
       <StatTileRow tiles={[{ label: 'Countries explored', value: `${explorerScore.pct}%` }]} />
       {explorerScore.countries.length > 0 && (

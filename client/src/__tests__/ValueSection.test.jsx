@@ -34,17 +34,10 @@ function renderSection(globalCategory = 'all') {
   return render(<ValueSection drinks={DRINKS} globalCategory={globalCategory} />);
 }
 
-function scopeFilter() {
-  return within(screen.getByTestId('value-category-filter'));
-}
-
-test('follows the global category and the local scope filter overrides it', () => {
+test('follows the global category', () => {
   renderSection('wine');
   expect(within(screen.getByTestId('best-value-table')).getByText('Chateau Reserve')).toBeInTheDocument();
   expect(screen.queryByText('Brewery Ale')).not.toBeInTheDocument();
-
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
-  expect(screen.queryByText('Chateau Reserve')).not.toBeInTheDocument();
 });
 
 test('Price vs Rating scatter shows a point per priced drink, click navigates to Admin tastings', () => {

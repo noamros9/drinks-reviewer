@@ -36,10 +36,6 @@ function renderSection(globalCategory = 'all') {
   );
 }
 
-function scopeFilter() {
-  return within(screen.getByTestId('exploration-category-filter'));
-}
-
 function bestOfTable() {
   return within(screen.getByTestId('best-of-table'));
 }
@@ -53,17 +49,10 @@ test('under All scope, ranks drinks by weighted rating rather than raw avgRating
   expect(rows[2]).toHaveTextContent('Brewery Ale');
 });
 
-test('follows the global category when no local override is made', () => {
+test('follows the global category', () => {
   renderSection('wine');
   expect(bestOfTable().getByText('Chateau Reserve')).toBeInTheDocument();
   expect(screen.queryByText('Brewery Ale')).not.toBeInTheDocument();
-});
-
-test('the local scope filter overrides the global category', () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
-  expect(bestOfTable().getByText('Brewery Ale')).toBeInTheDocument();
-  expect(screen.queryByText('Chateau Reserve')).not.toBeInTheDocument();
 });
 
 test('shows the empty state when nothing in scope is rated', () => {

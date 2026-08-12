@@ -1,12 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import AbvRatingScatter from '../../components/AbvRatingScatter';
 import CategoryBarChart from '../../components/CategoryBarChart';
-import ScopeTabs from '../../components/ScopeTabs';
 import BestValueLeaderboard from './BestValueLeaderboard';
 import RebuyLeaderboard from './RebuyLeaderboard';
 import AvgPriceByCountryTable from './AvgPriceByCountryTable';
 import SpendSummary from './SpendSummary';
-import { useScopeCategory } from '../../hooks/useScopeCategory';
 import {
   buildPriceRatingScatter, buildBestValue, buildRebuyList, buildSpendSummary, buildPriceBands,
   buildAvgPriceCategoryComparison, buildAvgPriceByCountry, formatPrice, median,
@@ -24,7 +22,7 @@ function valueFill(score) {
 }
 
 export default function ValueSection({ drinks, globalCategory }) {
-  const [category, setOverride] = useScopeCategory(globalCategory);
+  const category = globalCategory;
   const navigate = useNavigate();
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
@@ -56,10 +54,6 @@ export default function ValueSection({ drinks, globalCategory }) {
 
   return (
     <div className="analytics-section">
-      <div className="analytics-section-header">
-        <ScopeTabs category={category} onChange={setOverride} testId="value-category-filter" />
-      </div>
-
       <SpendSummary summary={spendSummary} />
 
       <h3 className="analytics-subsection-title">Rebuy Candidates</h3>

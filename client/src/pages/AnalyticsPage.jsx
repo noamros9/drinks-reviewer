@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import ScopeTabs from '../components/ScopeTabs';
 import RatingSection from './analytics/RatingSection';
 import AbvSection from './analytics/AbvSection';
 import GeographicSection from './analytics/GeographicSection';
@@ -24,8 +25,6 @@ const SECTIONS = [
   { key: 'exploration', label: 'Exploration', Component: ExplorationSection },
   { key: 'value', label: 'Value', Component: ValueSection },
 ];
-
-const CATEGORY_FILTERS = ['all', 'wine', 'beer', 'whiskey', 'others'];
 
 export default function AnalyticsPage() {
   const [drinks, setDrinks] = useState([]);
@@ -58,13 +57,7 @@ export default function AnalyticsPage() {
           </button>
         ))}
       </div>
-      <div className="category-tabs" data-testid="global-category-filter">
-        {CATEGORY_FILTERS.map(c => (
-          <button key={c} className={globalCategory === c ? 'active' : ''} onClick={() => setGlobalCategory(c)}>
-            {c.charAt(0).toUpperCase() + c.slice(1)}
-          </button>
-        ))}
-      </div>
+      <ScopeTabs category={globalCategory} onChange={setGlobalCategory} testId="global-category-filter" />
       <ActiveSection drinks={drinks} globalCategory={globalCategory} />
     </div>
   );

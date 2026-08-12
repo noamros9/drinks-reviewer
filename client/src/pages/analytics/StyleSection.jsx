@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import StyleLeaderboardTable from './StyleLeaderboardTable';
-import ScopeTabs from '../../components/ScopeTabs';
-import { useScopeCategory } from '../../hooks/useScopeCategory';
 import { buildStyleLeaderboard, buildUndiscovered } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
 import './GeographicSection.css';
@@ -59,14 +57,11 @@ function StyleBlock({ category, drinks }) {
 }
 
 export default function StyleSection({ drinks, globalCategory }) {
-  const [category, setOverride] = useScopeCategory(globalCategory);
+  const category = globalCategory;
   const cats = category === 'all' ? ALL_CATS : [category];
 
   return (
     <div className="analytics-section">
-      <div className="analytics-section-header">
-        <ScopeTabs category={category} onChange={setOverride} testId="style-category-filter" />
-      </div>
       {cats.map(c => (
         <StyleBlock key={c} category={c} drinks={drinks.filter(d => d._category === c)} />
       ))}

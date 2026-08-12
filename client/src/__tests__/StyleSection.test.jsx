@@ -21,8 +21,6 @@ afterEach(() => {
 const render_ = (globalCategory = 'all') =>
   render(<StyleSection drinks={DRINKS} globalCategory={globalCategory} />);
 
-const scope = () => within(screen.getByTestId('style-category-filter'));
-
 test('under All scope, renders a block per category', () => {
   render_('all');
   expect(screen.getByText('Wine — varieties')).toBeInTheDocument();
@@ -35,13 +33,6 @@ test('a non-All global category shows only that block', () => {
   render_('beer');
   expect(screen.getByText('Beer — styles')).toBeInTheDocument();
   expect(screen.queryByText('Wine — varieties')).not.toBeInTheDocument();
-});
-
-test('the local scope filter overrides the global category', () => {
-  render_('all');
-  fireEvent.click(scope().getByRole('button', { name: 'Whiskey' }));
-  expect(screen.getByText('Whiskey — styles')).toBeInTheDocument();
-  expect(screen.queryByText('Beer — styles')).not.toBeInTheDocument();
 });
 
 test('a category with no drinks shows an empty table state', () => {

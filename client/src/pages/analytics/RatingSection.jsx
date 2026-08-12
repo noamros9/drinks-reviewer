@@ -3,9 +3,7 @@ import RatingHistogram from '../../components/RatingHistogram';
 import StatTileRow from '../../components/StatTileRow';
 import TrendLineChart from '../../components/TrendLineChart';
 import CategoryBarChart from '../../components/CategoryBarChart';
-import ScopeTabs from '../../components/ScopeTabs';
 import ConsistencyLeaderboard from './ConsistencyLeaderboard';
-import { useScopeCategory } from '../../hooks/useScopeCategory';
 import {
   buildRatingHistogram, computePercentiles, buildRatingTrend,
   buildCategoryComparison, buildConsistencyLeaderboard, RATING_BUCKETS,
@@ -13,7 +11,7 @@ import {
 import './RatingSection.css';
 
 export default function RatingSection({ drinks, globalCategory }) {
-  const [category, setOverride] = useScopeCategory(globalCategory);
+  const category = globalCategory;
   const navigate = useNavigate();
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
@@ -47,7 +45,6 @@ export default function RatingSection({ drinks, globalCategory }) {
     <div className="analytics-section">
       <div className="analytics-section-header">
         <span className="count-badge">{total} rated {total === 1 ? 'drink' : 'drinks'}</span>
-        <ScopeTabs category={category} onChange={setOverride} testId="rating-category-filter" />
       </div>
       {total === 0
         ? <p className="empty-state">No rated drinks yet.</p>

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import AbvSection from '../pages/analytics/AbvSection';
 
@@ -24,10 +24,6 @@ function renderSection(globalCategory = 'all') {
   );
 }
 
-function scopeFilter() {
-  return within(screen.getByTestId('abv-category-filter'));
-}
-
 beforeEach(() => {
   mockNavigate.mockClear();
   vi.spyOn(window, 'open').mockImplementation(() => {});
@@ -40,34 +36,11 @@ afterEach(() => {
 test('defaults to following the global category (All) and shows the total count', () => {
   renderSection('all');
   expect(screen.getByText('5 drinks with ABV data')).toBeInTheDocument();
-  expect(scopeFilter().getByRole('button', { name: 'All' })).toHaveClass('active');
 });
 
-test('follows a non-All global category when no local override has been made', () => {
+test('follows a non-All global category', () => {
   renderSection('wine');
   expect(screen.getByText('2 drinks with ABV data')).toBeInTheDocument();
-  expect(scopeFilter().getByRole('button', { name: 'Wine' })).toHaveClass('active');
-});
-
-test('clicking the local scope filter overrides the global category', () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
-  expect(screen.getByText('1 drink with ABV data')).toBeInTheDocument();
-  expect(scopeFilter().getByRole('button', { name: 'Beer' })).toHaveClass('active');
-});
-
-test('once overridden, the section stops following changes to the global category', () => {
-  const { rerender } = renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
-  expect(screen.getByText('1 drink with ABV data')).toBeInTheDocument();
-
-  rerender(
-    <MemoryRouter>
-      <AbvSection drinks={DRINKS} globalCategory="whiskey" />
-    </MemoryRouter>
-  );
-  expect(scopeFilter().getByRole('button', { name: 'Beer' })).toHaveClass('active');
-  expect(screen.getByText('1 drink with ABV data')).toBeInTheDocument();
 });
 
 test('a string-typed abv value still counts toward the total', () => {
@@ -77,8 +50,7 @@ test('a string-typed abv value still counts toward the total', () => {
 });
 
 test('clicking a histogram bar opens a new tab to the scoped category with the abv range', () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Beer' }));
+  renderSection('beer');
   // beer scope has a single entry (abv 5) -> one degenerate bucket {min:5, max:5}
   fireEvent.click(screen.getByTestId('bar-5-5'));
   expect(window.open).toHaveBeenCalledWith('/beer?abvMin=5&abvMax=5', '_blank');
@@ -91,16 +63,14 @@ test('clicking a category comparison bar opens a new tab to that category with n
 });
 
 test('category comparison chart always shows all 4 categories regardless of scope', () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  renderSection('wine');
   ['wine', 'beer', 'whiskey', 'others'].forEach(cat => {
     expect(screen.getByTestId(`bar-${cat}`)).toBeInTheDocument();
   });
 });
 
 test('clicking a scatter point navigates to its Admin tastings tab', () => {
-  renderSection('all');
-  fireEvent.click(scopeFilter().getByRole('button', { name: 'Wine' }));
+  renderSection('wine');
   fireEvent.click(screen.getByTestId('point-w1'));
   expect(mockNavigate).toHaveBeenCalledWith('/admin', {
     state: { drink: DRINKS[0], category: 'wine', tab: 'tastings' },
