@@ -29,3 +29,20 @@
 .abv-rating-scatter-tooltip strong {
   font-size: 0.95rem;
 }
+
+.abv-rating-scatter-wrap {
+  position: relative;
+}
+
+.scatter-quadrant {
+  position: absolute;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.scatter-quadrant-tl { top: 8px; left: 48px; }
+.scatter-quadrant-tr { top: 8px; right: 12px; }
+.scatter-quadrant-bl { bottom: 28px; left: 48px; }
+.scatter-quadrant-br { bottom: 28px; right: 12px; }

@@ -38,6 +38,46 @@
   color: var(--text-secondary);
 }
 
+.value-scatter-toggle {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.value-scatter-toggle button {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.value-scatter-toggle button:hover {
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}
+
+.value-scatter-toggle button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.value-scatter-legend-categories {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.value-scatter-legend-categories span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 .value-scatter-legend {
   display: flex;
   align-items: center;
@@ -58,7 +98,7 @@
   width: 6rem;
   height: 0.5rem;
   border-radius: var(--radius-sm);
-  background: linear-gradient(to right, hsl(5, 75%, 48%), hsl(0, 0%, 60%), hsl(145, 75%, 48%));
+  background: linear-gradient(to right, var(--value-diverging-1), var(--value-diverging-4), var(--value-diverging-7));
 }
 
 .value-scatter-legend-markers {

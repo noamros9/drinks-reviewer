@@ -148,6 +148,43 @@ test('Best Value table pages past 10 rows instead of truncating the list', () =>
   expect(table.getAllByRole('row')).toHaveLength(6); // header + remaining 5 rows
 });
 
+test('Y-axis toggle switches the active mode and the point colour mode', () => {
+  renderSection('all');
+  const avgBtn = screen.getByRole('button', { name: 'Avg Rating' });
+  const valueBtn = screen.getByRole('button', { name: 'Value Score' });
+  expect(avgBtn).toHaveClass('active');
+
+  const wineFillBefore = screen.getByTestId('point-w1').style.fill;
+  expect(wineFillBefore).toMatch(/--value-diverging-/);
+  expect(screen.getByText('Bargains')).toBeInTheDocument(); // quadrant labels shown in rating modes
+
+  fireEvent.click(valueBtn);
+  expect(valueBtn).toHaveClass('active');
+  expect(avgBtn).not.toHaveClass('active');
+  expect(screen.getByTestId('point-w1').style.fill).toMatch(/--value-cat-wine/);
+  expect(screen.queryByText('Bargains')).not.toBeInTheDocument(); // no quadrant labels — Value Score is continuous
+});
+
+test('jitter is deterministic for a given id and absent in Value Score mode', () => {
+  const drinks = [
+    { id: 'w1', _category: 'wine', producer: 'A', avgRating: 8, tastingCount: 5, collection: [{ price: 50 }] },
+    { id: 'w2', _category: 'wine', producer: 'B', avgRating: 8, tastingCount: 5, collection: [{ price: 50 }] },
+  ];
+
+  const { unmount } = render(<ValueSection drinks={drinks} globalCategory="wine" />);
+  const cyFirstRender = screen.getByTestId('point-w1').getAttribute('cy');
+  const cyW2RatingMode = screen.getByTestId('point-w2').getAttribute('cy');
+  expect(cyFirstRender).not.toBe(cyW2RatingMode); // same rating, different id -> different jitter
+  unmount();
+
+  render(<ValueSection drinks={drinks} globalCategory="wine" />);
+  expect(screen.getByTestId('point-w1').getAttribute('cy')).toBe(cyFirstRender); // deterministic across renders
+
+  fireEvent.click(screen.getByRole('button', { name: 'Value Score' }));
+  // identical price + rating -> tied percentile ranks -> identical valueScore -> no jitter to tell apart
+  expect(screen.getByTestId('point-w1').getAttribute('cy')).toBe(screen.getByTestId('point-w2').getAttribute('cy'));
+});
+
 test('price bands render as a bar chart once a category has enough priced/rated drinks', () => {
   const wines = Array.from({ length: 12 }, (_, i) => ({
     id: `w${i}`, _category: 'wine', producer: `W${i}`, avgRating: 5 + (i % 5), tastingCount: 5,

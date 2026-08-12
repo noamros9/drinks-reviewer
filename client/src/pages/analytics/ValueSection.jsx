@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import AbvRatingScatter from '../../components/AbvRatingScatter';
 import CategoryBarChart from '../../components/CategoryBarChart';
 import BestValueLeaderboard from './BestValueLeaderboard';
@@ -11,12 +12,35 @@ import './RatingSection.css';
 
 const SCATTER_X_AXIS_PROPS = { scale: 'log', domain: ['auto', 'auto'], ticks: [10, 25, 50, 100, 250, 500] };
 
-// Diverging: near-grey at the neutral score of 50, saturating to green (bargain) or red
-// (overpriced). Value scores cluster around 50, so a plain red->green hue ramp would render
-// most of the chart mustard -- the mid-range is exactly where the mass sits.
+const Y_MODES = [
+  { key: 'avgRating', label: 'Avg Rating', field: 'rating', domain: ['dataMin - 0.5', 'dataMax + 0.5'], jitter: true },
+  { key: 'weightedRating', label: 'Weighted Rating', field: 'weightedRating', domain: ['dataMin - 0.5', 'dataMax + 0.5'], jitter: true },
+  { key: 'valueScore', label: 'Value Score', field: 'valueScore', domain: [0, 100], jitter: false },
+];
+
+const QUADRANT_LABELS = { topLeft: 'Bargains', topRight: 'Worth It', bottomLeft: 'Skip', bottomRight: 'Overpriced' };
+
+const CATEGORICAL_CATEGORIES = ['wine', 'beer', 'whiskey'];
+
+// Deterministic per-id nudge, well inside the 0.5 rating-quantization step, so overlapping
+// points separate without a point ever crossing into a neighbouring rating band.
+function seededJitter(id) {
+  let h = 0;
+  const s = String(id);
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return ((Math.abs(h) % 1000) / 1000) * 0.24 - 0.12;
+}
+
+// Diverging: 7 discrete steps (overpriced -> neutral -> great value). Value scores cluster
+// around 50, so a smooth ramp turns to mush there -- discrete bands keep it legible.
 function valueFill(score) {
-  const t = ((score ?? 50) - 50) / 50;
-  return `hsl(${t >= 0 ? 145 : 5}, ${Math.round(Math.abs(t) * 75)}%, 48%)`;
+  const clamped = Math.max(0, Math.min(100, score ?? 50));
+  const step = Math.min(6, Math.floor(clamped / (100 / 7)));
+  return `var(--value-diverging-${step + 1})`;
+}
+
+function categoricalFill(category) {
+  return `var(--value-cat-${CATEGORICAL_CATEGORIES.includes(category) ? category : 'others'})`;
 }
 
 function adminUrl(entry) {
@@ -25,19 +49,24 @@ function adminUrl(entry) {
 
 export default function ValueSection({ drinks, globalCategory }) {
   const category = globalCategory;
+  const [yMode, setYMode] = useState('avgRating');
+  const mode = Y_MODES.find(m => m.key === yMode);
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
 
   const valueRows = buildBestValue(scoped, Infinity);
-  const scoreById = new Map(valueRows.map(r => [r.id, r.valueScore]));
-  const scatterPoints = buildPriceRatingScatter(scoped).map(p => ({ ...p, valueScore: scoreById.get(p.id) }));
+  const scoreById = new Map(valueRows.map(r => [r.id, { weightedRating: r.weightedRating, valueScore: r.valueScore }]));
+  const scatterPoints = buildPriceRatingScatter(scoped).map(p => ({ ...p, ...scoreById.get(p.id) }));
+  const plottedPoints = scatterPoints.map(p => ({
+    ...p, plotY: mode.jitter ? p[mode.field] + seededJitter(p.id) : p[mode.field],
+  }));
   const rebuy = buildRebuyList(scoped, Infinity);
   const priceByCategory = buildAvgPriceCategoryComparison(drinks);
   const priceByCountry = buildAvgPriceByCountry(scoped);
   const priceBands = category === 'all' ? [] : buildPriceBands(scoped);
   const unpricedCount = scoped.length - scatterPoints.length;
   const medianX = scatterPoints.length ? median(scatterPoints.map(p => p.price)) : undefined;
-  const medianY = scatterPoints.length ? median(scatterPoints.map(p => p.rating)) : undefined;
+  const medianY = scatterPoints.length ? median(scatterPoints.map(p => p[mode.field])) : undefined;
 
   const handleSelectDrink = (entry) => {
     window.open(adminUrl(entry), '_blank');
@@ -61,23 +90,51 @@ export default function ValueSection({ drinks, globalCategory }) {
         ? <p className="empty-state">No price data yet.</p>
         : (
           <>
+            <div className="value-scatter-toggle" role="group" aria-label="Y axis">
+              {Y_MODES.map(m => (
+                <button
+                  key={m.key} type="button" className={m.key === yMode ? 'active' : ''}
+                  onClick={() => setYMode(m.key)}
+                  aria-pressed={m.key === yMode}
+                >
+                  {m.label}
+                </button>
+              ))}
+            </div>
             <AbvRatingScatter
-              points={scatterPoints} onPointClick={handleSelectDrink} xKey="price" xLabel="Price" xUnit=" ₪"
+              points={plottedPoints} onPointClick={handleSelectDrink} xKey="price" xLabel="Price" xUnit=" ₪"
               xAxisProps={SCATTER_X_AXIS_PROPS}
-              pointStyle={p => ({ fill: valueFill(p.valueScore), hollow: p.priceIsEstimated })}
+              yKey="plotY" yDomain={mode.domain} ring fillOpacity={0.75}
+              pointStyle={p => ({
+                fill: mode.key === 'valueScore' ? categoricalFill(p.category) : valueFill(p.valueScore),
+                hollow: p.priceIsEstimated,
+              })}
               medians={{ x: medianX, y: medianY }}
+              extraTooltipFields={[{ key: 'weightedRating', label: 'Weighted Rating' }]}
+              quadrantLabels={mode.jitter ? QUADRANT_LABELS : undefined}
             />
             <div className="value-scatter-legend">
-              <div className="value-scatter-legend-gradient">
-                <span>Overpriced</span>
-                <span className="value-scatter-legend-bar" />
-                <span>Great value</span>
-              </div>
+              {mode.key === 'valueScore'
+                ? (
+                  <div className="value-scatter-legend-categories">
+                    <span><span className="value-scatter-legend-dot" style={{ background: 'var(--value-cat-wine)' }} />Wine</span>
+                    <span><span className="value-scatter-legend-dot" style={{ background: 'var(--value-cat-beer)' }} />Beer</span>
+                    <span><span className="value-scatter-legend-dot" style={{ background: 'var(--value-cat-whiskey)' }} />Whiskey</span>
+                    <span><span className="value-scatter-legend-dot" style={{ background: 'var(--value-cat-others)' }} />Others</span>
+                  </div>
+                )
+                : (
+                  <div className="value-scatter-legend-gradient">
+                    <span>Overpriced</span>
+                    <span className="value-scatter-legend-bar" />
+                    <span>Great value</span>
+                  </div>
+                )}
               <div className="value-scatter-legend-markers">
                 <span className="value-scatter-legend-dot" />paid
                 <span className="value-scatter-legend-dot hollow" />estimated
               </div>
-              <span>dashed lines = median price/rating in this view</span>
+              <span>dashed lines = median price/{mode.label.toLowerCase()} in this view</span>
             </div>
           </>
         )}
