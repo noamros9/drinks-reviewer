@@ -1,12 +1,6 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import ValueSection from '../pages/analytics/ValueSection';
 
-const mockNavigate = vi.fn();
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return { ...actual, useNavigate: () => mockNavigate };
-});
-
 const DRINKS = [
   {
     id: 'w1', _category: 'wine', producer: 'Chateau', seriesAndName: 'Reserve', avgRating: 9, tastingCount: 5,
@@ -24,7 +18,6 @@ const DRINKS = [
 
 beforeEach(() => {
   vi.spyOn(window, 'open').mockImplementation(() => {});
-  mockNavigate.mockClear();
 });
 afterEach(() => {
   window.open.mockRestore();
@@ -47,9 +40,7 @@ test('Price vs Rating scatter shows a point per priced drink, click navigates to
   expect(screen.queryByTestId('point-b1')).not.toBeInTheDocument();
 
   fireEvent.click(screen.getByTestId('point-w1'));
-  expect(mockNavigate).toHaveBeenCalledWith('/admin', {
-    state: { drink: DRINKS[0], category: 'wine', tab: 'tastings' },
-  });
+  expect(window.open).toHaveBeenCalledWith('/admin?id=w1&category=wine&tab=tastings', '_blank');
 });
 
 test('Price vs Rating shows an empty state when nothing in scope has a price', () => {
@@ -57,16 +48,15 @@ test('Price vs Rating shows an empty state when nothing in scope has a price', (
   expect(screen.getByText('No price data yet.')).toBeInTheDocument();
 });
 
-test('Best Value ranks by weighted rating over price, row click navigates', () => {
+test('Best Value ranks by weighted rating over price, row link opens Admin tastings in a new tab', () => {
   renderSection('all');
   const table = within(screen.getByTestId('best-value-table'));
   const rows = table.getAllByRole('row').slice(1);
   expect(rows[0]).toHaveTextContent('Chateau Reserve');
 
-  fireEvent.click(table.getByText('Chateau Reserve'));
-  expect(mockNavigate).toHaveBeenCalledWith('/admin', {
-    state: { drink: DRINKS[0], category: 'wine', tab: 'tastings' },
-  });
+  const link = table.getByText('Chateau Reserve').closest('a');
+  expect(link).toHaveAttribute('href', '/admin?id=w1&category=wine&tab=tastings');
+  expect(link).toHaveAttribute('target', '_blank');
 });
 
 test('Best Value shows an empty state when nothing qualifies', () => {
@@ -112,8 +102,9 @@ test('Rebuy Candidates lists priced/rated drinks not currently in stock, tagging
   expect(table.getByText('DrankItAll')).toBeInTheDocument();
   expect(table.getByTitle("You've bought this before")).toBeInTheDocument();
 
-  fireEvent.click(table.getByText('DrankItAll'));
-  expect(mockNavigate).toHaveBeenCalledWith('/admin', { state: { drink: drinks[2], category: 'wine', tab: 'tastings' } });
+  const link = table.getByText('DrankItAll').closest('a');
+  expect(link).toHaveAttribute('href', '/admin?id=r3&category=wine&tab=tastings');
+  expect(link).toHaveAttribute('target', '_blank');
 });
 
 test('Rebuy Candidates shows an empty state when everything rated is in stock', () => {
@@ -134,6 +125,27 @@ test('price bands are hidden on All and show a low-data message for a thinly pri
   renderSection('wine');
   expect(screen.getByText('Does Paying More Help?')).toBeInTheDocument();
   expect(screen.getByText('Not enough priced drinks in this category yet.')).toBeInTheDocument();
+});
+
+test('Rebuy Candidates section is headed "Worth Restocking"', () => {
+  renderSection('all');
+  expect(screen.getByText('Worth Restocking')).toBeInTheDocument();
+  expect(screen.queryByText('Rebuy Candidates')).not.toBeInTheDocument();
+});
+
+test('Best Value table pages past 10 rows instead of truncating the list', () => {
+  const wines = Array.from({ length: 15 }, (_, i) => ({
+    id: `w${i}`, _category: 'wine', producer: `W${i}`, avgRating: 5 + (i % 5), tastingCount: 5,
+    collection: [{ price: (i + 1) * 20 }],
+  }));
+  render(<ValueSection drinks={wines} globalCategory="wine" />);
+  const table = within(screen.getByTestId('best-value-table'));
+  expect(table.getAllByRole('row')).toHaveLength(11); // header + 10 rows
+  expect(table.getByText('Page 1 of 2')).toBeInTheDocument();
+
+  fireEvent.click(table.getByRole('button', { name: 'Next' }));
+  expect(table.getByText('Page 2 of 2')).toBeInTheDocument();
+  expect(table.getAllByRole('row')).toHaveLength(6); // header + remaining 5 rows
 });
 
 test('price bands render as a bar chart once a category has enough priced/rated drinks', () => {

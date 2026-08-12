@@ -77,6 +77,26 @@ test('deep-linking to a wine auto-focuses the Vivino Score field', async () => {
   await waitFor(() => expect(screen.getByLabelText('Vivino Score')).toHaveFocus());
 });
 
+test('tab query param selects the Tastings tab', () => {
+  render(
+    <MemoryRouter initialEntries={['/admin?id=w1&category=wine&tab=tastings']}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+  expect(screen.getByRole('button', { name: 'Tastings' })).toHaveClass('active');
+  expect(screen.getByRole('button', { name: 'Review' })).not.toHaveClass('active');
+});
+
+test('location.state.tab takes precedence over the tab query param', () => {
+  const stateDrink = { id: 'w2', producer: 'From State', seriesAndName: 'X', tags: [] };
+  render(
+    <MemoryRouter initialEntries={[{ pathname: '/admin', search: '?id=w1&category=wine&tab=tastings', state: { category: 'wine', drink: stateDrink, tab: 'review' } }]}>
+      <AdminPage />
+    </MemoryRouter>
+  );
+  expect(screen.getByRole('button', { name: 'Review' })).toHaveClass('active');
+});
+
 test('location.state.drink does not steal focus onto the Vivino Score field', () => {
   const stateDrink = { id: 'w2', producer: 'From State', seriesAndName: 'X', tags: [] };
   render(

@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import AbvRatingScatter from '../../components/AbvRatingScatter';
 import CategoryBarChart from '../../components/CategoryBarChart';
 import BestValueLeaderboard from './BestValueLeaderboard';
@@ -20,17 +19,19 @@ function valueFill(score) {
   return `hsl(${t >= 0 ? 145 : 5}, ${Math.round(Math.abs(t) * 75)}%, 48%)`;
 }
 
+function adminUrl(entry) {
+  return `/admin?id=${entry.id}&category=${entry.category}&tab=tastings`;
+}
+
 export default function ValueSection({ drinks, globalCategory }) {
   const category = globalCategory;
-  const navigate = useNavigate();
 
   const scoped = category === 'all' ? drinks : drinks.filter(d => d._category === category);
 
   const valueRows = buildBestValue(scoped, Infinity);
   const scoreById = new Map(valueRows.map(r => [r.id, r.valueScore]));
   const scatterPoints = buildPriceRatingScatter(scoped).map(p => ({ ...p, valueScore: scoreById.get(p.id) }));
-  const bestValue = valueRows.slice(0, 10);
-  const rebuy = buildRebuyList(scoped);
+  const rebuy = buildRebuyList(scoped, Infinity);
   const priceByCategory = buildAvgPriceCategoryComparison(drinks);
   const priceByCountry = buildAvgPriceByCountry(scoped);
   const priceBands = category === 'all' ? [] : buildPriceBands(scoped);
@@ -39,7 +40,7 @@ export default function ValueSection({ drinks, globalCategory }) {
   const medianY = scatterPoints.length ? median(scatterPoints.map(p => p.rating)) : undefined;
 
   const handleSelectDrink = (entry) => {
-    navigate('/admin', { state: { drink: entry.drink, category: entry.category, tab: 'tastings' } });
+    window.open(adminUrl(entry), '_blank');
   };
 
   const handleCategoryBarClick = (cat) => {
@@ -52,8 +53,8 @@ export default function ValueSection({ drinks, globalCategory }) {
 
   return (
     <div className="analytics-section">
-      <h3 className="analytics-subsection-title">Rebuy Candidates</h3>
-      <RebuyLeaderboard rows={rebuy} onSelectDrink={handleSelectDrink} />
+      <h3 className="analytics-subsection-title">Worth Restocking</h3>
+      <RebuyLeaderboard rows={rebuy} adminUrl={adminUrl} />
 
       <h3 className="analytics-subsection-title">Price vs Rating</h3>
       {scatterPoints.length === 0
@@ -87,7 +88,7 @@ export default function ValueSection({ drinks, globalCategory }) {
       <h3 className="analytics-subsection-title">
         Best Value <span className="scope-note">(0-100, within-category rating percentile vs price percentile; 50 = neutral)</span>
       </h3>
-      <BestValueLeaderboard rows={bestValue} onSelectDrink={handleSelectDrink} />
+      <BestValueLeaderboard rows={valueRows} adminUrl={adminUrl} />
 
       {category !== 'all' && (
         <>

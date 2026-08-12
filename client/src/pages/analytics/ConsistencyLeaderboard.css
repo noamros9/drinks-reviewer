@@ -43,6 +43,7 @@
   color: var(--accent);
   cursor: pointer;
   text-align: left;
+  text-decoration: none;
 }
 
 .consistency-leaderboard-link:hover,
