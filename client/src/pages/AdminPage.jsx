@@ -90,7 +90,7 @@ export default function AdminPage() {
   const [newLotQty, setNewLotQty] = useState('1');
   const [newLotPrice, setNewLotPrice] = useState('');
   const [collectionMessage, setCollectionMessage] = useState('');
-  const [activeTab, setActiveTab] = useState(editState?.tab || 'review');
+  const [activeTab, setActiveTab] = useState(editState?.tab || searchParams.get('tab') || 'review');
   const drankIt = editState?.drankIt ?? false;
   const [tagInputs, setTagInputs] = useState({});
   const tagInputRefs = useRef({});

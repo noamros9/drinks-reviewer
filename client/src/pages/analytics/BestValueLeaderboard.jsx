@@ -1,7 +1,11 @@
 import { formatPrice } from '../../utils/analyticsHelpers';
+import { usePagination } from '../../hooks/usePagination';
+import Pager from '../../components/Pager';
 import './ConsistencyLeaderboard.css';
 
-export default function BestValueLeaderboard({ rows, onSelectDrink }) {
+export default function BestValueLeaderboard({ rows, adminUrl }) {
+  const { pageRows, page, totalPages, setPage } = usePagination(rows);
+
   if (rows.length === 0) return <p className="empty-state">No priced drinks yet.</p>;
 
   return (
@@ -19,12 +23,12 @@ export default function BestValueLeaderboard({ rows, onSelectDrink }) {
           </tr>
         </thead>
         <tbody>
-          {rows.map(r => (
+          {pageRows.map(r => (
             <tr key={r.id}>
               <td>
-                <button type="button" className="consistency-leaderboard-link" onClick={() => onSelectDrink(r)}>
+                <a href={adminUrl(r)} target="_blank" rel="noopener noreferrer" className="consistency-leaderboard-link">
                   {r.label}
-                </button>
+                </a>
               </td>
               <td>{r.category.charAt(0).toUpperCase() + r.category.slice(1)}</td>
               <td>{formatPrice(r.price)}{r.priceIsEstimated ? ' (est.)' : ''}</td>
@@ -36,6 +40,7 @@ export default function BestValueLeaderboard({ rows, onSelectDrink }) {
           ))}
         </tbody>
       </table>
+      <Pager page={page} totalPages={totalPages} onChange={setPage} />
     </div>
   );
 }
