@@ -344,7 +344,7 @@ export default function AdminPage() {
         setColMessage('Added! Add another below.');
         return;
       }
-      navigate('/collection');
+      navigate('/cellar');
     } finally {
       setAddToCollectionBusy(false);
     }
@@ -401,7 +401,7 @@ export default function AdminPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ quantity: editState.lot.quantity - 1 }),
         });
-        navigate('/collection');
+        navigate('/cellar');
       }
     } finally {
       setAddTastingBusy(false);
@@ -437,7 +437,7 @@ export default function AdminPage() {
     });
     if (!res.ok) { setCollectionMessage('Failed to update collection tags.'); return; }
     setForm(prev => ({ ...prev, tags }));
-    setCollectionMessage('Collection tags updated!');
+    setCollectionMessage('Cellar tags updated!');
   };
 
   const handleDeleteTasting = async (tastingId) => {
@@ -503,7 +503,7 @@ export default function AdminPage() {
 
       <div className="category-tabs">
         <button className={activeTab === 'review' ? 'active' : ''} onClick={() => setActiveTab('review')}>Review</button>
-        <button className={activeTab === 'collection' ? 'active' : ''} onClick={() => setActiveTab('collection')}>Collection</button>
+        <button className={activeTab === 'collection' ? 'active' : ''} onClick={() => setActiveTab('collection')}>Cellar</button>
         {isEditing && <button className={activeTab === 'tastings' ? 'active' : ''} onClick={() => setActiveTab('tastings')}>Tastings</button>}
       </div>
 
@@ -723,7 +723,7 @@ export default function AdminPage() {
               onSelect={f => { newColImageRef.current = f; setNewColImage(f); }}
               openUp
             />
-            <button type="button" className="btn-primary" disabled={addToCollectionBusy} onClick={() => handleAddToCollection()}>Add to Collection</button>
+            <button type="button" className="btn-primary" disabled={addToCollectionBusy} onClick={() => handleAddToCollection()}>Add to Cellar</button>
             <button type="button" className="btn-primary" disabled={addToCollectionBusy} onClick={() => handleAddToCollection(true)}>Add Another</button>
           </div>
           {colMessage && <p className="success-message">{colMessage}</p>}
@@ -733,7 +733,7 @@ export default function AdminPage() {
       {isEditing && activeTab === 'collection' && (
         <section className="collection-section tastings-section">
           <div className="tastings-main">
-          <h2>My Collection</h2>
+          <h2>My Cellar</h2>
           <div className="lot-row collection-photo-row">
             {form.collectionImageUrl
               ? <img src={form.collectionImageUrl} alt="" className="tasting-thumb" data-testid="collection-img" />
@@ -780,7 +780,7 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="lot-list">
-            {lots.length === 0 && <p className="no-lots">No bottles in collection.</p>}
+            {lots.length === 0 && <p className="no-lots">No bottles in cellar.</p>}
             {lots.map(lot => (
               <div key={lot.id} className="lot-row">
                 <span className="lot-qty">Qty: {lot.quantity}</span>

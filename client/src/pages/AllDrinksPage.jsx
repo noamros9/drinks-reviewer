@@ -126,7 +126,7 @@ export default function AllDrinksPage() {
           Add Review
         </button>
         <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: filter === 'all' ? { tab: 'collection' } : { category: filter, tab: 'collection' } })}>
-          Add to Collection
+          Add to Cellar
         </button>
         <button type="button" className="btn-outline" onClick={handleExportCsv}>
           Export CSV

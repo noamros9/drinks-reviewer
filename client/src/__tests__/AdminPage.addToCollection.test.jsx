@@ -14,7 +14,7 @@ vi.mock('react-router-dom', async () => {
 
 function renderCollectionTab() {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
-  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
 }
 
 function mockFetch(overrides = {}) {
@@ -55,7 +55,7 @@ test('submit POSTs drink with collectionOnly: true', async () => {
   renderCollectionTab();
   fireEvent.change(screen.getByLabelText(/^producer$/i), { target: { value: 'Château X' } });
   fireEvent.change(screen.getByLabelText(/^name$/i), { target: { value: 'Reserve' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/wine',
@@ -66,7 +66,7 @@ test('submit POSTs drink with collectionOnly: true', async () => {
 
 test('submit then POSTs a lot to the new drink id', async () => {
   renderCollectionTab();
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/wine/new-drink/collection',
@@ -77,9 +77,9 @@ test('submit then POSTs a lot to the new drink id', async () => {
 
 test('navigates to collection after submit', async () => {
   renderCollectionTab();
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   await waitFor(() => {
-    expect(mockNavigate).toHaveBeenCalledWith('/collection');
+    expect(mockNavigate).toHaveBeenCalledWith('/cellar');
   });
 });
 
@@ -100,7 +100,7 @@ test('"Add another Collection" submits without navigating and resets the form', 
 test('switching category changes the POST endpoint', async () => {
   renderCollectionTab();
   fireEvent.click(screen.getByRole('button', { name: /^beer$/i }));
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/beer',
@@ -112,7 +112,7 @@ test('switching category changes the POST endpoint', async () => {
 test('includes price in lot body when price is filled', async () => {
   renderCollectionTab();
   fireEvent.change(screen.getByLabelText(/^price$/i), { target: { value: '45.50' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
       '/api/wine/new-drink/collection',
@@ -124,7 +124,7 @@ test('includes price in lot body when price is filled', async () => {
 test('shows error message when drink POST fails', async () => {
   mockFetch({ '/api/wine': { ok: false } });
   renderCollectionTab();
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   expect(await screen.findByText(/failed to add drink/i)).toBeInTheDocument();
 });
 
@@ -133,7 +133,7 @@ test('shows error message when drink POST fails', async () => {
 test('decimal quantity blocks the entire submit', () => {
   renderCollectionTab();
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '2.5' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
   expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
 });
@@ -141,7 +141,7 @@ test('decimal quantity blocks the entire submit', () => {
 test('zero quantity blocks the entire submit', () => {
   renderCollectionTab();
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '0' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
   expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
 });
@@ -149,7 +149,7 @@ test('zero quantity blocks the entire submit', () => {
 test('blank quantity blocks the entire submit', () => {
   renderCollectionTab();
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '' } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
   expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
 });
@@ -189,7 +189,7 @@ test('quick-add photo upload fires to the collection image endpoint after drink+
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
   fireEvent.click(screen.getByTestId('new-col-img-trigger'));
   fireEvent.change(screen.getByTestId('new-col-img'), { target: { files: [file] } });
-  fireEvent.click(screen.getByRole('button', { name: /add to collection/i }));
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
     '/api/wine/new-drink/collection/image',
     expect.objectContaining({ method: 'POST', body: expect.any(FormData) })

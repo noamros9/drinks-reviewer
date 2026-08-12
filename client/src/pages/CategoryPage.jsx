@@ -141,7 +141,7 @@ export default function CategoryPage({ category }) {
           Add Review
         </button>
         <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: { category, tab: 'collection' } })}>
-          Add to Collection
+          Add to Cellar
         </button>
         <button type="button" className="btn-outline" onClick={handleExportCsv}>
           Export CSV

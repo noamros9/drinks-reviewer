@@ -6,6 +6,8 @@ import AutocompleteInput from '../components/AutocompleteInput';
 import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, buildDropdownOptions } from '../utils/filterHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
 import { rowsToCsv, downloadCsv } from '../utils/csvExport';
+import { buildSpendSummary } from '../utils/analyticsHelpers';
+import SpendSummary from './analytics/SpendSummary';
 import '../components/BulkEditBar.css';
 import './CollectionPage.css';
 
@@ -206,6 +208,7 @@ export default function CollectionPage() {
   const searchIds = useSearchResults(CATEGORIES, activeFilters.producerSearch);
   const searchScoped = searchIds == null ? categoryFiltered : categoryFiltered.filter(d => searchIds.has(d.id));
   const visible = searchScoped.filter(d => matchesFilters(d, activeFilters, 'all'));
+  const spendSummary = buildSpendSummary(visible);
 
   const handleCellClick = (colKey, value) => {
     setActiveFilters(prev =>
@@ -216,7 +219,7 @@ export default function CollectionPage() {
   };
 
   const handleExportCsv = () => {
-    downloadCsv('collection.csv', rowsToCsv(visible, COLUMNS.collection));
+    downloadCsv('cellar.csv', rowsToCsv(visible, COLUMNS.collection));
   };
 
   const renderRowExtra = (drink) => {
@@ -234,19 +237,21 @@ export default function CollectionPage() {
   return (
     <div className="category-page">
       <div className="page-header">
-        <h1>My Collection</h1>
+        <h1>My Cellar</h1>
         <span className="count-badge">{visible.length} {visible.length === 1 ? 'drink' : 'drinks'}</span>
         <button className="sort-preset" onClick={handlePick}>Pick for me</button>
         <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: filter === 'all' ? { tab: 'review' } : { category: filter, tab: 'review' } })}>
           Add Review
         </button>
         <button type="button" className="btn-outline" onClick={() => navigate('/admin', { state: filter === 'all' ? { tab: 'collection' } : { category: filter, tab: 'collection' } })}>
-          Add to Collection
+          Add to Cellar
         </button>
         <button type="button" className="btn-outline" onClick={handleExportCsv}>
           Export CSV
         </button>
       </div>
+
+      <SpendSummary summary={spendSummary} filter={filter} />
 
       <div className="category-tabs">
         {FILTERS.map(f => (

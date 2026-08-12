@@ -86,7 +86,7 @@ test('completing the Tastings tab after the review handoff PATCHes the lot and n
       expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ quantity: 1 }) })
     );
   });
-  await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/collection'));
+  await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/cellar'));
 });
 
 // ── Drank it → Tastings tab (already-reviewed drinks) ─────────────
@@ -120,5 +120,5 @@ test('adding a tasting in drankIt mode PATCHes the lot and navigates to /collect
       expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ quantity: 1 }) })
     );
   });
-  await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/collection'));
+  await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/cellar'));
 });

@@ -20,7 +20,7 @@ function renderEditPage(drink = EDIT_DRINK) {
       <AdminPage />
     </MemoryRouter>
   );
-  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
   return result;
 }
 
@@ -37,7 +37,7 @@ test('shows Review and Collection tabs in edit mode', () => {
     </MemoryRouter>
   );
   expect(screen.getByRole('button', { name: /^review$/i })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /^collection$/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^cellar$/i })).toBeInTheDocument();
 });
 
 test('switching back to Review tab shows the form', () => {
@@ -46,7 +46,7 @@ test('switching back to Review tab shows the form', () => {
       <AdminPage />
     </MemoryRouter>
   );
-  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
   fireEvent.click(screen.getByRole('button', { name: /^review$/i }));
   expect(screen.getByLabelText(/producer/i)).toBeInTheDocument();
 });
@@ -63,21 +63,21 @@ test('shows existing lot price', () => {
 
 test('shows no bottles message when collection is empty', () => {
   renderEditPage({ ...EDIT_DRINK, collection: [] });
-  expect(screen.getByText(/no bottles in collection/i)).toBeInTheDocument();
+  expect(screen.getByText(/no bottles in cellar/i)).toBeInTheDocument();
 });
 
 test('tabs are visible in create mode', () => {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
   expect(screen.getByRole('button', { name: /^review$/i })).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /^collection$/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /^cellar$/i })).toBeInTheDocument();
 });
 
 test('collection tab in create mode shows the add-to-collection form', () => {
   render(<MemoryRouter><AdminPage /></MemoryRouter>);
-  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
   expect(screen.getByLabelText(/^producer$/i)).toBeInTheDocument();
   expect(screen.getByLabelText(/^quantity$/i)).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: /add to collection/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /add to cellar/i })).toBeInTheDocument();
 });
 
 test('deep link with category and tab: collection lands on Collection tab with that category preselected', () => {
@@ -86,7 +86,7 @@ test('deep link with category and tab: collection lands on Collection tab with t
       <AdminPage />
     </MemoryRouter>
   );
-  expect(screen.getByRole('button', { name: /^collection$/i })).toHaveClass('active');
+  expect(screen.getByRole('button', { name: /^cellar$/i })).toHaveClass('active');
   expect(screen.getByRole('button', { name: /^beer$/i })).toHaveClass('active');
 });
 

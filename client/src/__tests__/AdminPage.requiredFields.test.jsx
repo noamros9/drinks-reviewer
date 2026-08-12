@@ -76,8 +76,8 @@ test('editing an existing entry does not gate on missing required fields', async
 test('adding to collection with Producer, Name, Country blank prompts a confirm listing them', async () => {
   window.confirm = vi.fn(() => false);
   renderAdmin();
-  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
-  fireEvent.click(screen.getByRole('button', { name: /^add to collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^add to cellar$/i }));
   expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining('Producer'));
   expect(window.confirm.mock.calls[0][0]).toContain('Name');
   expect(window.confirm.mock.calls[0][0]).toContain('Country');
@@ -87,19 +87,19 @@ test('adding to collection with Producer, Name, Country blank prompts a confirm 
 test('confirming through the missing-fields prompt proceeds with adding to collection', async () => {
   window.confirm = vi.fn(() => true);
   renderAdmin();
-  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
-  fireEvent.click(screen.getByRole('button', { name: /^add to collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^add to cellar$/i }));
   await waitFor(() => expect(postedTo('/api/wine')).toBe(true));
 });
 
 test('no confirm is shown when the collection form has Producer, Name, and Country filled', async () => {
   window.confirm = vi.fn(() => true);
   renderAdmin();
-  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
   fireEvent.change(screen.getByLabelText(/^producer$/i), { target: { value: 'Chateau Margaux' } });
   fireEvent.change(screen.getByLabelText(/^name$/i), { target: { value: 'Grand Vin' } });
   fireEvent.change(screen.getByLabelText(/^country$/i), { target: { value: 'France' } });
-  fireEvent.click(screen.getByRole('button', { name: /^add to collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^add to cellar$/i }));
   await waitFor(() => expect(postedTo('/api/wine')).toBe(true));
   expect(window.confirm).not.toHaveBeenCalled();
 });
