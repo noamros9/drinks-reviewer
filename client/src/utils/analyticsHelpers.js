@@ -324,17 +324,22 @@ export function buildRebuyList(drinks, n = 10) {
 
 export function buildSpendSummary(drinks) {
   const inStockLots = drinks.flatMap(d => (d.collection || [])
-    .filter(l => l.quantity > 0 && Number.isFinite(l.price))
+    .filter(l => l.quantity > 0)
     .map(l => ({ ...l, drink: d })));
   if (!inStockLots.length) return null;
-  const cellarValue = inStockLots.reduce((s, l) => s + l.price * l.quantity, 0);
+  const pricedLots = inStockLots.filter(l => Number.isFinite(l.price));
+  const cellarValue = pricedLots.reduce((s, l) => s + l.price * l.quantity, 0);
   const bottles = inStockLots.reduce((s, l) => s + l.quantity, 0);
-  const priciest = inStockLots.reduce((best, l) => (best && best.price >= l.price ? best : l));
+  const pricedBottles = pricedLots.reduce((s, l) => s + l.quantity, 0);
+  const priciest = pricedLots.length
+    ? pricedLots.reduce((best, l) => (best.price >= l.price ? best : l))
+    : null;
   return {
     cellarValue,
     bottles,
-    avgBottlePrice: cellarValue / bottles,
-    priciest: { label: drinkLabel(priciest.drink), price: priciest.price },
+    unpricedBottles: bottles - pricedBottles,
+    avgBottlePrice: pricedBottles ? cellarValue / pricedBottles : null,
+    priciest: priciest ? { label: drinkLabel(priciest.drink), price: priciest.price } : null,
   };
 }
 

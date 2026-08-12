@@ -107,7 +107,7 @@ test('tag inputs force a real Enter key on mobile keyboards', () => {
 
 test('focus stays in the collection-tab tags input after Enter (edit mode)', async () => {
   renderAdmin({ category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', collectionOnly: true } });
-  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
   const input = getTagsInput();
   fireEvent.change(input, { target: { value: 'gift' } });
   fireEvent.keyDown(input, { key: 'Enter' });
@@ -117,7 +117,7 @@ test('focus stays in the collection-tab tags input after Enter (edit mode)', asy
 
 test('adding a collection-tab tag does not touch the lot form', async () => {
   renderAdmin({ category: 'wine', drink: { id: '1', producer: 'X', seriesAndName: 'Y', collectionOnly: true } });
-  fireEvent.click(screen.getByRole('button', { name: /^collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
   const qtyInput = screen.getByLabelText('Quantity');
   const originalQty = qtyInput.value;
   const input = getTagsInput();

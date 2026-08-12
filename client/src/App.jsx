@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
 import CategoryPage from './pages/CategoryPage';
@@ -33,7 +33,8 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/all" element={<AllDrinksPage />} />
-          <Route path="/collection" element={<CollectionPage />} />
+          <Route path="/cellar" element={<CollectionPage />} />
+          <Route path="/collection" element={<Navigate to="/cellar" replace />} />
           <Route path="/wine" element={<CategoryPage category="wine" />} />
           <Route path="/beer" element={<CategoryPage category="beer" />} />
           <Route path="/whiskey" element={<CategoryPage category="whiskey" />} />

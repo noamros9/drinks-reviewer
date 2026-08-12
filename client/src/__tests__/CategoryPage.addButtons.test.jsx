@@ -21,6 +21,6 @@ test('Add Review navigates to admin with this page\'s category and the Review ta
 
 test('Add to Collection navigates to admin with this page\'s category and the Collection tab', async () => {
   render(<MemoryRouter><CategoryPage category="beer" /></MemoryRouter>);
-  fireEvent.click(screen.getByRole('button', { name: /^add to collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^add to cellar$/i }));
   expect(mockNavigate).toHaveBeenCalledWith('/admin', { state: { category: 'beer', tab: 'collection' } });
 });

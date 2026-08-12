@@ -221,16 +221,26 @@ describe('buildSpendSummary', () => {
     expect(buildSpendSummary([{ id: 'a', collection: [{ quantity: 0, price: 20 }] }])).toBeNull();
   });
 
-  test('sums cellar value and bottle count from in-stock, priced lots only', () => {
+  test('counts all in-stock bottles, valuing only the priced ones', () => {
     const drinks = [
       { id: 'a', producer: 'A', collection: [{ quantity: 2, price: 30 }, { quantity: 0, price: 90 }] },
       { id: 'b', producer: 'B', collection: [{ quantity: 1, price: null }] },
     ];
     const summary = buildSpendSummary(drinks);
     expect(summary.cellarValue).toBe(60);
-    expect(summary.bottles).toBe(2);
+    expect(summary.bottles).toBe(3);
+    expect(summary.unpricedBottles).toBe(1);
     expect(summary.avgBottlePrice).toBe(30);
     expect(summary.priciest).toEqual({ label: 'A', price: 30 });
+  });
+
+  test('priciest is null and avgBottlePrice is null when nothing in stock has a price', () => {
+    const drinks = [{ id: 'a', producer: 'A', collection: [{ quantity: 1, price: null }] }];
+    const summary = buildSpendSummary(drinks);
+    expect(summary.bottles).toBe(1);
+    expect(summary.unpricedBottles).toBe(1);
+    expect(summary.avgBottlePrice).toBeNull();
+    expect(summary.priciest).toBeNull();
   });
 });
 

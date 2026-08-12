@@ -21,7 +21,7 @@ test('on the "All" tab, Add Review navigates without a category preset', () => {
 
 test('on the "All" tab, Add to Collection navigates without a category preset', () => {
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
-  fireEvent.click(screen.getByRole('button', { name: /^add to collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^add to cellar$/i }));
   expect(mockNavigate).toHaveBeenCalledWith('/admin', { state: { tab: 'collection' } });
 });
 
@@ -35,6 +35,6 @@ test('after selecting the Wine tab, Add Review navigates with the wine category 
 test('after selecting the Wine tab, Add to Collection navigates with the wine category preset', () => {
   render(<MemoryRouter><AllDrinksPage /></MemoryRouter>);
   fireEvent.click(screen.getByRole('button', { name: /^wine$/i }));
-  fireEvent.click(screen.getByRole('button', { name: /^add to collection$/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^add to cellar$/i }));
   expect(mockNavigate).toHaveBeenCalledWith('/admin', { state: { category: 'wine', tab: 'collection' } });
 });

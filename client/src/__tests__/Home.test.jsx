@@ -11,13 +11,13 @@ beforeEach(() => {
 test('renders 5 category cards linking to correct routes', () => {
   render(<MemoryRouter><Home /></MemoryRouter>);
 
-  const collectionLink = screen.getByRole('link', { name: /collection/i });
+  const collectionLink = screen.getByRole('link', { name: /cellar/i });
   const wineLink = screen.getByRole('link', { name: /wine/i });
   const beerLink = screen.getByRole('link', { name: /beer/i });
   const whiskeyLink = screen.getByRole('link', { name: /whiskey/i });
   const othersLink = screen.getByRole('link', { name: /other reviews/i });
 
-  expect(collectionLink).toHaveAttribute('href', '/collection');
+  expect(collectionLink).toHaveAttribute('href', '/cellar');
   expect(wineLink).toHaveAttribute('href', '/wine');
   expect(beerLink).toHaveAttribute('href', '/beer');
   expect(whiskeyLink).toHaveAttribute('href', '/whiskey');

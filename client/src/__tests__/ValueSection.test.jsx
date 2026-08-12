@@ -122,17 +122,6 @@ test('Rebuy Candidates shows an empty state when everything rated is in stock', 
   expect(screen.getByText('No rebuy candidates — everything rated is still in stock.')).toBeInTheDocument();
 });
 
-test('spend summary is hidden with nothing in stock, appears once a priced lot has quantity', () => {
-  const { rerender } = render(<ValueSection drinks={DRINKS} globalCategory="all" />);
-  expect(screen.queryByTestId('spend-summary')).not.toBeInTheDocument();
-
-  const withStock = [...DRINKS, {
-    id: 's1', _category: 'wine', producer: 'Stocked', avgRating: 7, tastingCount: 5, collection: [{ quantity: 2, price: 50 }],
-  }];
-  rerender(<ValueSection drinks={withStock} globalCategory="all" />);
-  expect(within(screen.getByTestId('spend-summary')).getByText('100 ₪')).toBeInTheDocument();
-});
-
 test('drinks with no price are counted in the footnote under the scatter', () => {
   renderSection('all');
   expect(screen.getByText('1 drink not shown above — no price recorded.')).toBeInTheDocument();

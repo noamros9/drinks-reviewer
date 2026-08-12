@@ -4,9 +4,8 @@ import CategoryBarChart from '../../components/CategoryBarChart';
 import BestValueLeaderboard from './BestValueLeaderboard';
 import RebuyLeaderboard from './RebuyLeaderboard';
 import AvgPriceByCountryTable from './AvgPriceByCountryTable';
-import SpendSummary from './SpendSummary';
 import {
-  buildPriceRatingScatter, buildBestValue, buildRebuyList, buildSpendSummary, buildPriceBands,
+  buildPriceRatingScatter, buildBestValue, buildRebuyList, buildPriceBands,
   buildAvgPriceCategoryComparison, buildAvgPriceByCountry, formatPrice, median,
 } from '../../utils/analyticsHelpers';
 import './RatingSection.css';
@@ -32,7 +31,6 @@ export default function ValueSection({ drinks, globalCategory }) {
   const scatterPoints = buildPriceRatingScatter(scoped).map(p => ({ ...p, valueScore: scoreById.get(p.id) }));
   const bestValue = valueRows.slice(0, 10);
   const rebuy = buildRebuyList(scoped);
-  const spendSummary = buildSpendSummary(scoped);
   const priceByCategory = buildAvgPriceCategoryComparison(drinks);
   const priceByCountry = buildAvgPriceByCountry(scoped);
   const priceBands = category === 'all' ? [] : buildPriceBands(scoped);
@@ -54,8 +52,6 @@ export default function ValueSection({ drinks, globalCategory }) {
 
   return (
     <div className="analytics-section">
-      <SpendSummary summary={spendSummary} />
-
       <h3 className="analytics-subsection-title">Rebuy Candidates</h3>
       <RebuyLeaderboard rows={rebuy} onSelectDrink={handleSelectDrink} />
 

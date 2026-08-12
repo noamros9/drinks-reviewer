@@ -25,7 +25,7 @@ test('Export CSV downloads the currently filtered collection rows', async () => 
 
   expect(downloadSpy).toHaveBeenCalledTimes(1);
   const [filename, csv] = downloadSpy.mock.calls[0];
-  expect(filename).toBe('collection.csv');
+  expect(filename).toBe('cellar.csv');
   expect(csv).toContain('Château X');
   expect(csv).toContain('Brew Co');
 

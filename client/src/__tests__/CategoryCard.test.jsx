@@ -21,6 +21,6 @@ test('renders the correct icon and label for each category', () => {
 
 test('renders the collection card without a "Reviews" suffix', () => {
   render(<MemoryRouter><CategoryCard category="collection" count={3} /></MemoryRouter>);
-  expect(screen.getByText('Collection')).toBeInTheDocument();
-  expect(screen.getByRole('link')).toHaveAttribute('href', '/collection');
+  expect(screen.getByText('Cellar')).toBeInTheDocument();
+  expect(screen.getByRole('link')).toHaveAttribute('href', '/cellar');
 });
