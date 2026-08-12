@@ -24,6 +24,20 @@
   --cat-beer:       #9B6A00;
   --cat-whiskey:    #8B4513;
   --cat-others:     #1A7058;
+
+  /* Value scatter: 7-step diverging (overpriced -> neutral -> great value),
+     and a categorical set for Value Score mode. Both validated for CVD + contrast. */
+  --value-diverging-1: #e34948;
+  --value-diverging-2: #c9655d;
+  --value-diverging-3: #ac7870;
+  --value-diverging-4: #898781;
+  --value-diverging-5: #6e849f;
+  --value-diverging-6: #5180bb;
+  --value-diverging-7: #2a78d6;
+  --value-cat-wine:    #2a78d6;
+  --value-cat-beer:    #eb6834;
+  --value-cat-whiskey: #1baf7a;
+  --value-cat-others:  #898781;
 }
 
 [data-theme="dark"] {
@@ -47,6 +61,18 @@
   --cat-beer:       #D4B060;
   --cat-whiskey:    #D4906A;
   --cat-others:     #60C4A0;
+
+  --value-diverging-1: #e34948;
+  --value-diverging-2: #c9655d;
+  --value-diverging-3: #ac7870;
+  --value-diverging-4: #898781;
+  --value-diverging-5: #7389a4;
+  --value-diverging-6: #5a89c5;
+  --value-diverging-7: #3987e5;
+  --value-cat-wine:    #3987e5;
+  --value-cat-beer:    #d95926;
+  --value-cat-whiskey: #199e70;
+  --value-cat-others:  #898781;
 }
 
 /* ── Reset ── */

@@ -80,3 +80,45 @@ test('medians render dashed reference lines only when numeric', () => {
   rerender(<AbvRatingScatter points={POINTS} onPointClick={() => {}} medians={{ x: 10, y: 7 }} />);
   expect(container.querySelectorAll('.recharts-reference-line')).toHaveLength(2);
 });
+
+test('ring draws a surface-coloured backing circle behind each mark, off by default', () => {
+  const { container, rerender } = render(<AbvRatingScatter points={POINTS} onPointClick={() => {}} />);
+  expect(container.querySelectorAll('circle[fill="var(--bg)"]')).toHaveLength(0);
+
+  rerender(<AbvRatingScatter points={POINTS} onPointClick={() => {}} ring />);
+  expect(container.querySelectorAll('circle[fill="var(--bg)"]')).toHaveLength(POINTS.length);
+});
+
+test('quadrantLabels render the four corner labels only when provided', () => {
+  const { container, rerender } = render(<AbvRatingScatter points={POINTS} onPointClick={() => {}} />);
+  expect(container.querySelectorAll('.scatter-quadrant')).toHaveLength(0);
+
+  rerender(
+    <AbvRatingScatter
+      points={POINTS} onPointClick={() => {}}
+      quadrantLabels={{ topLeft: 'Bargains', topRight: 'Worth It', bottomLeft: 'Skip', bottomRight: 'Overpriced' }}
+    />,
+  );
+  expect(screen.getByText('Bargains')).toBeInTheDocument();
+  expect(screen.getByText('Worth It')).toBeInTheDocument();
+  expect(screen.getByText('Skip')).toBeInTheDocument();
+  expect(screen.getByText('Overpriced')).toBeInTheDocument();
+});
+
+test('yKey/yDomain generalize the Y axis to a different field', () => {
+  const SCORE_POINTS = [{ id: '1', label: 'A X', abv: 13, rating: 8, score: 72 }];
+  render(<AbvRatingScatter points={SCORE_POINTS} onPointClick={() => {}} yKey="score" yDomain={[0, 100]} />);
+  expect(screen.getByTestId('point-1')).toBeInTheDocument();
+});
+
+test('tooltip shows extraFields alongside the base label/x/rating line', () => {
+  render(
+    <ScatterTooltip
+      active
+      payload={[{ payload: { label: 'A X', abv: 13, rating: 8, weightedRating: 7.4 } }]}
+      extraFields={[{ key: 'weightedRating', label: 'Weighted Rating' }]}
+    />,
+  );
+  expect(screen.getByText(/ABV 13%, rating 8/)).toBeInTheDocument();
+  expect(screen.getByText('Weighted Rating: 7.4')).toBeInTheDocument();
+});
