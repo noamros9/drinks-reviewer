@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout drinks-reviewer
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: drinks-reviewer
 
       - name: Checkout drinks-reviewer-backup
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: noamros9/drinks-reviewer-backup
           token: ${{ secrets.BACKUP_REPO_PAT }}
@@ -27,7 +27,7 @@ jobs:
           git config user.name "drinks-reviewer-bot"
           git config user.email "actions@users.noreply.github.com"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
 
