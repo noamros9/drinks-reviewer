@@ -66,18 +66,6 @@
   color: #fff;
 }
 
-.value-scatter-legend-categories {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.value-scatter-legend-categories span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
 .value-scatter-legend {
   display: flex;
   align-items: center;
