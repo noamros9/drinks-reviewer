@@ -165,6 +165,21 @@ test('Y-axis toggle switches the active mode and the point colour mode', () => {
   expect(screen.getByText('Bargains')).toBeInTheDocument(); // quadrant labels shown in Value Score mode too
 });
 
+test('point label reflects the selected Y-axis mode, not always Avg Rating', () => {
+  renderSection('all');
+  expect(screen.getByTestId('point-w1')).toHaveAttribute('aria-label', expect.stringContaining('Avg Rating 9'));
+
+  fireEvent.click(screen.getByRole('button', { name: 'Weighted Rating' }));
+  const weightedLabel = screen.getByTestId('point-w1').getAttribute('aria-label');
+  expect(weightedLabel).toMatch(/Weighted Rating \d/);
+  expect(weightedLabel).not.toContain('Avg Rating');
+
+  fireEvent.click(screen.getByRole('button', { name: 'Value Score' }));
+  const valueLabel = screen.getByTestId('point-w1').getAttribute('aria-label');
+  expect(valueLabel).toMatch(/Value Score \d/);
+  expect(valueLabel).not.toContain('Avg Rating');
+});
+
 test('jitter is deterministic for a given id and absent in Value Score mode', () => {
   const drinks = [
     { id: 'w1', _category: 'wine', producer: 'A', avgRating: 8, tastingCount: 5, collection: [{ price: 50 }] },
