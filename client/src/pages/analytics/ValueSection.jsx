@@ -20,8 +20,6 @@ const Y_MODES = [
 
 const QUADRANT_LABELS = { topLeft: 'Bargains', topRight: 'Worth It', bottomLeft: 'Skip', bottomRight: 'Overpriced' };
 
-const CATEGORICAL_CATEGORIES = ['wine', 'beer', 'whiskey'];
-
 // Deterministic per-id nudge, well inside the 0.5 rating-quantization step, so overlapping
 // points separate without a point ever crossing into a neighbouring rating band.
 function seededJitter(id) {
@@ -37,10 +35,6 @@ function valueFill(score) {
   const clamped = Math.max(0, Math.min(100, score ?? 50));
   const step = Math.min(6, Math.floor(clamped / (100 / 7)));
   return `var(--value-diverging-${step + 1})`;
-}
-
-function categoricalFill(category) {
-  return `var(--value-cat-${CATEGORICAL_CATEGORIES.includes(category) ? category : 'others'})`;
 }
 
 function adminUrl(entry) {
@@ -104,32 +98,21 @@ export default function ValueSection({ drinks, globalCategory }) {
             <AbvRatingScatter
               points={plottedPoints} onPointClick={handleSelectDrink} xKey="price" xLabel="Price" xUnit=" ₪"
               xAxisProps={SCATTER_X_AXIS_PROPS}
-              yKey="plotY" yDomain={mode.domain} ring fillOpacity={0.75}
+              yKey="plotY" yDomain={mode.domain} ring fillOpacity={1}
               pointStyle={p => ({
-                fill: mode.key === 'valueScore' ? categoricalFill(p.category) : valueFill(p.valueScore),
+                fill: valueFill(p.valueScore),
                 hollow: p.priceIsEstimated,
               })}
               medians={{ x: medianX, y: medianY }}
               extraTooltipFields={[{ key: 'weightedRating', label: 'Weighted Rating' }]}
-              quadrantLabels={mode.jitter ? QUADRANT_LABELS : undefined}
+              quadrantLabels={QUADRANT_LABELS}
             />
             <div className="value-scatter-legend">
-              {mode.key === 'valueScore'
-                ? (
-                  <div className="value-scatter-legend-categories">
-                    <span><span className="value-scatter-legend-dot" style={{ background: 'var(--value-cat-wine)' }} />Wine</span>
-                    <span><span className="value-scatter-legend-dot" style={{ background: 'var(--value-cat-beer)' }} />Beer</span>
-                    <span><span className="value-scatter-legend-dot" style={{ background: 'var(--value-cat-whiskey)' }} />Whiskey</span>
-                    <span><span className="value-scatter-legend-dot" style={{ background: 'var(--value-cat-others)' }} />Others</span>
-                  </div>
-                )
-                : (
-                  <div className="value-scatter-legend-gradient">
-                    <span>Overpriced</span>
-                    <span className="value-scatter-legend-bar" />
-                    <span>Great value</span>
-                  </div>
-                )}
+              <div className="value-scatter-legend-gradient">
+                <span>Overpriced</span>
+                <span className="value-scatter-legend-bar" />
+                <span>Great value</span>
+              </div>
               <div className="value-scatter-legend-markers">
                 <span className="value-scatter-legend-dot" />paid
                 <span className="value-scatter-legend-dot hollow" />estimated

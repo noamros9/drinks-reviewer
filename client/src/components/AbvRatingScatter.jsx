@@ -65,6 +65,7 @@ export default function AbvRatingScatter({
             dataKey={yKey}
             name="Rating"
             domain={yDomain}
+            allowDecimals={false}
             tick={{ fill: 'var(--text-secondary)', fontSize: 12 }}
             axisLine={{ stroke: 'var(--border)' }}
             tickLine={false}

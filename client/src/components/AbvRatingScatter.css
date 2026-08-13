@@ -36,13 +36,22 @@
 
 .scatter-quadrant {
   position: absolute;
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-sm);
   pointer-events: none;
 }
 
-.scatter-quadrant-tl { top: 8px; left: 48px; }
-.scatter-quadrant-tr { top: 8px; right: 12px; }
-.scatter-quadrant-bl { bottom: 28px; left: 48px; }
-.scatter-quadrant-br { bottom: 28px; right: 12px; }
+.scatter-quadrant-tl,
+.scatter-quadrant-tr { color: var(--success); }
+
+.scatter-quadrant-bl,
+.scatter-quadrant-br { color: var(--danger); }
+
+.scatter-quadrant-tl { top: 8px; left: 52px; }
+.scatter-quadrant-tr { top: 8px; right: 16px; }
+.scatter-quadrant-bl { bottom: 34px; left: 52px; }
+.scatter-quadrant-br { bottom: 34px; right: 16px; }

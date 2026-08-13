@@ -161,8 +161,8 @@ test('Y-axis toggle switches the active mode and the point colour mode', () => {
   fireEvent.click(valueBtn);
   expect(valueBtn).toHaveClass('active');
   expect(avgBtn).not.toHaveClass('active');
-  expect(screen.getByTestId('point-w1').style.fill).toMatch(/--value-cat-wine/);
-  expect(screen.queryByText('Bargains')).not.toBeInTheDocument(); // no quadrant labels — Value Score is continuous
+  expect(screen.getByTestId('point-w1').style.fill).toMatch(/--value-diverging-/); // color mode is the same in every Y-axis mode
+  expect(screen.getByText('Bargains')).toBeInTheDocument(); // quadrant labels shown in Value Score mode too
 });
 
 test('jitter is deterministic for a given id and absent in Value Score mode', () => {
