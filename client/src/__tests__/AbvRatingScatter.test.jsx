@@ -29,7 +29,10 @@ test('point is keyboard-activatable', () => {
 test('tooltip renders label/abv/rating when active', () => {
   render(<ScatterTooltip active payload={[{ payload: { label: 'A X', abv: 13, rating: 8 } }]} />);
   expect(screen.getByText('A X')).toBeInTheDocument();
-  expect(screen.getByText(/ABV 13%, rating 8/)).toBeInTheDocument();
+  expect(screen.getByText('ABV')).toBeInTheDocument();
+  expect(screen.getByText('13%')).toBeInTheDocument();
+  expect(screen.getByText('rating')).toBeInTheDocument();
+  expect(screen.getByText('8')).toBeInTheDocument();
 });
 
 test('tooltip renders nothing when inactive or payload is empty', () => {
@@ -47,7 +50,40 @@ test('xKey/xLabel/xUnit generalize the axis and tooltip to a different metric (e
 
 test('tooltip renders the generalized xKey/xLabel/xUnit when provided', () => {
   render(<ScatterTooltip active payload={[{ payload: { label: 'A X', age: 5, rating: 8 } }]} xKey="age" xLabel="Age at tasting" xUnit=" yrs" />);
-  expect(screen.getByText(/Age at tasting 5 yrs, rating 8/)).toBeInTheDocument();
+  expect(screen.getByText('Age at tasting')).toBeInTheDocument();
+  expect(screen.getByText('5 yrs')).toBeInTheDocument();
+});
+
+test('formatX formats the x-axis tooltip value instead of the raw number + unit', () => {
+  render(
+    <ScatterTooltip
+      active
+      payload={[{ payload: { label: 'A X', price: 120, rating: 8 } }]}
+      xKey="price" xLabel="Price" formatX={n => `${n} ₪`}
+    />,
+  );
+  expect(screen.getByText('120 ₪')).toBeInTheDocument();
+  expect(screen.queryByText('120')).not.toBeInTheDocument();
+});
+
+test('pointStyle hollow adds an "(est.)" marker next to the x value; non-hollow shows none', () => {
+  const { rerender } = render(
+    <ScatterTooltip
+      active
+      payload={[{ payload: { label: 'A X', price: 120, rating: 8 } }]}
+      xKey="price" xLabel="Price" xUnit=" ₪" pointStyle={() => ({ hollow: true })}
+    />,
+  );
+  expect(screen.getByText('120 ₪ (est.)')).toBeInTheDocument();
+
+  rerender(
+    <ScatterTooltip
+      active
+      payload={[{ payload: { label: 'A X', price: 120, rating: 8 } }]}
+      xKey="price" xLabel="Price" xUnit=" ₪" pointStyle={() => ({ hollow: false })}
+    />,
+  );
+  expect(screen.getByText('120 ₪')).toBeInTheDocument();
 });
 
 test('pointStyle colors a point and hollow points get no fill plus an "(estimated price)" label', () => {
@@ -111,7 +147,7 @@ test('yKey/yDomain generalize the Y axis to a different field', () => {
   expect(screen.getByTestId('point-1')).toBeInTheDocument();
 });
 
-test('tooltip shows extraFields alongside the base label/x/rating line', () => {
+test('tooltip shows extraFields alongside the base label/x/rating rows', () => {
   render(
     <ScatterTooltip
       active
@@ -119,6 +155,20 @@ test('tooltip shows extraFields alongside the base label/x/rating line', () => {
       extraFields={[{ key: 'weightedRating', label: 'Weighted Rating' }]}
     />,
   );
-  expect(screen.getByText(/ABV 13%, rating 8/)).toBeInTheDocument();
-  expect(screen.getByText('Weighted Rating: 7.4')).toBeInTheDocument();
+  expect(screen.getByText('13%')).toBeInTheDocument();
+  expect(screen.getByText('Weighted Rating')).toBeInTheDocument();
+  expect(screen.getByText('7.4')).toBeInTheDocument();
+});
+
+test('showX=false hides the x-axis value, leaving just the label and the given y value/name', () => {
+  render(
+    <ScatterTooltip
+      active
+      payload={[{ payload: { label: 'A X', price: 30, valueScore: 72 } }]}
+      yKey="valueScore" yLabel="Value Score" showX={false}
+    />,
+  );
+  expect(screen.getByText('Value Score')).toBeInTheDocument();
+  expect(screen.getByText('72')).toBeInTheDocument();
+  expect(screen.queryByText('30')).not.toBeInTheDocument();
 });

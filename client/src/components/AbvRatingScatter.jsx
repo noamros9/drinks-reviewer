@@ -1,7 +1,7 @@
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from 'recharts';
 import './AbvRatingScatter.css';
 
-function Point({ cx, cy, payload, onPointClick, xKey, xLabel, xUnit, pointStyle, ring }) {
+function Point({ cx, cy, payload, onPointClick, xKey, xLabel, xUnit, yKey, yLabel, pointStyle, ring }) {
   const activate = () => onPointClick(payload);
   const { fill, hollow } = pointStyle ? pointStyle(payload) : {};
   const style = pointStyle ? { fill: hollow ? 'none' : fill, stroke: fill, strokeWidth: 2 } : undefined;
@@ -17,7 +17,7 @@ function Point({ cx, cy, payload, onPointClick, xKey, xLabel, xUnit, pointStyle,
         data-testid={`point-${payload.id}`}
         role="button"
         tabIndex={0}
-        aria-label={`${payload.label}: ${xLabel} ${payload[xKey]}${xUnit}, rating ${payload.rating}${hollow ? ' (estimated price)' : ''}`}
+        aria-label={`${payload.label}: ${xLabel} ${payload[xKey]}${xUnit}, ${yLabel} ${payload[yKey]}${hollow ? ' (estimated price)' : ''}`}
         onClick={activate}
         onKeyDown={e => {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
@@ -27,13 +27,30 @@ function Point({ cx, cy, payload, onPointClick, xKey, xLabel, xUnit, pointStyle,
   );
 }
 
-export function ScatterTooltip({ active, payload, xKey = 'abv', xLabel = 'ABV', xUnit = '%', extraFields }) {
+export function ScatterTooltip({ active, payload, xKey = 'abv', xLabel = 'ABV', xUnit = '%', formatX, yKey = 'rating', yLabel = 'rating', showX = true, pointStyle, extraFields }) {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload;
+  const { hollow } = pointStyle ? pointStyle(p) : {};
+  const xValue = formatX ? formatX(p[xKey]) : `${p[xKey]}${xUnit}`;
   return (
     <div className="abv-rating-scatter-tooltip">
-      <strong>{p.label}</strong> — {xLabel} {p[xKey]}{xUnit}, rating {p.rating}
-      {extraFields?.map(f => <div key={f.key}>{f.label}: {p[f.key]}</div>)}
+      <strong>{p.label}</strong>
+      {showX && (
+        <div className="abv-rating-scatter-tooltip-row">
+          <span className="abv-rating-scatter-tooltip-label">{xLabel}</span>
+          <span className="abv-rating-scatter-tooltip-value">{xValue}{hollow ? ' (est.)' : ''}</span>
+        </div>
+      )}
+      <div className="abv-rating-scatter-tooltip-row">
+        <span className="abv-rating-scatter-tooltip-label">{yLabel}</span>
+        <span className="abv-rating-scatter-tooltip-value">{p[yKey]}</span>
+      </div>
+      {extraFields?.map(f => (
+        <div key={f.key} className="abv-rating-scatter-tooltip-row">
+          <span className="abv-rating-scatter-tooltip-label">{f.label}</span>
+          <span className="abv-rating-scatter-tooltip-value">{p[f.key]}</span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -42,8 +59,9 @@ export function ScatterTooltip({ active, payload, xKey = 'abv', xLabel = 'ABV', 
 // chart — charts here generalize on their 2nd use, while leaderboard tables deliberately
 // don't (see RevisitLeaderboard/BestOfLeaderboard).
 export default function AbvRatingScatter({
-  points, onPointClick, xKey = 'abv', xLabel = 'ABV', xUnit = '%', xAxisProps, pointStyle, medians,
-  yKey = 'rating', yDomain = [0, 10], ring = false, fillOpacity = 0.85, extraTooltipFields, quadrantLabels,
+  points, onPointClick, xKey = 'abv', xLabel = 'ABV', xUnit = '%', formatX, xAxisProps, pointStyle, medians,
+  yKey = 'rating', tooltipYKey = yKey, yLabel = 'rating', tooltipShowX = true, yDomain = [0, 10], ring = false,
+  fillOpacity = 0.85, extraTooltipFields, quadrantLabels,
 }) {
   return (
     <div className="abv-rating-scatter-wrap">
@@ -70,14 +88,14 @@ export default function AbvRatingScatter({
             axisLine={{ stroke: 'var(--border)' }}
             tickLine={false}
           />
-          <Tooltip content={<ScatterTooltip xKey={xKey} xLabel={xLabel} xUnit={xUnit} extraFields={extraTooltipFields} />} cursor={{ strokeDasharray: '3 3' }} />
+          <Tooltip content={<ScatterTooltip xKey={xKey} xLabel={xLabel} xUnit={xUnit} formatX={formatX} yKey={tooltipYKey} yLabel={yLabel} showX={tooltipShowX} pointStyle={pointStyle} extraFields={extraTooltipFields} />} cursor={{ strokeDasharray: '3 3' }} />
           {Number.isFinite(medians?.x) && <ReferenceLine x={medians.x} stroke="var(--text-secondary)" strokeDasharray="4 4" />}
           {Number.isFinite(medians?.y) && <ReferenceLine y={medians.y} stroke="var(--text-secondary)" strokeDasharray="4 4" />}
           <Scatter
             data={points}
             isAnimationActive={false}
             fillOpacity={fillOpacity}
-            shape={<Point onPointClick={onPointClick} xKey={xKey} xLabel={xLabel} xUnit={xUnit} pointStyle={pointStyle} ring={ring} />}
+            shape={<Point onPointClick={onPointClick} xKey={xKey} xLabel={xLabel} xUnit={xUnit} yKey={tooltipYKey} yLabel={yLabel} pointStyle={pointStyle} ring={ring} />}
           />
         </ScatterChart>
       </ResponsiveContainer>

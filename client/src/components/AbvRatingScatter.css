@@ -30,6 +30,21 @@
   font-size: 0.95rem;
 }
 
+.abv-rating-scatter-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.abv-rating-scatter-tooltip-label {
+  color: var(--text-secondary);
+}
+
+.abv-rating-scatter-tooltip-value {
+  font-weight: 600;
+}
+
 .abv-rating-scatter-wrap {
   position: relative;
 }

@@ -96,15 +96,14 @@ export default function ValueSection({ drinks, globalCategory }) {
               ))}
             </div>
             <AbvRatingScatter
-              points={plottedPoints} onPointClick={handleSelectDrink} xKey="price" xLabel="Price" xUnit=" ₪"
+              points={plottedPoints} onPointClick={handleSelectDrink} xKey="price" xLabel="Price" xUnit=" ₪" formatX={formatPrice}
               xAxisProps={SCATTER_X_AXIS_PROPS}
-              yKey="plotY" yDomain={mode.domain} ring fillOpacity={1}
+              yKey="plotY" tooltipYKey={mode.field} yLabel={mode.label} yDomain={mode.domain} ring fillOpacity={1}
               pointStyle={p => ({
                 fill: valueFill(p.valueScore),
                 hollow: p.priceIsEstimated,
               })}
               medians={{ x: medianX, y: medianY }}
-              extraTooltipFields={[{ key: 'weightedRating', label: 'Weighted Rating' }]}
               quadrantLabels={QUADRANT_LABELS}
             />
             <div className="value-scatter-legend">
