@@ -35,9 +35,6 @@ fi
 
 echo "Coverage OK — proceeding with commit."
 
-printf "\\n[Backup] Snapshotting Atlas + Cloudinary...\\n"
-node --env-file-if-exists=.env server/scripts/backup-data.js || echo "Backup skipped/failed (non-blocking)."
-
 node scripts/report-tool-savings.js
 exit 0
 `;
