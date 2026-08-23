@@ -7,7 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import CustomSelect from '../components/CustomSelect';
 import AutocompleteInput from '../components/AutocompleteInput';
 import PhotoInputButtons from '../components/PhotoInputButtons';
-import { PRODUCER_FIELD, NAME_FIELD, findDuplicate } from '../utils/filterHelpers';
+import { PRODUCER_FIELD, NAME_FIELD, findDuplicate, autofillOrigin } from '../utils/filterHelpers';
 import './AdminPage.css';
 
 export const FIELDS = {
@@ -54,6 +54,11 @@ export const FIELDS = {
 };
 
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
+
+// Which origin fields a category actually has (region only exists for wine and whiskey).
+const ORIGIN_KEYS = Object.fromEntries(
+  CATEGORIES.map(cat => [cat, ['country', 'region'].filter(k => FIELDS[cat].some(f => f.key === k))])
+);
 
 // Deleting the last tasting clears these server-side rather than setting them to null,
 // so a plain spread wouldn't remove stale values already in form.
@@ -107,11 +112,14 @@ export default function AdminPage() {
   const [allTags, setAllTags] = useState([]);
   const [suggestions, setSuggestions] = useState({});
   const [categoryDrinks, setCategoryDrinks] = useState([]);
+  const [autoOrigin, setAutoOrigin] = useState({});
   const duplicate = findDuplicate(categoryDrinks, category, form[PRODUCER_FIELD[category]], form[NAME_FIELD[category]], form.id);
   const [colCat, setColCat] = useState(CATEGORIES.includes(initialCategory) ? initialCategory : 'wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '', tags: [] });
   const [colMessage, setColMessage] = useState('');
   const [colSuggestions, setColSuggestions] = useState({});
+  const [colDrinks, setColDrinks] = useState([]);
+  const [colAutoOrigin, setColAutoOrigin] = useState({});
   const [newColImage, setNewColImage] = useState(null);
   const newColImageRef = useRef(null);
   const [focusVivino, setFocusVivino] = useState(false);
@@ -189,6 +197,7 @@ export default function AdminPage() {
       if (!Array.isArray(reviewed) || !Array.isArray(collection)) return;
       const collectionOnly = collection.filter(d => d._category === colCat && d.collectionOnly);
       const drinks = [...reviewed, ...collectionOnly];
+      setColDrinks(drinks);
       setColSuggestions({
         producer: [...new Set(drinks.map(d => d[producerKey]).filter(Boolean))].sort(),
         country: [...new Set(drinks.map(d => d.country).filter(Boolean))].sort(),
@@ -226,11 +235,34 @@ export default function AdminPage() {
   const handleCategoryChange = (cat) => {
     setCategory(cat);
     setForm(emptyForm(cat));
+    setAutoOrigin({});
     setMessage('');
   };
 
+  const handleColCategoryChange = (cat) => {
+    setColCat(cat);
+    setColAutoOrigin({});
+  };
+
   const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (isEditing || name !== PRODUCER_FIELD[category]) {
+      setForm(prev => ({ ...prev, [name]: value }));
+      return;
+    }
+    const { patch, auto } = autofillOrigin(categoryDrinks, name, value, ORIGIN_KEYS[category], form, autoOrigin);
+    setForm(prev => ({ ...prev, [name]: value, ...patch }));
+    setAutoOrigin(auto);
+  };
+
+  const handleColChange = (key, value) => {
+    if (key !== 'producer') {
+      setColForm(p => ({ ...p, [key]: value }));
+      return;
+    }
+    const { patch, auto } = autofillOrigin(colDrinks, PRODUCER_FIELD[colCat], value, ['country'], colForm, colAutoOrigin);
+    setColForm(p => ({ ...p, producer: value, ...patch }));
+    setColAutoOrigin(auto);
   };
 
   const handleSubmit = async (e, { another = false } = {}) => {
@@ -264,6 +296,7 @@ export default function AdminPage() {
     if (!isEditing) {
       if (another) {
         setForm(emptyForm(category));
+        setAutoOrigin({});
         setMessage('Added! Add another below.');
         return;
       }
@@ -341,6 +374,7 @@ export default function AdminPage() {
       }
       if (another) {
         setColForm({ producer: '', name: '', country: '', abv: '', qty: '1', price: '', tags: [] });
+        setColAutoOrigin({});
         setColMessage('Added! Add another below.');
         return;
       }
@@ -648,7 +682,7 @@ export default function AdminPage() {
         <div className="admin-form">
           <div className="category-tabs">
             {CATEGORIES.map(cat => (
-              <button key={cat} className={colCat === cat ? 'active' : ''} onClick={() => setColCat(cat)}>
+              <button key={cat} className={colCat === cat ? 'active' : ''} onClick={() => handleColCategoryChange(cat)}>
                 {cat.charAt(0).toUpperCase() + cat.slice(1)}
               </button>
             ))}
@@ -668,7 +702,7 @@ export default function AdminPage() {
                   id={`col-${f.key}`}
                   name={f.key}
                   value={colForm[f.key]}
-                  onChange={e => setColForm(p => ({ ...p, [f.key]: e.target.value }))}
+                  onChange={e => handleColChange(f.key, e.target.value)}
                   suggestions={colSuggestions[f.key] || []}
                 />
               ) : (
@@ -679,7 +713,7 @@ export default function AdminPage() {
                   step={f.type === 'number' ? (f.key === 'qty' ? '1' : '0.1') : undefined}
                   placeholder={f.placeholder || ''}
                   value={colForm[f.key]}
-                  onChange={e => setColForm(p => ({ ...p, [f.key]: e.target.value }))}
+                  onChange={e => handleColChange(f.key, e.target.value)}
                 />
               )}
             </div>

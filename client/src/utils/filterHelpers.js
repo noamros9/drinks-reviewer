@@ -40,6 +40,28 @@ export function findDuplicate(drinks, category, producerVal, nameVal, excludeId)
   ) || null;
 }
 
+// Producer -> country/region prefill for the add forms. `prevAuto` holds the values we
+// last autofilled, so a field the user typed over (form[k] !== prevAuto[k]) is left alone.
+export function autofillOrigin(drinks, producerKey, producer, keys, form, prevAuto = {}) {
+  const p = (producer || '').trim().toLowerCase();
+  if (!p) return { patch: {}, auto: prevAuto };
+  const matches = drinks.filter(d => (d[producerKey] || '').trim().toLowerCase() === p);
+  const patch = {};
+  const auto = { ...prevAuto };
+  for (const k of keys) {
+    const current = form[k];
+    if (current && current !== prevAuto[k]) continue;
+    const counts = new Map();
+    matches.forEach(d => { if (d[k]) counts.set(d[k], (counts.get(d[k]) || 0) + 1); });
+    // Map preserves insertion order and sort is stable, so a tie keeps the first seen.
+    const best = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
+    if (!best || best[0] === current) continue;
+    patch[k] = best[0];
+    auto[k] = best[0];
+  }
+  return { patch, auto };
+}
+
 const ABV_RANGE = { key: 'abv', label: 'ABV', unit: '%', min: 0, max: 100, step: 0.1, unbounded: true };
 const AVG_RATING_RANGE = { key: 'avgRating', label: 'Avg Rating', unit: '', min: 1, max: 10, step: 0.5 };
 const VIVINO_RANGE = { key: 'vivinoScore', label: 'Vivino', unit: '', min: 1, max: 5, step: 0.1 };
