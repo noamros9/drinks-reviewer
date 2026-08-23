@@ -70,7 +70,7 @@ test('"Add another Review" submits without navigating and resets the form', asyn
     expect(global.fetch).toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
   });
   expect(mockNavigate).not.toHaveBeenCalled();
-  expect(screen.getByLabelText(/producer/i)).toHaveValue('');
+  await waitFor(() => expect(screen.getByLabelText(/producer/i)).toHaveValue(''));
 });
 
 test('navigates to tastings tab after adding new entry', async () => {
