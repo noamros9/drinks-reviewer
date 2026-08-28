@@ -7,7 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import CustomSelect from '../components/CustomSelect';
 import AutocompleteInput from '../components/AutocompleteInput';
 import PhotoInputButtons from '../components/PhotoInputButtons';
-import { PRODUCER_FIELD, NAME_FIELD, findDuplicate, autofillOrigin } from '../utils/filterHelpers';
+import { PRODUCER_FIELD, NAME_FIELD, findDuplicate, autofillOrigin, knownRegions } from '../utils/filterHelpers';
 import './AdminPage.css';
 
 export const FIELDS = {
@@ -18,7 +18,7 @@ export const FIELDS = {
     { key: 'variety',       label: 'Variety',                type: 'tags', default: [] },
     { key: 'sweetness',     label: 'Sweetness',              type: 'select', options: ['Extra-Dry', 'Dry', 'Off-Dry', 'Sweet'] },
     { key: 'country',       label: 'Country of Origin',      type: 'text', autocomplete: true },
-    { key: 'region',        label: 'Region / Appellation',   type: 'text', autocomplete: true },
+    { key: 'region',        label: 'Region / Appellation',   type: 'text', autocomplete: true, placeholder: 'Loire Valley / Sancerre' },
     { key: 'abv',           label: 'ABV (%)',                type: 'number' },
     { key: 'vivinoScore',   label: 'Vivino Score',           type: 'number', min: 1, max: 5, step: 0.1, placeholder: 'e.g. 4.2' },
     { key: 'tags',          label: 'Tags',                   type: 'tags', default: [] },
@@ -114,6 +114,14 @@ export default function AdminPage() {
   const [categoryDrinks, setCategoryDrinks] = useState([]);
   const [autoOrigin, setAutoOrigin] = useState({});
   const duplicate = findDuplicate(categoryDrinks, category, form[PRODUCER_FIELD[category]], form[NAME_FIELD[category]], form.id);
+  // A country missing from the taxonomy yields [] -- treat that as "can't validate"
+  // rather than flagging every entry (whiskey regions, and any country not yet listed).
+  const countryRegions = knownRegions(form.country);
+  const offListRegion = !!form.region && countryRegions.length > 0 && !countryRegions.includes(form.region);
+  // Regions never used before should still autocomplete, scoped to the country typed so far.
+  const suggestionsFor = key => (key === 'region'
+    ? [...new Set([...(suggestions.region || []), ...countryRegions])].sort()
+    : suggestions[key] || []);
   const [colCat, setColCat] = useState(CATEGORIES.includes(initialCategory) ? initialCategory : 'wine');
   const [colForm, setColForm] = useState({ producer: '', name: '', country: '', abv: '', qty: '1', price: '', tags: [] });
   const [colMessage, setColMessage] = useState('');
@@ -275,6 +283,9 @@ export default function AdminPage() {
     }
     if (duplicate && !window.confirm(
       `This looks like a duplicate of an existing entry: "${duplicate[PRODUCER_FIELD[category]]} — ${duplicate[NAME_FIELD[category]]}". Save anyway?`
+    )) return;
+    if (offListRegion && !window.confirm(
+      `"${form.region}" isn't a known region for ${form.country}. Save anyway?`
     )) return;
     const url = isEditing ? `/api/${category}/${form.id}` : `/api/${category}`;
     const method = isEditing ? 'PUT' : 'POST';
@@ -600,7 +611,7 @@ export default function AdminPage() {
                 name={field.key}
                 value={form[field.key] ?? ''}
                 onChange={handleChange}
-                suggestions={suggestions[field.key] || []}
+                suggestions={suggestionsFor(field.key)}
                 placeholder={field.placeholder || ''}
               />
             ) : (
@@ -623,6 +634,12 @@ export default function AdminPage() {
         {duplicate && (
           <p className="success-message" data-testid="duplicate-warning">
             Possible duplicate: "{duplicate[PRODUCER_FIELD[category]]} — {duplicate[NAME_FIELD[category]]}" already exists.
+          </p>
+        )}
+
+        {offListRegion && (
+          <p className="success-message" data-testid="region-offlist-warning">
+            "{form.region}" isn't a known region for {form.country}. Check the spelling, or save anyway.
           </p>
         )}
 

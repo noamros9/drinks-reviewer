@@ -44,6 +44,15 @@ function fieldScore(field, seedVal, candVal) {
     if (Number.isNaN(diff)) return 0;
     return Math.max(0, 1 - diff / NUMERIC_FIELDS[field]);
   }
+  // Regions are hierarchical paths ("Toscana / Chianti"): score by how much of the
+  // hierarchy two wines share, so siblings under one parent stay similar instead of
+  // dropping to 0. Two flat regions still yield exactly 1 or 0, as before.
+  if (field === 'region') {
+    const a = seedVal.split(' / '), b = candVal.split(' / ');
+    let shared = 0;
+    while (shared < a.length && shared < b.length && a[shared] === b[shared]) shared++;
+    return shared / Math.max(a.length, b.length);
+  }
   return seedVal === candVal ? 1 : 0;
 }
 

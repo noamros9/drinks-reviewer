@@ -63,6 +63,32 @@ describe('scoreSimilarity', () => {
     expect(scoreSimilarity(seeds, candidate)).toBe(0);
   });
 
+  // Regions are hierarchical paths; isolating region keeps every other field identical
+  // so the delta is purely the region score.
+  const regionSeed = region => [{ category: 'wine', producer: 'P', variety: ['V'], country: 'Italy', region, abv: '13', tags: [] }];
+  const regionCand = region => ({ category: 'wine', producer: 'P', variety: ['V'], country: 'Italy', region, abv: '13', tags: [] });
+
+  it('scores two appellations under the same parent as partially similar', () => {
+    const siblings = scoreSimilarity(regionSeed('Toscana / Chianti'), regionCand('Toscana / Brunello di Montalcino'));
+    const unrelated = scoreSimilarity(regionSeed('Toscana / Chianti'), regionCand('Piemonte / Barolo'));
+    const identical = scoreSimilarity(regionSeed('Toscana / Chianti'), regionCand('Toscana / Chianti'));
+    expect(siblings).toBeGreaterThan(unrelated);
+    expect(siblings).toBeLessThan(identical);
+  });
+
+  it('scores a parent against its own child as partially similar', () => {
+    const nested = scoreSimilarity(regionSeed('Toscana'), regionCand('Toscana / Chianti'));
+    const unrelated = scoreSimilarity(regionSeed('Toscana'), regionCand('Piemonte'));
+    expect(nested).toBeGreaterThan(unrelated);
+  });
+
+  // The no-regression guarantee: un-migrated flat data scores exactly as it did before.
+  it('scores flat regions as a clean 1 or 0, unchanged from before nesting', () => {
+    const same = scoreSimilarity(regionSeed('Toscana'), regionCand('Toscana'));
+    const diff = scoreSimilarity(regionSeed('Toscana'), regionCand('Piemonte'));
+    expect(same - diff).toBe(1);
+  });
+
   it('ignores candidates from a different category than any seed', () => {
     const seeds = [{ category: 'wine', producer: 'Domaine A', variety: ['Pinot Noir'], country: 'France', region: 'Burgundy', abv: '13', tags: [] }];
     const candidate = { category: 'beer', brewery: 'Brew Co', name: 'IPA', style: 'IPA', country: 'USA', abv: '6', tags: [] };

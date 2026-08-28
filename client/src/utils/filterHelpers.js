@@ -1,3 +1,29 @@
+import WINE_REGIONS from '../data/wine-regions.json';
+
+// Regions are stored as a single delimited path ("Loire Valley / Sancerre") rather than
+// separate fields, so the hierarchy is derived by splitting and works at any depth.
+export const REGION_SEP = ' / ';
+export const regionLeaf = r => (r || '').split(REGION_SEP).pop();
+
+// "A / B / C" -> ["A", "A / B", "A / B / C"]
+export const regionAncestors = r =>
+  (r || '').split(REGION_SEP).map((_, i, parts) => parts.slice(0, i + 1).join(REGION_SEP));
+
+const underRegion = (region, sel) =>
+  region === sel || (region || '').startsWith(sel + REGION_SEP);
+
+// A node's children are either a flat list of leaves or a nested object (unlimited depth).
+export function flattenRegions(node, prefix = []) {
+  const join = name => [...prefix, name].join(REGION_SEP);
+  if (Array.isArray(node)) return node.map(join);
+  return Object.entries(node).flatMap(([name, child]) => [join(name), ...flattenRegions(child, [...prefix, name])]);
+}
+
+// Curated taxonomy, used to validate form input only — the filter dropdown still builds
+// its options from the drinks actually owned. A country absent from the file returns [],
+// which callers treat as "can't validate" rather than "everything is wrong".
+export const knownRegions = country => flattenRegions(WINE_REGIONS[country] ?? {});
+
 export const OLD_WORLD = [
   'France', 'Italy', 'Spain', 'Portugal', 'Germany', 'Austria', 'Greece',
   'Hungary', 'Romania', 'Bulgaria', 'Croatia', 'Slovenia', 'Georgia', 'Armenia',
@@ -80,7 +106,7 @@ export const DROPDOWN_CONFIGS = {
     { key: 'sweetness',    label: 'Sweetness' },
     { key: 'country',      label: 'Country',  worldGroups: true },
     { key: 'variety',      label: 'Variety',  varietyGroups: true },
-    { key: 'region',       label: 'Region' },
+    { key: 'region',       label: 'Region',   hierarchical: true },
     { key: 'tags',         label: 'Tags',     multiValue: true },
     { key: 'vintage',      label: 'Vintage',  vintageFromTastings: true },
   ],
@@ -92,7 +118,7 @@ export const DROPDOWN_CONFIGS = {
   whiskey: [
     { key: 'style',   label: 'Style' },
     { key: 'country', label: 'Country' },
-    { key: 'region',  label: 'Region' },
+    { key: 'region',  label: 'Region',  hierarchical: true },
     { key: 'tags',    label: 'Tags',    multiValue: true },
   ],
   others: [
@@ -144,6 +170,8 @@ export function matchesFilters(drink, activeFilters, category) {
 
     if (conf.key === 'country') {
       if (!matchCountry(drink.country, selected)) return false;
+    } else if (conf.hierarchical) {
+      if (![...selected].some(sel => underRegion(drink[conf.key], sel))) return false;
     } else if (conf.varietyGroups) {
       if (!matchVariety(drink[conf.key], selected)) return false;
     } else if (conf.vintageFromTastings) {
@@ -166,6 +194,22 @@ export function buildDropdownOptions(drinks, conf) {
     if ([...countries].some(c => OLD_WORLD.includes(c))) special.push('Old World');
     if ([...countries].some(c => NEW_WORLD.includes(c))) special.push('New World');
     if ([...countries].some(c => !OLD_WORLD.includes(c) && !NEW_WORLD.includes(c))) special.push('Other');
+  }
+
+  // Every ancestor prefix becomes a selectable row, so a parent is pickable even when no
+  // drink sits at exactly that level. Sorting by full path groups children under their
+  // parent for free: a parent is a strict prefix, and prefixes sort first.
+  if (conf.hierarchical) {
+    const paths = new Set();
+    drinks.forEach(d => { if (d[conf.key]) regionAncestors(d[conf.key]).forEach(p => paths.add(p)); });
+    return {
+      special,
+      options: [...paths].sort().map(value => ({
+        value,
+        label: regionLeaf(value),
+        depth: value.split(REGION_SEP).length - 1,
+      })),
+    };
   }
 
   if (conf.varietyGroups) {
@@ -204,6 +248,8 @@ export function countOptions(drinks, conf, activeFilters, category) {
       });
     } else if (conf.multiValue) {
       (d[conf.key] || []).forEach(t => { counts[t] = (counts[t] || 0) + 1; });
+    } else if (conf.hierarchical) {
+      if (raw) regionAncestors(raw).forEach(p => { counts[p] = (counts[p] || 0) + 1; });
     } else if (conf.varietyGroups) {
       (raw || []).forEach(g => { counts[g] = (counts[g] || 0) + 1; });
       if (raw?.length) {

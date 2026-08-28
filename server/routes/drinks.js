@@ -42,12 +42,17 @@ const ARRAY_FIELD_KEYS = new Set(['tags', 'variety']);
 
 const titleCase = str => str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 
+// A stray trailing space makes a distinct value: "Austria " filters, groups and geocodes
+// separately from "Austria". Trim at the one place every write already routes through,
+// and leave non-strings alone so numeric fields keep their type.
+const trimScalar = v => (typeof v === 'string' ? v.trim() : (v ?? ''));
+
 function pickFields(body, category, partial = false) {
   const allowed = ALLOWED_FIELDS[category];
   return Object.fromEntries(
     allowed
       .filter(k => !partial || k in body)
-      .map(k => [k, ARRAY_FIELD_KEYS.has(k) ? (Array.isArray(body[k]) ? body[k] : []) : (body[k] ?? '')])
+      .map(k => [k, ARRAY_FIELD_KEYS.has(k) ? (Array.isArray(body[k]) ? body[k] : []) : trimScalar(body[k])])
   );
 }
 
@@ -265,7 +270,7 @@ router.patch('/:category/bulk', async (req, res) => {
           if (tagAction === 'add') items.add(item); else items.delete(item);
           d[field] = [...items];
         } else {
-          d[field] = value;
+          d[field] = trimScalar(value);
         }
         affected.push(d);
       }

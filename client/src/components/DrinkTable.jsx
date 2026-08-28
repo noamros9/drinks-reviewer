@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { OLD_WORLD, NEW_WORLD } from '../utils/filterHelpers';
+import { OLD_WORLD, NEW_WORLD, regionLeaf } from '../utils/filterHelpers';
 import CustomSelect from './CustomSelect';
 import './DrinkTable.css';
 
@@ -132,6 +132,11 @@ export function sortDrinks(drinks, sortKey, sortDir) {
       };
       av = toInt(av);
       bv = toInt(bv);
+    } else if (sortKey === 'region') {
+      // the column shows the leaf, so sorting must too -- ordering by the hidden
+      // full path would file "Toscana / Chianti" under T
+      av = regionLeaf(av);
+      bv = regionLeaf(bv);
     } else if (NUMERIC_KEYS.has(sortKey)) {
       av = parseFloat(av) || 0;
       bv = parseFloat(bv) || 0;
@@ -332,6 +337,9 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                 const raw = (derived && ['avgRating','lastRating','lastTasted','tastingCount'].includes(col.key))
                   ? derived[col.key]
                   : drink[col.key];
+                // Show the leaf but keep `raw` for onCellClick: filtering on a bare
+                // "Chianti" when the stored value is "Toscana / Chianti" matches nothing.
+                const display = col.key === 'region' ? regionLeaf(raw) : raw;
                 const chipClass = getChipClass(col.key, raw);
                 const isFilterable = onCellClick && filterableCols?.has(col.key) && raw != null && raw !== '—';
                 let content;
@@ -372,12 +380,12 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
                     <span
                       className={`status-chip ${chipClass}${isFilterable ? ' cell-filterable' : ''}`}
                       onClick={isFilterable ? () => onCellClick(col.key, raw) : undefined}
-                    >{raw ?? '—'}</span>
+                    >{display ?? '—'}</span>
                   );
                 } else if (isFilterable) {
-                  content = <span className="cell-filterable" onClick={() => onCellClick(col.key, raw)}>{raw}</span>;
+                  content = <span className="cell-filterable" title={raw} onClick={() => onCellClick(col.key, raw)}>{display}</span>;
                 } else {
-                  content = raw ?? '—';
+                  content = display ?? '—';
                 }
                 return <td key={col.key}>{content}</td>;
               })}

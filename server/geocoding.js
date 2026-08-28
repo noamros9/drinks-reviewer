@@ -18,7 +18,10 @@ async function ensureRegionCoordinates(country, region) {
   if (existing.length) return;
 
   try {
-    const query = encodeURIComponent(`${region}, ${country}`);
+    // Nominatim wants a place name, not a path: the cache key keeps the full
+    // hierarchy but the search uses the most specific segment. Mirrors REGION_SEP
+    // in client/src/utils/filterHelpers.js.
+    const query = encodeURIComponent(`${region.split(' / ').pop()}, ${country}`);
     const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`, {
       headers: { 'User-Agent': USER_AGENT },
     });

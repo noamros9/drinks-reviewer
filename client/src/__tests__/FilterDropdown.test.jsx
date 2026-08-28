@@ -136,3 +136,55 @@ test('unmounting component runs useEffect cleanup (removeEventListener)', () => 
   unmount();
   // No crash = cleanup ran successfully
 });
+
+// ── hierarchical options ({value, label, depth}) ──────────────────
+
+const REGION_OPTS = [
+  { value: 'Loire Valley', label: 'Loire Valley', depth: 0 },
+  { value: 'Loire Valley / Sancerre', label: 'Sancerre', depth: 1 },
+];
+
+test('hierarchical options render the leaf label, not the full path', () => {
+  renderDropdown({ label: 'Region', options: REGION_OPTS });
+  openDropdown('Region');
+  expect(screen.getByText('Sancerre')).toBeInTheDocument();
+  expect(screen.queryByText('Loire Valley / Sancerre')).not.toBeInTheDocument();
+});
+
+test('hierarchical options indent children below their parent', () => {
+  renderDropdown({ label: 'Region', options: REGION_OPTS });
+  openDropdown('Region');
+  expect(screen.getByTitle('Loire Valley').style.paddingLeft).toBe('');
+  expect(screen.getByTitle('Loire Valley / Sancerre').style.paddingLeft).toBe('1.75rem');
+});
+
+test('toggling a hierarchical option reports the full path, not the leaf', () => {
+  const onChange = vi.fn();
+  renderDropdown({ label: 'Region', options: REGION_OPTS, onChange });
+  openDropdown('Region');
+  fireEvent.click(screen.getByText('Sancerre'));
+  expect(onChange).toHaveBeenCalledWith(new Set(['Loire Valley / Sancerre']));
+});
+
+test('hierarchical options show counts keyed by full path', () => {
+  renderDropdown({
+    label: 'Region',
+    options: REGION_OPTS,
+    counts: { 'Loire Valley': 12, 'Loire Valley / Sancerre': 5 },
+  });
+  openDropdown('Region');
+  expect(screen.getByText('12')).toBeInTheDocument();
+  expect(screen.getByText('5')).toBeInTheDocument();
+});
+
+test('a hierarchical option renders checked when its full path is selected', () => {
+  renderDropdown({
+    label: 'Region',
+    options: REGION_OPTS,
+    selected: new Set(['Loire Valley / Sancerre']),
+  });
+  openDropdown('Region');
+  const boxes = screen.getAllByRole('checkbox');
+  expect(boxes[0]).not.toBeChecked();
+  expect(boxes[1]).toBeChecked();
+});
