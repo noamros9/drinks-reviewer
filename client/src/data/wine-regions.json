@@ -1,0 +1,236 @@
+{
+  "France": {
+    "Alsace": [],
+    "Beaujolais": [
+      "Brouilly",
+      "Fleurie",
+      "Morgon",
+      "Moulin-à-Vent"
+    ],
+    "Bordeaux": {
+      "Médoc": [
+        "Margaux",
+        "Pauillac",
+        "Saint-Estèphe",
+        "Saint-Julien"
+      ],
+      "Graves": [
+        "Pessac-Léognan"
+      ],
+      "Pomerol": [],
+      "Saint-Émilion": [],
+      "Sauternes": []
+    },
+    "Bourgogne": {
+      "Chablis": [],
+      "Côte de Nuits": [
+        "Chambolle-Musigny",
+        "Gevrey-Chambertin",
+        "Nuits-Saint-Georges",
+        "Vosne-Romanée"
+      ],
+      "Côte de Beaune": [
+        "Meursault",
+        "Pommard",
+        "Puligny-Montrachet",
+        "Volnay"
+      ],
+      "Côte Chalonnaise": [],
+      "Mâconnais": [
+        "Pouilly-Fuissé"
+      ]
+    },
+    "Champagne": [
+      "Côte des Blancs",
+      "Montagne de Reims",
+      "Vallée de la Marne"
+    ],
+    "Corse": [],
+    "Jura": [],
+    "Languedoc-Roussillon": [
+      "Corbières",
+      "Côtes Catalanes",
+      "Faugères",
+      "Minervois",
+      "Picpoul de Pinet"
+    ],
+    "Loire Valley": [
+      "Chinon",
+      "Muscadet",
+      "Pouilly-Fumé",
+      "Sancerre",
+      "Saumur",
+      "Savennières",
+      "Vouvray"
+    ],
+    "Provence": [
+      "Bandol",
+      "Côtes de Provence"
+    ],
+    "Rhône": {
+      "Northern Rhône": [
+        "Cornas",
+        "Condrieu",
+        "Côte-Rôtie",
+        "Crozes-Hermitage",
+        "Hermitage",
+        "Saint-Joseph"
+      ],
+      "Southern Rhône": [
+        "Châteauneuf-du-Pape",
+        "Gigondas",
+        "Lirac",
+        "Tavel",
+        "Vacqueyras"
+      ]
+    },
+    "Savoie": [],
+    "Sud-Ouest": [
+      "Cahors",
+      "Jurançon",
+      "Madiran"
+    ]
+  },
+  "Italy": {
+    "Abruzzo": [
+      "Montepulciano d'Abruzzo",
+      "Terre di Chieti",
+      "Trebbiano d'Abruzzo"
+    ],
+    "Campania": [
+      "Fiano di Avellino",
+      "Greco di Tufo",
+      "Taurasi"
+    ],
+    "Friuli-Venezia Giulia": [
+      "Collio",
+      "Colli Orientali del Friuli"
+    ],
+    "Lombardia": [
+      "Franciacorta",
+      "Valtellina"
+    ],
+    "Marche": [
+      "Verdicchio dei Castelli di Jesi"
+    ],
+    "Piemonte": [
+      "Barbaresco",
+      "Barbera d'Alba",
+      "Barbera d'Asti",
+      "Barolo",
+      "Gavi",
+      "Roero"
+    ],
+    "Puglia": [
+      "Castel del Monte",
+      "Primitivo di Manduria",
+      "Salento",
+      "Salice Salentino"
+    ],
+    "Sardegna": [
+      "Cannonau di Sardegna",
+      "Vermentino di Gallura"
+    ],
+    "Sicilia": [
+      "Etna",
+      "Noto",
+      "Vittoria"
+    ],
+    "Toscana": [
+      "Bolgheri",
+      "Brunello di Montalcino",
+      "Chianti",
+      "Chianti Classico",
+      "Maremma",
+      "Vino Nobile di Montepulciano"
+    ],
+    "Trentino-Alto Adige": [
+      "Alto Adige",
+      "Trentino"
+    ],
+    "Umbria": [
+      "Montefalco",
+      "Orvieto"
+    ],
+    "Veneto": [
+      "Amarone della Valpolicella",
+      "Bardolino",
+      "Prosecco",
+      "Soave",
+      "Valpolicella",
+      "Valpolicella Ripasso"
+    ]
+  },
+  "Spain": {
+    "Bierzo": [],
+    "Castilla y León": [],
+    "Jerez": [],
+    "Jumilla": [],
+    "Navarra": [],
+    "Penedès": [],
+    "Priorat": [],
+    "Ribera del Duero": [],
+    "Rioja": [
+      "Rioja Alavesa",
+      "Rioja Alta",
+      "Rioja Oriental"
+    ],
+    "Rueda": [],
+    "Rías Baixas": [],
+    "Toro": [],
+    "Valdeorras": []
+  },
+  "Portugal": {
+    "Alentejo": [],
+    "Bairrada": [],
+    "Douro": [
+      "Porto"
+    ],
+    "Dão": [],
+    "Lisboa": [],
+    "Madeira": [],
+    "Setúbal": [],
+    "Vinho Verde": [
+      "Monção e Melgaço"
+    ]
+  },
+  "Israel": {
+    "Coastal Plain": [],
+    "Galilee": [
+      "Lower Galilee",
+      "Upper Galilee"
+    ],
+    "Golan Heights": [],
+    "Judean Hills": [],
+    "Negev": [],
+    "Samaria": [],
+    "Samson": []
+  },
+  "New Zealand": {
+    "Central Otago": [],
+    "Gisborne": [],
+    "Hawke's Bay": [],
+    "Marlborough": [
+      "Awatere Valley",
+      "Wairau Valley"
+    ],
+    "Martinborough": [],
+    "Nelson": [],
+    "Waipara": []
+  },
+  "USA": {
+    "California": [
+      "Napa Valley",
+      "Paso Robles",
+      "Russian River Valley",
+      "Santa Barbara County",
+      "Sonoma County"
+    ],
+    "Oregon": [
+      "Willamette Valley"
+    ],
+    "Washington": [
+      "Columbia Valley"
+    ]
+  }
+}

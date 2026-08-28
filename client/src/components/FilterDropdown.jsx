@@ -24,6 +24,9 @@ export default function FilterDropdown({ label, options, specialOptions, selecte
   };
 
   const hasActive = selected.size > 0;
+  // Options are plain strings for flat filters, or {value, label, depth} for hierarchical
+  // ones. Normalizing here keeps this component generic -- it never knows about regions.
+  const opts = options.map(o => (typeof o === 'string' ? { value: o, label: o, depth: 0 } : o));
 
   return (
     <div className="filter-dropdown" ref={ref}>
@@ -50,11 +53,16 @@ export default function FilterDropdown({ label, options, specialOptions, selecte
               <div className="filter-separator" />
             </>
           )}
-          {options.map(opt => (
-            <label key={opt} className="filter-option">
-              <input type="checkbox" checked={selected.has(opt)} onChange={() => toggle(opt)} />
-              <span>{opt}</span>
-              {counts[opt] != null && <span className="filter-option-count">{counts[opt]}</span>}
+          {opts.map(({ value, label: optLabel, depth }) => (
+            <label
+              key={value}
+              className="filter-option"
+              title={value}
+              style={depth ? { paddingLeft: `${0.85 + depth * 0.9}rem` } : undefined}
+            >
+              <input type="checkbox" checked={selected.has(value)} onChange={() => toggle(value)} />
+              <span>{optLabel}</span>
+              {counts[value] != null && <span className="filter-option-count">{counts[value]}</span>}
             </label>
           ))}
           {hasActive && (

@@ -15,6 +15,34 @@ afterEach(() => {
 });
 
 describe('ensureRegionCoordinates', () => {
+
+  // A nested region is a path, not a place name: searching for the whole path finds
+  // nothing, so only the most specific segment goes to Nominatim.
+  it('searches Nominatim for the leaf but caches under the full path', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([{ lat: '47.3', lon: '2.8' }]),
+    });
+    await geocoding.ensureRegionCoordinates('France', 'Loire Valley / Sancerre');
+
+    const [url] = global.fetch.mock.calls[0];
+    expect(url).toContain(encodeURIComponent('Sancerre, France'));
+    expect(url).not.toContain(encodeURIComponent('Loire Valley / Sancerre'));
+    await expect(geocoding.readCoordinates()).resolves.toEqual({
+      'France||Loire Valley / Sancerre': { lat: 47.3, lon: 2.8 },
+    });
+  });
+
+  it('gives sibling appellations their own cache entries', async () => {
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([{ lat: '1', lon: '2' }]),
+    });
+    await geocoding.ensureRegionCoordinates('Italy', 'Toscana / Chianti');
+    await geocoding.ensureRegionCoordinates('Italy', 'Toscana / Bolgheri');
+    expect(Object.keys(await geocoding.readCoordinates()).sort())
+      .toEqual(['Italy||Toscana / Bolgheri', 'Italy||Toscana / Chianti']);
+  });
   it('does nothing when country or region is missing', async () => {
     await geocoding.ensureRegionCoordinates('', 'Rioja');
     await geocoding.ensureRegionCoordinates('Spain', '');

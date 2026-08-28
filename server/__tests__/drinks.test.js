@@ -580,3 +580,38 @@ describe('500 error handling when the data backend fails', () => {
     expect((await request(app).delete('/api/wine/any-id/collection/lot1')).status).toBe(500);
   });
 });
+
+// A stray trailing space made "Austria " a distinct country from "Austria" -- it filtered,
+// grouped and geocoded separately. Trimming happens where every write routes through.
+describe('whitespace trimming on write', () => {
+  it('trims scalar string fields on create', async () => {
+    const res = await request(app).post('/api/wine').send({
+      producer: '  Pfaffl  ', seriesAndName: 'Zweigelt ', country: 'Austria ', region: ' Alsace ',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.producer).toBe('Pfaffl');
+    expect(res.body.country).toBe('Austria');
+    expect(res.body.region).toBe('Alsace');
+  });
+
+  it('trims on update too', async () => {
+    const created = (await request(app).post('/api/wine').send({ producer: 'X' })).body;
+    const res = await request(app).put(`/api/wine/${created.id}`).send({ producer: 'X', country: ' Italy ' });
+    expect(res.body.country).toBe('Italy');
+  });
+
+  it('trims a bulk-edited scalar value', async () => {
+    const created = (await request(app).post('/api/wine').send({ producer: 'Y' })).body;
+    const res = await request(app).patch('/api/wine/bulk')
+      .send({ ids: [created.id], field: 'country', value: '  Spain  ' });
+    expect(res.body.updated[0].country).toBe('Spain');
+  });
+
+  it('leaves array fields and non-string values alone', async () => {
+    const res = await request(app).post('/api/wine').send({
+      producer: 'Z', variety: ['Merlot'], abv: 13.5,
+    });
+    expect(res.body.variety).toEqual(['Merlot']);
+    expect(res.body.abv).toBe(13.5);
+  });
+});

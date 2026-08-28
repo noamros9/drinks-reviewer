@@ -12,7 +12,9 @@ export default function BulkEditBar({ category, drinks, selectedIds, onApplied, 
 
   const activeConfig = bulkConfigs.find(c => c.label === fieldLabel) ?? bulkConfigs[0];
   const isArrayField = !!(activeConfig?.multiValue || activeConfig?.varietyGroups);
-  const { options: suggestions } = buildDropdownOptions(drinks, activeConfig);
+  const { options } = buildDropdownOptions(drinks, activeConfig);
+  // hierarchical configs yield {value,label,depth}; the autocomplete wants plain strings
+  const suggestions = options.map(o => o.value ?? o);
   const count = selectedIds.size;
   const countLabel = `${count} ${count === 1 ? 'entry' : 'entries'}`;
 
