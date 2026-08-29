@@ -360,14 +360,20 @@ export default function AdminPage() {
     setAddToCollectionBusy(true);
     try {
       const producerKey = PRODUCER_FIELD[colCat];
-      const nameKey = colCat === 'wine' ? 'seriesAndName' : 'name';
-      const drinkRes = await fetch(`/api/${colCat}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [producerKey]: colForm.producer, [nameKey]: colForm.name, country: colForm.country, abv: colForm.abv, collectionOnly: true, tags: colForm.tags }),
-      });
-      if (!drinkRes.ok) { setColMessage('Failed to add drink.'); return; }
-      const drink = await drinkRes.json();
+      const nameKey = NAME_FIELD[colCat];
+      // A bottle you already reviewed is the same drink, not a new one — vintage lives on
+      // the lot/tasting, so the lot belongs on the existing record. Without this, every
+      // cellar add of an already-tasted drink minted a hidden `collectionOnly` twin.
+      let drink = findDuplicate(colDrinks, colCat, colForm.producer, colForm.name);
+      if (!drink) {
+        const drinkRes = await fetch(`/api/${colCat}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [producerKey]: colForm.producer, [nameKey]: colForm.name, country: colForm.country, abv: colForm.abv, collectionOnly: true, tags: colForm.tags }),
+        });
+        if (!drinkRes.ok) { setColMessage('Failed to add drink.'); return; }
+        drink = await drinkRes.json();
+      }
       const lotBody = { quantity: qty };
       if (colForm.price !== '') lotBody.price = parseFloat(colForm.price);
       await fetch(`/api/${colCat}/${drink.id}/collection`, {
