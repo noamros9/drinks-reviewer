@@ -47,6 +47,18 @@
   cursor: pointer;
 }
 
+/* Chrome paints a heavy black ring on a clicked SVG path. Keyboard focus still gets a
+   visible ring, in the accent colour like every other focusable mark on the map. */
+.world-map-country:focus,
+.world-map-region-marker:focus {
+  outline: none;
+}
+
+.world-map-country:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .world-map-region-marker {
   fill: var(--accent);
   stroke: var(--bg-elevated);
@@ -165,8 +177,8 @@
   pointer-events: none;
   z-index: 10;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.4rem;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -179,4 +191,54 @@
 .world-map-tooltip-note {
   color: var(--text-secondary);
   font-size: 0.78rem;
+}
+
+.world-map-tooltip-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Only a tooltip with clickable rows accepts the pointer; the plain one must stay
+   transparent to the mouse or it would block hovering the country underneath. */
+.world-map-tooltip-interactive {
+  pointer-events: auto;
+}
+
+.world-map-tooltip-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem 0 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.world-map-tooltip-rows button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 0.25rem 0.35rem;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.world-map-tooltip-rows button:hover,
+.world-map-tooltip-rows button:focus-visible {
+  background: var(--border);
+}
+
+.world-map-tooltip-row-name {
+  flex: 1;
+  white-space: nowrap;
 }

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import WorldMap, { countLevels, ratingLevel, mainlandCentroid, buildRegionTree, dotRadius, segmentDashArray, EXPAND_ZOOM } from '../pages/analytics/WorldMap';
 
 const WORLD_GEO = {
@@ -214,4 +214,94 @@ test('the legend explains both channels', () => {
   renderMap();
   expect(screen.getByText('Rated drinks')).toBeInTheDocument();
   expect(screen.getByText('Avg rating')).toBeInTheDocument();
+});
+
+// ── Tooltip: avg, subregion rows, and staying open ────────────────
+
+test('a region tooltip shows its average, the way a country tooltip does', () => {
+  renderMap();
+  fireEvent.mouseEnter(screen.getByTestId('region-marker-Toscana'));
+  // 2 drinks @ 8, 1 @ 7, 1 @ 9 -> 8.0
+  expect(screen.getByText('avg 8.0')).toBeInTheDocument();
+});
+
+test('a collapsed parent lists its subregions, with the parent\'s own drinks last', () => {
+  renderMap();
+  fireEvent.mouseEnter(screen.getByTestId('region-marker-Toscana'));
+  const rows = screen.getAllByRole('button', { name: /Chianti|Toscana itself/ });
+  expect(rows.map(r => r.textContent)).toEqual([
+    'Chianti7.01', 'Chianti Classico9.01', 'Toscana itself8.02',
+  ]);
+});
+
+test('clicking a subregion row opens that subregion', () => {
+  const onSelectRegion = vi.fn();
+  renderMap({ onSelectRegion });
+  fireEvent.mouseEnter(screen.getByTestId('region-marker-Toscana'));
+  fireEvent.click(screen.getByTestId('tooltip-row-Chianti'));
+  expect(onSelectRegion).toHaveBeenCalledWith(expect.objectContaining({ region: 'Toscana / Chianti' }));
+});
+
+test('a region with no subregions gets a plain tooltip with no rows', () => {
+  renderMap({
+    regions: [{ category: 'wine', country: 'Italy', region: 'Sicilia', avgRating: 7, count: 1 }],
+    regionCoordinates: { 'Italy||Sicilia': { lat: 37.5, lon: 14.1 } },
+  });
+  fireEvent.mouseEnter(screen.getByTestId('region-marker-Sicilia'));
+  expect(screen.getByText('avg 7.0')).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: /itself/ })).not.toBeInTheDocument();
+});
+
+test('a tooltip with rows survives the trip from the dot to the tooltip', async () => {
+  vi.useFakeTimers();
+  try {
+    renderMap();
+    const dot = screen.getByTestId('region-marker-Toscana');
+    fireEvent.mouseEnter(dot);
+    fireEvent.mouseLeave(dot);
+    // Still there mid-flight, so the pointer can reach it.
+    act(() => vi.advanceTimersByTime(100));
+    expect(screen.getByTestId('tooltip-row-Chianti')).toBeInTheDocument();
+    // Reaching it cancels the dismissal.
+    fireEvent.mouseEnter(screen.getByTestId('tooltip-row-Chianti').closest('.world-map-tooltip'));
+    act(() => vi.advanceTimersByTime(1000));
+    expect(screen.getByTestId('tooltip-row-Chianti')).toBeInTheDocument();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test('a tooltip with rows closes once the pointer leaves without reaching it', () => {
+  vi.useFakeTimers();
+  try {
+    renderMap();
+    const dot = screen.getByTestId('region-marker-Toscana');
+    fireEvent.mouseEnter(dot);
+    fireEvent.mouseLeave(dot);
+    act(() => vi.advanceTimersByTime(1000));
+    expect(screen.queryByTestId('tooltip-row-Chianti')).not.toBeInTheDocument();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test('an interactive tooltip stops chasing the cursor so it can be reached', () => {
+  renderMap();
+  const dot = screen.getByTestId('region-marker-Toscana');
+  fireEvent.mouseEnter(dot, { clientX: 10, clientY: 10 });
+  const before = screen.getByTestId('tooltip-row-Chianti').closest('.world-map-tooltip').style.left;
+  fireEvent.mouseMove(dot, { clientX: 200, clientY: 200 });
+  expect(screen.getByTestId('tooltip-row-Chianti').closest('.world-map-tooltip').style.left).toBe(before);
+});
+
+// react-simple-maps defaults every Geography to tabIndex="0", which put all 241 country
+// paths in the tab order and gave each the browser's black focus ring on click.
+test('only countries you can actually open are in the tab order', () => {
+  renderMap({ countryStats: [] });
+  expect(screen.getByTestId('country-Italy')).toHaveAttribute('tabindex', '-1');
+});
+
+test('a country with drinks stays keyboard reachable', () => {
+  renderMap();
+  expect(screen.getByTestId('country-Italy')).toHaveAttribute('tabindex', '0');
 });

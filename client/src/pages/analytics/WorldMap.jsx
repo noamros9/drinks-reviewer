@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 import { ComposableMap, ZoomableGroup, Geographies, Geography, Marker, useZoomPanContext } from 'react-simple-maps';
 import { geoCentroid } from 'd3-geo';
-import worldCountries110m from 'world-atlas/countries-110m.json';
+// 50m rather than 110m: at the new 40x ceiling the 110m outlines turn blocky.
+import worldCountries50m from 'world-atlas/countries-50m.json';
 // Built by dissolving Natural Earth's UK subdivisions into one feature via
 // `npx mapshaper -dissolve`, which produced invalid ring winding for this shape.
 // Fixed by running the dissolve through topojson-server instead. If this ever
@@ -138,6 +139,12 @@ export function dotRadius(count, maxCount) {
 // their subregions. Tuned by eye against Italy and Israel, the two crowded cases.
 export const EXPAND_ZOOM = 3;
 
+// 8x left Chianti and Chianti Classico about six pixels apart. At 40x they're ~30px.
+export const MAX_ZOOM = 40;
+
+// Long enough to move the pointer from a dot onto its tooltip without it vanishing.
+const TOOLTIP_LEAVE_MS = 260;
+
 // Every mark counter-scales against the ZoomableGroup's zoom (`k`) so it keeps a constant
 // on-screen size instead of growing with the map.
 function ScaledCircle({ r, strokeWidth = 1, ...props }) {
@@ -170,14 +177,26 @@ function ExpandableRing({ r, segments, k, ...props }) {
   );
 }
 
+// Stroke width scales with the SVG transform, so at 40x a flat 0.5 border renders as a fat
+// white band that swallows small countries. Counter-scale it like every other mark.
+// react-simple-maps hard-defaults Geography to tabIndex="0", which made all 241 country
+// paths tab stops — including the ~220 with no drinks — and gave every one the UA's black
+// focus ring on click. Only a country you can actually open belongs in the tab order;
+// clickableProps re-adds tabIndex 0 for those.
+function CountryShape(props) {
+  const { k } = useZoomPanContext();
+  return <Geography stroke="var(--bg-elevated)" strokeWidth={0.5 / k} tabIndex={-1} {...props} />;
+}
+
 function RatingPip({ level }) {
   const { k } = useZoomPanContext();
   return <circle r={2.4 / k} strokeWidth={0.8 / k} className={`world-map-rating-pip world-map-rating-l${level}`} />;
 }
 
-export default function WorldMap({ countryStats, regions, regionCoordinates, onSelectCountry, onSelectRegion, worldGeo = worldCountries110m, ukGeo = ukConstituentCountries, initialZoom = 1 }) {
+export default function WorldMap({ countryStats, regions, regionCoordinates, onSelectCountry, onSelectRegion, worldGeo = worldCountries50m, ukGeo = ukConstituentCountries, initialZoom = 1 }) {
   const wrapperRef = useRef(null);
-  const [tooltip, setTooltip] = useState(null); // { x, y, name, count }
+  const leaveTimer = useRef(null);
+  const [tooltip, setTooltip] = useState(null); // { x, y, name, count, note, rows }
 
   const statsByCountry = useMemo(
     () => new Map(countryStats.map(r => [canonicalName(r.country), r])),
@@ -192,9 +211,22 @@ export default function WorldMap({ countryStats, regions, regionCoordinates, onS
     const box = wrapperRef.current.getBoundingClientRect();
     return { x: e.clientX - box.left, y: e.clientY - box.top };
   };
-  const showTooltip = (e, name, count, note) => setTooltip({ ...positionTooltip(e), name, count, note });
-  const moveTooltip = (e) => setTooltip(t => t && { ...t, ...positionTooltip(e) });
-  const hideTooltip = () => setTooltip(null);
+  // A tooltip with clickable rows has to survive the trip from the dot to the tooltip, so it
+  // stops chasing the cursor and lingers briefly on mouse-out. A plain one still follows the
+  // pointer and vanishes instantly.
+  const showTooltip = (e, name, count, note, rows) => {
+    clearTimeout(leaveTimer.current);
+    setTooltip({ ...positionTooltip(e), name, count, note, rows: rows?.length ? rows : null });
+  };
+  const moveTooltip = (e) => setTooltip(t => (t && !t.rows ? { ...t, ...positionTooltip(e) } : t));
+  const hideTooltip = () => { clearTimeout(leaveTimer.current); setTooltip(null); };
+  // Callers that showed a tooltip with rows use this instead: the caller knows, so the
+  // decision stays out of the state updater, which React may run more than once.
+  const deferHideTooltip = () => {
+    clearTimeout(leaveTimer.current);
+    leaveTimer.current = setTimeout(() => setTooltip(null), TOOLTIP_LEAVE_MS);
+  };
+  const holdTooltip = () => clearTimeout(leaveTimer.current);
 
   const clickableProps = (name, count, onSelect) => ({
     role: 'button',
@@ -208,8 +240,6 @@ export default function WorldMap({ countryStats, regions, regionCoordinates, onS
     'data-testid': `country-${displayName}`,
     geography: geo,
     className: `world-map-country world-map-count-l${levelOf(stat?.count ?? 0)}${stat ? ' world-map-country-clickable' : ''}`,
-    stroke: 'var(--bg-elevated)',
-    strokeWidth: 0.5,
     ...(stat ? clickableProps(displayName, stat.count, () => onSelectCountry(stat.country)) : {}),
     onMouseEnter: e => showTooltip(e, displayName, stat?.count ?? 0, stat ? `avg ${stat.avgRating.toFixed(1)}` : null),
     onMouseMove: moveTooltip,
@@ -231,7 +261,7 @@ export default function WorldMap({ countryStats, regions, regionCoordinates, onS
       {/* Framed on the inhabited world: at the default 800x600 the bottom ~40% was Antarctica
           and empty ocean, which made the map read as mostly blank. */}
       <ComposableMap width={800} height={420} projection="geoMercator" projectionConfig={{ scale: 118, center: [10, 22] }}>
-        <ZoomableGroup minZoom={1} maxZoom={8} zoom={initialZoom}>
+        <ZoomableGroup minZoom={1} maxZoom={MAX_ZOOM} zoom={initialZoom}>
           <Geographies geography={worldGeo}>
             {({ geographies }) => geographies
               .filter(geo => geo.properties.name !== 'United Kingdom')
@@ -239,7 +269,7 @@ export default function WorldMap({ countryStats, regions, regionCoordinates, onS
                 const stat = statsByCountry.get(canonicalName(geo.properties.name));
                 return (
                   <g key={geo.rsmKey}>
-                    <Geography {...countryProps(geo.properties.name, stat, geo)} />
+                    <CountryShape {...countryProps(geo.properties.name, stat, geo)} />
                     {renderPip(geo, stat)}
                   </g>
                 );
@@ -250,7 +280,7 @@ export default function WorldMap({ countryStats, regions, regionCoordinates, onS
               const stat = statsByCountry.get(geo.properties.geonunit);
               return (
                 <g key={geo.rsmKey}>
-                  <Geography {...countryProps(geo.properties.geonunit, stat, geo)} />
+                  <CountryShape {...countryProps(geo.properties.geonunit, stat, geo)} />
                   {renderPip(geo, stat)}
                 </g>
               );
@@ -264,22 +294,70 @@ export default function WorldMap({ countryStats, regions, regionCoordinates, onS
             showTooltip={showTooltip}
             moveTooltip={moveTooltip}
             hideTooltip={hideTooltip}
+            deferHideTooltip={deferHideTooltip}
           />
         </ZoomableGroup>
       </ComposableMap>
       <MapLegend />
       {tooltip && (
-        <div className="world-map-tooltip" style={{ left: tooltip.x + 12, top: tooltip.y + 12 }}>
-          <span>{tooltip.name}</span>
-          {tooltip.note && <span className="world-map-tooltip-note">{tooltip.note}</span>}
-          <span className="count-badge">{tooltip.count}</span>
+        <div
+          className={`world-map-tooltip${tooltip.rows ? ' world-map-tooltip-interactive' : ''}`}
+          style={{ left: tooltip.x + 12, top: tooltip.y + 12 }}
+          onMouseEnter={holdTooltip}
+          onMouseLeave={hideTooltip}
+        >
+          <div className="world-map-tooltip-head">
+            <span>{tooltip.name}</span>
+            {tooltip.note && <span className="world-map-tooltip-note">{tooltip.note}</span>}
+            <span className="count-badge">{tooltip.count}</span>
+          </div>
+          {tooltip.rows && (
+            <ul className="world-map-tooltip-rows">
+              {tooltip.rows.map(row => (
+                <li key={row.key}>
+                  <button
+                    type="button"
+                    data-testid={`tooltip-row-${row.label}`}
+                    onClick={() => { hideTooltip(); onSelectRegion(row.target); }}
+                  >
+                    <span className="world-map-tooltip-row-name">{row.label}</span>
+                    {row.avg != null && <span className="world-map-tooltip-note">{row.avg.toFixed(1)}</span>}
+                    <span className="count-badge">{row.count}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-function RegionLayer({ nodes, maxCount, onSelectRegion, clickableProps, showTooltip, moveTooltip, hideTooltip }) {
+// Children first (biggest first, as sorted), then the parent's own drinks last so the list
+// reads as "what's inside" before "and the rest".
+function subregionRows(node) {
+  if (!node.children.length) return null;
+  const rows = node.children.map(c => ({
+    key: `${c.country}||${c.region}`,
+    label: regionLeaf(c.region),
+    avg: c.avgRating,
+    count: c.count,
+    target: c,
+  }));
+  if (node.ownCount > 0) {
+    rows.push({
+      key: `${node.country}||${node.region}||own`,
+      label: `${node.region} itself`,
+      avg: node.own?.avgRating,
+      count: node.ownCount,
+      target: node.own,
+    });
+  }
+  return rows;
+}
+
+function RegionLayer({ nodes, maxCount, onSelectRegion, clickableProps, showTooltip, moveTooltip, hideTooltip, deferHideTooltip }) {
   const { k } = useZoomPanContext();
   const expanded = k >= EXPAND_ZOOM;
 
@@ -293,9 +371,11 @@ function RegionLayer({ nodes, maxCount, onSelectRegion, clickableProps, showTool
       marks.push({
         key: `${node.country}||${node.region}`,
         label: `${node.region}, ${node.country}`,
-        note: !showChildren && node.children.length
-          ? `${node.children.length} subregion${node.children.length === 1 ? '' : 's'}`
-          : null,
+        avg: showChildren ? node.own?.avgRating : node.avgRating,
+        // Collapsed, the tooltip lists what's folded inside so you can jump straight to a
+        // subregion without hunting for its dot. The parent's own drinks get a row too,
+        // otherwise the rows wouldn't add up to the headline count.
+        rows: !showChildren ? subregionRows(node) : null,
         // The ring is the "there's more inside" affordance, one arc per subregion, so a
         // parent reads as expandable — and as how-many — before you zoom.
         halo: !showChildren ? node.children.length : 0,
@@ -310,8 +390,9 @@ function RegionLayer({ nodes, maxCount, onSelectRegion, clickableProps, showTool
         marks.push({
           key: `${child.country}||${child.region}`,
           label: `${child.region}, ${child.country}`,
-          note: null,
-          halo: false,
+          avg: child.avgRating,
+          rows: null,
+          halo: 0,
           testId: regionLeaf(child.region),
           count: child.count,
           coords: child.coords,
@@ -324,9 +405,9 @@ function RegionLayer({ nodes, maxCount, onSelectRegion, clickableProps, showTool
   return marks.map(m => {
     const r = dotRadius(m.count, maxCount);
     const hover = {
-      onMouseEnter: e => showTooltip(e, m.label, m.count, m.note),
+      onMouseEnter: e => showTooltip(e, m.label, m.count, m.avg != null ? `avg ${m.avg.toFixed(1)}` : null, m.rows),
       onMouseMove: moveTooltip,
-      onMouseLeave: hideTooltip,
+      onMouseLeave: m.rows ? deferHideTooltip : hideTooltip,
     };
     return (
       <Marker key={m.key} coordinates={[m.coords.lon, m.coords.lat]}>
