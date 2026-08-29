@@ -182,6 +182,65 @@ test('autocomplete also includes producers that only exist as collection-only en
   expect(screen.queryByText('Other Category Brewery')).not.toBeInTheDocument();
 });
 
+// ── Reuses an existing drink instead of minting a twin (issue #110) ─
+
+// The dedupe check reads colDrinks, which arrives from a fetch. Filling the form before
+// that resolves would test nothing, so wait until a suggestion proves the list has loaded.
+async function renderWithReviewed(drinks) {
+  mockFetch({ '/api/wine': { ok: true, json: () => Promise.resolve(drinks) } });
+  renderCollectionTab();
+  const producer = screen.getByLabelText(/^producer$/i);
+  fireEvent.change(producer, { target: { value: drinks[0].producer.slice(0, 3) } });
+  await screen.findByText(drinks[0].producer);
+  return producer;
+}
+
+async function fillAndSubmit(producer, producerVal, nameVal) {
+  fireEvent.change(producer, { target: { value: producerVal } });
+  fireEvent.change(screen.getByLabelText(/^name$/i), { target: { value: nameVal } });
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
+}
+
+test('adding a bottle you already reviewed attaches the lot to that drink, with no new drink POST', async () => {
+  const producer = await renderWithReviewed([{ id: 'reviewed-1', producer: 'דלתון', seriesAndName: "Kna'an Red" }]);
+  await fillAndSubmit(producer, 'דלתון', "Kna'an Red");
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+    '/api/wine/reviewed-1/collection',
+    expect.objectContaining({ method: 'POST' })
+  ));
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
+});
+
+test('matching ignores case and surrounding whitespace', async () => {
+  const producer = await renderWithReviewed([{ id: 'reviewed-1', producer: 'Yatir', seriesAndName: 'Darom' }]);
+  await fillAndSubmit(producer, '  yatir ', 'DAROM');
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+    '/api/wine/reviewed-1/collection',
+    expect.objectContaining({ method: 'POST' })
+  ));
+});
+
+test('a genuinely new name under a known producer still creates a drink', async () => {
+  const producer = await renderWithReviewed([{ id: 'reviewed-1', producer: 'דלתון', seriesAndName: "Kna'an Red" }]);
+  await fillAndSubmit(producer, 'דלתון', 'Reserve');
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+    '/api/wine',
+    expect.objectContaining({ method: 'POST', body: expect.stringContaining('"collectionOnly":true') })
+  ));
+});
+
+test('a photo added alongside goes to the existing drink, not a new one', async () => {
+  const producer = await renderWithReviewed([{ id: 'reviewed-1', producer: 'Guinness', seriesAndName: 'Guinness' }]);
+  const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
+  fireEvent.click(screen.getByTestId('new-col-img-trigger'));
+  fireEvent.change(screen.getByTestId('new-col-img'), { target: { files: [file] } });
+  await fillAndSubmit(producer, 'Guinness', 'Guinness');
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+    '/api/wine/reviewed-1/collection/image',
+    expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
+  ));
+});
+
 // ── Quick-add photo upload ─────────────────────────────────────────
 
 test('quick-add photo upload fires to the collection image endpoint after drink+lot are created', async () => {

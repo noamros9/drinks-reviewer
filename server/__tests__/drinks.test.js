@@ -360,6 +360,34 @@ describe('DELETE /api/:category/:id/collection/:lotId', () => {
     const res = await request(app).delete('/api/unknown/123/collection/lot1');
     expect(res.status).toBe(404);
   });
+
+  it('deletes a collection-only drink once its last lot is gone', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X', collectionOnly: true });
+    const lot = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1 });
+    await request(app).delete(`/api/wine/${wine.body.id}/collection/${lot.body.id}`);
+    // collectionOnly drinks are hidden from GET /api/wine either way, so prove the record
+    // is really gone: adding a lot back must 404 rather than resurrect the zombie.
+    const readd = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1 });
+    expect(readd.status).toBe(404);
+  });
+
+  it('keeps a collection-only drink that still has another lot', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X', collectionOnly: true });
+    const first = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1 });
+    await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 2 });
+    await request(app).delete(`/api/wine/${wine.body.id}/collection/${first.body.id}`);
+    const collection = await request(app).get('/api/collection');
+    expect(collection.body.find(d => d.id === wine.body.id)).toBeDefined();
+  });
+
+  it('keeps a drink with tastings when its last lot is removed', async () => {
+    const wine = await request(app).post('/api/wine').send({ producer: 'X' });
+    await request(app).post(`/api/wine/${wine.body.id}/tastings`).send({ date: '01/01/2026', rating: 8 });
+    const lot = await request(app).post(`/api/wine/${wine.body.id}/collection`).send({ quantity: 1 });
+    await request(app).delete(`/api/wine/${wine.body.id}/collection/${lot.body.id}`);
+    const wines = await request(app).get('/api/wine');
+    expect(wines.body.find(d => d.id === wine.body.id)).toBeDefined();
+  });
 });
 
 describe('tags field', () => {

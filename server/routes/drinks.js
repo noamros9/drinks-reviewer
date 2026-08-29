@@ -537,7 +537,11 @@ router.delete('/:category/:id/collection/:lotId', async (req, res) => {
       const before = (drink.collection || []).length;
       drink.collection = (drink.collection || []).filter(l => l.id !== lotId);
       if (drink.collection.length === before) return false;
-      await writeData(category, data);
+      // A collection-only drink exists solely to hang lots off. With its last lot gone and
+      // no tastings, it's a zombie: hidden from the drinks list AND from the cellar (which
+      // only surfaces quantity > 0), so it can never be seen or removed again.
+      const orphaned = drink.collectionOnly && !drink.collection.length && !(drink.tastings || []).length;
+      await writeData(category, orphaned ? data.filter(d => d.id !== id) : data);
       return true;
     });
     if (!found) return res.status(404).json({ error: 'Not found' });
