@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import WorldMap, { countLevels, ratingLevel, mainlandCentroid, buildRegionTree, dotRadius, EXPAND_ZOOM } from '../pages/analytics/WorldMap';
+import WorldMap, { countLevels, ratingLevel, mainlandCentroid, buildRegionTree, dotRadius, segmentDashArray, EXPAND_ZOOM } from '../pages/analytics/WorldMap';
 
 const WORLD_GEO = {
   type: 'FeatureCollection',
@@ -160,6 +160,25 @@ test('zoomed in past the threshold, the parent splits into its subregions', () =
   expect(screen.getByTestId('region-marker-Chianti')).toBeInTheDocument();
   expect(screen.getByTestId('region-marker-Chianti Classico')).toBeInTheDocument();
   expect(screen.queryByTestId('region-halo-Toscana')).not.toBeInTheDocument();
+});
+
+test('the ring is split into one arc per subregion', () => {
+  // Two subregions -> two dashes, each just under half the circumference.
+  const [dash, gap] = segmentDashArray(10, 2).split(' ').map(Number);
+  expect(dash + gap).toBeCloseTo(Math.PI * 10, 5); // half the circumference
+  expect(dash).toBeGreaterThan(gap);
+  // More subregions -> shorter arcs.
+  const [dash3] = segmentDashArray(10, 3).split(' ').map(Number);
+  expect(dash3).toBeLessThan(dash);
+});
+
+test('a single subregion draws an unbroken ring, not one dash', () => {
+  expect(segmentDashArray(10, 1)).toBeUndefined();
+});
+
+test('the ring on a two-subregion parent is actually dashed in the DOM', () => {
+  renderMap();
+  expect(screen.getByTestId('region-halo-Toscana')).toHaveAttribute('stroke-dasharray');
 });
 
 test('a region with no subregions never gets a halo', () => {

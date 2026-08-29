@@ -63,11 +63,12 @@
   outline-offset: 2px;
 }
 
-/* The "expandable" affordance: a ring around a region that has subregions folded into it. */
+/* The "expandable" affordance: a ring around a region that has subregions folded into it,
+   broken into one arc per subregion. Full opacity — at 55% it read as a fuzzy edge on the
+   dot rather than a deliberate mark. */
 .world-map-region-halo {
   fill: none;
   stroke: var(--accent);
-  opacity: 0.55;
   pointer-events: none;
 }
 

@@ -145,6 +145,31 @@ function ScaledCircle({ r, strokeWidth = 1, ...props }) {
   return <circle r={r / k} strokeWidth={strokeWidth / k} {...props} />;
 }
 
+// The "expandable" affordance. A plain ring at world zoom just reads as a fuzzy edge on the
+// dot, so the ring is broken into one arc per subregion — it says "two things are folded in
+// here", not merely "something is". Gaps are a fixed share of the circumference so the arcs
+// stay legible at any radius.
+const SEGMENT_GAP_FRACTION = 0.16;
+export function segmentDashArray(radius, segments) {
+  const circumference = 2 * Math.PI * radius;
+  if (segments < 2) return undefined; // a single arc is just a circle
+  const gap = (circumference / segments) * SEGMENT_GAP_FRACTION;
+  return `${circumference / segments - gap} ${gap}`;
+}
+
+function ExpandableRing({ r, segments, k, ...props }) {
+  return (
+    <circle
+      r={r / k}
+      strokeWidth={1.8 / k}
+      strokeDasharray={segmentDashArray(r / k, segments)}
+      strokeLinecap="round"
+      className="world-map-region-halo"
+      {...props}
+    />
+  );
+}
+
 function RatingPip({ level }) {
   const { k } = useZoomPanContext();
   return <circle r={2.4 / k} strokeWidth={0.8 / k} className={`world-map-rating-pip world-map-rating-l${level}`} />;
@@ -271,9 +296,9 @@ function RegionLayer({ nodes, maxCount, onSelectRegion, clickableProps, showTool
         note: !showChildren && node.children.length
           ? `${node.children.length} subregion${node.children.length === 1 ? '' : 's'}`
           : null,
-        // The halo is the "there's more inside" affordance: a parent with subregions reads
-        // as expandable even before you zoom.
-        halo: !showChildren && node.children.length > 0,
+        // The ring is the "there's more inside" affordance, one arc per subregion, so a
+        // parent reads as expandable — and as how-many — before you zoom.
+        halo: !showChildren ? node.children.length : 0,
         testId: regionLeaf(node.region),
         count,
         coords: node.coords,
@@ -305,7 +330,9 @@ function RegionLayer({ nodes, maxCount, onSelectRegion, clickableProps, showTool
     };
     return (
       <Marker key={m.key} coordinates={[m.coords.lon, m.coords.lat]}>
-        {m.halo && <ScaledCircle r={r + 2.2} className="world-map-region-halo" data-testid={`region-halo-${m.testId}`} {...hover} />}
+        {m.halo > 0 && (
+          <ExpandableRing r={r + 3} segments={m.halo} k={k} data-testid={`region-halo-${m.testId}`} {...hover} />
+        )}
         <ScaledCircle
           r={r}
           className="world-map-region-marker"
