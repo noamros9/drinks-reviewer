@@ -1,0 +1,114 @@
+{
+  "Spain||Castilla y León": {
+    "lat": 41.55005,
+    "lon": -5.1387401
+  },
+  "New Zealand||Marlborough": {
+    "lat": -41.4744747,
+    "lon": 173.8330263
+  },
+  "Israel||Negev": {
+    "lat": 30.5,
+    "lon": 34.9166667
+  },
+  "Spain||Rueda": {
+    "lat": 41.4129785,
+    "lon": -4.9597533
+  },
+  "Scotland||Islay": {
+    "lat": 55.7585802,
+    "lon": -6.1656723
+  },
+  "Scotland||Speyside": {
+    "lat": 57.1935592,
+    "lon": -3.8262262
+  },
+  "Spain||Jumilla": {
+    "lat": 38.4735408,
+    "lon": -1.3285417
+  },
+  "Spain||Rioja": {
+    "lat": 42.3285528,
+    "lon": -2.4674917
+  },
+  "Israel||Judean Hills": {
+    "lat": -33.5444162,
+    "lon": -70.7628877
+  },
+  "Italy||Puglia / Salento": {
+    "lat": 40.248604,
+    "lon": 15.190058
+  },
+  "Israel||Golan Heights": {
+    "lat": 33.0105642,
+    "lon": 35.749532
+  },
+  "France||Alsace": {
+    "lat": 48.3,
+    "lon": 7.5
+  },
+  "Italy||Piemonte / Barbera d'Asti": {
+    "lat": 44.8523638,
+    "lon": 8.241427
+  },
+  "Italy||Puglia / Primitivo di Manduria": {
+    "lat": 40.4002788,
+    "lon": 17.6374622
+  },
+  "Italy||Umbria / Montefalco": {
+    "lat": 42.8918739,
+    "lon": 12.6500673
+  },
+  "Italy||Sicilia": {
+    "lat": 37.587794,
+    "lon": 14.155048
+  },
+  "Italy||Toscana": {
+    "lat": 43.4586541,
+    "lon": 11.1389204
+  },
+  "Italy||Abruzzo / Montepulciano d'Abruzzo": {
+    "lat": 42.1560816,
+    "lon": 14.606773
+  },
+  "Italy||Veneto": {
+    "lat": 45.6476663,
+    "lon": 11.8665254
+  },
+  "France||Bourgogne / Chablis": {
+    "lat": 47.8152073,
+    "lon": 3.8001657
+  },
+  "Israel||Galilee": {
+    "lat": 32.8008444,
+    "lon": 35.5889732
+  },
+  "Israel||Samaria": {
+    "lat": 32.1027591,
+    "lon": 34.9891057
+  },
+  "Spain||Rioja / Rioja Alavesa": {
+    "lat": 42.544151,
+    "lon": -2.5454224
+  },
+  "USA||California": {
+    "lat": 36.7014631,
+    "lon": -118.755997
+  },
+  "Israel||Samson": {
+    "lat": 31.9261814,
+    "lon": 34.8640878
+  },
+  "Spain||Penedès": {
+    "lat": 41.3463825,
+    "lon": 1.6995213
+  },
+  "Italy||Puglia / Salice Salentino": {
+    "lat": 40.3856618,
+    "lon": 17.9637483
+  },
+  "Israel||Galilee / Upper Galilee": {
+    "lat": 33.1944091,
+    "lon": 35.5681667
+  }
+}

@@ -23,6 +23,7 @@ async function backup() {
   }
 
   const { readData } = require('../dataStore');
+  const { readCoordinates } = require('../geocoding');
   const { close } = require('../db');
 
   const atlasDir = path.join(BACKUP_DIR, 'atlas');
@@ -31,6 +32,9 @@ async function backup() {
     const data = await readData(category);
     fs.writeFileSync(path.join(atlasDir, `${category}.json`), JSON.stringify(data, null, 2));
   }
+  // Derived, but not free to regenerate: rebuilding it means re-geocoding every region
+  // against a rate-limited public API, and a bad row is how a marker ends up in Chile.
+  fs.writeFileSync(path.join(atlasDir, 'regionCoordinates.json'), JSON.stringify(await readCoordinates(), null, 2));
   await close();
 
   if (process.env.CLOUDINARY_URL) {
