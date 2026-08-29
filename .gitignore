@@ -151,3 +151,6 @@ vite.config.ts.timestamp-*
 # TokenSave MCP local cache
 .tokensave/
 subregion-proposals.csv
+
+# Safety dumps written by server/scripts/backfill-region-coordinates.js
+region-coordinates-backup-*.json
