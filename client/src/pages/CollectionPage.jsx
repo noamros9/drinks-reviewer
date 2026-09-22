@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
 import AutocompleteInput from '../components/AutocompleteInput';
-import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, buildDropdownOptions } from '../utils/filterHelpers';
+import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, buildDropdownOptions, CATEGORIES } from '../utils/filterHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
 import { rowsToCsv, downloadCsv } from '../utils/csvExport';
 import { buildSpendSummary } from '../utils/analyticsHelpers';
@@ -12,7 +12,6 @@ import '../components/BulkEditBar.css';
 import './CollectionPage.css';
 
 const STORAGE_KEY = 'drinks_columns_collection';
-const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 const FILTERS = ['all', ...CATEGORIES];
 const FILTERABLE = new Set([PRODUCER_FIELD.all, ...DROPDOWN_CONFIGS.all.filter(c => !c.varietyGroups).map(c => c.key)]);
 const TAGS_CONFIG = DROPDOWN_CONFIGS.all.find(c => c.key === 'tags');

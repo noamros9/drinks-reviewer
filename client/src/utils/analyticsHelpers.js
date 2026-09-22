@@ -1,5 +1,5 @@
 import { parse, isValid, format } from 'date-fns';
-import { OLD_WORLD, NEW_WORLD, PRODUCER_FIELD } from './filterHelpers';
+import { OLD_WORLD, NEW_WORLD, PRODUCER_FIELD, CATEGORIES } from './filterHelpers';
 
 export const RATING_BUCKETS = Array.from({ length: 9 }, (_, i) => ({ min: i + 1, max: i + 2 }));
 
@@ -53,7 +53,7 @@ export function buildRatingTrend(drinks) {
     .map(([month, { sum, count }]) => ({ month, avgRating: Math.round((sum / count) * 100) / 100, count }));
 }
 
-const COMPARISON_CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
+const COMPARISON_CATEGORIES = CATEGORIES;
 
 function categoryComparison(drinks, getValue, valueKey) {
   return COMPARISON_CATEGORIES.map(category => {
