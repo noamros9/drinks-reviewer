@@ -25,7 +25,7 @@ Source: `/improve-codebase-architecture` run on 2026-09-22 over the recent hot s
 
 | # | Ticket | Tier | Blocked by | Branch | Status |
 |---|---|---|---|---|---|
-| 0 | Land this plan | — | — | `docs/architecture-deepening-plan` | in-progress |
+| 0 | Land this plan | — | — | `docs/architecture-deepening-plan` | done (PR #113) |
 | 1 | Server price/rating drift fix + parity test | live bug (not visible) | 0 | `fix/server-metrics-parity` | todo |
 | 2 | `mutateDrink` helper in routes/drinks | refactor | 0 | `refactor/mutate-drink` | todo |
 | 3 | Atomic add-to-cellar + drank-it decrement on the server | refactor | 2 | `refactor/atomic-cellar-flows` | todo |
