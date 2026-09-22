@@ -29,7 +29,7 @@ Source: `/improve-codebase-architecture` run on 2026-09-22 over the recent hot s
 | 1 | Server price/rating drift fix + parity test | live bug (not visible) | 0 | `fix/server-metrics-parity` | done (PR #114) |
 | 2 | `mutateDrink` helper in routes/drinks | refactor | 0 | `refactor/mutate-drink` | done (PR #115) |
 | 3 | Atomic add-to-cellar + drank-it decrement on the server | refactor | 2 | `refactor/atomic-cellar-flows` | done (PR #116) |
-| 4 | `shared/drink-schema.json` | refactor | 0 | `refactor/shared-drink-schema` | todo |
+| 4 | `shared/drink-schema.json` | refactor | 0 | `refactor/shared-drink-schema` | done (PR #117) |
 | 5 | `useColumnLayout` + `useFilteredDrinks` hooks | refactor | 0 | `refactor/listing-hooks` | todo |
 
 Per ticket: branch → `/tdd` from **Test first** → `npm run test:coverage` + `npm run test:coverage:server` → PR that flips the row to `done (PR #N)`.
