@@ -1,10 +1,12 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import DrinkTable, { COLUMNS, resolveColumnOrder, sortDrinks } from '../components/DrinkTable';
+import DrinkTable, { COLUMNS, sortDrinks } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
-import { buildInitialFilters, matchesFilters, applyUrlRangeOverrides, applyUrlDropdownOverrides, PRODUCER_FIELD, DROPDOWN_CONFIGS, CATEGORIES } from '../utils/filterHelpers';
+import { buildInitialFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, CATEGORIES } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
+import { useFilteredDrinks, filtersFromUrl } from '../hooks/useFilteredDrinks';
+import { useColumnLayout } from '../hooks/useColumnLayout';
 import { rowsToCsv, downloadCsv } from '../utils/csvExport';
 
 const FILTERS = ['all', ...CATEGORIES];
@@ -15,20 +17,6 @@ const PRESETS = [
   { label: 'Top rated', key: 'weightedRating', dir: 'desc' },
   { label: 'Recently tasted', key: 'lastTasted', dir: 'desc' },
 ];
-
-function loadLayout() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const { order, hidden } = JSON.parse(raw);
-    return { order: resolveColumnOrder(order, COLUMNS['all']), hidden: new Set(hidden) };
-  } catch { return null; }
-}
-
-function saveLayout(layout) {
-  if (!layout) { localStorage.removeItem(STORAGE_KEY); return; }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ order: layout.order, hidden: [...layout.hidden] }));
-}
 
 function normalize(entries, category) {
   if (!Array.isArray(entries)) return [];
@@ -44,14 +32,20 @@ export default function AllDrinksPage() {
   const [drinks, setDrinks] = useState([]);
   const [filter, setFilter] = useState('all');
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeFilters, setActiveFilters] = useState(() =>
-    applyUrlDropdownOverrides(applyUrlRangeOverrides(buildInitialFilters('all'), searchParams, 'all'), searchParams, 'all')
-  );
-  const [columnLayout, setColumnLayout] = useState(() => loadLayout());
+  const [columnLayout, setColumnLayout] = useColumnLayout(STORAGE_KEY, COLUMNS.all);
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
   const searchQuery = (searchParams.get('q') || '').toLowerCase().trim();
   const navigate = useNavigate();
+
+  const categoryFiltered = useMemo(() => {
+    const scoped = filter === 'all' ? drinks : drinks.filter(d => d._category.toLowerCase() === filter);
+    const weights = buildWeightedRatings(scoped);
+    return scoped.map(d => ({ ...d, weightedRating: weights.get(d.id) ?? null }));
+  }, [drinks, filter]);
+
+  const { activeFilters, setActiveFilters, visible: filterMatched, handleCellClick } =
+    useFilteredDrinks(categoryFiltered, 'all', filtersFromUrl('all', searchParams));
 
   const handleSort = (key) => {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
@@ -77,30 +71,8 @@ export default function AllDrinksPage() {
     navigate('/admin', { state: { category: drink._category.toLowerCase(), drink, tab: 'review' } });
   };
 
-  const handleColumnLayoutChange = (next) => {
-    setColumnLayout(next);
-    saveLayout(next);
-  };
-
-  const categoryFiltered = useMemo(() => {
-    const scoped = filter === 'all' ? drinks : drinks.filter(d => d._category.toLowerCase() === filter);
-    const weights = buildWeightedRatings(scoped);
-    return scoped.map(d => ({ ...d, weightedRating: weights.get(d.id) ?? null }));
-  }, [drinks, filter]);
-
-  const searchIds = useSearchResults(CATEGORIES, activeFilters.producerSearch);
-  const searchScoped = searchIds == null ? categoryFiltered : categoryFiltered.filter(d => searchIds.has(d.id));
-  const filterMatched = searchScoped.filter(d => matchesFilters(d, activeFilters, 'all'));
   const qIds = useSearchResults(CATEGORIES, searchQuery);
   const visible = qIds == null ? filterMatched : filterMatched.filter(d => qIds.has(d.id));
-
-  const handleCellClick = (colKey, value) => {
-    setActiveFilters(prev =>
-      colKey === PRODUCER_FIELD.all
-        ? { ...prev, producerSearch: value }
-        : { ...prev, [colKey]: new Set([...prev[colKey], value]) }
-    );
-  };
 
   const handleExportCsv = () => {
     const rows = sortDrinks(visible, sortKey, sortDir);
@@ -149,7 +121,7 @@ export default function AllDrinksPage() {
         activeFilters={activeFilters}
         onChange={setActiveFilters}
         columnLayout={columnLayout}
-        onColumnLayoutChange={handleColumnLayoutChange}
+        onColumnLayoutChange={setColumnLayout}
       />
 
       {searchQuery && (
@@ -165,7 +137,7 @@ export default function AllDrinksPage() {
         drinks={visible}
         onEdit={handleEdit}
         columnLayout={columnLayout}
-        onColumnLayoutChange={handleColumnLayoutChange}
+        onColumnLayoutChange={setColumnLayout}
         filterableCols={FILTERABLE_ALL}
         onCellClick={handleCellClick}
         sortKey={sortKey}

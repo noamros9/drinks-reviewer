@@ -1,13 +1,14 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import DrinkTable, { COLUMNS, resolveColumnOrder, sortDrinks } from '../components/DrinkTable';
+import DrinkTable, { COLUMNS, sortDrinks } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
 import BulkEditBar from '../components/BulkEditBar';
 import CompareBar from '../components/CompareBar';
 import RecommendBar from '../components/RecommendBar';
-import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, applyUrlRangeOverrides, applyUrlDropdownOverrides, applyUrlProducerOverride } from '../utils/filterHelpers';
+import { PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
-import { useSearchResults } from '../hooks/useSearchResults';
+import { useFilteredDrinks, filtersFromUrl } from '../hooks/useFilteredDrinks';
+import { useColumnLayout } from '../hooks/useColumnLayout';
 import { rowsToCsv, downloadCsv } from '../utils/csvExport';
 
 const TITLES = { wine: 'Wine', beer: 'Beer', whiskey: 'Whiskey', others: 'Others' };
@@ -19,25 +20,16 @@ const PRESETS = [
 
 function storageKey(category) { return `drinks_columns_v3_${category}`; }
 
-function loadLayout(category) {
-  try {
-    const raw = localStorage.getItem(storageKey(category));
-    if (!raw) return null;
-    const { order, hidden } = JSON.parse(raw);
-    return { order: resolveColumnOrder(order, COLUMNS[category] || []), hidden: new Set(hidden) };
-  } catch { return null; }
-}
-
-function saveLayout(category, layout) {
-  if (!layout) { localStorage.removeItem(storageKey(category)); return; }
-  localStorage.setItem(storageKey(category), JSON.stringify({ order: layout.order, hidden: [...layout.hidden] }));
-}
-
 export default function CategoryPage({ category }) {
   const [drinks, setDrinks] = useState([]);
   const [searchParams] = useSearchParams();
-  const [activeFilters, setActiveFilters] = useState(() => applyUrlProducerOverride(applyUrlDropdownOverrides(applyUrlRangeOverrides(buildInitialFilters(category), searchParams, category), searchParams, category), searchParams));
-  const [columnLayout, setColumnLayout] = useState(() => loadLayout(category));
+  const drinksWithScore = useMemo(() => {
+    const weights = buildWeightedRatings(drinks);
+    return drinks.map(d => ({ ...d, weightedRating: weights.get(d.id) ?? null }));
+  }, [drinks]);
+  const { activeFilters, setActiveFilters, visible: filtered, handleCellClick } =
+    useFilteredDrinks(drinksWithScore, category, filtersFromUrl(category, searchParams));
+  const [columnLayout, setColumnLayout] = useColumnLayout(storageKey(category), COLUMNS[category]);
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -49,8 +41,7 @@ export default function CategoryPage({ category }) {
   };
 
   useEffect(() => {
-    setActiveFilters(applyUrlProducerOverride(applyUrlDropdownOverrides(applyUrlRangeOverrides(buildInitialFilters(category), searchParams, category), searchParams, category), searchParams));
-    setColumnLayout(loadLayout(category));
+    setActiveFilters(filtersFromUrl(category, searchParams));
     setSelectedIds(new Set());
     fetch(`/api/${category}`)
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
@@ -80,33 +71,10 @@ export default function CategoryPage({ category }) {
     setSelectedIds(new Set());
   };
 
-  const handleColumnLayoutChange = (next) => {
-    setColumnLayout(next);
-    saveLayout(category, next);
-  };
-
-  const drinksWithScore = useMemo(() => {
-    const weights = buildWeightedRatings(drinks);
-    return drinks.map(d => ({ ...d, weightedRating: weights.get(d.id) ?? null }));
-  }, [drinks]);
-
-  const searchIds = useSearchResults(category, activeFilters.producerSearch);
-  const searchScoped = searchIds == null ? drinksWithScore : drinksWithScore.filter(d => searchIds.has(d.id));
-  const filtered = searchScoped.filter(d => matchesFilters(d, activeFilters, category));
-
   const filterableCols = useMemo(() => new Set([
     PRODUCER_FIELD[category],
     ...DROPDOWN_CONFIGS[category].map(c => c.key),
   ]), [category]);
-
-  const handleCellClick = (colKey, value) => {
-    const producerCol = PRODUCER_FIELD[category];
-    setActiveFilters(prev =>
-      colKey === producerCol
-        ? { ...prev, producerSearch: value }
-        : { ...prev, [colKey]: new Set([...prev[colKey], value]) }
-    );
-  };
 
   const handleEdit = (drink) => {
     navigate('/admin', { state: { category, drink, tab: 'review' } });
@@ -153,7 +121,7 @@ export default function CategoryPage({ category }) {
         activeFilters={activeFilters}
         onChange={setActiveFilters}
         columnLayout={columnLayout}
-        onColumnLayoutChange={handleColumnLayoutChange}
+        onColumnLayoutChange={setColumnLayout}
       />
       {selectedIds.size > 0 && (
         <BulkEditBar
@@ -183,7 +151,7 @@ export default function CategoryPage({ category }) {
         drinks={filtered}
         onEdit={handleEdit}
         columnLayout={columnLayout}
-        onColumnLayoutChange={handleColumnLayoutChange}
+        onColumnLayoutChange={setColumnLayout}
         filterableCols={filterableCols}
         onCellClick={handleCellClick}
         sortKey={sortKey}

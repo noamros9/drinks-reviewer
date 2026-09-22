@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DrinkTable, { COLUMNS, resolveColumnOrder } from '../components/DrinkTable';
+import DrinkTable, { COLUMNS } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
 import AutocompleteInput from '../components/AutocompleteInput';
-import { buildInitialFilters, matchesFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, buildDropdownOptions, CATEGORIES } from '../utils/filterHelpers';
-import { useSearchResults } from '../hooks/useSearchResults';
+import { buildInitialFilters, PRODUCER_FIELD, DROPDOWN_CONFIGS, buildDropdownOptions, CATEGORIES } from '../utils/filterHelpers';
+import { useFilteredDrinks } from '../hooks/useFilteredDrinks';
+import { useColumnLayout } from '../hooks/useColumnLayout';
 import { rowsToCsv, downloadCsv } from '../utils/csvExport';
 import { buildSpendSummary } from '../utils/analyticsHelpers';
 import SpendSummary from './analytics/SpendSummary';
@@ -69,20 +70,6 @@ function CollectionBulkEditBar({ drinks, selectedIds, onApplied, onCancel }) {
   );
 }
 
-function loadLayout() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const { order, hidden } = JSON.parse(raw);
-    return { order: resolveColumnOrder(order, COLUMNS['collection']), hidden: new Set(hidden) };
-  } catch { return null; }
-}
-
-function saveLayout(layout) {
-  if (!layout) { localStorage.removeItem(STORAGE_KEY); return; }
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({ order: layout.order, hidden: [...layout.hidden] }));
-}
-
 function normalize(entry) {
   return {
     ...entry,
@@ -132,12 +119,15 @@ export default function CollectionPage() {
   const [pick, setPick] = useState(null);
   const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
-  const [activeFilters, setActiveFilters] = useState(() => buildInitialFilters('all'));
-  const [columnLayout, setColumnLayout] = useState(() => loadLayout());
+  const [columnLayout, setColumnLayout] = useColumnLayout(STORAGE_KEY, COLUMNS.collection);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [pendingStockIds, setPendingStockIds] = useState(new Set());
 
   useEffect(() => { fetchCollection(setDrinks); }, []);
+
+  const categoryFiltered = filter === 'all' ? drinks : drinks.filter(d => d._category.toLowerCase() === filter);
+  const { activeFilters, setActiveFilters, visible, handleCellClick } =
+    useFilteredDrinks(categoryFiltered, 'all', buildInitialFilters('all'));
 
   const handleToggleRow = (id) => {
     setSelectedIds(prev => {
@@ -198,24 +188,7 @@ export default function CollectionPage() {
     navigate('/admin', { state: { category: drink._category.toLowerCase(), drink, tab: 'collection' } });
   };
 
-  const handleColumnLayoutChange = (next) => {
-    setColumnLayout(next);
-    saveLayout(next);
-  };
-
-  const categoryFiltered = filter === 'all' ? drinks : drinks.filter(d => d._category.toLowerCase() === filter);
-  const searchIds = useSearchResults(CATEGORIES, activeFilters.producerSearch);
-  const searchScoped = searchIds == null ? categoryFiltered : categoryFiltered.filter(d => searchIds.has(d.id));
-  const visible = searchScoped.filter(d => matchesFilters(d, activeFilters, 'all'));
   const spendSummary = buildSpendSummary(visible);
-
-  const handleCellClick = (colKey, value) => {
-    setActiveFilters(prev =>
-      colKey === PRODUCER_FIELD.all
-        ? { ...prev, producerSearch: value }
-        : { ...prev, [colKey]: new Set([...prev[colKey], value]) }
-    );
-  };
 
   const handleExportCsv = () => {
     downloadCsv('cellar.csv', rowsToCsv(visible, COLUMNS.collection));
@@ -270,7 +243,7 @@ export default function CollectionPage() {
         activeFilters={activeFilters}
         onChange={setActiveFilters}
         columnLayout={columnLayout}
-        onColumnLayoutChange={handleColumnLayoutChange}
+        onColumnLayoutChange={setColumnLayout}
       />
 
       {selectedIds.size > 0 && (
@@ -302,7 +275,7 @@ export default function CollectionPage() {
         renderRowExtra={renderRowExtra}
         onEdit={handleEdit}
         columnLayout={columnLayout}
-        onColumnLayoutChange={handleColumnLayoutChange}
+        onColumnLayoutChange={setColumnLayout}
         filterableCols={FILTERABLE}
         onCellClick={handleCellClick}
         selectedIds={selectedIds}
