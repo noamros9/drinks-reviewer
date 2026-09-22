@@ -1,11 +1,8 @@
 const { readData } = require('./dataStore');
 
-const NAME_FIELDS = {
-  wine: ['producer', 'seriesAndName'],
-  beer: ['brewery', 'name'],
-  whiskey: ['distillery', 'name'],
-  others: ['distillery', 'name'],
-};
+const schema = require('../shared/drink-schema.json');
+
+const NAME_FIELDS = Object.fromEntries(schema.categories.map(c => [c, [schema.producerKey[c], schema.nameKey[c]]]));
 
 function curateDrink(drink, category) {
   const [producerKey, nameKey] = NAME_FIELDS[category];

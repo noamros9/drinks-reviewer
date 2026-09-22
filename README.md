@@ -18,9 +18,12 @@ flowchart LR
   subgraph client["client/src (Vite, :5173)"]
     pages["pages/<br/>Home · All · Category · Cellar · Admin<br/>Analytics · Compare · Recommend · Taste card · Generate list"]
     publicPages["pages/<br/>Catalog · Share"]
-    utils["utils/<br/>filterHelpers · analyticsHelpers · csvExport"]
+    utils["utils/<br/>filterHelpers · analyticsHelpers · drinkFields · csvExport"]
     pages --> utils
   end
+
+  schema[["shared/drink-schema.json<br/>categories · fields · producer/name keys"]]
+  utils --> schema
 
   subgraph server["server (Express, :3001)"]
     auth["auth.js<br/>/auth/*"]
@@ -37,6 +40,9 @@ flowchart LR
     public --> store
   end
 
+  drinks --> schema
+  recommend --> schema
+
   pages -- "/api (requires login)" --> drinks
   pages --> auth
   publicPages --> public
@@ -48,7 +54,7 @@ flowchart LR
   geocoding --> osm(["OpenStreetMap geocoding"])
 ```
 
-`utils/analyticsHelpers.js` and `server/metrics.js` hold the same price/rating math in ESM and CommonJS; `client/src/__tests__/metricsParity.test.js` keeps them in step.
+`shared/drink-schema.json` is the one definition of categories, per-category fields, producer/name keys and the region separator; client and server both import it. `utils/analyticsHelpers.js` and `server/metrics.js` hold the same price/rating math in ESM and CommonJS; `client/src/__tests__/metricsParity.test.js` keeps them in step.
 
 ## Getting Started
 

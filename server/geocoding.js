@@ -1,4 +1,5 @@
 const db = require('./db');
+const { regionSeparator } = require('../shared/drink-schema.json');
 
 const USER_AGENT = 'drinks-reviewer/1.0 (personal project; https://github.com/noamros9/drinks-reviewer)';
 
@@ -38,9 +39,9 @@ const REGION_QUERY_ALIASES = {
 };
 
 // Nominatim wants a place name, not a path: the cache key keeps the full hierarchy but the
-// search uses the most specific segment. Mirrors REGION_SEP in client/src/utils/filterHelpers.js.
+// search uses the most specific segment.
 async function geocodeRegion(country, region) {
-  const leaf = region.split(' / ').pop();
+  const leaf = region.split(regionSeparator).pop();
   const query = encodeURIComponent(`${REGION_QUERY_ALIASES[leaf] ?? leaf}, ${country}`);
   const res = await fetch(
     `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&addressdetails=1`,

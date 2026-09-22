@@ -1,14 +1,13 @@
 const { readData } = require('./dataStore');
 const { avgOf, buildWeightedRatings, avgLotPrice } = require('./metrics');
 
-const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
+const schema = require('../shared/drink-schema.json');
 
-const SIMILARITY_FIELDS = {
-  wine: ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'tags'],
-  beer: ['brewery', 'name', 'style', 'country', 'abv', 'tags'],
-  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'tags'],
-  others: ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags'],
-};
+const { categories: CATEGORIES, regionSeparator: REGION_SEP } = schema;
+
+const SIMILARITY_FIELDS = Object.fromEntries(
+  CATEGORIES.map(c => [c, schema.fields[c].filter(f => !schema.notForSimilarity.includes(f))])
+);
 
 class RecommendError extends Error {
   constructor(message, status) {
@@ -49,7 +48,7 @@ function fieldScore(field, seedVal, candVal) {
   // hierarchy two wines share, so siblings under one parent stay similar instead of
   // dropping to 0. Two flat regions still yield exactly 1 or 0, as before.
   if (field === 'region') {
-    const a = seedVal.split(' / '), b = candVal.split(' / ');
+    const a = seedVal.split(REGION_SEP), b = candVal.split(REGION_SEP);
     let shared = 0;
     while (shared < a.length && shared < b.length && a[shared] === b[shared]) shared++;
     return shared / Math.max(a.length, b.length);

@@ -2,12 +2,11 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DrinkTable, { COLUMNS, resolveColumnOrder, sortDrinks } from '../components/DrinkTable';
 import FilterBar from '../components/FilterBar';
-import { buildInitialFilters, matchesFilters, applyUrlRangeOverrides, applyUrlDropdownOverrides, PRODUCER_FIELD, DROPDOWN_CONFIGS } from '../utils/filterHelpers';
+import { buildInitialFilters, matchesFilters, applyUrlRangeOverrides, applyUrlDropdownOverrides, PRODUCER_FIELD, DROPDOWN_CONFIGS, CATEGORIES } from '../utils/filterHelpers';
 import { buildWeightedRatings } from '../utils/analyticsHelpers';
 import { useSearchResults } from '../hooks/useSearchResults';
 import { rowsToCsv, downloadCsv } from '../utils/csvExport';
 
-const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 const FILTERS = ['all', ...CATEGORIES];
 const STORAGE_KEY = 'drinks_columns_all';
 const FILTERABLE_ALL = new Set([PRODUCER_FIELD.all, ...DROPDOWN_CONFIGS.all.filter(c => !c.varietyGroups).map(c => c.key)]);

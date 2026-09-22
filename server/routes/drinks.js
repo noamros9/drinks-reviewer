@@ -9,6 +9,7 @@ const { getRecommendations, getTasteCard, getGeneratedList } = require('../recom
 const { uploadImage, deleteImage } = require('../cloudinary');
 const { getSettings, setCatalogPublic } = require('../settings');
 const { NAME_FIELDS } = require('../publicFields');
+const schema = require('../../shared/drink-schema.json');
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -21,25 +22,12 @@ function toDataUri(file) {
 }
 
 const router = express.Router();
-const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
-
-const ALLOWED_FIELDS = {
-  wine:    ['producer', 'seriesAndName', 'wineCategory', 'variety', 'sweetness', 'country', 'region', 'abv', 'vivinoScore', 'tags'],
-  beer:    ['brewery', 'name', 'style', 'country', 'abv', 'tags'],
-  whiskey: ['distillery', 'name', 'country', 'region', 'age', 'style', 'abv', 'tags'],
-  others:  ['drinkCategory', 'distillery', 'name', 'country', 'style', 'age', 'abv', 'tags'],
-};
-
+const CATEGORIES = schema.categories;
+const ALLOWED_FIELDS = schema.fields;
 // Fields a shared "bulk edit" action may overwrite across many entries at once
-const BULK_EDITABLE_FIELDS = {
-  wine:    ['wineCategory', 'sweetness', 'country', 'variety', 'region', 'tags'],
-  beer:    ['style', 'country', 'tags'],
-  whiskey: ['style', 'country', 'region', 'tags'],
-  others:  ['drinkCategory', 'style', 'country', 'tags'],
-};
-
+const BULK_EDITABLE_FIELDS = schema.bulkEditable;
 // Fields stored as string[] rather than a scalar string
-const ARRAY_FIELD_KEYS = new Set(['tags', 'variety']);
+const ARRAY_FIELD_KEYS = new Set(schema.arrayFields);
 
 const titleCase = str => str.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 

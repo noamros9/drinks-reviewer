@@ -1,8 +1,11 @@
 import WINE_REGIONS from '../data/wine-regions.json';
+import schema from '../../../shared/drink-schema.json';
+
+export const CATEGORIES = schema.categories;
 
 // Regions are stored as a single delimited path ("Loire Valley / Sancerre") rather than
 // separate fields, so the hierarchy is derived by splitting and works at any depth.
-export const REGION_SEP = ' / ';
+export const REGION_SEP = schema.regionSeparator;
 export const regionLeaf = r => (r || '').split(REGION_SEP).pop();
 
 // "A / B / C" -> ["A", "A / B", "A / B / C"]
@@ -38,20 +41,10 @@ export const NEW_WORLD = [
   'India', 'Peru', 'Zimbabwe',
 ];
 
-export const PRODUCER_FIELD = {
-  wine:    'producer',
-  beer:    'brewery',
-  whiskey: 'distillery',
-  others:  'distillery',
-  all:     '_producer',
-};
+// `all` is the All Drinks page's normalized producer column
+export const PRODUCER_FIELD = { ...schema.producerKey, all: '_producer' };
 
-export const NAME_FIELD = {
-  wine:    'seriesAndName',
-  beer:    'name',
-  whiskey: 'name',
-  others:  'name',
-};
+export const NAME_FIELD = schema.nameKey;
 
 export function findDuplicate(drinks, category, producerVal, nameVal, excludeId) {
   const p = (producerVal || '').trim().toLowerCase();

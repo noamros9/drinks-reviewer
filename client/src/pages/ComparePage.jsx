@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { FIELDS } from './AdminPage';
+import { FIELDS } from '../utils/drinkFields';
 import { buildWeightedRatings, avgLotPrice, drinkLabel } from '../utils/analyticsHelpers';
 import './ComparePage.css';
 

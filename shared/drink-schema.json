@@ -1,0 +1,20 @@
+{
+  "categories": ["wine", "beer", "whiskey", "others"],
+  "fields": {
+    "wine":    ["producer", "seriesAndName", "wineCategory", "variety", "sweetness", "country", "region", "abv", "vivinoScore", "tags"],
+    "beer":    ["brewery", "name", "style", "country", "abv", "tags"],
+    "whiskey": ["distillery", "name", "country", "region", "age", "style", "abv", "tags"],
+    "others":  ["drinkCategory", "distillery", "name", "country", "style", "age", "abv", "tags"]
+  },
+  "bulkEditable": {
+    "wine":    ["wineCategory", "sweetness", "country", "variety", "region", "tags"],
+    "beer":    ["style", "country", "tags"],
+    "whiskey": ["style", "country", "region", "tags"],
+    "others":  ["drinkCategory", "style", "country", "tags"]
+  },
+  "notForSimilarity": ["vivinoScore"],
+  "producerKey": { "wine": "producer", "beer": "brewery", "whiskey": "distillery", "others": "distillery" },
+  "nameKey": { "wine": "seriesAndName", "beer": "name", "whiskey": "name", "others": "name" },
+  "arrayFields": ["tags", "variety"],
+  "regionSeparator": " / "
+}
