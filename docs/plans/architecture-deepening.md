@@ -30,7 +30,8 @@ Source: `/improve-codebase-architecture` run on 2026-09-22 over the recent hot s
 | 2 | `mutateDrink` helper in routes/drinks | refactor | 0 | `refactor/mutate-drink` | done (PR #115) |
 | 3 | Atomic add-to-cellar + drank-it decrement on the server | refactor | 2 | `refactor/atomic-cellar-flows` | done (PR #116) |
 | 4 | `shared/drink-schema.json` | refactor | 0 | `refactor/shared-drink-schema` | done (PR #117) |
-| 5 | `useColumnLayout` + `useFilteredDrinks` hooks | refactor | 0 | `refactor/listing-hooks` | todo |
+| 5 | `useColumnLayout` + `useFilteredDrinks` hooks | refactor | 0 | `refactor/listing-hooks` | done (PR #118) |
+| 6 | Hiding a table column doesn't stick in a real browser | bug (user-visible), pre-existing | — | `fix/column-hide-persistence` | todo |
 
 Per ticket: branch → `/tdd` from **Test first** → `npm run test:coverage` + `npm run test:coverage:server` → PR that flips the row to `done (PR #N)`.
 
@@ -61,6 +62,14 @@ Per ticket: branch → `/tdd` from **Test first** → `npm run test:coverage` + 
 - **Files**: new `client/src/hooks/useColumnLayout.js` replacing `loadLayout`/`saveLayout` in `CategoryPage`, `AllDrinksPage`, `CollectionPage` (same localStorage keys, try/catch around storage). New `client/src/hooks/useFilteredDrinks.js`: URL → `buildInitialFilters` → `applyUrl*` chain → `useSearchResults` → `matchesFilters` → `buildWeightedRatings`, from existing `filterHelpers.js` functions. Pages keep only their columns and presets.
 - **Test first**: hook test with `?country=France&minRating=4` asserting returned rows.
 - **Done when**: hook tests green; existing page tests pass unchanged or with structural edits only; client coverage ≥ 90%; all three pages checked in the browser (URL filter, column reorder survives reload).
+
+### 6 · Column hide doesn't persist in a real browser
+Found while verifying ticket 5, and **present on `main` before it** (checked by stashing the refactor and re-running the same script).
+- **Symptom**: in headless Chromium on `/all`, `/wine` and `/cellar`, clicking the `×` in a column header hides the column, but nothing is written to `localStorage` (`drinks_columns_*`), so a reload brings the column back. No console errors.
+- **Why it isn't caught**: in jsdom the same click *does* write — both the column-panel toggle (`AllDrinksPage.test.jsx`, "column layout change is saved to localStorage") and the header `×` (probed directly) pass.
+- **Unexplained**: a `Storage.prototype.setItem` patch injected before page load never fires on the click, yet React state updates and the column disappears. Root cause not found; do not assume the hook is at fault.
+- **Test first**: reproduce in a real browser (Playwright against the dev server on the in-memory DB), then a failing test at whatever layer the root cause turns out to be.
+- **Done when**: hide a column, reload, and it stays hidden on all three pages, with a test that fails without the fix.
 
 ## Challenge round
 
