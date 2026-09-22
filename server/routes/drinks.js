@@ -87,6 +87,20 @@ async function withLock(category, fn) {
   try { return await fn(); } finally { delete writeLocks[category]; resolve(); }
 }
 
+// Locked read-modify-write of one drink. Resolves null when no drink has that id. fn may
+// return false to mean "nothing to change" (e.g. a missing tasting/lot): the save is skipped
+// and false is passed through. Any other return value is saved and passed back to the caller.
+async function mutateDrink(category, id, fn) {
+  return withLock(category, async () => {
+    const data = await readData(category);
+    const drink = data.find(d => d.id === id);
+    if (!drink) return null;
+    const result = fn(drink);
+    if (result !== false) await writeData(category, data);
+    return result;
+  });
+}
+
 // Must be before /:category to avoid "tags"/"collection" being treated as category names
 router.get('/tags', async (_req, res) => {
   try {
@@ -224,17 +238,13 @@ router.put('/:category/:id', async (req, res) => {
   const abvErr = abvError(req.body.abv);
   if (abvErr) return res.status(400).json({ error: abvErr });
   try {
-    const updated = await withLock(category, async () => {
-      const data = await readData(category);
-      const index = data.findIndex(d => d.id === id);
-      if (index === -1) return null;
-      data[index] = { ...data[index], ...pickFields(req.body, category, true), id };
+    const updated = await mutateDrink(category, id, d => {
+      Object.assign(d, pickFields(req.body, category, true), { id });
       if ('collectionOnly' in req.body) {
-        if (req.body.collectionOnly) data[index].collectionOnly = true;
-        else delete data[index].collectionOnly;
+        if (req.body.collectionOnly) d.collectionOnly = true;
+        else delete d.collectionOnly;
       }
-      await writeData(category, data);
-      return data[index];
+      return d;
     });
     if (!updated) return res.status(404).json({ error: 'Entry not found' });
     await maybeGeocodeRegion(category, updated);
@@ -309,14 +319,10 @@ router.patch('/:category/:id/share', async (req, res) => {
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   if (typeof req.body.shared !== 'boolean') return res.status(400).json({ error: 'shared must be a boolean' });
   try {
-    const updated = await withLock(category, async () => {
-      const data = await readData(category);
-      const index = data.findIndex(d => d.id === id);
-      if (index === -1) return null;
-      if (req.body.shared) data[index].shared = true;
-      else delete data[index].shared;
-      await writeData(category, data);
-      return data[index];
+    const updated = await mutateDrink(category, id, d => {
+      if (req.body.shared) d.shared = true;
+      else delete d.shared;
+      return d;
     });
     if (!updated) return res.status(404).json({ error: 'Entry not found' });
     res.json(updated);
@@ -333,10 +339,7 @@ router.post('/:category/:id/tastings', async (req, res) => {
     return res.status(400).json({ error: 'date is required and rating must be between 1 and 10' });
   }
   try {
-    const drink = await withLock(category, async () => {
-      const data = await readData(category);
-      const d = data.find(x => x.id === id);
-      if (!d) return null;
+    const drink = await mutateDrink(category, id, d => {
       const tasting = { id: randomUUID(), date, rating: Number(rating) };
       if (vintage) tasting.vintage = vintage;
       const hadPriorTastings = (d.tastings || []).length > 0;
@@ -346,7 +349,6 @@ router.post('/:category/:id/tastings', async (req, res) => {
       d.tastings = [...(d.tastings || []), tasting];
       Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
       delete d.collectionOnly;
-      await writeData(category, data);
       return d;
     });
     if (!drink) return res.status(404).json({ error: 'Entry not found' });
@@ -360,10 +362,7 @@ router.delete('/:category/:id/tastings/:tastingId', async (req, res) => {
   const { category, id, tastingId } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
   try {
-    const drink = await withLock(category, async () => {
-      const data = await readData(category);
-      const d = data.find(x => x.id === id);
-      if (!d) return null;
+    const drink = await mutateDrink(category, id, d => {
       const before = (d.tastings || []).length;
       d.tastings = (d.tastings || []).filter(t => t.id !== tastingId);
       if (d.tastings.length === before) return false;
@@ -372,7 +371,6 @@ router.delete('/:category/:id/tastings/:tastingId', async (req, res) => {
       } else {
         Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
       }
-      await writeData(category, data);
       return d;
     });
     if (drink === null) return res.status(404).json({ error: 'Entry not found' });
@@ -391,17 +389,13 @@ router.put('/:category/:id/tastings/:tastingId', async (req, res) => {
     return res.status(400).json({ error: 'date is required and rating must be between 1 and 10' });
   }
   try {
-    const drink = await withLock(category, async () => {
-      const data = await readData(category);
-      const d = data.find(x => x.id === id);
-      if (!d) return null;
+    const drink = await mutateDrink(category, id, d => {
       const tasting = (d.tastings || []).find(t => t.id === tastingId);
       if (!tasting) return false;
       tasting.date = date;
       tasting.rating = Number(rating);
       if (category === 'wine') tasting.vintage = vintage || undefined;
       Object.assign(d, computeFromTastings(d.tastings, category === 'wine'));
-      await writeData(category, data);
       return d;
     });
     if (drink === null) return res.status(404).json({ error: 'Entry not found' });
@@ -455,13 +449,9 @@ router.post('/:category/:id/collection', async (req, res) => {
   if (!Number.isInteger(quantity) || quantity < 1) return res.status(400).json({ error: 'quantity must be a positive integer' });
   const price = req.body.price !== undefined && req.body.price !== '' ? Number(req.body.price) : null;
   try {
-    const lot = await withLock(category, async () => {
-      const data = await readData(category);
-      const drink = data.find(d => d.id === id);
-      if (!drink) return null;
+    const lot = await mutateDrink(category, id, drink => {
       const newLot = { id: randomUUID(), quantity, price, addedAt: new Date().toISOString().slice(0, 10) };
       drink.collection = [...(drink.collection || []), newLot];
-      await writeData(category, data);
       return newLot;
     });
     if (!lot) return res.status(404).json({ error: 'Entry not found' });
@@ -509,14 +499,10 @@ router.patch('/:category/:id/collection/:lotId', async (req, res) => {
   const quantity = Number(req.body.quantity);
   if (!Number.isInteger(quantity) || quantity < 0) return res.status(400).json({ error: 'quantity must be a non-negative integer' });
   try {
-    const updated = await withLock(category, async () => {
-      const data = await readData(category);
-      const drink = data.find(d => d.id === id);
-      if (!drink) return null;
+    const updated = await mutateDrink(category, id, drink => {
       const lot = (drink.collection || []).find(l => l.id === lotId);
-      if (!lot) return null;
+      if (!lot) return false;
       lot.quantity = quantity;
-      await writeData(category, data);
       return lot;
     });
     if (!updated) return res.status(404).json({ error: 'Not found' });
