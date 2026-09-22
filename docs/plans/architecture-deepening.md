@@ -28,7 +28,7 @@ Source: `/improve-codebase-architecture` run on 2026-09-22 over the recent hot s
 | 0 | Land this plan | — | — | `docs/architecture-deepening-plan` | done (PR #113) |
 | 1 | Server price/rating drift fix + parity test | live bug (not visible) | 0 | `fix/server-metrics-parity` | done (PR #114) |
 | 2 | `mutateDrink` helper in routes/drinks | refactor | 0 | `refactor/mutate-drink` | done (PR #115) |
-| 3 | Atomic add-to-cellar + drank-it decrement on the server | refactor | 2 | `refactor/atomic-cellar-flows` | todo |
+| 3 | Atomic add-to-cellar + drank-it decrement on the server | refactor | 2 | `refactor/atomic-cellar-flows` | done (PR #116) |
 | 4 | `shared/drink-schema.json` | refactor | 0 | `refactor/shared-drink-schema` | todo |
 | 5 | `useColumnLayout` + `useFilteredDrinks` hooks | refactor | 0 | `refactor/listing-hooks` | todo |
 
