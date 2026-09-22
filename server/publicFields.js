@@ -52,4 +52,4 @@ function buildShareHtml(template, drink) {
   return template.replace('</head>', `${tags}\n</head>`);
 }
 
-module.exports = { curateDrink, getPublicCatalog, getPublicDrink, buildShareHtml };
+module.exports = { NAME_FIELDS, curateDrink, getPublicCatalog, getPublicDrink, buildShareHtml };

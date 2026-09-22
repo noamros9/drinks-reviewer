@@ -89,7 +89,7 @@ test('confirming through the missing-fields prompt proceeds with adding to colle
   renderAdmin();
   fireEvent.click(screen.getByRole('button', { name: /^cellar$/i }));
   fireEvent.click(screen.getByRole('button', { name: /^add to cellar$/i }));
-  await waitFor(() => expect(postedTo('/api/wine')).toBe(true));
+  await waitFor(() => expect(postedTo('/api/wine/cellar')).toBe(true));
 });
 
 test('no confirm is shown when the collection form has Producer, Name, and Country filled', async () => {
@@ -100,6 +100,6 @@ test('no confirm is shown when the collection form has Producer, Name, and Count
   fireEvent.change(screen.getByLabelText(/^name$/i), { target: { value: 'Grand Vin' } });
   fireEvent.change(screen.getByLabelText(/^country$/i), { target: { value: 'France' } });
   fireEvent.click(screen.getByRole('button', { name: /^add to cellar$/i }));
-  await waitFor(() => expect(postedTo('/api/wine')).toBe(true));
+  await waitFor(() => expect(postedTo('/api/wine/cellar')).toBe(true));
   expect(window.confirm).not.toHaveBeenCalled();
 });

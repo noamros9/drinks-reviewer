@@ -8,6 +8,7 @@ const { searchCategory } = require('../search');
 const { getRecommendations, getTasteCard, getGeneratedList } = require('../recommend');
 const { uploadImage, deleteImage } = require('../cloudinary');
 const { getSettings, setCatalogPublic } = require('../settings');
+const { NAME_FIELDS } = require('../publicFields');
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -296,6 +297,41 @@ router.patch('/:category/bulk', async (req, res) => {
   }
 });
 
+// Cellar quick-add: find the drink by producer + name (trimmed, case-insensitive; a blank
+// never matches) or create a cellar-only one, and add the lot — all under one lock, so a
+// failed lot can't leave a lot-less drink behind. Vintage lives on the lot/tasting, so a
+// bottle you already reviewed is the same drink, not a twin.
+router.post('/:category/cellar', async (req, res) => {
+  const { category } = req.params;
+  if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
+  const quantity = Number(req.body.quantity);
+  if (!Number.isInteger(quantity) || quantity < 1) return res.status(400).json({ error: 'quantity must be a positive integer' });
+  const abvErr = abvError(req.body.abv);
+  if (abvErr) return res.status(400).json({ error: abvErr });
+  const price = req.body.price !== undefined && req.body.price !== '' ? Number(req.body.price) : null;
+  const [producerKey, nameKey] = NAME_FIELDS[category];
+  const key = v => (typeof v === 'string' ? v.trim().toLowerCase() : '');
+  const producer = key(req.body.producer);
+  const name = key(req.body.name);
+  try {
+    const drink = await withLock(category, async () => {
+      const data = await readData(category);
+      let d = producer && name && data.find(x => key(x[producerKey]) === producer && key(x[nameKey]) === name);
+      if (!d) {
+        const { producer: p, name: n, country, abv, tags } = req.body;
+        d = { id: randomUUID(), ...pickFields({ [producerKey]: p, [nameKey]: n, country, abv, tags }, category), collectionOnly: true };
+        data.push(d);
+      }
+      d.collection = [...(d.collection || []), { id: randomUUID(), quantity, price, addedAt: new Date().toISOString().slice(0, 10) }];
+      await writeData(category, data);
+      return d;
+    });
+    res.status(201).json(drink);
+  } catch {
+    res.status(500).json({ error: 'Data unavailable' });
+  }
+});
+
 router.delete('/:category/:id', async (req, res) => {
   const { category, id } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
@@ -334,12 +370,15 @@ router.patch('/:category/:id/share', async (req, res) => {
 router.post('/:category/:id/tastings', async (req, res) => {
   const { category, id } = req.params;
   if (!CATEGORIES.includes(category)) return res.status(404).json({ error: 'Unknown category' });
-  const { date, rating, vintage } = req.body;
+  const { date, rating, vintage, decrementLotId } = req.body;
   if (!date || rating == null || isNaN(Number(rating)) || Number(rating) < 1 || Number(rating) > 10) {
     return res.status(400).json({ error: 'date is required and rating must be between 1 and 10' });
   }
   try {
     const drink = await mutateDrink(category, id, d => {
+      // "Drank it" from the cellar: take the bottle in the same write as the tasting
+      const lot = decrementLotId && (d.collection || []).find(l => l.id === decrementLotId);
+      if (lot && lot.quantity > 0) lot.quantity -= 1;
       const tasting = { id: randomUUID(), date, rating: Number(rating) };
       if (vintage) tasting.vintage = vintage;
       const hadPriorTastings = (d.tastings || []).length > 0;

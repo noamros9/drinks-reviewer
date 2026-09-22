@@ -22,7 +22,6 @@ function mockFetch(overrides = {}) {
     if (overrides[url]) return Promise.resolve(overrides[url]);
     if (opts?.method === 'POST') {
       if (/\/collection\/image$/.test(url)) return Promise.resolve({ ok: true, json: () => Promise.resolve({}) });
-      if (/\/collection$/.test(url)) return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'lot1' }) });
       return Promise.resolve({ ok: true, json: () => Promise.resolve({ id: 'new-drink' }) });
     }
     return Promise.resolve({ ok: true, json: () => Promise.resolve([]) });
@@ -51,28 +50,17 @@ test('shows producer, name, country, ABV, quantity, price fields', () => {
   expect(screen.getByLabelText(/^price$/i)).toBeInTheDocument();
 });
 
-test('submit POSTs drink with collectionOnly: true', async () => {
+// Finding the existing drink vs creating a cellar-only one happens server-side
+// (server/__tests__/cellarFlows.test.js); the page sends one request.
+test('submit POSTs the bottle and its lot to the cellar endpoint in one call', async () => {
   renderCollectionTab();
   fireEvent.change(screen.getByLabelText(/^producer$/i), { target: { value: 'Château X' } });
   fireEvent.change(screen.getByLabelText(/^name$/i), { target: { value: 'Reserve' } });
   fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
-  await waitFor(() => {
-    expect(global.fetch).toHaveBeenCalledWith(
-      '/api/wine',
-      expect.objectContaining({ method: 'POST', body: expect.stringContaining('"collectionOnly":true') })
-    );
-  });
-});
-
-test('submit then POSTs a lot to the new drink id', async () => {
-  renderCollectionTab();
-  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
-  await waitFor(() => {
-    expect(global.fetch).toHaveBeenCalledWith(
-      '/api/wine/new-drink/collection',
-      expect.objectContaining({ method: 'POST' })
-    );
-  });
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/wine/cellar', expect.objectContaining({ method: 'POST' })));
+  const body = JSON.parse(global.fetch.mock.calls.find(([url]) => url === '/api/wine/cellar')[1].body);
+  expect(body).toMatchObject({ producer: 'Château X', name: 'Reserve', quantity: 1 });
+  expect(global.fetch.mock.calls.filter(([, o]) => o?.method === 'POST')).toHaveLength(1);
 });
 
 test('navigates to collection after submit', async () => {
@@ -88,10 +76,7 @@ test('"Add another Collection" submits without navigating and resets the form', 
   fireEvent.change(screen.getByLabelText(/^producer$/i), { target: { value: 'Château X' } });
   fireEvent.click(screen.getByRole('button', { name: /^add another$/i }));
   await waitFor(() => {
-    expect(global.fetch).toHaveBeenCalledWith(
-      '/api/wine',
-      expect.objectContaining({ method: 'POST', body: expect.stringContaining('"collectionOnly":true') })
-    );
+    expect(global.fetch).toHaveBeenCalledWith('/api/wine/cellar', expect.objectContaining({ method: 'POST' }));
   });
   expect(mockNavigate).not.toHaveBeenCalled();
   expect(screen.getByLabelText(/^producer$/i)).toHaveValue('');
@@ -103,7 +88,7 @@ test('switching category changes the POST endpoint', async () => {
   fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
-      '/api/beer',
+      '/api/beer/cellar',
       expect.objectContaining({ method: 'POST' })
     );
   });
@@ -115,14 +100,14 @@ test('includes price in lot body when price is filled', async () => {
   fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
-      '/api/wine/new-drink/collection',
+      '/api/wine/cellar',
       expect.objectContaining({ body: expect.stringContaining('"price":45.5') })
     );
   });
 });
 
 test('shows error message when drink POST fails', async () => {
-  mockFetch({ '/api/wine': { ok: false } });
+  mockFetch({ '/api/wine/cellar': { ok: false } });
   renderCollectionTab();
   fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   expect(await screen.findByText(/failed to add drink/i)).toBeInTheDocument();
@@ -135,7 +120,7 @@ test('decimal quantity blocks the entire submit', () => {
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '2.5' } });
   fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
-  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/cellar', expect.anything());
 });
 
 test('zero quantity blocks the entire submit', () => {
@@ -143,7 +128,7 @@ test('zero quantity blocks the entire submit', () => {
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '0' } });
   fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
-  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/cellar', expect.anything());
 });
 
 test('blank quantity blocks the entire submit', () => {
@@ -151,7 +136,7 @@ test('blank quantity blocks the entire submit', () => {
   fireEvent.change(screen.getByLabelText(/^quantity$/i), { target: { value: '' } });
   fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   expect(screen.getByText('Quantity must be a positive whole number.')).toBeInTheDocument();
-  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/cellar', expect.anything());
 });
 
 // ── Producer/country autocomplete ─────────────────────────────────
@@ -182,59 +167,15 @@ test('autocomplete also includes producers that only exist as collection-only en
   expect(screen.queryByText('Other Category Brewery')).not.toBeInTheDocument();
 });
 
-// ── Reuses an existing drink instead of minting a twin (issue #110) ─
+// ── Photo follows the drink the server returns (issue #110) ────────
 
-// The dedupe check reads colDrinks, which arrives from a fetch. Filling the form before
-// that resolves would test nothing, so wait until a suggestion proves the list has loaded.
-async function renderWithReviewed(drinks) {
-  mockFetch({ '/api/wine': { ok: true, json: () => Promise.resolve(drinks) } });
+test('a photo added alongside goes to the drink the server matched, not a new one', async () => {
+  mockFetch({ '/api/wine/cellar': { ok: true, json: () => Promise.resolve({ id: 'reviewed-1' }) } });
   renderCollectionTab();
-  const producer = screen.getByLabelText(/^producer$/i);
-  fireEvent.change(producer, { target: { value: drinks[0].producer.slice(0, 3) } });
-  await screen.findByText(drinks[0].producer);
-  return producer;
-}
-
-async function fillAndSubmit(producer, producerVal, nameVal) {
-  fireEvent.change(producer, { target: { value: producerVal } });
-  fireEvent.change(screen.getByLabelText(/^name$/i), { target: { value: nameVal } });
-  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
-}
-
-test('adding a bottle you already reviewed attaches the lot to that drink, with no new drink POST', async () => {
-  const producer = await renderWithReviewed([{ id: 'reviewed-1', producer: 'דלתון', seriesAndName: "Kna'an Red" }]);
-  await fillAndSubmit(producer, 'דלתון', "Kna'an Red");
-  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-    '/api/wine/reviewed-1/collection',
-    expect.objectContaining({ method: 'POST' })
-  ));
-  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine', expect.objectContaining({ method: 'POST' }));
-});
-
-test('matching ignores case and surrounding whitespace', async () => {
-  const producer = await renderWithReviewed([{ id: 'reviewed-1', producer: 'Yatir', seriesAndName: 'Darom' }]);
-  await fillAndSubmit(producer, '  yatir ', 'DAROM');
-  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-    '/api/wine/reviewed-1/collection',
-    expect.objectContaining({ method: 'POST' })
-  ));
-});
-
-test('a genuinely new name under a known producer still creates a drink', async () => {
-  const producer = await renderWithReviewed([{ id: 'reviewed-1', producer: 'דלתון', seriesAndName: "Kna'an Red" }]);
-  await fillAndSubmit(producer, 'דלתון', 'Reserve');
-  await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-    '/api/wine',
-    expect.objectContaining({ method: 'POST', body: expect.stringContaining('"collectionOnly":true') })
-  ));
-});
-
-test('a photo added alongside goes to the existing drink, not a new one', async () => {
-  const producer = await renderWithReviewed([{ id: 'reviewed-1', producer: 'Guinness', seriesAndName: 'Guinness' }]);
   const file = new File(['x'], 'bottle.jpg', { type: 'image/jpeg' });
   fireEvent.click(screen.getByTestId('new-col-img-trigger'));
   fireEvent.change(screen.getByTestId('new-col-img'), { target: { files: [file] } });
-  await fillAndSubmit(producer, 'Guinness', 'Guinness');
+  fireEvent.click(screen.getByRole('button', { name: /add to cellar/i }));
   await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
     '/api/wine/reviewed-1/collection/image',
     expect.objectContaining({ method: 'POST', body: expect.any(FormData) })
