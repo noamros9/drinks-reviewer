@@ -190,6 +190,9 @@ export default function DrinkTable({ category, drinks, onEdit, renderRowExtra, c
 
   const handlePointerDown = (key, e) => {
     if (!onColumnLayoutChange) return;
+    // Capturing the pointer retargets the rest of the sequence to the header, which would
+    // swallow the click on a control inside it — the hide "×" sorted the column instead.
+    if (e.target.closest('button, select, input')) return;
     setDragKey(key);
     dragWidth.current = e.currentTarget.offsetWidth;
     e.currentTarget.setPointerCapture(e.pointerId);
