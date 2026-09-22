@@ -1,4 +1,5 @@
 const { readData } = require('./dataStore');
+const { avgOf, buildWeightedRatings, avgLotPrice } = require('./metrics');
 
 const CATEGORIES = ['wine', 'beer', 'whiskey', 'others'];
 
@@ -124,31 +125,6 @@ const IDENTITY_FIELDS = new Set(['producer', 'seriesAndName', 'brewery', 'distil
 const TASTE_FIELDS = Object.fromEntries(
   CATEGORIES.map(c => [c, SIMILARITY_FIELDS[c].filter(f => !IDENTITY_FIELDS.has(f))])
 );
-
-// ponytail: both always called with a non-empty array (call sites guard on rated.length), no empty-input branch needed
-function avgOf(nums) {
-  return nums.reduce((sum, n) => sum + n, 0) / nums.length;
-}
-
-function median(nums) {
-  const sorted = [...nums].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-}
-
-// Same Bayesian formula as client/src/utils/analyticsHelpers.js — ported rather than shared because
-// that file is ESM and this one is CommonJS.
-function weightedRating(R, v, C, m) {
-  return (v / (v + m)) * R + (m / (v + m)) * C;
-}
-
-// ponytail: no v+m<=0 guard, no tastingCount/weights fallback — tastingsHelper.js always sets
-// tastingCount alongside avgRating (>=1), so every entry here has a real tastingCount and a real weight.
-function buildWeightedRatings(ratedDrinks) {
-  const C = avgOf(ratedDrinks.map(d => d.avgRating));
-  const m = median(ratedDrinks.map(d => d.tastingCount));
-  return new Map(ratedDrinks.map(d => [d.id, weightedRating(d.avgRating, d.tastingCount, C, m)]));
-}
 
 const MULTI_MODAL_RATIO = 0.8; // ponytail: within 80% of the top weight counts as "near-tied"
 const MULTI_MODAL_CAP = 3;     // ponytail: cap list length so the prompt/UI stay scannable
@@ -378,13 +354,6 @@ async function getTasteCard(category) {
   const body = await callGemini(buildTasteCardPrompt(profile, disliked));
   const { analysis, availableInIsrael, notAvailable, styleExplorations } = validateTasteCard(parseResponse(body), catalogueLabels);
   return { profile, disliked, analysis, availableInIsrael, notAvailable, styleExplorations };
-}
-
-// Same as avgLotPrice in client/src/utils/analyticsHelpers.js — ported rather than shared because
-// that file is ESM and this one is CommonJS.
-function avgLotPrice(drink) {
-  const prices = (drink.collection || []).map(l => l.price).filter(p => typeof p === 'number' && !Number.isNaN(p));
-  return prices.length ? avgOf(prices) : null;
 }
 
 // price isn't in SIMILARITY_FIELDS/trim() — keeping it out of the shared trim() so it doesn't

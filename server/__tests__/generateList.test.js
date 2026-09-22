@@ -226,4 +226,14 @@ describe('POST /api/generate-list', () => {
     expect(promptText).toContain('something bold');
     expect(promptText).toContain('"id": "w1"');
   });
+
+  it('falls back to estimatedPrice in the catalogue when no lot has a price', async () => {
+    await writeFixture({ beer: [{ ...BEER[0], estimatedPrice: 55 }] });
+    global.fetch.mockResolvedValue(jsonResponse({ results: [] }));
+    await request(app).post('/api/generate-list').send({ prompt: 'cheap beer' });
+    const promptText = JSON.parse(global.fetch.mock.calls[0][1].body).contents[0].parts[0].text;
+    const catalogue = JSON.parse(promptText.match(/catalogue:\n([\s\S]*?)\n\nThe user wants/)[1]);
+    expect(catalogue.find(d => d.id === 'b1').price).toBe(55);
+    expect(catalogue.find(d => d.id === 'w1').price).toBe(100);
+  });
 });
