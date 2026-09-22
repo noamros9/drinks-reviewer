@@ -11,6 +11,45 @@ Personal drinks journal for wine, beer, whiskey, and spirits.
 | Data | MongoDB Atlas |
 | Images | Cloudinary |
 
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph client["client/src (Vite, :5173)"]
+    pages["pages/<br/>Home · All · Category · Cellar · Admin<br/>Analytics · Compare · Recommend · Taste card · Generate list"]
+    publicPages["pages/<br/>Catalog · Share"]
+    utils["utils/<br/>filterHelpers · analyticsHelpers · csvExport"]
+    pages --> utils
+  end
+
+  subgraph server["server (Express, :3001)"]
+    auth["auth.js<br/>/auth/*"]
+    drinks["routes/drinks.js<br/>/api/:category · /api/:category/:id<br/>/api/:category/cellar · tastings · collection lots<br/>/api/collection · /api/tags · /api/settings<br/>/api/recommend · /api/taste-card · /api/generate-list"]
+    public["routes/public.js<br/>public catalog + share"]
+    recommend["recommend.js"]
+    metrics["metrics.js"]
+    geocoding["geocoding.js"]
+    store["dataStore.js → db.js"]
+    drinks --> recommend --> metrics
+    drinks --> geocoding
+    drinks --> store
+    recommend --> store
+    public --> store
+  end
+
+  pages -- "/api (requires login)" --> drinks
+  pages --> auth
+  publicPages --> public
+
+  store --> atlas[("MongoDB Atlas<br/>wines · beers · whiskeys<br/>settings · region coordinates")]
+  drinks --> cloudinary[("Cloudinary<br/>photos")]
+  auth --> google(["Google OAuth"])
+  recommend --> gemini(["Gemini API"])
+  geocoding --> osm(["OpenStreetMap geocoding"])
+```
+
+`utils/analyticsHelpers.js` and `server/metrics.js` hold the same price/rating math in ESM and CommonJS; `client/src/__tests__/metricsParity.test.js` keeps them in step.
+
 ## Getting Started
 
 ```bash

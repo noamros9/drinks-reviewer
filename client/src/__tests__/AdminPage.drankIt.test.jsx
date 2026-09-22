@@ -67,7 +67,7 @@ test('saving in drankIt mode hands off to the Tastings tab instead of navigating
   expect(mockNavigate).not.toHaveBeenCalled();
 });
 
-test('completing the Tastings tab after the review handoff PATCHes the lot and navigates', async () => {
+test('completing the Tastings tab after the review handoff drinks the bottle with the tasting and navigates', async () => {
   const updatedDrink = { ...DRINK, tastings: [{ id: 't1', date: '05/01/2026', rating: 9 }] };
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(updatedDrink) }));
   renderDrankIt();
@@ -82,10 +82,11 @@ test('completing the Tastings tab after the review handoff PATCHes the lot and n
 
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
-      '/api/wine/1/collection/lot1',
-      expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ quantity: 1 }) })
+      '/api/wine/1/tastings',
+      expect.objectContaining({ method: 'POST', body: expect.stringContaining('"decrementLotId":"lot1"') })
     );
   });
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/1/collection/lot1', expect.anything());
   await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/cellar'));
 });
 
@@ -106,7 +107,7 @@ test('lands on Tastings tab in drankIt mode when tab is "tastings"', () => {
   expect(screen.getByRole('button', { name: /^tastings$/i })).toHaveClass('active');
 });
 
-test('adding a tasting in drankIt mode PATCHes the lot and navigates to /collection', async () => {
+test('adding a tasting in drankIt mode drinks the bottle with the tasting and navigates to /cellar', async () => {
   const updatedDrink = { ...REVIEWED_DRINK, tastings: [...REVIEWED_DRINK.tastings, { id: 't2', date: '05/01/2026', rating: 9 }] };
   global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(updatedDrink) }));
   renderDrankItTastings();
@@ -116,9 +117,10 @@ test('adding a tasting in drankIt mode PATCHes the lot and navigates to /collect
 
   await waitFor(() => {
     expect(global.fetch).toHaveBeenCalledWith(
-      '/api/wine/1/collection/lot1',
-      expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ quantity: 1 }) })
+      '/api/wine/1/tastings',
+      expect.objectContaining({ method: 'POST', body: expect.stringContaining('"decrementLotId":"lot1"') })
     );
   });
+  expect(global.fetch).not.toHaveBeenCalledWith('/api/wine/1/collection/lot1', expect.anything());
   await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/cellar'));
 });

@@ -359,28 +359,17 @@ export default function AdminPage() {
     if (qty === null) { setColMessage('Quantity must be a positive whole number.'); return; }
     setAddToCollectionBusy(true);
     try {
-      const producerKey = PRODUCER_FIELD[colCat];
-      const nameKey = NAME_FIELD[colCat];
-      // A bottle you already reviewed is the same drink, not a new one — vintage lives on
-      // the lot/tasting, so the lot belongs on the existing record. Without this, every
-      // cellar add of an already-tasted drink minted a hidden `collectionOnly` twin.
-      let drink = findDuplicate(colDrinks, colCat, colForm.producer, colForm.name);
-      if (!drink) {
-        const drinkRes = await fetch(`/api/${colCat}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ [producerKey]: colForm.producer, [nameKey]: colForm.name, country: colForm.country, abv: colForm.abv, collectionOnly: true, tags: colForm.tags }),
-        });
-        if (!drinkRes.ok) { setColMessage('Failed to add drink.'); return; }
-        drink = await drinkRes.json();
-      }
-      const lotBody = { quantity: qty };
-      if (colForm.price !== '') lotBody.price = parseFloat(colForm.price);
-      await fetch(`/api/${colCat}/${drink.id}/collection`, {
+      // The server finds the drink you already reviewed (or creates a cellar-only one) and
+      // adds the lot in one locked write — see POST /api/:category/cellar.
+      const body = { producer: colForm.producer, name: colForm.name, country: colForm.country, abv: colForm.abv, tags: colForm.tags, quantity: qty };
+      if (colForm.price !== '') body.price = parseFloat(colForm.price);
+      const drinkRes = await fetch(`/api/${colCat}/cellar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(lotBody),
+        body: JSON.stringify(body),
       });
+      if (!drinkRes.ok) { setColMessage('Failed to add drink.'); return; }
+      const drink = await drinkRes.json();
       const imageFile = newColImageRef.current;
       newColImageRef.current = null;
       setNewColImage(null);
@@ -415,6 +404,7 @@ export default function AdminPage() {
     try {
       const body = { date: format(newTastingDate, 'dd/MM/yyyy'), rating: Number(newTastingRating) };
       if (category === 'wine' && newTastingVintage) body.vintage = newTastingVintage;
+      if (drankIt && editState.lot) body.decrementLotId = editState.lot.id;
       const res = await fetch(`/api/${category}/${form.id}/tastings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -446,14 +436,7 @@ export default function AdminPage() {
         }
       }
 
-      if (drankIt && editState.lot) {
-        await fetch(`/api/${category}/${form.id}/collection/${editState.lot.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ quantity: editState.lot.quantity - 1 }),
-        });
-        navigate('/cellar');
-      }
+      if (drankIt && editState.lot) navigate('/cellar');
     } finally {
       setAddTastingBusy(false);
     }
