@@ -15,43 +15,41 @@ Personal drinks journal for wine, beer, whiskey, and spirits.
 
 ```mermaid
 flowchart LR
-  subgraph client["client/src (Vite, :5173)"]
-    pages["pages/<br/>Home · All · Category · Cellar · Admin<br/>Analytics · Compare · Recommend · Taste card · Generate list"]
-    publicPages["pages/<br/>Catalog · Share"]
-    utils["utils/<br/>filterHelpers · analyticsHelpers · drinkFields · csvExport"]
-    pages --> utils
-  end
+  schema[["shared/drink-schema.json<br/>(used by client + server)"]]
 
-  schema[["shared/drink-schema.json<br/>categories · fields · producer/name keys"]]
-  utils --> schema
+  subgraph client["client (Vite, :5173)"]
+    app["App pages<br/>(login required)"]
+    publicPages["Public pages<br/>catalog · share"]
+  end
 
   subgraph server["server (Express, :3001)"]
-    auth["auth.js<br/>/auth/*"]
-    drinks["routes/drinks.js<br/>/api/:category · /api/:category/:id<br/>/api/:category/cellar · tastings · collection lots<br/>/api/collection · /api/tags · /api/settings<br/>/api/recommend · /api/taste-card · /api/generate-list"]
-    public["routes/public.js<br/>public catalog + share"]
-    recommend["recommend.js"]
-    metrics["metrics.js"]
-    geocoding["geocoding.js"]
+    auth["auth.js"]
+    drinks["routes/drinks.js"]
+    public["routes/public.js"]
+    services["recommend · metrics<br/>geocoding"]
     store["dataStore.js → db.js"]
-    drinks --> recommend --> metrics
-    drinks --> geocoding
-    drinks --> store
-    recommend --> store
-    public --> store
   end
 
-  drinks --> schema
-  recommend --> schema
+  subgraph external["External"]
+    google(["Google OAuth"])
+    gemini(["Gemini API"])
+    osm(["OpenStreetMap"])
+    cloudinary[("Cloudinary")]
+    atlas[("MongoDB Atlas")]
+  end
 
-  pages -- "/api (requires login)" --> drinks
-  pages --> auth
+  app --> auth
+  app -- "/api" --> drinks
   publicPages --> public
+  drinks --> services
+  drinks --> store
+  public --> store
 
-  store --> atlas[("MongoDB Atlas<br/>wines · beers · whiskeys<br/>settings · region coordinates")]
-  drinks --> cloudinary[("Cloudinary<br/>photos")]
-  auth --> google(["Google OAuth"])
-  recommend --> gemini(["Gemini API"])
-  geocoding --> osm(["OpenStreetMap geocoding"])
+  auth --> google
+  services --> gemini
+  services --> osm
+  drinks --> cloudinary
+  store --> atlas
 ```
 
 `shared/drink-schema.json` is the one definition of categories, per-category fields, producer/name keys and the region separator; client and server both import it. `utils/analyticsHelpers.js` and `server/metrics.js` hold the same price/rating math in ESM and CommonJS; `client/src/__tests__/metricsParity.test.js` keeps them in step.
