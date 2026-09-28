@@ -23,6 +23,11 @@ if (process.env.NODE_ENV === 'production') {
   // Pre-auth: the SPA shell (bundle + these two shells) must be reachable without a session
   // so /catalog and /share/:category/:id can render for anonymous visitors.
   app.use('/assets', express.static(path.join(clientDist, 'assets')));
+  // Pre-auth too: Chrome fetches the manifest (and then its icons) without the session cookie,
+  // so behind requireAuth it got a sign-in redirect and home-screen installs fell back to a
+  // generic letter icon. sw.js must be reachable for the install check as well.
+  app.get(['/manifest.json', '/sw.js'], (req, res) => res.sendFile(path.join(clientDist, req.path)));
+  app.use('/icons', express.static(path.join(clientDist, 'icons')));
   app.get('/catalog', (_req, res) => res.sendFile(path.join(clientDist, 'index.html')));
   app.get('/share/:category/:id', async (req, res) => {
     const template = fs.readFileSync(path.join(clientDist, 'index.html'), 'utf8');
