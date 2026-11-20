@@ -42,3 +42,22 @@ jobs:
           MONGODB_DB: ${{ secrets.MONGODB_DB }}
           CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
         run: node server/scripts/backup-data.js
+
+  # GitHub disables scheduled workflows after 60 days without a commit.
+  # Re-enabling the workflow through the API resets that timer, so do it
+  # once a month (on the 1st) to keep the daily backup running.
+  keepalive:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Keep the scheduled workflow enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(date -u +%d)" != "01" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "Not the 1st of the month; skipping."
+            exit 0
+          fi
+          gh api -X PUT "repos/${{ github.repository }}/actions/workflows/backup.yml/enable"
+          echo "Workflow re-enabled; inactivity timer reset."
